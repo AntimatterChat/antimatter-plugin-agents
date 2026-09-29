@@ -2,4 +2,4 @@
 // See LICENSE.txt for license information.
 
 /** Matches mcp.EmbeddedClientKey — URL used for embedded Mattermost MCP tools. */
-export const EMBEDDED_MATTERMOST_BASE_URL = 'embedded://mattermost';
+export const EMBEDDED_ANTIMATTER_BASE_URL = 'embedded://mattermost';

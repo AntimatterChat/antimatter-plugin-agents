@@ -5,9 +5,9 @@ import {BotsHandler} from './redux';
 import {LLMBot} from './bots';
 import {ChannelAccessLevel, UserAccessLevel} from './components/system_console/bot';
 
-// mm_webapp reads window.Components/ProductApi at module load, which are absent
+// am_webapp reads window.Components/ProductApi at module load, which are absent
 // in jsdom. Stub it so importing the plugin entrypoint doesn't throw.
-jest.mock('@/mm_webapp', () => ({
+jest.mock('@/am_webapp', () => ({
     AdvancedTextEditor: null,
     CreatePost: null,
     isRHSCompatable: () => false,

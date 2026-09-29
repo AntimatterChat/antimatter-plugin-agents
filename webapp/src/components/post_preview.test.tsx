@@ -25,7 +25,7 @@ jest.mock('react-redux', () => ({
 
 const postMessagePreviewMock = jest.fn<null, [{metadata: {post: {create_at?: number}}}]>(() => null);
 
-jest.mock('@/mm_webapp', () => ({
+jest.mock('@/am_webapp', () => ({
     PostMessagePreview: (props: {metadata: {post: {create_at?: number}}}) => postMessagePreviewMock(props),
 }));
 

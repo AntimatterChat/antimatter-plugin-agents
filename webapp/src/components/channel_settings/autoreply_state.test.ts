@@ -14,9 +14,9 @@ import {
     subscribeChannelAutoReplyDraft,
 } from './autoreply_state';
 
-// mm_webapp reads window.Components/ProductApi at module load, which are absent
+// am_webapp reads window.Components/ProductApi at module load, which are absent
 // in jsdom. Stub it so importing bots.tsx's redux chain doesn't throw.
-jest.mock('@/mm_webapp', () => ({
+jest.mock('@/am_webapp', () => ({
     AdvancedTextEditor: null,
     CreatePost: null,
     isRHSCompatable: () => false,

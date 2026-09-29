@@ -12,7 +12,7 @@ import {doPostbackSummary, doRegenerate, doStopGenerating} from '@/client';
 import {PluginWebSocketMessage} from '@/types';
 import {useSelectNotAIPost} from '@/hooks';
 import {useConversation, invalidateConversation} from '@/hooks/use_conversation';
-import {PostMessagePreview} from '@/mm_webapp';
+import {PostMessagePreview} from '@/am_webapp';
 
 import {isValidId} from '@/utils/ids';
 

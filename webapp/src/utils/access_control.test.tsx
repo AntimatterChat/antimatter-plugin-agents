@@ -4,7 +4,7 @@
 import React from 'react';
 import {render, screen, waitFor} from '@testing-library/react';
 
-import {getAccessControlEditors, isValidMattermostId, resetABACSupportCacheForTesting, useABACSupport} from './access_control';
+import {getAccessControlEditors, isValidAntimatterId, resetABACSupportCacheForTesting, useABACSupport} from './access_control';
 
 jest.mock('@/client/access_control', () => ({
     getABACStatus: jest.fn(),
@@ -40,7 +40,7 @@ afterEach(() => {
     clearWindowComponents();
 });
 
-describe('isValidMattermostId', () => {
+describe('isValidAntimatterId', () => {
     // Parity with the server's model.IsValidId (26 alphanumeric characters,
     // any case): anything the server would accept as policy-addressable must
     // pass here, or the UI would hide the editor for a valid resource.
@@ -55,7 +55,7 @@ describe('isValidMattermostId', () => {
         ['symbols', 'exw1yknsx3f3tmnjm1tqmg53!r', false],
         ['empty', '', false],
     ])('%s -> %s', (_name, id, want) => {
-        expect(isValidMattermostId(id)).toBe(want);
+        expect(isValidAntimatterId(id)).toBe(want);
     });
 });
 

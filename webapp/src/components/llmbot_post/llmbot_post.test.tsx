@@ -52,7 +52,7 @@ jest.mock('@/hooks/use_conversation', () => ({
     useConversation: jest.fn(),
 }));
 
-jest.mock('@/mm_webapp', () => ({
+jest.mock('@/am_webapp', () => ({
     PostMessagePreview: null,
 }));
 

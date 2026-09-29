@@ -20,11 +20,11 @@ type WindowComponents = {
     AccessControlCELEditor?: AccessControlCELEditorComponent;
 };
 
-// isValidMattermostId mirrors the server's model.IsValidId: exactly 26
+// isValidAntimatterId mirrors the server's model.IsValidId: exactly 26
 // alphanumeric characters. Legacy IDs fail this and can never carry an access
 // policy, so the policy UI must not offer authoring for them; anything the
 // server WOULD accept must pass here.
-export function isValidMattermostId(id: string): boolean {
+export function isValidAntimatterId(id: string): boolean {
     return (/^[a-zA-Z0-9]{26}$/).test(id);
 }
 

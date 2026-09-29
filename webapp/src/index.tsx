@@ -31,7 +31,7 @@ import {setupRedux} from './redux';
 import UnreadsSummarize from './components/unreads_summarize';
 import {PostbackPost} from './components/postback_post';
 import {AgentMentionReminderPost} from './components/agent_mention_reminder_post';
-import {isRHSCompatable} from './mm_webapp';
+import {isRHSCompatable} from './am_webapp';
 import SearchButton from './components/search_button';
 import AskChannelButton from './components/ask_channel_button';
 import {doSelectPost} from './hooks';

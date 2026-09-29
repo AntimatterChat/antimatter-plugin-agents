@@ -49,7 +49,7 @@ jest.mock('react-intl', () => {
 
 const mockThreadViewer = jest.fn();
 
-jest.mock('@/mm_webapp', () => {
+jest.mock('@/am_webapp', () => {
     const ReactActual = jest.requireActual<typeof import('react')>('react');
 
     return {

@@ -14,7 +14,7 @@ import {getAIThreads, getUserMCPTools, getUserToolPreferences, updateRead} from 
 
 import {useBotlist} from '@/bots';
 
-import {ThreadViewer as UnstyledThreadViewer} from '@/mm_webapp';
+import {ThreadViewer as UnstyledThreadViewer} from '@/am_webapp';
 
 import {useConversationIdForThread} from '@/hooks/use_conversation_id_for_thread';
 

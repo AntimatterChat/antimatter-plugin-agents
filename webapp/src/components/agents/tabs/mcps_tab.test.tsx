@@ -46,7 +46,7 @@ const unavailableTooltip = /not available to this agent/;
 const serverToggleName = /Enable all tools for \{serverName\}|Disable all tools for \{serverName\}/;
 const toolToggleName = /Enable tool \{toolName\} on \{serverName\}|Disable tool \{toolName\} on \{serverName\}/;
 
-const mattermostServer = {
+const antimatterServer = {
     name: 'Mattermost',
     serverOrigin: 'embedded://mattermost',
     kind: 'embedded' as const,
@@ -136,7 +136,7 @@ describe('McpsTab', () => {
     // onChange falsely marks the form dirty and causes "Discard changes?" to
     // appear when the user clicks Cancel without making any edits.
     test('routes orphan reconciliation through onReconcileEnabledTools (MM-69185)', async () => {
-        mockedGetUserMCPTools.mockResolvedValue({servers: [mattermostServer]});
+        mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const onChange = jest.fn();
         const onReconcileEnabledTools = jest.fn();
@@ -171,7 +171,7 @@ describe('McpsTab', () => {
     // would silently drop valid grants (e.g. from an OAuth server this user never
     // connected) the next time the agent is saved.
     test('skips orphan reconciliation while service account auth is enabled', async () => {
-        mockedGetUserMCPTools.mockResolvedValue({servers: [mattermostServer]});
+        mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const withoutServiceAccounts = renderWithOrphanedTool(false);
         await screen.findByText('Mattermost');
@@ -187,7 +187,7 @@ describe('McpsTab', () => {
     });
 
     test('service account toggle reflects the draft, updates it, and warns while enabled', async () => {
-        mockedGetUserMCPTools.mockResolvedValue({servers: [mattermostServer]});
+        mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const off = renderTab({useServiceAccountAuth: false});
         await screen.findByText('Mattermost');
@@ -207,7 +207,7 @@ describe('McpsTab', () => {
 
     // Non-admins cannot enable the setting, but can turn it off when it is already on.
     test('lets users without manage_system turn service account auth off', async () => {
-        mockedGetUserMCPTools.mockResolvedValue({servers: [mattermostServer]});
+        mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const off = renderTab({
             useServiceAccountAuth: false,
@@ -234,7 +234,7 @@ describe('McpsTab', () => {
     // Soft-lock mirrors the server sensitive-field ACL: auto-enable and tool
     // grants are disabled while fields-locked, but the SA off-switch stays usable.
     test('disables auto-enable and tool grants while service account fields are locked', async () => {
-        mockedGetUserMCPTools.mockResolvedValue({servers: [mattermostServer]});
+        mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const onChange = jest.fn();
         render(

@@ -6,7 +6,7 @@ import {CSSTransition} from 'react-transition-group';
 import styled, {css} from 'styled-components';
 
 /** Apply to the centered panel (card) inside the overlay so enter/exit slide + fade run on the sheet. */
-export const MODAL_SHEET_CLASS = 'mmAiModal__sheet';
+export const MODAL_SHEET_CLASS = 'amAiModal__sheet';
 
 /**
  * Match the longest transition for CSSTransition `timeout`.

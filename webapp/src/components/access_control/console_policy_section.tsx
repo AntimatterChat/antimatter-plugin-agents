@@ -7,7 +7,7 @@ import {FormattedMessage} from 'react-intl';
 import {ChevronDownIcon, ChevronRightIcon} from '@mattermost/compass-icons/components';
 
 import {PolicyResourceType} from '@/types/access_control';
-import {isValidMattermostId, useABACSupport} from '@/utils/access_control';
+import {isValidAntimatterId, useABACSupport} from '@/utils/access_control';
 
 import PolicyEditor from './policy_editor';
 
@@ -81,7 +81,7 @@ const ConsolePolicySection = (props: Props) => {
                     $collapsed={!expanded}
                     inert={!expanded}
                 >
-                    {isValidMattermostId(resourceId) ? (
+                    {isValidAntimatterId(resourceId) ? (
                         <PolicyEditor
                             resourceType={resourceType}
                             resourceId={resourceId}

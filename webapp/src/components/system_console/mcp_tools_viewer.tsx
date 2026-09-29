@@ -19,7 +19,7 @@ import {
     MCPToolConfig,
     MCPToolsResponse,
 } from './mcp_types';
-import {EMBEDDED_MATTERMOST_BASE_URL} from './vetted_tool_configs';
+import {EMBEDDED_ANTIMATTER_BASE_URL} from './vetted_tool_configs';
 
 type MCPToolsViewerProps = {
     mcpConfig: MCPConfig;
@@ -136,7 +136,7 @@ const MCPToolsViewer = ({mcpConfig, onConfigChange, initialToolsData}: MCPToolsV
             {
                 let seeded: MCPToolConfig[] = [];
                 try {
-                    seeded = await getVettedToolSeed(EMBEDDED_MATTERMOST_BASE_URL);
+                    seeded = await getVettedToolSeed(EMBEDDED_ANTIMATTER_BASE_URL);
                 } catch {
                     seeded = [];
                 }
@@ -165,7 +165,7 @@ const MCPToolsViewer = ({mcpConfig, onConfigChange, initialToolsData}: MCPToolsV
     const serversWithErrors = toolsData?.servers.filter((server) => server.error).length || 0;
 
     // The embedded server uses this key as its origin/URL
-    const embeddedClientKey = EMBEDDED_MATTERMOST_BASE_URL;
+    const embeddedClientKey = EMBEDDED_ANTIMATTER_BASE_URL;
 
     // Find the matching ServerConfig for a discovered server
     const findServerConfig = (server: MCPServerInfo): MCPServerConfig | null => {

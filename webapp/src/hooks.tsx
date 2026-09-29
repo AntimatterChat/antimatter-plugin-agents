@@ -7,7 +7,7 @@ import {selectPost, openRHS, selectRegularPost} from 'src/redux_actions';
 
 import {viewMyChannel} from 'src/client';
 
-import {isRHSCompatable} from './mm_webapp';
+import {isRHSCompatable} from './am_webapp';
 
 const selectPostLegacy = (postid: string, channelid: string) => {
     return {

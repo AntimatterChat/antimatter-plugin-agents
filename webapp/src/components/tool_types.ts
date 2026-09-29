@@ -23,7 +23,7 @@ export type JSONValue =
 export const UserInteractionSelect = 'select';
 
 // ToolAnswer is a user's answer to a user-interaction tool call. Mirrors
-// mmtools.UserInteractionAnswer on the server.
+// amtools.UserInteractionAnswer on the server.
 export interface ToolAnswer {
     selected: string[];
     custom?: string;

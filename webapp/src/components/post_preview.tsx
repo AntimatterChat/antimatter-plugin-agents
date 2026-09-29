@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import {GlobalState} from '@mattermost/types/store';
 
-import {PostMessagePreview} from '@/mm_webapp';
+import {PostMessagePreview} from '@/am_webapp';
 import {getPost, getProfilesByIds} from '@/client';
 
 const MessagePreviewWrapper = styled.div`

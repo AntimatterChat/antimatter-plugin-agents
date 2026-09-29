@@ -10,7 +10,7 @@ import {ToolCall, ToolCallStatus} from './tool_types';
 import LoadingSpinner from './assets/loading_spinner';
 
 // Parsed shape of the AskUserQuestion tool arguments. Mirrors
-// mmtools.AskUserQuestionArgs on the server.
+// amtools.AskUserQuestionArgs on the server.
 export interface QuestionOption {
     label: string;
     description?: string;
@@ -55,7 +55,7 @@ export function parseQuestionArgs(args: ToolCall['arguments']): QuestionArgs | n
         options: parsedOptions,
         multiSelect: obj.multi_select === true,
 
-        // Mirror the server pointer semantics (mmtools.AskUserQuestionArgs):
+        // Mirror the server pointer semantics (amtools.AskUserQuestionArgs):
         // an absent key means enabled, an explicit false disables.
         allowFreeForm: obj.allow_free_form !== false,
     };
@@ -63,7 +63,7 @@ export function parseQuestionArgs(args: ToolCall['arguments']): QuestionArgs | n
 
 // parseAnswerFromResult extracts the selected option labels and any free-form
 // text from the tool result content ({"selected": [...], "custom": "..."},
-// see mmtools.AskUserQuestionResult).
+// see amtools.AskUserQuestionResult).
 function parseAnswerFromResult(result?: string): {selected: string[]; custom: string} {
     if (!result) {
         return {selected: [], custom: ''};

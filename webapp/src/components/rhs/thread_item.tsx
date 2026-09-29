@@ -4,7 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import {Timestamp} from '@/mm_webapp';
+import {Timestamp} from '@/am_webapp';
 
 import {GrayPill} from '../pill';
 

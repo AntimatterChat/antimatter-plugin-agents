@@ -7,7 +7,7 @@ import {useSelector} from 'react-redux';
 
 import {GlobalState} from '@mattermost/types/store';
 
-import {PostMessagePreview} from '@/mm_webapp';
+import {PostMessagePreview} from '@/am_webapp';
 
 import {ToolCall} from '../../tool_types';
 import ToolCard from '../../tool_card';

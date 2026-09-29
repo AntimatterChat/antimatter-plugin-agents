@@ -11,7 +11,7 @@ import RHSImage from '../assets/rhs_image';
 
 import {createPost, getBotDirectChannel} from '@/client';
 
-import {AdvancedTextEditor, CreatePost} from '@/mm_webapp';
+import {AdvancedTextEditor, CreatePost} from '@/am_webapp';
 
 import {LLMBot} from '@/bots';
 import {BotsHandler} from '@/redux';

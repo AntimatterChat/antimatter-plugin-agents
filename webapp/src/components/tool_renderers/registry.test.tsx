@@ -24,7 +24,7 @@ jest.mock('@/client', () => ({
 
 const postMessagePreviewMock = jest.fn<React.ReactElement, [unknown]>(() => <div>{'post-preview-box'}</div>);
 
-jest.mock('@/mm_webapp', () => ({
+jest.mock('@/am_webapp', () => ({
     PostMessagePreview: (props: unknown) => postMessagePreviewMock(props),
 }));
 
