@@ -441,23 +441,6 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 			wantRejectionGuidance: false,
 		},
 		{
-			// Remote MCP tools are license-gated at supply time: an
-			// unlicensed context builder drops them from the tool store, so
-			// a marked remote tool must resolve to rejection on resume — not
-			// execute and not fail the whole submission.
-			name:             "unlicensed remote auto-run resume rejects instead of executing",
-			wouldAutoExecute: true,
-			unlicensed:       true,
-			policyChecker: mapPolicyChecker{
-				origin: {"get_issue": {policy: mcp.ToolPolicyAutoRunEverywhere, enabled: true}},
-			},
-			wantToolStatus:        conversation.StatusRejected,
-			wantToolResult:        toolCallPolicyDeniedResult,
-			wantToolUseShared:     false,
-			wantResultShared:      true,
-			wantRejectionGuidance: false,
-		},
-		{
 			name:             "auto_run_everywhere policy executes on resume",
 			wouldAutoExecute: true,
 			includeQuestion:  true,

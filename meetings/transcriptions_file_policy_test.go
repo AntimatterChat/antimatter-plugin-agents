@@ -7,9 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
-
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
@@ -74,8 +71,6 @@ func TestHandleSummarizeTranscriptionDeniedByFilePolicy(t *testing.T) {
 		mmClient:      mmClient,
 		i18n:          i18n.Init(),
 		conversations: &conversations.Conversations{},
-		// Meeting transcription is available at Enterprise and above.
-		licenseChecker: enterprisetest.CheckerAt(enterprise.LevelEnterprise),
 	}
 
 	post := &model.Post{

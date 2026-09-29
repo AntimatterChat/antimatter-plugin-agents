@@ -353,7 +353,6 @@ func (p *Plugin) OnActivate() error {
 	embeddingsSearch, err := search.InitEmbeddingsSearch(
 		dbClient.DB,
 		p.configuration.EmbeddingSearchConfig(),
-		licenseChecker,
 		indexer.DeferredIndexRebuildActive(mmClient),
 	)
 	if err != nil {
@@ -406,7 +405,6 @@ func (p *Plugin) OnActivate() error {
 		mmClient,
 		prompts,
 		streamingService,
-		licenseChecker,
 		nil, // conversation service wired in a later step
 	)
 
@@ -415,7 +413,6 @@ func (p *Plugin) OnActivate() error {
 		newEmbeddingsSearch, initErr := search.InitEmbeddingsSearch(
 			dbClient.DB,
 			p.configuration.EmbeddingSearchConfig(),
-			licenseChecker,
 			indexer.DeferredIndexRebuildActive(mmClient),
 		)
 		if initErr != nil {
@@ -537,7 +534,6 @@ func (p *Plugin) OnActivate() error {
 		metricsService,
 		contextBuilder,
 		conversationsService,
-		licenseChecker,
 	)
 
 	// Set the meetings service on conversations to break circular dependency

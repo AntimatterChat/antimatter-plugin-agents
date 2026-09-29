@@ -301,7 +301,6 @@ func TestSearchQueryCreatesConversation(t *testing.T) {
 				mockClient,
 				promptsObj,
 				nil,
-				licensedChecker(),
 				convService,
 			)
 
@@ -357,7 +356,6 @@ func TestSearchQueryToolsAlwaysDisabled(t *testing.T) {
 		mockClient,
 		promptsObj,
 		nil,
-		licensedChecker(),
 		convService,
 	)
 
@@ -406,7 +404,6 @@ func TestSearchQueryUsesConversationCompletionRequest(t *testing.T) {
 		mockClient,
 		promptsObj,
 		nil,
-		licensedChecker(),
 		convService,
 	)
 
@@ -449,7 +446,6 @@ func TestSearchQueryNilConversationServiceFallsBack(t *testing.T) {
 		mockClient,
 		promptsObj,
 		nil,
-		licensedChecker(),
 		nil,
 	)
 

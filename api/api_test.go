@@ -24,7 +24,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings/mocks"
 	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llmcontext"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
@@ -1173,7 +1172,7 @@ func TestHandleGetAIBots(t *testing.T) {
 			name: "search enabled - non-nil service with non-nil embedding search",
 			searchService: func() *search.Search {
 				me := mocks.NewMockEmbeddingSearch(t)
-				return search.New(func() embeddings.EmbeddingSearch { return me }, nil, nil, nil, enterprisetest.CheckerAt(enterprise.LevelEnterprise), nil)
+				return search.New(func() embeddings.EmbeddingSearch { return me }, nil, nil, nil, nil)
 			}(),
 			expectedSearchEnabled:    true,
 			expectedAllowUnsafeLinks: false,
@@ -1184,7 +1183,7 @@ func TestHandleGetAIBots(t *testing.T) {
 		},
 		{
 			name:                     "search disabled - non-nil service with nil embedding search",
-			searchService:            search.New(nil, nil, nil, nil, nil, nil),
+			searchService:            search.New(nil, nil, nil, nil, nil),
 			expectedSearchEnabled:    false,
 			expectedAllowUnsafeLinks: false,
 			expectedStatus:           http.StatusOK,
@@ -1213,21 +1212,6 @@ func TestHandleGetAIBots(t *testing.T) {
 			expectedStatus:                http.StatusOK,
 			envSetup: func(e *TestEnvironment) {
 				e.config.allowUnsafeLinks = true
-				e.mockAPI.On("GetChannelByName", "", mock.AnythingOfType("string"), false).Return(nil, &model.AppError{})
-			},
-		},
-		{
-			// Unlicensed servers run service account agents in per-user mode, so the
-			// response must report the effective mode instead of the raw agent flag.
-			name:                          "service account agent reports user mode when unlicensed",
-			searchService:                 nil,
-			useServiceAccountAuth:         true,
-			expectedUseServiceAccountAuth: false,
-			expectedSearchEnabled:         false,
-			expectedAllowUnsafeLinks:      false,
-			expectedStatus:                http.StatusOK,
-			envSetup: func(e *TestEnvironment) {
-				e.OverrideLicense(nil)
 				e.mockAPI.On("GetChannelByName", "", mock.AnythingOfType("string"), false).Return(nil, &model.AppError{})
 			},
 		},

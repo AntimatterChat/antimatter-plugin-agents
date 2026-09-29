@@ -40,30 +40,25 @@ func (p *recordingMCPToolProvider) GetToolsWithSelection(_ stdcontext.Context, _
 }
 
 // The builder must resolve server eligibility before tools are requested, so
-// an agent, a user preference, or a missing license keeps a server from being
-// contacted at all.
+// an agent or a user preference keeps a server from being contacted at all.
 func TestBuilderPassesServerEligibilityToMCPProvider(t *testing.T) {
 	testCases := []struct {
 		name            string
-		licensed        bool
 		botConfig       llm.BotConfig
 		disabledOrigins []string
 		wantAllowed     []string
 		wantDenied      []string
-		wantExcludeRemo bool
 		wantToolNames   []string
 	}{
 		{
 			name:      "auto-enabling agent selects every server",
-			licensed:  true,
 			botConfig: llm.BotConfig{ID: "bot-id", Name: "matty", AutoEnableNewMCPTools: true},
 			// A nil allowlist means "no restriction".
 			wantAllowed:   nil,
 			wantToolNames: []string{"builtin", "mattermost__read_channel", "jira__get_issue", "github__search"},
 		},
 		{
-			name:     "agent allowlist narrows the selection to its origins",
-			licensed: true,
+			name: "agent allowlist narrows the selection to its origins",
 			botConfig: llm.BotConfig{
 				ID: "bot-id", Name: "matty",
 				EnabledMCPTools: []llm.EnabledMCPTool{
@@ -77,8 +72,7 @@ func TestBuilderPassesServerEligibilityToMCPProvider(t *testing.T) {
 		{
 			// A wildcard entry names no individual tool but still names its
 			// server, so the server stays eligible.
-			name:     "a wildcard allowlist entry selects its server",
-			licensed: true,
+			name: "a wildcard allowlist entry selects its server",
 			botConfig: llm.BotConfig{
 				ID: "bot-id", Name: "matty",
 				EnabledMCPTools: []llm.EnabledMCPTool{
@@ -89,8 +83,7 @@ func TestBuilderPassesServerEligibilityToMCPProvider(t *testing.T) {
 			wantToolNames: []string{"builtin", "jira__get_issue"},
 		},
 		{
-			name:     "an agent that allowlists nothing selects no servers",
-			licensed: true,
+			name: "an agent that allowlists nothing selects no servers",
 			botConfig: llm.BotConfig{
 				ID: "bot-id", Name: "matty",
 			},
@@ -99,18 +92,10 @@ func TestBuilderPassesServerEligibilityToMCPProvider(t *testing.T) {
 		},
 		{
 			name:            "user-disabled servers are denied",
-			licensed:        true,
 			botConfig:       llm.BotConfig{ID: "bot-id", Name: "matty", AutoEnableNewMCPTools: true},
 			disabledOrigins: []string{githubOrigin},
 			wantDenied:      []string{githubOrigin},
 			wantToolNames:   []string{"builtin", "mattermost__read_channel", "jira__get_issue"},
-		},
-		{
-			name:            "unlicensed servers exclude everything but the embedded server",
-			licensed:        false,
-			botConfig:       llm.BotConfig{ID: "bot-id", Name: "matty", AutoEnableNewMCPTools: true},
-			wantExcludeRemo: true,
-			wantToolNames:   []string{"builtin", "mattermost__read_channel"},
 		},
 	}
 
@@ -121,7 +106,7 @@ func TestBuilderPassesServerEligibilityToMCPProvider(t *testing.T) {
 				testMCPTool("jira__get_issue", jiraOrigin, "fetch Jira issue details"),
 				testMCPTool("github__search", githubOrigin, "search GitHub"),
 			}}
-			builder := newLicenseTestBuilder(t, tc.licensed,
+			builder := newTestBuilder(t,
 				&staticToolProvider{tools: []llm.Tool{testBuiltinTool("builtin")}},
 				mcpProvider,
 			)
@@ -136,7 +121,6 @@ func TestBuilderPassesServerEligibilityToMCPProvider(t *testing.T) {
 			require.Equal(t, 1, mcpProvider.calls)
 			require.Equal(t, tc.wantAllowed, mcpProvider.selection.AllowedOrigins)
 			require.Equal(t, tc.wantDenied, mcpProvider.selection.DeniedOrigins)
-			require.Equal(t, tc.wantExcludeRemo, mcpProvider.selection.ExcludeRemoteServers)
 			require.ElementsMatch(t, tc.wantToolNames, toolNames(context.Tools))
 		})
 	}

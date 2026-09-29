@@ -58,8 +58,7 @@ func (a *API) handleCreateCustomPrompt(c *gin.Context) {
 func (a *API) handleListCustomPrompts(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
 
-	includeShared := a.licenseChecker.Allows(enterprise.CapSharedPrompts)
-	prompts, err := a.customPromptsStore.ListForUser(userID, includeShared)
+	prompts, err := a.customPromptsStore.ListForUser(userID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to list custom prompts: %w", err))
 		return

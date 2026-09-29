@@ -13,7 +13,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/indexer"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
@@ -72,7 +71,6 @@ type Search struct {
 	mmclient            mmapi.Client
 	prompts             *llm.Prompts
 	streamingService    streaming.Service
-	licenseChecker      *enterprise.LicenseChecker
 	conversationService *conversation.Service
 }
 
@@ -81,7 +79,6 @@ func New(
 	mmclient mmapi.Client,
 	prompts *llm.Prompts,
 	streamingService streaming.Service,
-	licenseChecker *enterprise.LicenseChecker,
 	conversationService *conversation.Service,
 ) *Search {
 	return &Search{
@@ -89,7 +86,6 @@ func New(
 		mmclient:            mmclient,
 		prompts:             prompts,
 		streamingService:    streamingService,
-		licenseChecker:      licenseChecker,
 		conversationService: conversationService,
 	}
 }
@@ -100,22 +96,9 @@ func (s *Search) SetConversationService(svc *conversation.Service) {
 	s.conversationService = svc
 }
 
-// Enabled returns true if the search service is enabled, functional, and
-// available at the current license level. Semantic AI search is available at
-// Enterprise and above; a nil checker fails closed.
+// Enabled returns true if the search service is enabled and functional.
 func (s *Search) Enabled() bool {
-	if s == nil || s.getSearch == nil || s.getSearch() == nil {
-		return false
-	}
-	return s.licenseChecker.Allows(enterprise.CapSemanticSearch)
-}
-
-func (s *Search) checkLicense() error {
-	var checker *enterprise.LicenseChecker
-	if s != nil {
-		checker = s.licenseChecker
-	}
-	return checker.Check(enterprise.CapSemanticSearch)
+	return s != nil && s.getSearch != nil && s.getSearch() != nil
 }
 
 // checkAvailability gates search while the ANN index is dropped/building.
@@ -196,10 +179,6 @@ func (s *Search) Search(ctx context.Context, query string, opts Options) ([]RAGR
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return nil, fmt.Errorf("query cannot be empty")
-	}
-
-	if err := s.checkLicense(); err != nil {
-		return nil, err
 	}
 
 	search := s.getSearch()
@@ -298,10 +277,6 @@ func (s *Search) buildPrompt(userID string, bot *bots.Bot, query, channelID stri
 
 // RunSearch initiates a search and sends results to a DM
 func (s *Search) RunSearch(ctx context.Context, userID string, bot *bots.Bot, query, teamID, channelID string, maxResults int) (map[string]string, error) {
-	if err := s.checkLicense(); err != nil {
-		return nil, err
-	}
-
 	// Validate early (before creating posts)
 	if !s.Enabled() {
 		return nil, fmt.Errorf("search functionality is not configured")

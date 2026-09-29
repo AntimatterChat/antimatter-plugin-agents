@@ -11,7 +11,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/bifrost"
 	"github.com/mattermost/mattermost-plugin-agents/v2/chunking"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/postgres"
 	"github.com/maximhq/bifrost/core/schemas"
 )
@@ -110,14 +109,10 @@ func mapEmbeddingProvider(provider string) (schemas.ModelProvider, error) {
 
 // InitEmbeddingsSearch initializes embedding search. skipVectorIndex must be
 // true while a deferred reindex owns the ANN index (see DeferredIndexRebuildActive).
-func InitEmbeddingsSearch(db *sqlx.DB, cfg embeddings.EmbeddingSearchConfig, licenseChecker *enterprise.LicenseChecker, skipVectorIndex bool) (embeddings.EmbeddingSearch, error) {
+func InitEmbeddingsSearch(db *sqlx.DB, cfg embeddings.EmbeddingSearchConfig, skipVectorIndex bool) (embeddings.EmbeddingSearch, error) {
 	if cfg.Type == "" {
 		// Search is intentionally disabled, not an error
 		return nil, nil
-	}
-
-	if !licenseChecker.Allows(enterprise.CapSemanticSearch) {
-		return nil, fmt.Errorf("semantic AI search is available at Enterprise and above")
 	}
 
 	if cfg.Dimensions <= 0 {

@@ -155,7 +155,6 @@ func newTestBuilder(t *testing.T, toolProvider ToolProvider, mcpProvider MCPTool
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
 		ServiceSettings: model.ServiceSettings{SiteURL: &siteURL},
 	}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: model.LicenseShortSkuEnterprise}).Maybe()
 	mockAPI.On("LogDebug", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe().Return()
 	mockAPI.On("LogWarn", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe().Return()
 	mockAPI.On("LogWarn", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe().Return()
@@ -264,7 +263,6 @@ func TestWithLLMContextToolsCallsMCPProvider(t *testing.T) {
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
 		ServiceSettings: model.ServiceSettings{SiteURL: &siteURL},
 	}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: model.LicenseShortSkuEnterprise}).Maybe()
 	mockAPI.On("LogDebug", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe().Return()
 
 	client := pluginapi.NewClient(mockAPI, nil)
@@ -294,7 +292,6 @@ func TestWithLLMContextNoToolsSkipsMCPProvider(t *testing.T) {
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
 		ServiceSettings: model.ServiceSettings{SiteURL: &siteURL},
 	}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: model.LicenseShortSkuEnterprise}).Maybe()
 	mockAPI.On("LogDebug", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe().Return()
 
 	client := pluginapi.NewClient(mockAPI, nil)
@@ -323,7 +320,6 @@ func TestWithLLMContextToolsRetainsAuthErrorsForWildcardAllowlist(t *testing.T) 
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
 		ServiceSettings: model.ServiceSettings{SiteURL: &siteURL},
 	}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: model.LicenseShortSkuEnterprise}).Maybe()
 	mockAPI.On("LogDebug", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe().Return()
 
 	client := pluginapi.NewClient(mockAPI, nil)
@@ -375,7 +371,7 @@ func TestGetToolsStoreServiceAccountSelection(t *testing.T) {
 		tools:   []llm.Tool{testMCPTool("jira__get_issue", "https://jira.example.com", "user OAuth Jira")},
 		saTools: []llm.Tool{testMCPTool("sa_jira__get_issue", "https://jira.example.com", "service account Jira")},
 	}
-	builder := newLicenseTestBuilder(t, true,
+	builder := newTestBuilder(t,
 		&staticToolProvider{tools: []llm.Tool{testBuiltinTool("builtin")}},
 		provider,
 	)
@@ -410,7 +406,7 @@ func TestGetToolsStoreServiceAccountEmptyBotUserSkipsMCP(t *testing.T) {
 	provider := &staticMCPToolProvider{
 		saTools: []llm.Tool{testMCPTool("sa_jira__get_issue", "https://jira.example.com", "service account Jira")},
 	}
-	builder := newLicenseTestBuilder(t, true,
+	builder := newTestBuilder(t,
 		&staticToolProvider{tools: []llm.Tool{testBuiltinTool("builtin")}},
 		provider,
 	)

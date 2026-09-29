@@ -14,8 +14,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/chunking"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings/mocks"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/indexer"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	llmmocks "github.com/mattermost/mattermost-plugin-agents/v2/llm/mocks"
@@ -33,10 +31,6 @@ import (
 // allowVectorIndexStateRead: availability check sees no deferred reindex.
 func allowVectorIndexStateRead(m *mmapimocks.MockClient) {
 	m.On("KVGet", indexer.VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
-}
-
-func licensedChecker() *enterprise.LicenseChecker {
-	return enterprisetest.CheckerAt(enterprise.LevelEnterprise)
 }
 
 func TestEnrichResults(t *testing.T) {
@@ -299,7 +293,7 @@ func TestEnrichResults(t *testing.T) {
 				tc.setupMock(mockClient)
 			}
 
-			s := New(nil, mockClient, nil, nil, nil, nil)
+			s := New(nil, mockClient, nil, nil, nil)
 			results := s.enrichResults(tc.searchResults)
 
 			require.Len(t, results, tc.expectedLen)
@@ -420,7 +414,7 @@ func TestExecuteSearch(t *testing.T) {
 				tc.setupMocks(mockEmbedding, mockClient)
 			}
 
-			s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+			s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 			results, err := s.Search(context.Background(), tc.query, tc.opts)
 
 			if tc.expectError != "" {
@@ -487,7 +481,7 @@ func TestExecuteSearchReturnsIndexedRowsOutsideWriteWindow(t *testing.T) {
 	}, nil).Maybe()
 
 	store := &fixedDocsSearch{docs: []embeddings.PostDocument{stale, fresh}}
-	s := New(func() embeddings.EmbeddingSearch { return store }, mockClient, nil, nil, licensedChecker(), nil)
+	s := New(func() embeddings.EmbeddingSearch { return store }, mockClient, nil, nil, nil)
 
 	results, err := s.Search(context.Background(), "test query", Options{Limit: 5})
 	require.NoError(t, err)
@@ -586,7 +580,7 @@ func TestBuildPrompt(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			s := New(nil, nil, promptsObj, nil, nil, nil)
+			s := New(nil, nil, promptsObj, nil, nil)
 			req, err := s.buildPrompt("", nil, tc.query, "", tc.results, "")
 
 			if tc.expectError {
@@ -726,7 +720,6 @@ func TestSearchQuery(t *testing.T) {
 				mockClient,
 				promptsObj,
 				nil,
-				licensedChecker(),
 				nil,
 			)
 
@@ -766,7 +759,7 @@ func TestSearchUnavailableDuringDeferredReindex(t *testing.T) {
 		mockClient := mmapimocks.NewMockClient(t)
 		mockDeferredReindexActive(mockClient)
 
-		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 		results, err := s.Search(context.Background(), "test query", Options{Limit: 5})
 
 		require.ErrorIs(t, err, ErrSearchUnavailable)
@@ -779,7 +772,7 @@ func TestSearchUnavailableDuringDeferredReindex(t *testing.T) {
 		mockClient := mmapimocks.NewMockClient(t)
 		mockDeferredReindexActive(mockClient)
 
-		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
 
 		_, err := s.RunSearch(context.Background(), "user1", bot, "test query", "", "", 5)
@@ -792,7 +785,7 @@ func TestRunSearch(t *testing.T) {
 	t.Run("search not enabled returns error", func(t *testing.T) {
 		mockClient := mmapimocks.NewMockClient(t)
 		allowVectorIndexStateRead(mockClient)
-		s := New(func() embeddings.EmbeddingSearch { return nil }, mockClient, nil, nil, licensedChecker(), nil)
+		s := New(func() embeddings.EmbeddingSearch { return nil }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
 
 		_, err := s.RunSearch(context.Background(), "user1", bot, "test query", "", "", 5)
@@ -805,7 +798,7 @@ func TestRunSearch(t *testing.T) {
 		mockEmbedding := mocks.NewMockEmbeddingSearch(t)
 		mockClient := mmapimocks.NewMockClient(t)
 		allowVectorIndexStateRead(mockClient)
-		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
 
 		_, err := s.RunSearch(context.Background(), "user1", bot, "", "", "", 5)
@@ -821,7 +814,7 @@ func TestRunSearch(t *testing.T) {
 		mockClient.On("DM", "user1", "bot1", mock.Anything).
 			Return(errors.New("failed to create DM"))
 
-		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
 
 		_, err := s.RunSearch(context.Background(), "user1", bot, "test query", "", "", 5)
@@ -862,7 +855,7 @@ func TestRunSearch(t *testing.T) {
 			}).
 			Return(nil).Once()
 
-		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
 
 		result, err := s.RunSearch(context.Background(), "user1", bot, "test query", "", "", 5)
@@ -925,7 +918,7 @@ func TestRunSearch_SpanCoversAsyncWork(t *testing.T) {
 	mockClient.On("UpdatePost", mock.Anything).Return(nil).Maybe()
 	mockClient.On("LogError", mock.Anything, mock.Anything).Maybe()
 
-	s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, licensedChecker(), nil)
+	s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 	bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
 
 	_, err := s.RunSearch(context.Background(), "user1", bot, "test query", "", "", 5)
@@ -991,7 +984,7 @@ func TestEnrichResultsSameChannelMultipleTimes(t *testing.T) {
 		},
 	}
 
-	s := New(nil, mockClient, nil, nil, nil, nil)
+	s := New(nil, mockClient, nil, nil, nil)
 	results := s.enrichResults(searchResults)
 
 	require.Len(t, results, 2)
@@ -1044,7 +1037,7 @@ func TestEnrichResultsSameUserMultipleTimes(t *testing.T) {
 		},
 	}
 
-	s := New(nil, mockClient, nil, nil, nil, nil)
+	s := New(nil, mockClient, nil, nil, nil)
 	results := s.enrichResults(searchResults)
 
 	require.Len(t, results, 2)
@@ -1054,7 +1047,7 @@ func TestEnrichResultsSameUserMultipleTimes(t *testing.T) {
 
 func TestBuildPromptWithNilPrompts(t *testing.T) {
 	// Test that buildPrompt fails gracefully when prompts are nil
-	s := New(nil, nil, nil, nil, nil, nil)
+	s := New(nil, nil, nil, nil, nil)
 	_, err := s.buildPrompt("", nil, "test query", "", []RAGResult{}, "")
 
 	require.Error(t, err)
@@ -1080,7 +1073,7 @@ func TestBuildPromptWithLargeResults(t *testing.T) {
 		})
 	}
 
-	s := New(nil, nil, promptsObj, nil, nil, nil)
+	s := New(nil, nil, promptsObj, nil, nil)
 	req, err := s.buildPrompt("", nil, "test query with many results", "", largeResults, "")
 
 	// Should succeed - prompt size is handled by the template
@@ -1095,7 +1088,7 @@ func TestBuildPromptWithLargeResults(t *testing.T) {
 
 func TestExecuteSearchNotConfigured(t *testing.T) {
 	// Test Search when getSearch() returns nil
-	s := New(func() embeddings.EmbeddingSearch { return nil }, nil, nil, nil, licensedChecker(), nil)
+	s := New(func() embeddings.EmbeddingSearch { return nil }, nil, nil, nil, nil)
 
 	results, err := s.Search(context.Background(), "test query", Options{})
 
@@ -1118,7 +1111,6 @@ func TestSearchQueryWithEmptyQuery(t *testing.T) {
 		mockClient,
 		promptsObj,
 		nil,
-		licensedChecker(),
 		nil,
 	)
 

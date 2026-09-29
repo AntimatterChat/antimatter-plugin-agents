@@ -11,7 +11,6 @@ import (
 	"unicode"
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -45,7 +44,6 @@ type Builder struct {
 	toolProvider    ToolProvider
 	mcpToolProvider MCPToolProvider
 	configProvider  ConfigProvider
-	licenseChecker  *enterprise.LicenseChecker
 
 	mcpDynamicToolTelemetry llm.MCPDynamicToolTelemetry
 }
@@ -62,7 +60,6 @@ func NewLLMContextBuilder(
 		toolProvider:    toolProvider,
 		mcpToolProvider: mcpToolProvider,
 		configProvider:  configProvider,
-		licenseChecker:  enterprise.NewLicenseChecker(pluginAPI),
 	}
 }
 
@@ -91,10 +88,6 @@ func (b *Builder) WithLLMContextServerInfo() llm.ContextOption {
 
 		if b.pluginAPI.Configuration.GetConfig().ServiceSettings.SiteURL != nil {
 			c.SiteURL = *b.pluginAPI.Configuration.GetConfig().ServiceSettings.SiteURL
-		}
-
-		if license := b.pluginAPI.System.GetLicense(); license != nil && license.Customer != nil {
-			c.CompanyName = license.Customer.Company
 		}
 	}
 }
@@ -152,15 +145,14 @@ func filterToolAuthErrorsForAllowlist(errors []llm.ToolAuthError, allowlist []ll
 	})
 }
 
-// mcpToolSelection maps this request's per-agent, per-user, and license rules
-// onto the set of MCP servers that may be contacted, so a disallowed server is
-// never connected rather than connected and then filtered out. The license
-// gate is enforced only here; the agent allowlist and user-disabled origins
-// are additionally narrowed per-tool by the filters that follow.
-func mcpToolSelection(botCfg llm.BotConfig, c *llm.Context, remoteMCPLicensed bool) mcp.ToolSelection {
+// mcpToolSelection maps this request's per-agent and per-user rules onto the
+// set of MCP servers that may be contacted, so a disallowed server is never
+// connected rather than connected and then filtered out. The agent allowlist
+// and user-disabled origins are additionally narrowed per-tool by the filters
+// that follow.
+func mcpToolSelection(botCfg llm.BotConfig, c *llm.Context) mcp.ToolSelection {
 	selection := mcp.ToolSelection{
-		DeniedOrigins:        c.ToolCatalog.DisabledMCPServerOrigins,
-		ExcludeRemoteServers: !remoteMCPLicensed,
+		DeniedOrigins: c.ToolCatalog.DisabledMCPServerOrigins,
 	}
 
 	if !botCfg.AutoEnableNewMCPTools {
@@ -245,17 +237,10 @@ func sanitizeUserProfileField(s string) string {
 
 // WithLLMContextSessionID removed: embedded MCP manages its own session lifecycle
 
-// isRemoteMCPLicensed reports whether remote and plugin MCP servers are
-// available at the current license level. A nil checker fails closed.
-func (b *Builder) isRemoteMCPLicensed() bool {
-	return b.licenseChecker.Allows(enterprise.CapRemoteMCP)
-}
-
 // UsesServiceAccountCatalog reports whether tool catalogs for this bot are built in
-// service-account mode. Service-account catalogs are available at Enterprise and
-// above; below that, agents use per-user credentials.
+// service-account mode.
 func (b *Builder) UsesServiceAccountCatalog(bot *bots.Bot) bool {
-	return bot != nil && bot.GetConfig().UseServiceAccountAuth && b.licenseChecker.Allows(enterprise.CapMCPServiceAccount)
+	return bot != nil && bot.GetConfig().UseServiceAccountAuth
 }
 
 // getToolsStoreForUser returns a tool store for a specific user, including MCP tools.
@@ -272,10 +257,6 @@ func (b *Builder) getToolsStoreForUser(ctx stdcontext.Context, c *llm.Context, b
 		return llm.NewToolStore()
 	}
 
-	// useServiceAccount is only true when CapMCPServiceAccount is available,
-	// which is at the same level as CapRemoteMCP, so the selection below never
-	// excludes remote service-account servers.
-	remoteMCPLicensed := b.isRemoteMCPLicensed()
 	useServiceAccount := b.UsesServiceAccountCatalog(bot)
 
 	// Check if tools are disabled for this bot
@@ -313,7 +294,7 @@ func (b *Builder) getToolsStoreForUser(ctx stdcontext.Context, c *llm.Context, b
 		// Resolve server-level eligibility before connecting. The per-tool
 		// filters below remain as defense in depth for allowlist and context
 		// rules after the provider returns its selected catalog.
-		selection := mcpToolSelection(botCfg, c, remoteMCPLicensed)
+		selection := mcpToolSelection(botCfg, c)
 		mcpTools, mcpErrors = b.mcpToolProvider.GetToolsWithSelection(ctx, req, selection)
 
 		// Per-agent MCP tool filtering: unless the agent is configured to pick up
