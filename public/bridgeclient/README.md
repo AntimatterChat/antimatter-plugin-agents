@@ -242,9 +242,6 @@ this changes what `UserID` means:
   and is recorded in token usage logs.
 - **`UserID` is still required for `AllowedTools`**, in both modes.
 
-Service account authentication requires a license. Without one, an agent flagged for it behaves
-like any other agent: the caller-asserted `user_id` selects per-user MCP credentials.
-
 ## Token Usage Dimensions
 
 Bridge callers can optionally provide `Operation` and `OperationSubType` in `CompletionRequest` to customize token usage categorization in logs.

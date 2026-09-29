@@ -35,17 +35,15 @@ The **System Console > AI Bots** page no longer hosts the agent editor. Instead,
 
 The Agents page itself shows:
 
-- A header with the page title and a **Create agent** button (visible only to users who can create agents — see [Permissions and license](#permissions-and-license)).
+- A header with the page title and a **Create agent** button (visible only to users who can create agents — see [Permissions](#permissions)).
 - Two tabs: **All agents** (every agent the user can see) and **Your agents** (agents the current user created that they can still see).
 - A search box that filters by display name or username.
-- One row per agent showing the avatar, display name, `@username`, an **All MCP tools** or **N tools** badge, and an **Inactive** warning badge when the agent is not running. Hovering the badge explains why: the agent's AI service was deleted or is missing required settings, the service is not active on the current plan, or the plan's agent limit is reached (see [Agent shows an "Inactive" badge](#agent-shows-an-inactive-badge)).
+- One row per agent showing the avatar, display name, `@username`, an **All MCP tools** or **N tools** badge, and an **Inactive** warning badge when the agent is not running. Hovering the badge explains why: the agent's configuration is incomplete, or its AI service was deleted or is missing required settings (see [Agent shows an "Inactive" badge](#agent-shows-an-inactive-badge)).
 - A row-level overflow menu (`⋯`) with **Edit** and **Delete** actions for users who can manage that agent. Selecting the row itself also opens the editor for users who can manage the agent.
 
-## Permissions and license
+## Permissions
 
-Agent management uses three Mattermost system permissions plus a license check.
-
-### Permissions
+Agent management uses three Mattermost system permissions.
 
 | Permission | Capability |
 |---|---|
@@ -73,18 +71,6 @@ Manage permission alone does not decide list visibility. Agents (and the AI serv
 - **All other users** — including creators and delegated agent admins — only see agents they can use under both agent access and the agent's AI service access. Agents whose service they cannot use are hidden, not shown with a deny badge.
 
 If a non–system-admin agent admin loses access to an agent's service under ABAC, that agent disappears from their Agents page until a system admin restores service access or changes the binding. See [Attribute-based access control (ABAC)](../admin_guide.md#attribute-based-access-control-abac) in the Admin Guide.
-
-### License
-
-The number of agents that can be active depends on the license level. Configuration-file bots and user-created agents count together as one pool.
-
-- **Free** (no license): one agent. Once one agent exists, the **Create agent** button is disabled with a hint naming the plan that raises the cap, and the API returns HTTP 403 with an actionable licensing message for any over-limit creation attempt.
-- **Professional**: three agents.
-- **Enterprise, Entry and Enterprise Advanced**: unlimited agents (subject to permissions).
-
-Agent access controls (restricting an agent to named users, teams or channels, and the corresponding block lists) are available at Professional and above; attribute-based access is available at Enterprise Advanced; service-account authentication is available at Enterprise and above. Resetting any of these to their open defaults is always permitted, and an agent that already has user, team or channel lists can have those lists edited at any level.
-
-For the full feature/license matrix, see [License requirements](../admin_guide.md#license-requirements) in the Admin Guide.
 
 ## Creating an agent
 
@@ -145,7 +131,7 @@ The MCPs tab is available only when **Enable Tools** is on (Configuration tab). 
 - **Automatically enable all MCP tools**: the agent has access to every MCP tool available in the server right now and to any MCP tools added later. This is the default for new agents and the setting used by all migrated legacy bots.
 - When the auto-grant is off, pick the specific MCP tools to enable. Tools that are no longer present on the server are dropped from the agent's allowlist when you save.
 - For OAuth-backed MCP servers, you can also start the per-user **Connect** flow directly from this tab. Enabling a server that is currently disconnected stores a wildcard grant — once you finish the OAuth flow, the agent gets every tool that server exposes. The tab refreshes automatically when you connect or disconnect (`mcp_connection_updated` websocket event). **Connect** is not shown while **Use service accounts for authentication** is on; the tab lists that agent's service-account catalog instead of your personal connections.
-- **Use service accounts for authentication** switches the agent from per-user credentials to admin-configured service account credentials for **external** MCP servers. External MCP servers without service account headers configured in the System Console are excluded from the agent (fail closed). Mattermost (embedded) and plugin tools run with each requesting user's own permissions, and users are never asked to connect accounts. The MCPs tab then shows **Connected** for servers whose service account credentials work, and **No service account credentials** for servers that have none. Turning it on shows a warning because it flattens permissions on those external servers — anyone who can use the agent acts with the agent's shared access there — so restrict usage on the **Access** tab. Only system administrators can turn this setting on. While it is enabled, some fields are system-admin-only; see [What's editable vs locked](#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent. Requires the same license as remote MCP servers. See [Service account authentication](../admin_guide.md#service-account-authentication) in the Admin Guide.
+- **Use service accounts for authentication** switches the agent from per-user credentials to admin-configured service account credentials for **external** MCP servers. External MCP servers without service account headers configured in the System Console are excluded from the agent (fail closed). Mattermost (embedded) and plugin tools run with each requesting user's own permissions, and users are never asked to connect accounts. The MCPs tab then shows **Connected** for servers whose service account credentials work, and **No service account credentials** for servers that have none. Turning it on shows a warning because it flattens permissions on those external servers — anyone who can use the agent acts with the agent's shared access there — so restrict usage on the **Access** tab. Only system administrators can turn this setting on. While it is enabled, some fields are system-admin-only; see [What's editable vs locked](#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent. See [Service account authentication](../admin_guide.md#service-account-authentication) in the Admin Guide.
 
 Dynamic tool loading and the auto-grant are separate controls: dynamic loading decides when schemas are shown to the model, while the auto-grant decides which MCP tools the agent is allowed to use.
 
@@ -275,10 +261,6 @@ Practical consequences:
 
 ## Troubleshooting
 
-### "Create agent" is disabled and an upgrade hint is shown
-
-The server has reached the number of agents its license level allows (one on Free, three on Professional). The Agents page still shows the list, but **Create agent** is disabled. Apply a Professional, Entry, Enterprise, or Enterprise Advanced licence in **System Console > About > Edition and License** to raise the cap, or delete an existing agent before creating a replacement.
-
 ### "Create agent" button is hidden
 
 The signed-in user does not have `manage_own_agent` or `manage_system`. Grant `manage_own_agent` through your role/permission configuration, or sign in as a system administrator.
@@ -292,18 +274,13 @@ The signed-in user is not the agent's creator, not in **Agent admins**, and does
 The agent is stored but not running. The badge tooltip names the reason:
 
 - **Service deleted or incomplete** — the agent's `serviceID` no longer matches a service in **System Console > Plugins > Agents**, or that service is missing required settings such as its API key. Edit the agent and pick a current service, or complete the service configuration.
-- **Service not active on the plan** — Free and Professional use only the first service in the **Services** list. Edit the agent and choose that service; multiple services are available at Enterprise and above.
-- **Agent limit reached** — the plan's agent cap is filled by configuration-file bots and agents created earlier. Delete an earlier agent or move to a plan with more agents.
+- **Configuration incomplete** — the agent's stored configuration is invalid (for example a missing name). Edit the agent to fix it.
 
 The badge is **not** used to mean "you are denied by service ABAC." Non–system-admins who cannot use an agent's service simply do not see that agent.
 
 ### Saving an agent returns "This username is already taken"
 
 Another agent (active or recently deleted) already uses the username. Pick a different username. Usernames cannot be changed after creation, so attempting to edit the conflicting agent is not a workaround — delete that agent if it is truly unused, or pick another name.
-
-### Saving an agent returns a licensing error naming a required plan
-
-The server has reached the number of agents its license level allows, or the agent uses a capability available at a higher level (for example access controls, attribute-based access or service-account authentication). The message names the level that provides it. Apply a qualifying license, or adjust the agent so it stays within the current level.
 
 ### Avatar didn't update after save
 

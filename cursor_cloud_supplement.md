@@ -20,7 +20,7 @@ script, not in this file. The cloud image additionally provides:
 
 ## Running Mattermost + plugin locally in the cloud VM
 
-A local Mattermost Enterprise instance is needed for plugin development.
+A local Mattermost instance is needed for plugin development.
 Use the development image and a companion PostgreSQL container:
 
 ```bash
@@ -45,9 +45,6 @@ docker exec mm-server mmctl user create --email admin@example.com --username adm
 docker exec mm-server mmctl team create --name dev --display-name "Dev Team" --local
 docker exec mm-server mmctl team users add dev admin --local
 ```
-
-The development image provides an Entry license for local testing;
-`MM_LICENSE` is not required.
 
 ## Deploying the plugin into the cloud VM container
 
