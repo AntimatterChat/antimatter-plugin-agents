@@ -131,7 +131,7 @@ func TestClientOAuthNeededError(t *testing.T) {
 					Name: "OAuth Server",
 				},
 				oauthManager: &OAuthManager{
-					callbackURL: "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback",
+					callbackURL: "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback",
 				},
 				serviceAccount: tt.serviceAccount,
 			}
@@ -147,7 +147,7 @@ func TestClientOAuthNeededError(t *testing.T) {
 			require.ErrorAs(t, err, &oauthErr)
 			authURL, parseErr := url.Parse(oauthErr.AuthURL())
 			require.NoError(t, parseErr)
-			require.Equal(t, "https://mattermost.example.com", authURL.Scheme+"://"+authURL.Host)
+			require.Equal(t, "https://antimatter.example.com", authURL.Scheme+"://"+authURL.Host)
 			require.Equal(t, "/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start", authURL.EscapedPath())
 			require.Equal(t, "https://oauth.example.com/.well-known/oauth-protected-resource", authURL.Query().Get("resource_metadata"))
 		})

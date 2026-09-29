@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-// Package pluginmcp helps Mattermost plugins expose MCP tools to the Agents
+// Package pluginmcp helps Antimatter plugins expose MCP tools to the Agents
 // plugin. It handles tool-name namespacing, inter-plugin request checks, and
 // async registration retries.
 package pluginmcp
@@ -29,7 +29,7 @@ type Config struct {
 	Version        string `json:"version,omitempty"`
 }
 
-// PluginAPI is the minimal Mattermost plugin API subset pluginmcp needs.
+// PluginAPI is the minimal Antimatter plugin API subset pluginmcp needs.
 type PluginAPI interface {
 	PluginHTTP(*http.Request) *http.Response
 }

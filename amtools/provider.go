@@ -16,7 +16,7 @@ type ToolProvider interface {
 	GetTools(bot *bots.Bot, llmContext *llm.Context) []llm.Tool
 }
 
-// AMToolProvider implements ToolProvider with all built-in Mattermost tools
+// AMToolProvider implements ToolProvider with all built-in Antimatter tools
 type AMToolProvider struct {
 	pluginAPI amapi.Client
 	webSearch WebSearchService

@@ -10,7 +10,7 @@ import (
 
 // SeedVettedToolConfigs returns one-time seed tool configs for vetted MCP hosts.
 //
-// Only Mattermost-curated READ-only tools are seeded. Most are enabled with
+// Only Antimatter-curated READ-only tools are seeded. Most are enabled with
 // policy auto_run_in_dm; GitHub security-scanning reads default to policy ask
 // (admins may switch). Non-READ tools are intentionally not persisted here;
 // tools without config fall back to the runtime default of policy="ask",
@@ -228,7 +228,7 @@ var figmaVettedToolConfigs = autoRunInDMToolConfigs([]string{
 	"whoami",
 })
 
-// Read-only Mattermost tools auto-run in DMs but ask in channels, where results
+// Read-only Antimatter tools auto-run in DMs but ask in channels, where results
 // are visible to everyone. Every tool here is a caller-scoped read that only
 // returns data the requesting user can already access, so auto-running it in a
 // private DM surfaces nothing new to that user.

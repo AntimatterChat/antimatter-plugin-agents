@@ -49,7 +49,7 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 
 	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
-			Name:    "mattermost-mcp-server",
+			Name:    "antimatter-mcp-server",
 			Version: "0.1.0",
 		},
 		&mcp.ServerOptions{}, // ServerOptions
@@ -86,7 +86,7 @@ func (s *AntimatterMCPServer) serveStdio() error {
 	if cfg, ok := s.config.(StdioConfig); ok && cfg.PersonalAccessToken != "" {
 		// Tool handlers inherit this context. HTTP callbacks (read_file,
 		// semantic search) forward the PAT as a bearer token so the plugin
-		// can restore a Mattermost session for file-policy checks.
+		// can restore an Antimatter session for file-policy checks.
 		ctx = context.WithValue(ctx, auth.AuthTokenContextKey, cfg.PersonalAccessToken)
 	}
 

@@ -76,7 +76,7 @@ func GetSharedTestSuite(t *testing.T) *EmbeddedTestSuite {
 	}
 }
 
-// setupSharedSuite initializes the shared Mattermost container
+// setupSharedSuite initializes the shared Antimatter container
 func setupSharedSuite(t *testing.T) *EmbeddedTestSuite {
 	const maxInitAttempts = 3
 
@@ -95,7 +95,7 @@ func setupSharedSuite(t *testing.T) *EmbeddedTestSuite {
 		}
 	}
 
-	t.Fatalf("Failed to start shared Mattermost container after %d attempts: %v", maxInitAttempts, lastErr)
+	t.Fatalf("Failed to start shared Antimatter container after %d attempts: %v", maxInitAttempts, lastErr)
 	return nil
 }
 
@@ -109,13 +109,13 @@ func setupSharedSuiteAttempt(t *testing.T) (*EmbeddedTestSuite, error) {
 	cfg.TeamSettings.EnableOpenServer = model.NewPointer(true)
 	cfg.TeamSettings.EnableUserCreation = model.NewPointer(true)
 
-	// Start Mattermost container with config at creation time
+	// Start Antimatter container with config at creation time
 	container, err := amcontainer.RunContainer(ctx,
 		amcontainer.WithLicense(""),
 		amcontainer.WithConfig(cfg),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to start shared Mattermost container: %w", err)
+		return nil, fmt.Errorf("failed to start shared Antimatter container: %w", err)
 	}
 
 	// Get connection details
@@ -150,7 +150,7 @@ type EmbeddedTestSuite struct {
 	logger         *testLogger
 }
 
-// SetupEmbeddedTestSuite initializes a test environment with a real Mattermost container
+// SetupEmbeddedTestSuite initializes a test environment with a real Antimatter container
 // and an embedded MCP server. Prefer GetSharedTestSuite() for most tests to improve speed.
 // Use this only for tests that truly need an isolated container.
 func SetupEmbeddedTestSuite(t *testing.T) *EmbeddedTestSuite {
@@ -163,12 +163,12 @@ func SetupEmbeddedTestSuite(t *testing.T) *EmbeddedTestSuite {
 	cfg.TeamSettings.EnableOpenServer = model.NewPointer(true)
 	cfg.TeamSettings.EnableUserCreation = model.NewPointer(true)
 
-	// Start Mattermost container with config at creation time
+	// Start Antimatter container with config at creation time
 	container, err := amcontainer.RunContainer(ctx,
 		amcontainer.WithLicense(""),
 		amcontainer.WithConfig(cfg),
 	)
-	require.NoError(t, err, "Failed to start Mattermost container")
+	require.NoError(t, err, "Failed to start Antimatter container")
 
 	// Get connection details
 	serverURL, err := container.URL(ctx)

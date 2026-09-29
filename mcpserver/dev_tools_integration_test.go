@@ -38,7 +38,7 @@ func TestDevToolsWithDevModeEnabled(t *testing.T) {
 	// Create MCP server with dev mode enabled
 	suite.CreateMCPServer(true)
 
-	// Create Mattermost client for setup
+	// Create Antimatter client for setup
 	client := model.NewAPIv4Client(suite.serverURL)
 	client.SetToken(suite.adminToken)
 

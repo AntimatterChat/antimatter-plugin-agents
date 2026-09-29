@@ -83,7 +83,7 @@ type TestSuite struct {
 	devMode bool
 }
 
-// SetupTestSuite initializes a Mattermost container and MCP server for testing
+// SetupTestSuite initializes an Antimatter container and MCP server for testing
 func SetupTestSuite(t *testing.T) *TestSuite {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
@@ -107,7 +107,7 @@ func SetupTestSuite(t *testing.T) *TestSuite {
 		}
 		t.Logf("RunContainer attempt %d failed: %v", attempt+1, err)
 	}
-	require.NoError(t, err, "Failed to start Mattermost container")
+	require.NoError(t, err, "Failed to start Antimatter container")
 
 	err = container.SetConfig(ctx, "ServiceSettings.EnableUserAccessTokens", "true")
 	require.NoError(t, err, "Failed to enable personal access tokens")

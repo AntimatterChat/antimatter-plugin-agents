@@ -149,7 +149,7 @@ func newTestBuilder(t *testing.T, toolProvider ToolProvider, mcpProvider MCPTool
 	t.Helper()
 
 	mockAPI := &plugintest.API{}
-	siteName := "Mattermost"
+	siteName := "Antimatter"
 	siteURL := "https://example.com"
 	mockAPI.On("GetConfig").Return(&model.Config{
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
@@ -257,7 +257,7 @@ func buildToolsContext(builder *Builder, bot *bots.Bot, opts ...llm.ContextOptio
 
 func TestWithLLMContextToolsCallsMCPProvider(t *testing.T) {
 	mockAPI := &plugintest.API{}
-	siteName := "Mattermost"
+	siteName := "Antimatter"
 	siteURL := "https://example.com"
 	mockAPI.On("GetConfig").Return(&model.Config{
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
@@ -286,7 +286,7 @@ func TestWithLLMContextToolsCallsMCPProvider(t *testing.T) {
 
 func TestWithLLMContextNoToolsSkipsMCPProvider(t *testing.T) {
 	mockAPI := &plugintest.API{}
-	siteName := "Mattermost"
+	siteName := "Antimatter"
 	siteURL := "https://example.com"
 	mockAPI.On("GetConfig").Return(&model.Config{
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},
@@ -314,7 +314,7 @@ func TestWithLLMContextNoToolsSkipsMCPProvider(t *testing.T) {
 
 func TestWithLLMContextToolsRetainsAuthErrorsForWildcardAllowlist(t *testing.T) {
 	mockAPI := &plugintest.API{}
-	siteName := "Mattermost"
+	siteName := "Antimatter"
 	siteURL := "https://example.com"
 	mockAPI.On("GetConfig").Return(&model.Config{
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},

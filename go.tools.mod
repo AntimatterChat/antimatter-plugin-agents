@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-playbooks
+module github.com/antimatterchat/antimatter-plugin-playbooks
 
 go 1.14
 

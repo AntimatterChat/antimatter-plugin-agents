@@ -5,10 +5,10 @@ package mcpserver
 
 // BaseConfig represents common configuration for all MCP server types
 type BaseConfig struct {
-	// Mattermost server URL (e.g., "https://mattermost.company.com")
+	// Antimatter server URL (e.g., "https://antimatter.company.com")
 	AMServerURL string `json:"mm_server_url"`
 
-	// Internal Mattermost server URL for API communication (e.g., "http://localhost:8065")
+	// Internal Antimatter server URL for API communication (e.g., "http://localhost:8065")
 	// If empty, AMServerURL will be used for internal communication
 	AMInternalServerURL string `json:"mm_internal_server_url"`
 
@@ -22,12 +22,12 @@ type BaseConfig struct {
 	TrackAIGenerated *bool `json:"track_ai_generated,omitempty"`
 }
 
-// GetAMServerURL returns the Mattermost server URL
+// GetAMServerURL returns the Antimatter server URL
 func (c BaseConfig) GetAMServerURL() string {
 	return c.AMServerURL
 }
 
-// GetAMInternalServerURL returns the internal Mattermost server URL for API communication
+// GetAMInternalServerURL returns the internal Antimatter server URL for API communication
 // If not set, falls back to the external server URL for backward compatibility
 func (c BaseConfig) GetAMInternalServerURL() string {
 	if c.AMInternalServerURL != "" {

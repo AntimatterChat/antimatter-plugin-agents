@@ -21,7 +21,7 @@ import (
 
 const (
 	// mcpRequestMaxLifetime bounds every request delegated to the plugin MCP
-	// handler. The Mattermost plugin RPC layer reconstructs HTTP requests
+	// handler. The Antimatter plugin RPC layer reconstructs HTTP requests
 	// without their original context, so a client that disconnects (for
 	// example after opening a long-lived subscriptions/listen stream) never
 	// cancels the handler; without a bound, the handler goroutine, SDK
@@ -40,7 +40,7 @@ const (
 	// it is sized well above any legitimate steady state. The cap is
 	// deliberately per-user only: total load then scales with the number of
 	// distinct authenticated users — the same trust boundary the rest of
-	// Mattermost applies — whereas a fixed global cap would both reject
+	// Antimatter applies — whereas a fixed global cap would both reject
 	// legitimate traffic on large deployments and let a handful of abusive
 	// accounts lock every other user out.
 	mcpMaxConcurrentRequestsPerUser = 32
@@ -208,7 +208,7 @@ func (a *API) delegateToMCPHandler(c *gin.Context, handler http.Handler) {
 	ctx = context.WithValue(ctx, auth.TokenResolverContextKey, auth.TokenResolver(tokenResolver))
 	// Propagate authenticated user ID so proxy MCP tool handlers can inject
 	// X-Mattermost-UserID on outbound PluginHTTP calls. userID is trustworthy:
-	// the Mattermost server strips Mattermost-User-Id from external callers.
+	// the Antimatter server strips Mattermost-User-Id from external callers.
 	ctx = context.WithValue(ctx, auth.UserIDContextKey, userID)
 	r := c.Request.WithContext(ctx)
 

@@ -18,7 +18,7 @@ import (
 	"go.opentelemetry.io/otel/trace/noop"
 )
 
-const TracerName = "github.com/mattermost/mattermost-plugin-ai"
+const TracerName = "github.com/antimatterchat/antimatter-plugin-agents"
 
 // OutputMode selects where finished spans are sent.
 type OutputMode string
@@ -26,7 +26,7 @@ type OutputMode string
 const (
 	// OutputModeOff disables tracing entirely (no-op TracerProvider).
 	OutputModeOff OutputMode = "off"
-	// OutputModeLogs writes spans to the Mattermost server log via
+	// OutputModeLogs writes spans to the Antimatter server log via
 	// pluginapi.LogService. No collector required.
 	OutputModeLogs OutputMode = "logs"
 	// OutputModeOTLP exports spans to an OTLP gRPC endpoint such as

@@ -168,7 +168,7 @@ func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, amClient
 	promptsObj, err := llm.NewPrompts(prompts.PromptsFolder)
 	require.NoError(t, err)
 
-	siteName := "Mattermost"
+	siteName := "Antimatter"
 	siteURL := "https://example.com"
 	e.OverrideConfig(&model.Config{
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},

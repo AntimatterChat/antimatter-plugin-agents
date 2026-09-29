@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 // Package llm provides a unified abstraction layer for Large Language Model interactions
-// within the Mattermost AI plugin.
+// within the Antimatter AI plugin.
 //
 // This package defines the core interfaces and data structures for working with various
 // LLM providers (OpenAI, Anthropic, etc.) in a consistent manner. It handles:

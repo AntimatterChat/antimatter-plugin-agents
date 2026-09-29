@@ -100,7 +100,7 @@ func setupChannelAnalysisAPI(t *testing.T, dynamicLoading bool) (*TestEnvironmen
 	promptsObj, err := llm.NewPrompts(prompts.PromptsFolder)
 	require.NoError(t, err)
 
-	siteName := "Mattermost"
+	siteName := "Antimatter"
 	siteURL := "https://example.com"
 	e.mockAPI.On("GetConfig").Return(&model.Config{
 		TeamSettings:    model.TeamSettings{SiteName: &siteName},

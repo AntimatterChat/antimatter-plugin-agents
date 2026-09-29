@@ -294,7 +294,7 @@ func TestDMSummaryFlowEval(t *testing.T) {
 			[]string{"read_channel", "dm"},
 		)
 
-		// Verify the DM was actually sent by checking via the Mattermost API
+		// Verify the DM was actually sent by checking via the Antimatter API
 		ctx := context.Background()
 		adminClient := model.NewAPIv4Client(suite.serverURL)
 		adminClient.SetToken(suite.adminToken)
@@ -358,7 +358,7 @@ func TestBroadcastDMToTeamFlowEval(t *testing.T) {
 			[]string{"get_team_members", "dm"},
 		)
 
-		// Verify DMs were actually sent by checking the Mattermost API
+		// Verify DMs were actually sent by checking the Antimatter API
 		ctx := context.Background()
 		adminClient := model.NewAPIv4Client(suite.serverURL)
 		adminClient.SetToken(suite.adminToken)

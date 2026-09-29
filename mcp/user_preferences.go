@@ -16,8 +16,8 @@ import (
 var ErrUserPreferencesInvalid = errors.New("invalid user preferences")
 
 // Limits for persisted user MCP provider preferences (stored in the plugin KV store).
-// Mattermost's PluginKeyValue.IsValid does not cap value size; these bounds keep
-// requests and stored JSON small and predictable (see model.PluginKeyValue in mattermost/server/public).
+// Antimatter's PluginKeyValue.IsValid does not cap value size; these bounds keep
+// requests and stored JSON small and predictable (see model.PluginKeyValue in antimatter/server/public).
 const (
 	UserPreferencesMaxRequestBodyBytes = 256 << 10 // 256 KiB HTTP body cap for PUT /mcp/user-preferences
 	UserPreferencesMaxDisabledServers  = 256

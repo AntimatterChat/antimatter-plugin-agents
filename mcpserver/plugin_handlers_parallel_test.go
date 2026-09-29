@@ -207,7 +207,7 @@ func TestRebuildExternalServerCollisionWinnerIgnoresCompletionOrder(t *testing.T
 		"the first plugin in the registry snapshot must win the collision even though it answered last")
 }
 
-// A native Mattermost tool keeps its name even when a slow plugin also exposes
+// A native Antimatter tool keeps its name even when a slow plugin also exposes
 // it, and the plugin's other tools still get through.
 func TestRebuildExternalServerNativeToolWinsOverSlowProxy(t *testing.T) {
 	target := newDelayedPluginMCPServer(t, "shadow", 200*time.Millisecond, "create_post", "plugin_only")

@@ -8,7 +8,7 @@ import (
 	"unicode"
 )
 
-// ValidateID validates that an ID matches the expected Mattermost ID format.
+// ValidateID validates that an ID matches the expected Antimatter ID format.
 // Valid IDs are 26 characters long containing only letters A-Z/a-z and digits 0-9
 // (zbase32-encoded UUID v4 without padding).
 func ValidateID(id string) error {

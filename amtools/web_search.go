@@ -516,7 +516,7 @@ func (s *webSearchService) resolveSource(ctx context.Context, bot *bots.Bot, llm
 		return "unable to create request", err
 	}
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	req.Header.Set("User-Agent", "Mattermost-AI-Plugin/1.0")
+	req.Header.Set("User-Agent", "Antimatter-AI-Plugin/1.0")
 
 	resp, err := client.Do(req)
 	if err != nil {

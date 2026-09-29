@@ -160,7 +160,7 @@ func TestLoadToolDoesNotLoadBareName(t *testing.T) {
 
 func TestLoadToolMissReturnsClosestFilteredMatches(t *testing.T) {
 	registry := NewToolRegistry([]llm.Tool{
-		testRegistryTool("mattermost__search_users", "Find people", "https://mattermost.example.com"),
+		testRegistryTool("mattermost__search_users", "Find people", "https://antimatter.example.com"),
 	})
 	loadTool := metaToolByName(t, NewMetaTools(registry), LoadToolName)
 	llmContext := &llm.Context{Tools: llm.NewToolStore()}

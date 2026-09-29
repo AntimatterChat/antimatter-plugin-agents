@@ -22,7 +22,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/shared/httpservice"
 )
 
-// staticMCPURLFetchConfig provides defaults that mirror a locked-down Mattermost server
+// staticMCPURLFetchConfig provides defaults that mirror a locked-down Antimatter server
 // (no TLS verification bypass, no allowlist of internal hostnames) for the standalone
 // MCP binary's untrusted URL fetches.
 var staticMCPURLFetchConfig = &model.Config{
@@ -54,7 +54,7 @@ func mcpLogAttachmentURLFailureAndReturn(err error) error {
 	if err == nil {
 		return nil
 	}
-	log.Printf("mattermost-mcp: attachment URL fetch: %v", err)
+	log.Printf("antimatter-mcp: attachment URL fetch: %v", err)
 	return errMCPFileUploadFailed
 }
 

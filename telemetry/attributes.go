@@ -80,7 +80,7 @@ var (
 	WebSearchStatusCode = attribute.Key("agents.websearch.status_code")
 )
 
-// Attribute keys for Mattermost entities
+// Attribute keys for Antimatter entities
 var (
 	UserID           = attribute.Key("agents.user.id")
 	ChannelID        = attribute.Key("agents.channel.id")

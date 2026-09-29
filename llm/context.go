@@ -78,7 +78,7 @@ type ToolCatalogContext struct {
 	PreloadedMCPTools []EnabledMCPTool
 
 	// InteractiveUserPresent indicates the requesting user is interactively
-	// present in Mattermost (DM or human channel mention) and can answer
+	// present in Antimatter (DM or human channel mention) and can answer
 	// pending tool approvals. Tools that require a user response (see
 	// Tool.UserInteraction) are only cataloged when this is set.
 	InteractiveUserPresent bool

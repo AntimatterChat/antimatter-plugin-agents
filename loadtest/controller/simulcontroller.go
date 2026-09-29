@@ -10,7 +10,7 @@ import (
 	ltuser "github.com/mattermost/mattermost-load-test-ng/loadtest/user"
 )
 
-// PluginID is the Mattermost plugin manifest ID for Agents (load-test-ng EnabledPlugins key).
+// PluginID is the Antimatter plugin manifest ID for Agents (load-test-ng EnabledPlugins key).
 const PluginID = "mattermost-ai"
 
 var _ ltplugins.SimulController = (*SimulController)(nil)

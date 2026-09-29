@@ -17,7 +17,7 @@ import (
 //   - cfg: The bot's configuration (name, display name, permissions, etc.)
 //   - service: The RESOLVED service configuration (use GetService() to access).
 //     DO NOT use cfg.Service or cfg.ServiceID directly - those are internal references.
-//   - amBot: The Mattermost bot user
+//   - amBot: The Antimatter bot user
 //   - llm: The initialized language model instance
 //   - providerServices: resolved from the concrete client before wrapping (see llm.ProviderServices)
 //
@@ -39,7 +39,7 @@ func (b *Bot) GetAMBot() *model.Bot {
 	return b.amBot
 }
 
-// BotUserID returns the Mattermost user ID of the bot's user account, or "" when no bot user exists.
+// BotUserID returns the Antimatter user ID of the bot's user account, or "" when no bot user exists.
 func (b *Bot) BotUserID() string {
 	if b.amBot == nil {
 		return ""
@@ -72,7 +72,7 @@ func (b *Bot) WithConfig(cfg llm.BotConfig) *Bot {
 }
 
 // hasNativeToolEnabled is true only if the tool is enabled and the resolved
-// provider can actually deliver it. Callers use this to suppress Mattermost
+// provider can actually deliver it. Callers use this to suppress Antimatter
 // fallbacks; trusting persisted config alone would leave them with neither.
 func (b *Bot) hasNativeToolEnabled(name string) bool {
 	// SupportedNativeToolsForServiceType is the single source of truth for
@@ -90,7 +90,7 @@ func (b *Bot) hasNativeToolEnabled(name string) bool {
 	return slices.Contains(b.cfg.EnabledNativeTools, name)
 }
 
-// HasNativeWebSearchEnabled is used to suppress Mattermost's built-in web search fallback.
+// HasNativeWebSearchEnabled is used to suppress Antimatter's built-in web search fallback.
 func (b *Bot) HasNativeWebSearchEnabled() bool {
 	return b.hasNativeToolEnabled(llm.NativeToolWebSearch)
 }

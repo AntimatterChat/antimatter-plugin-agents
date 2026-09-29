@@ -324,7 +324,7 @@ func TestCreateFileResolverUpload(t *testing.T) {
 			config := tt.config
 			if config == nil {
 				// An unset EnableFileAttachments must be treated as enabled
-				// (the Mattermost default).
+				// (the Antimatter default).
 				config = &model.Config{}
 			}
 			client.On("GetConfig").Return(config)

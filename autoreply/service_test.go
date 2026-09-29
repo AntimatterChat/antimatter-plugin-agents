@@ -59,7 +59,7 @@ func newTestService(t *testing.T, dbClient *amapi.DBClient, notifier ClusterNoti
 	return NewService(NewStore(dbClient), botsService, amClient, notifier)
 }
 
-// newTestBot builds a real bots.Bot with the given Mattermost bot user ID.
+// newTestBot builds a real bots.Bot with the given Antimatter bot user ID.
 func newTestBot(botID string, cfg llm.BotConfig) *bots.Bot {
 	return bots.NewBot(cfg, llm.ServiceConfig{}, &model.Bot{UserId: botID}, nil)
 }

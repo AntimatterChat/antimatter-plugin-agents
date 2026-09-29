@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// MaxPostAttachments is the Mattermost per-post attachment limit. It bounds
+// MaxPostAttachments is the Antimatter per-post attachment limit. It bounds
 // how many files tools may create for or attach to a single post.
 const MaxPostAttachments = 10
 
@@ -35,7 +35,7 @@ const (
 	EventTypeUsage
 	// EventTypeFiles carries the IDs of files created during the turn that
 	// should be attached to the response post. Value is []string of
-	// Mattermost file IDs.
+	// Antimatter file IDs.
 	EventTypeFiles
 	// EventTypeServerToolUse represents provider-executed (server) tool
 	// activity — e.g. Anthropic web_search / web_fetch / code_execution or

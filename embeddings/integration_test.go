@@ -643,7 +643,7 @@ func TestDeleteAndReindex(t *testing.T) {
 		assert.NotEqual(t, "delete2", r.Document.PostID, "Deleted post should not appear in results")
 	}
 
-	// Test that posts soft-deleted on the Mattermost server are excluded from search
+	// Test that posts soft-deleted on the Antimatter server are excluded from search
 	// Even if they remain in the embeddings table, the search query joins with Posts
 	// and filters out posts where DeleteAt != 0
 	_, err = db.Exec("UPDATE Posts SET DeleteAt = $1 WHERE Id = $2", model.GetMillis(), "keep1")

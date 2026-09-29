@@ -22,9 +22,9 @@ import (
 
 const (
 	// oauthClientName is the human-readable RFC 7591 client_name shown on
-	// authorization server consent screens. "Mattermost Agents" is a brand
+	// authorization server consent screens. "Antimatter Agents" is a brand
 	// name and is deliberately not translated.
-	oauthClientName         = "Mattermost Agents"
+	oauthClientName         = "Antimatter Agents"
 	oauthCallbackPathSuffix = "/oauth/callback"
 )
 
@@ -140,7 +140,7 @@ func (m *OAuthManager) loadOrCreateClientCredentials(ctx context.Context, server
 	//
 	// The token endpoint auth method is chosen from what the server's
 	// metadata advertises: registering with a method the server does not
-	// support is rejected with invalid_client_metadata (e.g. Mattermost
+	// support is rejected with invalid_client_metadata (e.g. Antimatter
 	// servers advertise only "none" and "client_secret_post", not the RFC
 	// 7591 default "client_secret_basic").
 	authMethod := selectTokenEndpointAuthMethod(supportedAuthMethods)
@@ -254,7 +254,7 @@ func (m *OAuthManager) resolveOAuthConfig(ctx context.Context, serverURL, metada
 			authMethodsSupported = authMetadata.TokenEndpointAuthMethodsSupported
 			// Fall back to the AS metadata's advertised scopes when the
 			// resource metadata did not carry any (some servers, e.g.
-			// Mattermost, advertise scopes only here).
+			// Antimatter, advertise scopes only here).
 			if len(scopes) == 0 {
 				scopes = authMetadata.ScopesSupported
 			}

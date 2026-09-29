@@ -38,7 +38,7 @@ func (a *API) resolveExternalServerRebuilder() externalServerRebuilder {
 // Mattermost-Plugin-ID header.
 func (a *API) handleMCPRegister(c *gin.Context) {
 	// Attribute the caller before anything can fail, so every audit fail
-	// path carries it. The header is set by the Mattermost server for
+	// path carries it. The header is set by the Antimatter server for
 	// inter-plugin requests and is the registered PluginID too, so one
 	// parameter covers both the actor and the affected server.
 	trustedPluginID := c.GetHeader("Mattermost-Plugin-ID")

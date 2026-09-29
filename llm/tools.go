@@ -44,7 +44,7 @@ type Tool struct {
 	ServerOrigin string
 
 	// UserInteraction marks a tool whose pending call is answered by the
-	// requesting user in the Mattermost UI instead of executed by the server;
+	// requesting user in the Antimatter UI instead of executed by the server;
 	// the Resolver is only an error backstop. Empty for normal tools.
 	UserInteraction string
 
@@ -63,7 +63,7 @@ type Tool struct {
 }
 
 // UserInteractionSelect identifies tools answered by the user picking from a
-// set of options presented in the Mattermost UI.
+// set of options presented in the Antimatter UI.
 const UserInteractionSelect = "select"
 
 type ToolResolver func(ctx context.Context, llmCtx *Context, argsGetter ToolArgumentGetter) (string, error)

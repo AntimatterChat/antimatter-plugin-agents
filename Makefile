@@ -298,7 +298,7 @@ ifneq ($(HAS_WEBAPP),)
 	cd webapp && npm run check-types
 # Drift tripwire for the window.Components editor contract: always checks the
 # mirrors against the committed host snapshot; additionally probes a live
-# mattermost webapp checkout (and the snapshot's freshness) when one is found.
+# antimatter webapp checkout (and the snapshot's freshness) when one is found.
 	cd webapp && npm run check-editor-contract
 endif
 
@@ -432,7 +432,7 @@ deploy: dist
 mcp-server:
 	@echo Building MCP server...
 	mkdir -p mcpserver/bin
-	$(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) $(GO_BUILD_LDFLAGS) -o mcpserver/bin/mattermost-mcp-server ./mcpserver/cmd/main.go
+	$(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) $(GO_BUILD_LDFLAGS) -o mcpserver/bin/antimatter-mcp-server ./mcpserver/cmd/main.go
 
 ## Builds the evalviewer binary.
 .PHONY: evalviewer
@@ -639,7 +639,7 @@ help:
 	@printf "  \033[36m%-22s\033[0m %s\n" "check-style-fix" "Lint and auto-fix what's fixable; re-extracts i18n strings"
 	@printf "  \033[36m%-22s\033[0m %s\n" "test" "Run all unit tests"
 	@printf "  \033[36m%-22s\033[0m %s\n" "e2e" "Run Playwright e2e suite (slow, defer to CI when possible)"
-	@printf "  \033[36m%-22s\033[0m %s\n" "deploy" "Build and deploy to a running Mattermost"
+	@printf "  \033[36m%-22s\033[0m %s\n" "deploy" "Build and deploy to a running Antimatter"
 	@printf "\nAll documented targets:\n\n"
 	@awk '/^## / { sub(/^## /, "", $$0); if (doc == "") doc=$$0; next } \
 	      /^## *$$/ { next } \

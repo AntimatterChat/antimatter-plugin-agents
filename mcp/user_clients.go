@@ -470,7 +470,7 @@ func remoteOriginIdentityForMode(server ServerConfig, conflicting, serviceAccoun
 	return identity
 }
 
-// embeddedConnectTask builds the task for the embedded Mattermost MCP server.
+// embeddedConnectTask builds the task for the embedded Antimatter MCP server.
 // It replaces any cached session because the caller only schedules it when the
 // user's embedded session ID changed.
 func (c *UserClients) embeddedConnectTask(ctx context.Context, sessionID string, embeddedClient *EmbeddedServerClient) connectTask {
@@ -664,7 +664,8 @@ func (c *UserClients) Close() {
 }
 
 // collectToolsFromSnapshots namespaces and de-dupes tools across bags exactly
-// once so a remote named "Mattermost" cannot collide with the embedded server.
+// once so a remote named "Mattermost" (the embedded server's tool-name slug)
+// cannot collide with the embedded server.
 func collectToolsFromSnapshots(userID string, log pluginapi.LogService, snapshots ...[]userClientSnapshot) []llm.Tool {
 	var merged []userClientSnapshot
 	for _, snapshot := range snapshots {

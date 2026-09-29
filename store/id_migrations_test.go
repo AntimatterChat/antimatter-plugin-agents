@@ -104,7 +104,7 @@ func TestMigrateABACIDs(t *testing.T) {
 				require.NoError(t, err)
 				byName := map[string]string{}
 				for _, svc := range cfg.Services {
-					assert.True(t, model.IsValidId(svc.ID), "service %q ID %q should be a valid Mattermost ID", svc.Name, svc.ID)
+					assert.True(t, model.IsValidId(svc.ID), "service %q ID %q should be a valid Antimatter ID", svc.Name, svc.ID)
 					byName[svc.Name] = svc.ID
 				}
 				assert.Equal(t, byName["A"], getAgentServiceRow(t, s, "agent1").ServiceID)

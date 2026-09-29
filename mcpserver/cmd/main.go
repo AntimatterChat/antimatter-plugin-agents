@@ -31,9 +31,9 @@ var (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "mattermost-mcp-server",
-		Short: "Mattermost Model Context Protocol (MCP) Server",
-		Long: `A Model Context Protocol (MCP) server that provides tools for interacting with Mattermost.
+		Use:   "antimatter-mcp-server",
+		Short: "Antimatter Model Context Protocol (MCP) Server",
+		Long: `A Model Context Protocol (MCP) server that provides tools for interacting with Antimatter.
 
 The server supports reading posts, searching, creating content, and managing teams/channels.
 Authentication is handled via Personal Access Tokens (PAT).`,
@@ -110,7 +110,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid transport type: %s (supported types: 'stdio', 'http')", transport)
 	}
 
-	logger.Debug("starting mattermost mcp server",
+	logger.Debug("starting antimatter mcp server",
 		"server_url", amServerURL,
 		"transport", transport,
 	)
@@ -119,7 +119,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 		logger.Info("development mode enabled", "dev_mode", devMode)
 	}
 
-	// Create Mattermost MCP server based on transport type
+	// Create Antimatter MCP server based on transport type
 	var mcpServer interface{ Serve() error }
 
 	switch transport {

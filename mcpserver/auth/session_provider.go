@@ -12,7 +12,7 @@ import (
 )
 
 // SessionAuthenticationProvider provides session-based authentication for in-memory transport
-// This provider uses existing Mattermost session tokens passed through context,
+// This provider uses existing Antimatter session tokens passed through context,
 // eliminating the need for separate OAuth flows for embedded MCP servers
 type SessionAuthenticationProvider struct {
 	providerBase
@@ -32,7 +32,7 @@ func (p *SessionAuthenticationProvider) ValidateAuth(ctx context.Context) error 
 	return validateAuth(ctx, p)
 }
 
-// GetAuthenticatedAntimatterClient returns a session-authenticated Mattermost client
+// GetAuthenticatedAntimatterClient returns a session-authenticated Antimatter client
 // Uses token resolver to get tokens from session IDs for the embedded server
 func (p *SessionAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx context.Context) (*model.Client4, error) {
 	client, _, err := p.authenticatedClientAndUser(ctx)
@@ -42,7 +42,7 @@ func (p *SessionAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx con
 	return client, nil
 }
 
-// GetAuthenticatedUser returns the authenticated Mattermost user for the session token in context.
+// GetAuthenticatedUser returns the authenticated Antimatter user for the session token in context.
 // Uses token resolver to get tokens from session IDs for the embedded server
 func (p *SessionAuthenticationProvider) GetAuthenticatedUser(ctx context.Context) (*model.User, error) {
 	_, user, err := p.authenticatedClientAndUser(ctx)
@@ -74,7 +74,7 @@ func (p *SessionAuthenticationProvider) authenticatedClientAndUser(ctx context.C
 	}
 
 	// Create client and set session token
-	// Session tokens can be used directly as Bearer tokens in Mattermost API
+	// Session tokens can be used directly as Bearer tokens in Antimatter API
 	client := model.NewAPIv4Client(p.amServerURL)
 	client.SetToken(token)
 

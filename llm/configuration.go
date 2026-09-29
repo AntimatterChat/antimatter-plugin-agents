@@ -14,7 +14,7 @@ import (
 )
 
 // MaxCustomInstructionsRunes bounds the per-turn LLM system prompt and agent-save
-// request. Custom instructions are sent only to the LLM, not as Mattermost posts.
+// request. Custom instructions are sent only to the LLM, not as Antimatter posts.
 const MaxCustomInstructionsRunes = 100000
 
 // DefaultMaxToolTurns is the default tool-call-execute-recall ceiling per LLM turn.
@@ -202,7 +202,7 @@ type BotConfig struct {
 
 	// UseServiceAccountAuth switches external MCP access for this agent to
 	// admin-configured ServiceAccountHeaders instead of per-user OAuth.
-	// Embedded Mattermost and plugin MCP servers still run as the requesting user.
+	// Embedded Antimatter and plugin MCP servers still run as the requesting user.
 	UseServiceAccountAuth bool `json:"useServiceAccountAuth"`
 
 	// ReasoningEnabled determines whether reasoning/thinking is enabled for this bot.

@@ -7,7 +7,7 @@
 # Plugin endpoint: localhost:4317 (matches the existing default)
 # Grafana UI:      http://localhost:3001  (anonymous Admin, no login)
 #
-# Grafana is mapped to :3001 (not :3000) to avoid collisions with Mattermost's
+# Grafana is mapped to :3001 (not :3000) to avoid collisions with Antimatter's
 # webapp dev server and the mattermost-server build/docker-compose stack.
 
 services:

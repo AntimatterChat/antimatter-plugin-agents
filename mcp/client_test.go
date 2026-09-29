@@ -234,7 +234,7 @@ func newTestLogService() pluginapi.LogService {
 
 func newTestOAuthManager() *OAuthManager {
 	pluginAPI := newTestPluginAPIWithSession("")
-	return NewOAuthManager(amapi.NewClient(pluginAPI), "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", http.DefaultClient, nil)
+	return NewOAuthManager(amapi.NewClient(pluginAPI), "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", http.DefaultClient, nil)
 }
 
 func newTestPluginAPIWithSession(sessionID string) *pluginapi.Client {

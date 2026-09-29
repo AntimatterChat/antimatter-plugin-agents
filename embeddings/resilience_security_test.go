@@ -125,7 +125,7 @@ func TestSearchAcrossArchivedChannels(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, results, 2, "Both posts should be visible before archival")
 
-	// Archive the channel (Mattermost sets DeleteAt to non-zero timestamp)
+	// Archive the channel (Antimatter sets DeleteAt to non-zero timestamp)
 	_, err = db.Exec("UPDATE Channels SET DeleteAt = $1 WHERE Id = $2", model.GetMillis(), "to_be_archived")
 	require.NoError(t, err)
 

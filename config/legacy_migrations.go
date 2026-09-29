@@ -212,7 +212,7 @@ func RunAllLegacyMigrations(cfg Config, loadLegacyConfig func() (LegacyServiceCo
 	return cfg, changed, nil
 }
 
-// generateServiceID returns a Mattermost-style 26-char service ID. Service IDs
+// generateServiceID returns an Antimatter-style 26-char service ID. Service IDs
 // are ABAC policy identities; config-bot IDs (below) intentionally stay UUIDs.
 func generateServiceID() string {
 	return model.NewId()

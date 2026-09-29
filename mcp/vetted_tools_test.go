@@ -33,7 +33,7 @@ func TestSeedVettedToolConfigs(t *testing.T) {
 			wantCount: 8,
 		},
 		{
-			name:      "Mattermost seeds 69 read tools",
+			name:      "Antimatter seeds 69 read tools",
 			baseURL:   EmbeddedClientKey,
 			wantCount: 69,
 		},
@@ -113,7 +113,7 @@ func TestSeedVettedToolConfigsSpotChecks(t *testing.T) {
 		requireNoToolConfig(t, configs, "generate_diagram")
 	})
 
-	t.Run("Mattermost", func(t *testing.T) {
+	t.Run("Antimatter", func(t *testing.T) {
 		configs := SeedVettedToolConfigs(EmbeddedClientKey)
 		requireToolConfig(t, configs, "search_posts", ToolPolicyAutoRunInDM, true)
 		requireToolConfig(t, configs, "search_users", ToolPolicyAutoRunInDM, true)

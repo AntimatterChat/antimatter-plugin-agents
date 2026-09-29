@@ -69,10 +69,10 @@ func TestServerToolActivityRecord(t *testing.T) {
 		{
 			name: "web search and fetch report their targets",
 			uses: []llm.ServerToolUse{
-				{ID: "s1", Tool: llm.NativeToolWebSearch, Query: "mattermost plugins"},
+				{ID: "s1", Tool: llm.NativeToolWebSearch, Query: "antimatter plugins"},
 				{ID: "s2", Tool: llm.NativeToolWebFetch, URL: "https://example.com", Title: "Example"},
 			},
-			contains: []string{"mattermost plugins", "https://example.com", "Example"},
+			contains: []string{"antimatter plugins", "https://example.com", "Example"},
 		},
 		{
 			name:  "an entry with no tool produces no replay record",

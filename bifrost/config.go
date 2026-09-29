@@ -44,7 +44,7 @@ func MapServiceTypeToProvider(serviceType string) (schemas.ModelProvider, error)
 
 // SupportsNativeTools reports whether the given service type can use provider
 // native tools (currently, web search). This gates both request-time filtering
-// and the effective-behavior checks used by built-in Mattermost tools so that
+// and the effective-behavior checks used by built-in Antimatter tools so that
 // built-in fallbacks do not get suppressed when native tools would be stripped.
 // North maps to the OpenAI provider but does not expose native tools, so this
 // is keyed off SupportedNativeToolsForServiceType rather than the Bifrost

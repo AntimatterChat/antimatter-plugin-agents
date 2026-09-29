@@ -65,9 +65,9 @@ type GetUserChannelsArgs struct {
 
 // Tool description constants for channel-related tools.
 const (
-	readChannelDescription = "Read recent posts from a Mattermost channel, with history pagination. Parameters: channel_id (required), limit (1-100, default 20), page (default 0), since (ISO 8601 timestamp), before (post ID), after (post ID). Use before/after with a post ID to page through older/newer history; since/before/after are mutually exclusive. Returns post details including author, content, and timestamps. Example: {\"channel_id\": \"h5wqm8kxptbztfgzpaxbsqozah\", \"limit\": 10, \"before\": \"8xqzn3pfmtbyfkr9hqbw4hheoa\"}"
+	readChannelDescription = "Read recent posts from an Antimatter channel, with history pagination. Parameters: channel_id (required), limit (1-100, default 20), page (default 0), since (ISO 8601 timestamp), before (post ID), after (post ID). Use before/after with a post ID to page through older/newer history; since/before/after are mutually exclusive. Returns post details including author, content, and timestamps. Example: {\"channel_id\": \"h5wqm8kxptbztfgzpaxbsqozah\", \"limit\": 10, \"before\": \"8xqzn3pfmtbyfkr9hqbw4hheoa\"}"
 
-	createChannelDescription = "Create a new channel in Mattermost. Parameters: name (URL-friendly), display_name (user-visible), type ('O' for public, 'P' for private), team_id (required), purpose (optional), header (optional). Returns created channel details. Example: {\"name\": \"dev-chat\", \"display_name\": \"Development Chat\", \"type\": \"O\", \"team_id\": \"w1jkn9ebkiby7qezqfxk7o5ney\"}"
+	createChannelDescription = "Create a new channel in Antimatter. Parameters: name (URL-friendly), display_name (user-visible), type ('O' for public, 'P' for private), team_id (required), purpose (optional), header (optional). Returns created channel details. Example: {\"name\": \"dev-chat\", \"display_name\": \"Development Chat\", \"type\": \"O\", \"team_id\": \"w1jkn9ebkiby7qezqfxk7o5ney\"}"
 
 	getChannelInfoDescription = "Get information about channel(s). Provide channel_id (fastest) or channel_name (matches against both display name and URL name, case-insensitive, supports partial matches). Optional: team_id to limit search scope. If multiple channels match (e.g., 'General' exists in multiple teams), returns ALL matches with team context for disambiguation. Returns channel metadata including ID, names, type, team, purpose, member count, and the requesting user's role in the channel (admin, member, guest, or not_member). Example: {\"channel_name\": \"General\"} or {\"channel_id\": \"h5wqm8kxptbztfgzpaxbsqozah\"}"
 
@@ -764,7 +764,7 @@ func (p *AntimatterToolProvider) toolGetUserChannels(mcpContext *MCPToolContext,
 	}
 	// Fetch all channels for the user (including DMs, GMs, and team channels).
 	// NOTE: GetChannelsForUserWithLastDeleteAt does not support server-side pagination,
-	// so we fetch all channels and paginate in memory. This is a Mattermost API limitation.
+	// so we fetch all channels and paginate in memory. This is an Antimatter API limitation.
 	// Pass 0 for lastDeleteAt to get all channels without filtering.
 	allChannels, _, err := client.GetChannelsForUserWithLastDeleteAt(ctx, user.Id, 0)
 	if err != nil {

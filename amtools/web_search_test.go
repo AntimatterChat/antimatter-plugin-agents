@@ -243,14 +243,14 @@ func TestWebSearchTracking(t *testing.T) {
 		ctx.Parameters[WebSearchCountKey] = 0
 
 		// After first search
-		ctx.Parameters[WebSearchExecutedQueriesKey] = []string{"mattermost features"}
+		ctx.Parameters[WebSearchExecutedQueriesKey] = []string{"antimatter features"}
 		ctx.Parameters[WebSearchCountKey] = 1
 
 		queries := ctx.Parameters[WebSearchExecutedQueriesKey].([]string)
 		count := ctx.Parameters[WebSearchCountKey].(int)
 
 		require.Len(t, queries, 1)
-		require.Equal(t, "mattermost features", queries[0])
+		require.Equal(t, "antimatter features", queries[0])
 		require.Equal(t, 1, count)
 	})
 

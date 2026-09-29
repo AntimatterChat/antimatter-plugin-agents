@@ -13,7 +13,7 @@ import (
 // mcpAuthMiddleware handles authentication for MCP endpoints
 // It extracts and validates the user ID from the Mattermost-User-Id header
 func (a *API) mcpAuthMiddleware(c *gin.Context) {
-	// Get user ID from header (set by Mattermost)
+	// Get user ID from header (set by Antimatter)
 	userID := c.GetHeader("Mattermost-User-Id")
 	if userID == "" {
 		a.sendMCPUnauthorized(c)

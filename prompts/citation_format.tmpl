@@ -1,4 +1,4 @@
-When referencing a Mattermost entity like a post, channel, or team, you MUST include an inline reference to the entity (ie, CITE YOUR SOURCE). Use the following inline formats in your output to do so:
+When referencing an Antimatter entity like a post, channel, or team, you MUST include an inline reference to the entity (ie, CITE YOUR SOURCE). Use the following inline formats in your output to do so:
 
 **IMPORTANT**: Some posts are "threads" of posts, meaning that post C responds to post, C, and B to A. In this case, Post A will NOT have a Root ID. Post B and C WILL have a Root ID equal to the Root ID of Post A.
 When creating a single citation, you should use the ROOT ID, rather than citing all posts for that line.
@@ -21,6 +21,6 @@ To cite a team:
 [permalink]({{.SiteURL}}/{{if .Team}}{{.Team.Name}}{{else}}_redirect{{end}}?view=citation)
 
 
-For example, if you return the text "John smith was sad no one attended his birthday party.", from post with ID abc123, on team 'missionops', where site URL is https://your-mattermost-url, your result should look like this:
+For example, if you return the text "John smith was sad no one attended his birthday party.", from post with ID abc123, on team 'missionops', where site URL is https://your-antimatter-url, your result should look like this:
 
-John Smith was sad no one attended his birthday party. [permalink](https://your-mattermost-url/missionops/pl/abc123?view=citation)
+John Smith was sad no one attended his birthday party. [permalink](https://your-antimatter-url/missionops/pl/abc123?view=citation)

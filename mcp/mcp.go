@@ -6,7 +6,7 @@
 //
 // The UserClients represents a single user's connection to multiple MCP servers.
 // The Client represents a connection to a single MCP server.
-// The UserClients currently only supports authentication via Mattermost user ID header
+// The UserClients currently only supports authentication via Antimatter user ID header
 // X-Mattermost-UserID. In the future it will support our OAuth implementation.
 //
 // The ClientManager manages multiple UserClients, allowing for efficient mangement
@@ -85,7 +85,7 @@ func DiscoverPluginServerTools(
 	}
 
 	httpClient := PluginServerHTTPClient(NewPluginHTTPRoundTripper(cfg.PluginID, cfg.Path, sourcePluginAPI), userID)
-	session, err := ConnectPluginServer(ctx, "mattermost-agents-admin-probe", cfg.Path, httpClient)
+	session, err := ConnectPluginServer(ctx, "antimatter-agents-admin-probe", cfg.Path, httpClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to plugin MCP server %s: %w", cfg.PluginID, err)
 	}

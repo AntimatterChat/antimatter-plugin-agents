@@ -20,7 +20,7 @@ type agentCounter interface {
 	CountActiveAgents() (int, error)
 }
 
-// SupportPacket contains diagnostics data included in the Mattermost Support Packet.
+// SupportPacket contains diagnostics data included in the Antimatter Support Packet.
 type SupportPacket struct {
 	Version string `yaml:"version"`
 

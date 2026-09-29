@@ -65,7 +65,7 @@ type PluginMCPHandlers struct {
 	currentServer *mcp.Server
 }
 
-// NewPluginMCPHandlers creates MCP handlers for the Mattermost plugin.
+// NewPluginMCPHandlers creates MCP handlers for the Antimatter plugin.
 // registry may be nil to disable plugin-server aggregation. Callers must
 // inject auth (bearer token or user-ID) via plugin middleware.
 // Runtime services, when supplied, are the access checker followed by the
@@ -138,7 +138,7 @@ func NewPluginMCPHandlers(
 	})
 
 	resourceURL := fmt.Sprintf("%s/plugins/mattermost-ai/mcp-server", siteURL)
-	metadataHandler := CreateOAuthMetadataHandler(resourceURL, siteURL, "Mattermost MCP Server")
+	metadataHandler := CreateOAuthMetadataHandler(resourceURL, siteURL, "Antimatter MCP Server")
 
 	metadataURL := fmt.Sprintf("%s/plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource", siteURL)
 
@@ -155,7 +155,7 @@ func NewPluginMCPHandlers(
 func (h *PluginMCPHandlers) buildServer() *mcp.Server {
 	mcpServer := mcp.NewServer(
 		&mcp.Implementation{
-			Name:    "mattermost-mcp-server",
+			Name:    "antimatter-mcp-server",
 			Version: "0.1.0",
 		},
 		nil,
@@ -213,7 +213,7 @@ type proxyDiscovery struct {
 // addProxyTools discovers every externally-exposed plugin server concurrently
 // and then registers the results sequentially, in registry-snapshot order.
 // Splitting discovery from registration is what keeps collision winners
-// independent of which source plugin answers first: native Mattermost tools
+// independent of which source plugin answers first: native Antimatter tools
 // always win, and among plugins the first entry in the snapshot wins.
 func (h *PluginMCPHandlers) addProxyTools(mcpServer *mcp.Server, toolOwners map[string]toolOwner) {
 	var exposed []mcppkg.PluginServerConfig
@@ -254,7 +254,7 @@ func (h *PluginMCPHandlers) addProxyTools(mcpServer *mcp.Server, toolOwners map[
 			}
 			if existing, taken := toolOwners[proxyTool.Name]; taken {
 				if existing.ownerKey == nativeAntimatterToolOwner {
-					h.logger.Error("proxy tool name conflicts with native Mattermost tool; skipping",
+					h.logger.Error("proxy tool name conflicts with native Antimatter tool; skipping",
 						"tool_name", proxyTool.Name,
 						"plugin_id", ps.PluginID)
 				} else {

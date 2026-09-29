@@ -16,7 +16,7 @@ const (
 	MCPToolPolicyAutoRunEverywhere = "auto_run_everywhere"
 
 	// MCPEmbeddedServerOrigin is the runtime ServerOrigin for the embedded
-	// Mattermost MCP server (matches mcp.EmbeddedClientKey).
+	// Antimatter MCP server (matches mcp.EmbeddedClientKey).
 	MCPEmbeddedServerOrigin = "embedded://mattermost"
 )
 

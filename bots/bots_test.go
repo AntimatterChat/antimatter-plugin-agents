@@ -1295,7 +1295,7 @@ func TestPoweredByDescription(t *testing.T) {
 			want:        "Powered by azure - gpt-4",
 		},
 		{
-			name:        "truncates to Mattermost bot description limit",
+			name:        "truncates to Antimatter bot description limit",
 			serviceType: "openai",
 			model:       longModel,
 			want:        string([]rune(prefix + longModel)[:model.BotDescriptionMaxRunes]),

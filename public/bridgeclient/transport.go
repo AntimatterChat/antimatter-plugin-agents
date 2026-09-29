@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// pluginAPIRoundTripper wraps the Mattermost plugin API for HTTP requests
+// pluginAPIRoundTripper wraps the Antimatter plugin API for HTTP requests
 type pluginAPIRoundTripper struct {
 	api PluginAPI
 }
@@ -23,7 +23,7 @@ func (p *pluginAPIRoundTripper) RoundTrip(req *http.Request) (*http.Response, er
 	return resp, nil
 }
 
-// appAPIRoundTripper wraps the Mattermost app layer API for HTTP requests
+// appAPIRoundTripper wraps the Antimatter app layer API for HTTP requests
 type appAPIRoundTripper struct {
 	api    AppAPI
 	userID string

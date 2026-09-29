@@ -16,7 +16,7 @@ import (
 
 func TestGenerateServiceID(t *testing.T) {
 	id := generateServiceID()
-	assert.True(t, model.IsValidId(id), "generated service ID %q must be a valid Mattermost ID", id)
+	assert.True(t, model.IsValidId(id), "generated service ID %q must be a valid Antimatter ID", id)
 	assert.NotEqual(t, id, generateServiceID(), "IDs must be unique")
 }
 
@@ -123,7 +123,7 @@ func TestMigrateSeparateServicesFromBots(t *testing.T) {
 				assert.Equal(t, llm.ServiceTypeOpenAI, result.Services[0].Type)
 				assert.Equal(t, "key1", result.Services[0].APIKey)
 				assert.Equal(t, "gpt-4", result.Services[0].DefaultModel)
-				assert.True(t, model.IsValidId(result.Services[0].ID), "extracted service ID must be a valid Mattermost ID")
+				assert.True(t, model.IsValidId(result.Services[0].ID), "extracted service ID must be a valid Antimatter ID")
 
 				require.Len(t, result.Bots, 1)
 				assert.Equal(t, result.Services[0].ID, result.Bots[0].ServiceID)
@@ -354,7 +354,7 @@ func TestMigrateSeparateServicesFromBots(t *testing.T) {
 						ID:                 "matter-ai",
 						Name:               "matter-ai",
 						DisplayName:        "MatterAI",
-						CustomInstructions: "You are a Mattermost LLM...",
+						CustomInstructions: "You are an Antimatter LLM...",
 						Service: &llm.ServiceConfig{
 							Type:             llm.ServiceTypeOpenAI,
 							APIKey:           "test-key",
@@ -930,7 +930,7 @@ func TestMigrateServicesToBots(t *testing.T) {
 				assert.Equal(t, "org-123", result.Services[0].OrgID)
 				assert.Equal(t, "sk-test-key", result.Services[0].APIKey)
 				assert.Equal(t, 4000, result.Services[0].InputTokenLimit)
-				assert.True(t, model.IsValidId(result.Services[0].ID), "migrated service ID must be a valid Mattermost ID")
+				assert.True(t, model.IsValidId(result.Services[0].ID), "migrated service ID must be a valid Antimatter ID")
 
 				require.Len(t, result.Bots, 1)
 				assert.Equal(t, "ai1", result.Bots[0].Name)

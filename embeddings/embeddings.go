@@ -29,9 +29,9 @@ const (
 	SearchTypeComposite = "composite"
 )
 
-// PostDocument represents a Mattermost post with its metadata
+// PostDocument represents an Antimatter post with its metadata
 type PostDocument struct {
-	PostID    string // ID of the Mattermost post
+	PostID    string // ID of the Antimatter post
 	CreateAt  int64  // Creation timestamp of the referenced post, not when this was indexed
 	TeamID    string
 	ChannelID string

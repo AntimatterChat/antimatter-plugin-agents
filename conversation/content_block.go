@@ -84,7 +84,7 @@ type ContentBlock struct {
 	// File / Image fields
 	Filename string `json:"filename,omitempty"`
 	MimeType string `json:"mime_type,omitempty"`
-	FileID   string `json:"file_id,omitempty"` // image blocks: references Mattermost file attachment
+	FileID   string `json:"file_id,omitempty"` // image blocks: references Antimatter file attachment
 
 	// Annotations fields
 	WebSearchContext *WebSearchContext `json:"web_search_context,omitempty"`

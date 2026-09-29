@@ -403,9 +403,9 @@ func TestOriginValidation(t *testing.T) {
 				},
 				HTTPPort:     8080,
 				HTTPBindAddr: "127.0.0.1",
-				SiteURL:      "https://mattermost.example.com",
+				SiteURL:      "https://antimatter.example.com",
 			},
-			requestOrigin:  "https://mattermost.example.com",
+			requestOrigin:  "https://antimatter.example.com",
 			expectedResult: true,
 		},
 		{
@@ -694,7 +694,7 @@ func TestHTTPServerProtocolVersionNegotiation(t *testing.T) {
 func TestHTTPServerHostValidation(t *testing.T) {
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			AMServerURL: "http://mattermost.internal:8065",
+			AMServerURL: "http://antimatter.internal:8065",
 		},
 		HTTPPort:     8080,
 		HTTPBindAddr: "127.0.0.1",
@@ -721,8 +721,8 @@ func TestHTTPServerHostValidation(t *testing.T) {
 			wantStatus: http.StatusUnauthorized, // passes host check, fails auth
 		},
 		{
-			name:       "configured mattermost host is accepted",
-			host:       "mattermost.internal:8065",
+			name:       "configured antimatter host is accepted",
+			host:       "antimatter.internal:8065",
 			wantStatus: http.StatusUnauthorized, // passes host check, fails auth
 		},
 		{

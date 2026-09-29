@@ -26,7 +26,7 @@ type MCPToolContext struct {
 	AccessMode AccessMode
 	BotUserID  string // User ID for AI-generated content tracking: Bot ID (embedded) or authenticated user ID (external servers)
 
-	// UserID is the Mattermost user ID of the user the Client is authenticated as.
+	// UserID is the Antimatter user ID of the user the Client is authenticated as.
 	// Empty when the auth provider cannot resolve an authenticated user.
 	UserID string
 }
@@ -100,11 +100,11 @@ type SemanticSearchService interface {
 	Search(ctx context.Context, query string, opts search.Options) ([]search.RAGResult, error)
 }
 
-// AntimatterToolProvider provides Mattermost tools following the amtools pattern
+// AntimatterToolProvider provides Antimatter tools following the amtools pattern
 type AntimatterToolProvider struct {
 	authProvider       auth.AuthenticationProvider
 	logger             logger.Logger
-	amServerURL        string // Mattermost server URL for API communication (internal URL if set, otherwise external)
+	amServerURL        string // Antimatter server URL for API communication (internal URL if set, otherwise external)
 	devMode            bool
 	accessMode         AccessMode
 	trackAIGenerated   bool                  // Whether to add ai_generated_by props to posts

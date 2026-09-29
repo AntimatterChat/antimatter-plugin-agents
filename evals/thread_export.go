@@ -83,7 +83,7 @@ func (t *ThreadExport) String() string {
 	return result.String()
 }
 
-// LoadThreadFromJSON loads post data from a JSON file containing exported Mattermost thread data
+// LoadThreadFromJSON loads post data from a JSON file containing exported Antimatter thread data
 // and returns it as ThreadData containing Posts, RootPost, and PostList for testing
 func LoadThreadFromJSON(t *EvalT, path string) *ThreadExport {
 	// Open the JSON file

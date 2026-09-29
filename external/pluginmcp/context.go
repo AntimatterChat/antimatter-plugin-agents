@@ -11,7 +11,7 @@ type userIDKeyType struct{}
 
 var userIDKey = userIDKeyType{}
 
-// GetUserID returns the Mattermost user ID extracted from X-Mattermost-UserID
+// GetUserID returns the Antimatter user ID extracted from X-Mattermost-UserID
 // by ServeHTTP, or "" if none was set. Tool handlers should call this instead
 // of reading headers directly.
 func GetUserID(ctx context.Context) string {

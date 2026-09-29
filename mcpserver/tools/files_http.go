@@ -22,7 +22,7 @@ type HTTPFileContentService struct {
 }
 
 // NewHTTPFileContentService creates a new HTTP-based file content service.
-// pluginURL should be the base URL to the plugin, e.g., "https://mattermost.example.com/plugins/mattermost-ai"
+// pluginURL should be the base URL to the plugin, e.g., "https://antimatter.example.com/plugins/mattermost-ai"
 func NewHTTPFileContentService(pluginURL string) *HTTPFileContentService {
 	return &HTTPFileContentService{
 		pluginURL: pluginURL,

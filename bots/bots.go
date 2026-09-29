@@ -152,7 +152,7 @@ func (b *AMBots) snapshotBotsAndServices() ([]llm.BotConfig, map[string]struct{}
 
 // selectActiveBots keeps the agents config.AgentInactiveReasons reports as
 // active. Inactive agents are omitted from the ensure set (so existing
-// Mattermost bot accounts are deactivated) and from activeDBBotUsernames. DB
+// Antimatter bot accounts are deactivated) and from activeDBBotUsernames. DB
 // rows are never deleted.
 func (b *AMBots) selectActiveBots(pool []llm.BotConfig, dbNames map[string]struct{}) ([]llm.BotConfig, map[string]struct{}) {
 	reasons := config.AgentInactiveReasons(b.config.GetServices(), pool)
@@ -795,7 +795,7 @@ func (b *AMBots) GetAllBotUserIDs() []string {
 	return ids
 }
 
-// poweredByDescription builds the Mattermost bot description shown in the UI.
+// poweredByDescription builds the Antimatter bot description shown in the UI.
 func poweredByDescription(serviceType, modelName string) string {
 	var description string
 	if modelName == "" {

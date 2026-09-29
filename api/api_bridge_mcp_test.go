@@ -104,7 +104,7 @@ func TestHandleMCPRegister(t *testing.T) {
 			assertMock: func(t *testing.T, m *mockMCPClientManager) {
 				require.Len(t, m.registerCalls, 1)
 				got := m.registerCalls[0]
-				require.True(t, model.IsValidId(got.ID), "register must mint a stable Mattermost ID")
+				require.True(t, model.IsValidId(got.ID), "register must mint a stable Antimatter ID")
 				got.ID = ""
 				require.Equal(t, validCfg, got)
 				require.Empty(t, m.unregisterCalls)

@@ -107,7 +107,7 @@ func (e *EmbeddedMCPServer) CreateClientTransport(userID, sessionID string, plug
 // deriveInternalServerURL determines the internal server URL for API
 // communication. We prefer the listen address (localhost) so the call stays
 // in-process and survives external port remapping (e.g. Docker), but when
-// Mattermost terminates TLS itself we fall back to SiteURL — hitting localhost
+// Antimatter terminates TLS itself we fall back to SiteURL — hitting localhost
 // on the HTTPS listener fails cert verification because the cert is issued for
 // the public hostname (MM-69180).
 func deriveInternalServerURL(pluginAPI *pluginapi.Client, siteURL string) string {

@@ -549,7 +549,7 @@ func TestSelectTokenEndpointAuthMethod(t *testing.T) {
 	}{
 		{"empty defaults to basic", nil, "client_secret_basic"},
 		{"basic preferred", []string{"none", "client_secret_post", "client_secret_basic"}, "client_secret_basic"},
-		{"post when basic absent (Mattermost)", []string{"none", "client_secret_post"}, "client_secret_post"},
+		{"post when basic absent (Antimatter)", []string{"none", "client_secret_post"}, "client_secret_post"},
 		{"none when only public", []string{"none"}, "none"},
 		{"unsupported-only falls back to basic (fails clearly at registration)", []string{"private_key_jwt", "tls_client_auth"}, "client_secret_basic"},
 	}
@@ -560,7 +560,7 @@ func TestSelectTokenEndpointAuthMethod(t *testing.T) {
 	}
 }
 
-// TestDCRHonorsServerAuthMethods reproduces the real Mattermost-server
+// TestDCRHonorsServerAuthMethods reproduces the real Antimatter-server
 // topology that failed in the field: the authorization server advertises only
 // ["none","client_secret_post"] and rejects any other token_endpoint_auth_method
 // at registration. Discovery must therefore register with client_secret_post,
@@ -571,7 +571,7 @@ func TestDCRHonorsServerAuthMethods(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/.well-known/oauth-protected-resource", "/.well-known/oauth-protected-resource/mcp":
-			// Mattermost serves its SPA (HTML) here, not RFC 9728 metadata.
+			// Antimatter serves its SPA (HTML) here, not RFC 9728 metadata.
 			w.Header().Set("Content-Type", "text/html")
 			_, _ = w.Write([]byte("<!doctype html>"))
 		case "/.well-known/oauth-authorization-server":
@@ -589,7 +589,7 @@ func TestDCRHonorsServerAuthMethods(t *testing.T) {
 			var body map[string]any
 			require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
 			registeredMethod, _ = body["token_endpoint_auth_method"].(string)
-			// Reject anything the server doesn't support, like Mattermost does.
+			// Reject anything the server doesn't support, like Antimatter does.
 			if registeredMethod != "none" && registeredMethod != "client_secret_post" {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusBadRequest)

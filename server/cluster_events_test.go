@@ -161,7 +161,7 @@ func TestStreamStopClusterRoundTrip(t *testing.T) {
 
 	// Capture the broadcast event on the publisher and feed it verbatim
 	// to the receiver's OnPluginClusterEvent. This is exactly what the
-	// Mattermost cluster does across nodes: reliable delivery of the
+	// Antimatter cluster does across nodes: reliable delivery of the
 	// serialized event.
 	publisherAPI.On("PublishPluginClusterEvent",
 		mock.AnythingOfType("model.PluginClusterEvent"),
@@ -459,7 +459,7 @@ func TestChannelAutoReplyClusterRoundTrip(t *testing.T) {
 	publisher.SetAPI(publisherAPI)
 
 	// Capture the broadcast event on the publisher and feed it verbatim
-	// to the receiver's OnPluginClusterEvent, exactly like the Mattermost
+	// to the receiver's OnPluginClusterEvent, exactly like the Antimatter
 	// cluster does across nodes.
 	publisherAPI.On("PublishPluginClusterEvent",
 		mock.AnythingOfType("model.PluginClusterEvent"),

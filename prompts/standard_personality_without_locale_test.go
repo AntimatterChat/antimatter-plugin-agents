@@ -69,7 +69,7 @@ func TestStandardPersonalityWithoutLocaleWhitespaceGating(t *testing.T) {
 		{name: "requesting_user_nil", buildRequestingUser: func() *model.User { return nil }},
 	}
 	mutators := []func(*llm.Context){
-		func(c *llm.Context) { c.CompanyName = "Mattermost" },
+		func(c *llm.Context) { c.CompanyName = "Antimatter" },
 		func(c *llm.Context) {
 			c.DisabledToolsInfo = []llm.ToolInfo{{Name: "Jira", Description: "Read tickets"}}
 		},
@@ -316,7 +316,7 @@ func TestStandardPersonalitySandboxFileGuidance(t *testing.T) {
 			want: false,
 		},
 		{
-			// Sandbox still runs with Mattermost tools disabled, so guidance cannot be gated on tools.
+			// Sandbox still runs with Antimatter tools disabled, so guidance cannot be gated on tools.
 			name: "attachment active with no tool store",
 			context: &llm.Context{
 				BotName:     "ai",

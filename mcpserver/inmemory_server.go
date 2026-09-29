@@ -27,7 +27,7 @@ type AntimatterInMemoryMCPServer struct {
 // corresponding capability is unavailable.
 func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*AntimatterInMemoryMCPServer, error) {
 	if config.AMServerURL == "" {
-		return nil, fmt.Errorf("mattermost server URL cannot be empty for in-memory transport")
+		return nil, fmt.Errorf("antimatter server URL cannot be empty for in-memory transport")
 	}
 
 	if logger == nil {
@@ -55,7 +55,7 @@ func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchSer
 	// Create MCP server instance
 	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
-			Name:    "mattermost-mcp-server-embedded",
+			Name:    "antimatter-mcp-server-embedded",
 			Version: "0.1.0",
 		},
 		nil, // ServerOptions - keeping nil for now

@@ -21,7 +21,7 @@ type HTTPSemanticSearchService struct {
 }
 
 // NewHTTPSemanticSearchService creates a new HTTP-based semantic search service.
-// pluginURL should be the base URL to the plugin, e.g., "https://mattermost.example.com/plugins/mattermost-ai"
+// pluginURL should be the base URL to the plugin, e.g., "https://antimatter.example.com/plugins/mattermost-ai"
 func NewHTTPSemanticSearchService(pluginURL string) *HTTPSemanticSearchService {
 	return &HTTPSemanticSearchService{
 		pluginURL: pluginURL,

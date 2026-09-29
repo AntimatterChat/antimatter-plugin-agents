@@ -77,7 +77,7 @@ func resolveCreateFile(ctx context.Context, client amapi.Client, llmCtx *llm.Con
 	}
 
 	if client == nil {
-		return "file creation is not available", errors.New("mattermost client unavailable for CreateFile")
+		return "file creation is not available", errors.New("antimatter client unavailable for CreateFile")
 	}
 	if policyErr := uploadPolicyAllowed(client, llmCtx); policyErr != nil {
 		return createFilePolicyUserMessage(policyErr), fmt.Errorf("CreateFile rejected: %w", policyErr)

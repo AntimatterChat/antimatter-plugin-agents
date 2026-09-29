@@ -28,7 +28,7 @@ func newProxyHTTPClient(ctx context.Context, cfg mcppkg.PluginServerConfig, sour
 }
 
 func connectProxySession(ctx context.Context, cfg mcppkg.PluginServerConfig, sourcePluginAPI amapi.Client, callerUserID string) (*gosdkmcp.ClientSession, error) {
-	return mcppkg.ConnectPluginServer(ctx, "mattermost-agents-plugin-aggregator", cfg.Path,
+	return mcppkg.ConnectPluginServer(ctx, "antimatter-agents-plugin-aggregator", cfg.Path,
 		newProxyHTTPClient(ctx, cfg, sourcePluginAPI, callerUserID))
 }
 

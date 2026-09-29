@@ -589,7 +589,7 @@ func TestPostRegistration_BodyCloseErrorIsLoggedNotReturned(t *testing.T) {
 }
 
 // TestUnregister_DeadlinePropagated verifies the request context handed to
-// PluginHTTP carries a deadline, so downstream code (and the Mattermost
+// PluginHTTP carries a deadline, so downstream code (and the Antimatter
 // plugin RPC layer) can short-circuit on cancel.
 func TestUnregister_DeadlinePropagated(t *testing.T) {
 	var (

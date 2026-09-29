@@ -82,7 +82,7 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*AntimatterHTTPM
 
 	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
-			Name:    "mattermost-mcp-server",
+			Name:    "antimatter-mcp-server",
 			Version: "0.1.0",
 		},
 		nil, // ServerOptions - keeping nil for now
@@ -223,7 +223,7 @@ func (s *AntimatterHTTPMCPServer) getAllowedOrigins() []string {
 	// Use a map to avoid duplicates
 	originsMap := make(map[string]struct{})
 
-	// Add Mattermost server URL as allowed origin
+	// Add Antimatter server URL as allowed origin
 	if amURL := s.config.GetAMServerURL(); amURL != "" {
 		originsMap[amURL] = struct{}{}
 	}

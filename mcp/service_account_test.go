@@ -394,7 +394,8 @@ func TestClientManagerServiceAccountCatalogExcludesNonSARemotes(t *testing.T) {
 	requireToolNames(t, tools, "sa_server__sa_tool")
 }
 
-// A remote named "Mattermost" slugs to the same prefix as the embedded server.
+// A remote named "Mattermost" slugs to the same prefix as the embedded server
+// (the embedded server keeps the "mattermost" tool-name slug for compatibility).
 // Namespacing must run once across both bags so both tools survive.
 func TestCollectCatalogCrossBagToolNameCollision(t *testing.T) {
 	runCtx, cancelRun := context.WithCancel(context.Background())

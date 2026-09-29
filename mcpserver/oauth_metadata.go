@@ -80,6 +80,6 @@ func handleOAuthMetadataCommon(w http.ResponseWriter, r *http.Request, resourceU
 func (s *AntimatterHTTPMCPServer) handleProtectedResourceMetadata(w http.ResponseWriter, r *http.Request) {
 	resourceURL := s.config.SiteURL
 	authServerURL := s.config.GetAMServerURL()
-	handleOAuthMetadataCommon(w, r, resourceURL, authServerURL, "Mattermost MCP Server")
+	handleOAuthMetadataCommon(w, r, resourceURL, authServerURL, "Antimatter MCP Server")
 	s.logger.Debug("Protected resource metadata requested", "remote_addr", r.RemoteAddr)
 }

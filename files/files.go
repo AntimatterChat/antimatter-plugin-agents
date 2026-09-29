@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-// Package files serves the text contents of Mattermost file attachments to the
+// Package files serves the text contents of Antimatter file attachments to the
 // LLM on demand. It exists because the server-extracted text (FileInfo.Content,
 // used for PDFs and Office documents) is tagged json:"-" and is never returned
 // over the REST API, so the MCP server's user-scoped client cannot read it.
@@ -58,7 +58,7 @@ type Service struct {
 	mm amapi.Client
 }
 
-// New creates a file content service backed by the given Mattermost client.
+// New creates a file content service backed by the given Antimatter client.
 func New(mm amapi.Client) *Service {
 	return &Service{mm: mm}
 }

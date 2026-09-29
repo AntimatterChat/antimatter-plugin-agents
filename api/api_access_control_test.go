@@ -515,7 +515,7 @@ func TestEmbeddedAndPluginMCPPolicyRoutes(t *testing.T) {
 		wantName   string // non-empty: assert SaveAccessControlPolicy received this Name
 	}{
 		{name: "GET embedded policy", method: http.MethodGet, serverID: embeddedID, wantStatus: http.StatusOK},
-		{name: "PUT embedded policy", method: http.MethodPut, serverID: embeddedID, body: policyBody, wantStatus: http.StatusOK, wantName: "Mattermost"},
+		{name: "PUT embedded policy", method: http.MethodPut, serverID: embeddedID, body: policyBody, wantStatus: http.StatusOK, wantName: "Antimatter"},
 		{name: "DELETE embedded policy", method: http.MethodDelete, serverID: embeddedID, wantStatus: http.StatusOK},
 		{name: "GET plugin policy", method: http.MethodGet, serverID: pluginID, wantStatus: http.StatusOK},
 		{name: "PUT plugin policy", method: http.MethodPut, serverID: pluginID, body: policyBody, wantStatus: http.StatusOK, wantName: "Plugin MCP"},

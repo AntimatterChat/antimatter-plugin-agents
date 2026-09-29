@@ -41,10 +41,10 @@ func setupTestOAuthManagerFull(t *testing.T, lookup ServerConfigLookup, httpClie
 
 func TestStartURL(t *testing.T) {
 	manager, _ := setupTestOAuthManagerFull(t, nil, nil)
-	manager.callbackURL = "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback"
+	manager.callbackURL = "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback"
 
 	require.Equal(t,
-		"https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start",
+		"https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start",
 		manager.StartURL("OAuth Server"),
 	)
 }
@@ -391,7 +391,7 @@ func TestOAuthNeededStateLifecycle(t *testing.T) {
 
 	const userID = "user123"
 	const serverID = "GitHub"
-	const authURL = "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start?resource_metadata=https%3A%2F%2Fapi.githubcopilot.com%2F.well-known%2Foauth-protected-resource%2Fmcp"
+	const authURL = "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start?resource_metadata=https%3A%2F%2Fapi.githubcopilot.com%2F.well-known%2Foauth-protected-resource%2Fmcp"
 
 	mockClient.On("KVSetWithExpiry", buildAuthNeededKey(userID, serverID), mock.AnythingOfType("*mcp.OAuthNeededState"), oauthNeededStateTTL).
 		Run(func(args mock.Arguments) {

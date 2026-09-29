@@ -44,7 +44,7 @@ func (r *ToolRegistry) Lookup(name string) (ToolRegistryEntry, bool) {
 
 func TestToolRegistryLookupAndList(t *testing.T) {
 	tools := []llm.Tool{
-		testRegistryTool("mattermost__search_users", "Search users", "https://mattermost.example.com"),
+		testRegistryTool("mattermost__search_users", "Search users", "https://antimatter.example.com"),
 		testRegistryTool("jira__get_issue", "Get a Jira issue", "https://jira.example.com"),
 	}
 
@@ -179,7 +179,7 @@ func TestToolRegistryClosestMatchesUsesBM25(t *testing.T) {
 
 func TestToolRegistryClosestMatchesFallbackForMiss(t *testing.T) {
 	registry := NewToolRegistry([]llm.Tool{
-		testRegistryTool("mattermost__search_users", "Find people", "https://mattermost.example.com"),
+		testRegistryTool("mattermost__search_users", "Find people", "https://antimatter.example.com"),
 		testRegistryTool("github__create_pull_request", "Open collaboration review", "https://github.example.com"),
 	})
 

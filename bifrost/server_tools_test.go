@@ -119,9 +119,9 @@ func TestStreamResponsesEmitsServerToolActivity(t *testing.T) {
 			events: flatten(
 				[]string{messageStart},
 				[]string{
-					`{"type":"content_block_start","index":0,"content_block":{"type":"server_tool_use","id":"srvtoolu_ws","name":"web_search","input":{"query":"latest mattermost release"}}}`,
+					`{"type":"content_block_start","index":0,"content_block":{"type":"server_tool_use","id":"srvtoolu_ws","name":"web_search","input":{"query":"latest antimatter release"}}}`,
 					`{"type":"content_block_stop","index":0}`,
-					`{"type":"content_block_start","index":1,"content_block":{"type":"web_search_tool_result","tool_use_id":"srvtoolu_ws","content":[{"type":"web_search_result","title":"Mattermost releases","url":"https://example.com/releases","encrypted_content":"enc1"}]}}`,
+					`{"type":"content_block_start","index":1,"content_block":{"type":"web_search_tool_result","tool_use_id":"srvtoolu_ws","content":[{"type":"web_search_result","title":"Antimatter releases","url":"https://example.com/releases","encrypted_content":"enc1"}]}}`,
 					`{"type":"content_block_stop","index":1}`,
 				},
 				textBlock(2, "Found it."),
@@ -132,7 +132,7 @@ func TestStreamResponsesEmitsServerToolActivity(t *testing.T) {
 				ID:     "srvtoolu_ws",
 				Tool:   llm.NativeToolWebSearch,
 				Status: llm.ServerToolStatusSuccess,
-				Query:  "latest mattermost release",
+				Query:  "latest antimatter release",
 			}},
 		},
 		{

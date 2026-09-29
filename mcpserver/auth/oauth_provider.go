@@ -12,7 +12,7 @@ import (
 )
 
 // OAuthAuthenticationProvider provides OAuth authentication for HTTP transport
-// As a resource server, we only need to validate tokens using Mattermost's API
+// As a resource server, we only need to validate tokens using Antimatter's API
 type OAuthAuthenticationProvider struct {
 	providerBase
 	issuer string
@@ -32,7 +32,7 @@ func (p *OAuthAuthenticationProvider) ValidateAuth(ctx context.Context) error {
 	return validateAuth(ctx, p)
 }
 
-// GetAuthenticatedAntimatterClient returns an OAuth-authenticated Mattermost client
+// GetAuthenticatedAntimatterClient returns an OAuth-authenticated Antimatter client
 func (p *OAuthAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx context.Context) (*model.Client4, error) {
 	// Get token from context (required for OAuth)
 	token, ok := ctx.Value(AuthTokenContextKey).(string)
@@ -50,7 +50,7 @@ func (p *OAuthAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx conte
 	return client, nil
 }
 
-// GetAuthenticatedUser returns the Mattermost user for the OAuth token in context.
+// GetAuthenticatedUser returns the Antimatter user for the OAuth token in context.
 func (p *OAuthAuthenticationProvider) GetAuthenticatedUser(ctx context.Context) (*model.User, error) {
 	client, err := p.GetAuthenticatedAntimatterClient(ctx)
 	if err != nil {

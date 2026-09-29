@@ -202,7 +202,7 @@ func TestDecorateStreamAttachesSandboxFilesOnlyFromActiveContext(t *testing.T) {
 		"historical provider files must remain untouched")
 	require.Equal(t, []llm.EventType{llm.EventTypeFiles, llm.EventTypeEnd}, eventTypes(events))
 	require.Equal(t, []string{"mm-active", "historical-created"}, events[0].Value,
-		"historical contexts remain eligible only for previously created Mattermost files")
+		"historical contexts remain eligible only for previously created Antimatter files")
 }
 
 func createFileResultJSON(t *testing.T, fileID string) string {

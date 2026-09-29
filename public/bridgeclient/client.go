@@ -1,12 +1,12 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-// Package bridgeclient provides a client library for Mattermost plugins and the server
+// Package bridgeclient provides a client library for Antimatter plugins and the server
 // to interact with the AI plugin's LLM Bridge API to make requests to LLM providers.
 //
 // The bridge exposes two families of completion endpoints:
 //
-//   - Agent endpoints target a configured agent by its Mattermost Bot User ID. The
+//   - Agent endpoints target a configured agent by its Antimatter Bot User ID. The
 //     agent's own configuration applies (model override, custom instructions, tools,
 //     reasoning) along with its channel and user access restrictions.
 //   - Service endpoints target a configured LLM service directly. They resolve the
@@ -24,17 +24,17 @@ const (
 	antimatterServerID = "mattermost-server"
 )
 
-// PluginAPI is the minimal interface needed from the Mattermost plugin API
+// PluginAPI is the minimal interface needed from the Antimatter plugin API
 type PluginAPI interface {
 	PluginHTTP(*http.Request) *http.Response
 }
 
-// AppAPI is the minimal interface needed from the Mattermost app layer
+// AppAPI is the minimal interface needed from the Antimatter app layer
 type AppAPI interface {
 	ServeInternalPluginRequest(userID string, w http.ResponseWriter, r *http.Request, sourcePluginID, destinationPluginID string)
 }
 
-// Client is a client for the Mattermost Agents Plugin LLM Bridge API
+// Client is a client for the Antimatter Agents Plugin LLM Bridge API
 type Client struct {
 	httpClient http.Client
 }
@@ -43,7 +43,7 @@ type Client struct {
 type Post struct {
 	Role    string   `json:"role"`               // user|assistant|system
 	Message string   `json:"message"`            // message content
-	FileIDs []string `json:"file_ids,omitempty"` // Mattermost file IDs
+	FileIDs []string `json:"file_ids,omitempty"` // Antimatter file IDs
 }
 
 // CompletionRequest represents a completion request
@@ -69,12 +69,12 @@ type CompletionRequest struct {
 	// OperationSubType optionally overrides the default operation subtype used for token usage logging.
 	// If empty, the bridge chooses a subtype based on request mode (streaming/nostream).
 	OperationSubType string `json:"operation_subtype,omitempty"`
-	// UserID is the optional Mattermost user ID making the request.
+	// UserID is the optional Antimatter user ID making the request.
 	// On agent endpoints it is a permission input: when provided, the bridge checks that
 	// user's access to the agent. On service endpoints it is attribution only — it is
 	// recorded in token usage logs and request context, and no permission check runs.
 	UserID string `json:"user_id,omitempty"`
-	// ChannelID is the optional Mattermost channel ID context for the request.
+	// ChannelID is the optional Antimatter channel ID context for the request.
 	// On agent endpoints, providing it along with UserID makes the bridge check both user
 	// and channel permissions. On service endpoints it is attribution only, like UserID.
 	ChannelID string `json:"channel_id,omitempty"`
@@ -145,7 +145,7 @@ func NewClient(api PluginAPI) *Client {
 	return client
 }
 
-// NewClientFromApp creates a new LLM Bridge API client from the Mattermost server app layer.
+// NewClientFromApp creates a new LLM Bridge API client from the Antimatter server app layer.
 // The userID is used for inter-plugin request authentication.
 func NewClientFromApp(api AppAPI, userID string) *Client {
 	client := &Client{}

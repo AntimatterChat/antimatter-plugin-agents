@@ -80,7 +80,7 @@ func evalTestDB(t *testing.T) *sqlx.DB {
 	_, err = db.Exec("CREATE EXTENSION IF NOT EXISTS vector")
 	require.NoError(t, err)
 
-	// Create mock Mattermost tables
+	// Create mock Antimatter tables
 	tables := []string{
 		`CREATE TABLE IF NOT EXISTS Posts (
 			Id TEXT PRIMARY KEY,

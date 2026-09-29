@@ -13,7 +13,7 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 )
 
-// FileContentService reads the text contents of Mattermost file attachments on
+// FileContentService reads the text contents of Antimatter file attachments on
 // behalf of a user, enforcing that user's channel permissions. *files.Service
 // implements it directly for embedded servers; HTTPFileContentService calls back
 // to the plugin endpoint for external servers.
@@ -29,7 +29,7 @@ type ReadFileArgs struct {
 }
 
 // readFileDescription is the MCP tool metadata description for read_file.
-const readFileDescription = "Read the text contents of a Mattermost file attachment by its File ID. Large attachments in a conversation are shown to you as metadata (name, type, size, File ID) instead of inline content — call this tool with that File ID to read them. Returns extracted text for documents (PDF, Office) and the raw text for plain-text files. Supports ranged reads via offset and limit to page through large files. Parameters: file_id (required), offset (optional), limit (optional). Example: {\"file_id\": \"8xqzn3pfmtbyfkr9hqbw4hheoa\", \"offset\": 0, \"limit\": 6000}"
+const readFileDescription = "Read the text contents of an Antimatter file attachment by its File ID. Large attachments in a conversation are shown to you as metadata (name, type, size, File ID) instead of inline content — call this tool with that File ID to read them. Returns extracted text for documents (PDF, Office) and the raw text for plain-text files. Supports ranged reads via offset and limit to page through large files. Parameters: file_id (required), offset (optional), limit (optional). Example: {\"file_id\": \"8xqzn3pfmtbyfkr9hqbw4hheoa\", \"offset\": 0, \"limit\": 6000}"
 
 // getFileTools returns the file-related tools.
 func (p *AntimatterToolProvider) getFileTools() []MCPTool {

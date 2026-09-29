@@ -441,7 +441,7 @@ func (p *Plugin) OnActivate() error {
 		embeddedServer *EmbeddedMCPServer
 	)
 	// ensureEmbeddedMCPServer builds the embedded server once and reuses it.
-	// The constructor reads Mattermost server config and injected services, not
+	// The constructor reads Antimatter server config and injected services, not
 	// plugin MCP config, so a plugin-config update must not force every
 	// embedded session to reconnect; only a construction failure is retried.
 	// The result is a nil interface, not a typed nil pointer, when the server

@@ -966,7 +966,7 @@ func TestClientManagerGetToolRetrievalOverridesEmbedded(t *testing.T) {
 		config: Config{
 			EmbeddedServer: EmbeddedServerConfig{
 				ToolConfigs: []ToolConfig{
-					{Name: "search_users", Policy: ToolPolicyAsk, Enabled: true, RetrievalDescriptionOverride: "Find Mattermost people"},
+					{Name: "search_users", Policy: ToolPolicyAsk, Enabled: true, RetrievalDescriptionOverride: "Find Antimatter people"},
 				},
 			},
 		},
@@ -976,7 +976,7 @@ func TestClientManagerGetToolRetrievalOverridesEmbedded(t *testing.T) {
 
 	require.Equal(t, map[string]ToolRetrievalOverride{
 		ToolRetrievalOverrideKey(EmbeddedClientKey, "search_users"): {
-			Summary: "Find Mattermost people",
+			Summary: "Find Antimatter people",
 		},
 	}, overrides)
 }
@@ -1261,11 +1261,11 @@ func TestClientManagerMarkOAuthNeededInvalidatesUserClient(t *testing.T) {
 						{userID: "user-1"}: time.Now(),
 					},
 				}
-				manager.oauthManager = NewOAuthManager(storeClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", nil, nil)
+				manager.oauthManager = NewOAuthManager(storeClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", nil, nil)
 				return manager
 			}(),
 			expectedStoredKey:        "mcp_oauth_needed_v1_user-1_GitHub",
-			expectedStoredAuthURL:    "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start",
+			expectedStoredAuthURL:    "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start",
 			expectedStoredTTL:        oauthNeededStateTTL,
 			expectPersistenceAttempt: true,
 		},
@@ -1283,12 +1283,12 @@ func TestClientManagerMarkOAuthNeededInvalidatesUserClient(t *testing.T) {
 						{userID: "user-1"}: time.Now(),
 					},
 				}
-				manager.oauthManager = NewOAuthManager(storeClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", nil, nil)
+				manager.oauthManager = NewOAuthManager(storeClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", nil, nil)
 				return manager
 			}(),
 			expectedErr:              "failed to store OAuth-needed state",
 			expectedStoredKey:        "mcp_oauth_needed_v1_user-1_GitHub",
-			expectedStoredAuthURL:    "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start",
+			expectedStoredAuthURL:    "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start",
 			expectedStoredTTL:        oauthNeededStateTTL,
 			expectPersistenceAttempt: true,
 		},
@@ -1307,7 +1307,7 @@ func TestClientManagerMarkOAuthNeededInvalidatesUserClient(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := tc.manager.MarkOAuthNeeded("user-1", "GitHub", "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start")
+			err := tc.manager.MarkOAuthNeeded("user-1", "GitHub", "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start")
 
 			if tc.expectedErr == "" {
 				require.NoError(t, err)

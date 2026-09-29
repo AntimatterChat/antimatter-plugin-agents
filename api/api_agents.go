@@ -314,7 +314,7 @@ func (a *API) handleCreateAgent(c *gin.Context) {
 	}
 
 	proposed := buildAgentConfigForCreate(req, userID, "")
-	// Validate the built config before creating the Mattermost bot account so an
+	// Validate the built config before creating the Antimatter bot account so an
 	// invalid request does not leave an orphan bot user behind.
 	if err := proposed.Validate(); err != nil {
 		abortAgentRequest(c, http.StatusBadRequest, fmt.Errorf("invalid agent configuration: %w", err))

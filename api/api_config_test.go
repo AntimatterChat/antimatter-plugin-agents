@@ -670,7 +670,7 @@ func TestAdminConfigRoundTripsMCPRetrievalOverride(t *testing.T) {
 						Name:                         "search_users",
 						Policy:                       config.MCPToolPolicyAutoRunInDM,
 						Enabled:                      true,
-						RetrievalDescriptionOverride: "Find Mattermost people",
+						RetrievalDescriptionOverride: "Find Antimatter people",
 					},
 				},
 			},
@@ -696,7 +696,7 @@ func TestAdminConfigRoundTripsMCPRetrievalOverride(t *testing.T) {
 	require.Len(t, loadedCfg.MCP.Servers[0].ToolConfigs, 1)
 	require.Equal(t, "Find Jira issues by incident context", loadedCfg.MCP.Servers[0].ToolConfigs[0].RetrievalDescriptionOverride)
 	require.Len(t, loadedCfg.MCP.EmbeddedServer.ToolConfigs, 1)
-	require.Equal(t, "Find Mattermost people", loadedCfg.MCP.EmbeddedServer.ToolConfigs[0].RetrievalDescriptionOverride)
+	require.Equal(t, "Find Antimatter people", loadedCfg.MCP.EmbeddedServer.ToolConfigs[0].RetrievalDescriptionOverride)
 	require.Equal(t, 1, updater.callCount)
 	require.Equal(t, 1, notifier.callCount)
 }

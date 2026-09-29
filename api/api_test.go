@@ -40,7 +40,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Test ID constants (26-char alphanumeric to match Mattermost ID format)
+// Test ID constants (26-char alphanumeric to match Antimatter ID format)
 const (
 	testBotUserID      = "abcdefghijklmnopqrstuvwxyz"
 	testUserID         = "user12345678901234567890ab"

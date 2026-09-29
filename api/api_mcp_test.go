@@ -366,7 +366,7 @@ func TestHandleGetUserMCPToolsStaticOAuthCredentialsNeedOAuthWhenUnauthenticated
 	amClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).Return(amapi.ErrKVNotFound)
 	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -383,7 +383,7 @@ func TestHandleGetUserMCPToolsStaticOAuthCredentialsNeedOAuthWhenUnauthenticated
 	require.Equal(t, server.Name, response.Servers[0].Name)
 	require.False(t, response.Servers[0].Authenticated)
 	require.True(t, response.Servers[0].NeedsOAuth)
-	require.Equal(t, "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/static-oauth-server/start", response.Servers[0].AuthURL)
+	require.Equal(t, "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/static-oauth-server/start", response.Servers[0].AuthURL)
 	require.Empty(t, response.Servers[0].Tools)
 }
 
@@ -414,7 +414,7 @@ func TestHandleGetUserMCPToolsStoredTokenMarksZeroToolServerAuthenticated(t *tes
 		Return(nil)
 	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -463,7 +463,7 @@ func TestHandleGetUserMCPToolsAuthErrorsOverrideStoredTokensForZeroToolServers(t
 		Maybe()
 	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil).Maybe()
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -477,7 +477,7 @@ func TestHandleGetUserMCPToolsAuthErrorsOverrideStoredTokensForZeroToolServers(t
 				{
 					ServerName:   server.Name,
 					ServerOrigin: server.BaseURL,
-					AuthURL:      "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start",
+					AuthURL:      "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start",
 					Error:        errors.New("oauth needed"),
 				},
 			},
@@ -491,7 +491,7 @@ func TestHandleGetUserMCPToolsAuthErrorsOverrideStoredTokensForZeroToolServers(t
 	require.False(t, response.Servers[0].Authenticated)
 	require.Empty(t, response.Servers[0].Tools)
 	require.True(t, response.Servers[0].NeedsOAuth)
-	require.Equal(t, "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start", response.Servers[0].AuthURL)
+	require.Equal(t, "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/OAuth%20Server/start", response.Servers[0].AuthURL)
 }
 
 func TestHandleGetUserMCPToolsIncludesEmbeddedZeroToolServer(t *testing.T) {
@@ -682,12 +682,12 @@ func TestHandleGetUserMCPToolsAuthNeededStateOverridesDiscoveredTools(t *testing
 		Run(func(args mock.Arguments) {
 			state := args.Get(1).(*mcp.OAuthNeededState)
 			*state = mcp.OAuthNeededState{
-				AuthURL: "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start?resource_metadata=https%3A%2F%2Fapi.githubcopilot.com%2F.well-known%2Foauth-protected-resource%2Fmcp",
+				AuthURL: "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start?resource_metadata=https%3A%2F%2Fapi.githubcopilot.com%2F.well-known%2Foauth-protected-resource%2Fmcp",
 			}
 		}).
 		Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -711,7 +711,7 @@ func TestHandleGetUserMCPToolsAuthNeededStateOverridesDiscoveredTools(t *testing
 	require.Equal(t, server.Name, response.Servers[0].Name)
 	require.False(t, response.Servers[0].Authenticated)
 	require.True(t, response.Servers[0].NeedsOAuth)
-	require.Equal(t, "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start?resource_metadata=https%3A%2F%2Fapi.githubcopilot.com%2F.well-known%2Foauth-protected-resource%2Fmcp", response.Servers[0].AuthURL)
+	require.Equal(t, "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/GitHub/start?resource_metadata=https%3A%2F%2Fapi.githubcopilot.com%2F.well-known%2Foauth-protected-resource%2Fmcp", response.Servers[0].AuthURL)
 	require.Len(t, response.Servers[0].Tools, 1)
 }
 
@@ -1096,7 +1096,7 @@ func TestHandleOAuthStartRedirectsToProviderAuthorizeURL(t *testing.T) {
 	amClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
 	amClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -1118,7 +1118,7 @@ func TestHandleOAuthStartRedirectsToProviderAuthorizeURL(t *testing.T) {
 	redirectURL, err := url.Parse(recorder.Result().Header.Get("Location"))
 	require.NoError(t, err)
 	require.Equal(t, "/authorize", redirectURL.Path)
-	require.Equal(t, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", redirectURL.Query().Get("redirect_uri"))
+	require.Equal(t, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", redirectURL.Query().Get("redirect_uri"))
 	require.NotEmpty(t, redirectURL.Query().Get("state"))
 	require.NotEmpty(t, redirectURL.Query().Get("code_challenge"))
 	require.Equal(t, "S256", redirectURL.Query().Get("code_challenge_method"))
@@ -1162,7 +1162,7 @@ func TestHandleOAuthStartRejectsResourceMetadataWrongOrigin(t *testing.T) {
 	}
 
 	amClient := amapimocks.NewMockClient(t)
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -1272,7 +1272,7 @@ func TestHandleOAuthStartAcceptsResourceMetadataMatchingOrigin(t *testing.T) {
 	amClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
 	amClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -1342,7 +1342,7 @@ func setupAuditOAuthStartEnv(t *testing.T, e *TestEnvironment) mcp.ServerConfig 
 	amClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
 	amClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://antimatter.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}

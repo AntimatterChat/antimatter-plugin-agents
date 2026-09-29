@@ -13,7 +13,7 @@ import (
 )
 
 // AntimatterMCPServer provides a high-level interface for creating an MCP server
-// with Mattermost-specific tools and authentication
+// with Antimatter-specific tools and authentication
 type AntimatterMCPServer struct {
 	mcpServer    *mcp.Server
 	authProvider auth.AuthenticationProvider
@@ -23,7 +23,7 @@ type AntimatterMCPServer struct {
 
 // newPluginCallbackServices builds the HTTP search and file-content services
 // that call back to the Agents plugin's /api/v1 endpoints on the given
-// Mattermost server URL.
+// Antimatter server URL.
 func newPluginCallbackServices(amServerURL string) (*tools.HTTPSemanticSearchService, *tools.HTTPFileContentService) {
 	pluginURL := strings.TrimRight(amServerURL, "/") + "/plugins/mattermost-ai"
 	return tools.NewHTTPSemanticSearchService(pluginURL), tools.NewHTTPFileContentService(pluginURL)

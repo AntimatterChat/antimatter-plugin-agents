@@ -26,7 +26,7 @@ import (
 // amapi.Client are mocked.
 func TestSearchCitationFormat(t *testing.T) {
 	const (
-		siteURL   = "https://mattermost.example.com"
+		siteURL   = "https://antimatter.example.com"
 		teamID    = "team1"
 		teamName  = "engineering"
 		channelID = "ch1"

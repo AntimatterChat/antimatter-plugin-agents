@@ -70,7 +70,7 @@ func (p *AntimatterToolProvider) getSearchTools() []MCPTool {
 
 	if semanticEnabled {
 		schema = NewJSONSchemaForAccessMode[CombinedSearchArgs](string(p.accessMode))
-		description = "Search for posts in Mattermost using both semantic (AI-powered) and keyword search. " +
+		description = "Search for posts in Antimatter using both semantic (AI-powered) and keyword search. " +
 			"Semantic search finds posts by meaning and does not require exact term matches. " +
 			"Keyword search treats the query as a literal AND match — every whitespace-separated token must appear in the same post — so prefer short, focused queries (1-2 key terms) over long multi-word phrases. " +
 			"Parameters: query (required), team_id (optional), channel_id (optional). " +
@@ -83,7 +83,7 @@ func (p *AntimatterToolProvider) getSearchTools() []MCPTool {
 			contextHint
 	} else {
 		schema = NewJSONSchemaForAccessMode[KeywordOnlySearchArgs](string(p.accessMode))
-		description = "Search for posts in Mattermost using keyword search. " +
+		description = "Search for posts in Antimatter using keyword search. " +
 			"Treats the query as a literal AND match — every whitespace-separated token must appear in the same post — so prefer short, focused queries (1-2 key terms) over long multi-word phrases. " +
 			"Parameters: query (required), team_id (optional), channel_id (optional). " +
 			"keyword_limit/keyword_offset control results (default: 10). " +
@@ -110,7 +110,7 @@ func buildSearchTermWithChannel(query, channelName string) string {
 	return "in:" + channelName + " " + query
 }
 
-// applySearchModifiers prepends Mattermost keyword-search modifiers (from:, in:,
+// applySearchModifiers prepends Antimatter keyword-search modifiers (from:, in:,
 // before:, after:) derived from the structured filter args. The in: filter accepts
 // either a channel name or a channel ID; an ID is resolved to its URL name so the
 // modifier matches. Modifiers only affect the keyword search leg.
@@ -299,7 +299,7 @@ func (p *AntimatterToolProvider) executeSemanticSearch(ctx context.Context, clie
 	return postResults, nil
 }
 
-// executeKeywordSearch runs the Mattermost keyword search and returns enriched results.
+// executeKeywordSearch runs the Antimatter keyword search and returns enriched results.
 func (p *AntimatterToolProvider) executeKeywordSearch(ctx context.Context, client *model.Client4, args CombinedSearchArgs) ([]searchPostResult, error) {
 	searchTerm := args.Query
 	teamID := args.TeamID
@@ -322,7 +322,7 @@ func (p *AntimatterToolProvider) executeKeywordSearch(ctx context.Context, clien
 		teamID = channel.TeamId
 	}
 
-	// Prepend structured search modifiers (Mattermost search grammar). These
+	// Prepend structured search modifiers (Antimatter search grammar). These
 	// constrain the keyword leg only; semantic search ignores them.
 	searchTerm = p.applySearchModifiers(ctx, client, searchTerm, args)
 

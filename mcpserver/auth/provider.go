@@ -24,13 +24,13 @@ const (
 	UserIDContextKey ContextKey = "user_id"
 )
 
-// WithSessionID returns a context carrying the authenticated Mattermost
+// WithSessionID returns a context carrying the authenticated Antimatter
 // session used for policy checks.
 func WithSessionID(ctx context.Context, sessionID string) context.Context {
 	return context.WithValue(ctx, SessionIDContextKey, sessionID)
 }
 
-// SessionIDFromContext returns the authenticated Mattermost session ID, or an
+// SessionIDFromContext returns the authenticated Antimatter session ID, or an
 // empty string when the request has no session. Callers must fail closed when
 // the result is empty.
 func SessionIDFromContext(ctx context.Context) string {
@@ -45,20 +45,20 @@ type TokenResolver func(sessionID string) (string, error)
 type AuthenticationProvider interface {
 	ValidateAuth(ctx context.Context) error
 
-	// GetAuthenticatedAntimatterClient returns an authenticated Mattermost client
+	// GetAuthenticatedAntimatterClient returns an authenticated Antimatter client
 	GetAuthenticatedAntimatterClient(ctx context.Context) (*model.Client4, error)
 }
 
-// UserIdentityProvider can supply the authenticated Mattermost user for the current context.
+// UserIdentityProvider can supply the authenticated Antimatter user for the current context.
 // Implementations may use cached validation results to avoid additional network calls.
 type UserIdentityProvider interface {
 	AuthenticationProvider
 
-	// GetAuthenticatedUser returns the authenticated Mattermost user for the current context
+	// GetAuthenticatedUser returns the authenticated Antimatter user for the current context
 	GetAuthenticatedUser(ctx context.Context) (*model.User, error)
 }
 
-// providerBase holds what every authentication provider needs: the Mattermost
+// providerBase holds what every authentication provider needs: the Antimatter
 // server URL for API communication and a logger.
 type providerBase struct {
 	amServerURL string

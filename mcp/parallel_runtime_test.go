@@ -756,7 +756,7 @@ func TestGetToolsForUserDoesNotLeakGoroutinesAcrossColdConnects(t *testing.T) {
 // ensureConnections is the only place connect failures are classified, so its
 // policy is asserted directly against each failure shape.
 func TestEnsureConnectionsClassifiesFailures(t *testing.T) {
-	authURL := "https://mattermost.example.com/plugins/mattermost-ai/mcp/oauth/Jira/start"
+	authURL := "https://antimatter.example.com/plugins/mattermost-ai/mcp/oauth/Jira/start"
 
 	testCases := []struct {
 		name                string

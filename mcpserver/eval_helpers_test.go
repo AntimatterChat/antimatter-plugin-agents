@@ -181,7 +181,7 @@ func seedChannelConversation(t *testing.T, serverURL, adminToken string) *evalCh
 
 // embeddingSearchService wraps a real embeddings.EmbeddingSearch to implement tools.SemanticSearchService.
 // This bridges the real PGVector+CompositeSearch pipeline to the MCP server's search interface.
-// It enriches results with channel/user metadata from the Mattermost API, mirroring what
+// It enriches results with channel/user metadata from the Antimatter API, mirroring what
 // search.Search.enrichResults() does in production.
 type embeddingSearchService struct {
 	search    embeddings.EmbeddingSearch
@@ -267,7 +267,7 @@ func setupPGVectorContainer(t *testing.T) *sqlx.DB {
 	_, err = db.Exec("CREATE EXTENSION IF NOT EXISTS vector")
 	require.NoError(t, err, "Failed to enable pgvector extension")
 
-	// Create stub Mattermost tables required by PGVector's foreign keys and access control
+	// Create stub Antimatter tables required by PGVector's foreign keys and access control
 	// (same schema as embeddings/integration_test.go)
 	for _, tableSQL := range []string{
 		`CREATE TABLE IF NOT EXISTS Posts (
@@ -321,7 +321,7 @@ func setupEmbeddingSearch(t *testing.T, data *evalChannelData, serverURL, adminT
 		ChunkingStrategy: "sentences",
 	}, embeddings.RecencyBiasSettings{})
 
-	// Fetch all posts from Mattermost and index them into PGVector
+	// Fetch all posts from Antimatter and index them into PGVector
 	client := model.NewAPIv4Client(serverURL)
 	client.SetToken(adminToken)
 

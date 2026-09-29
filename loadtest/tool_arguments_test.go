@@ -348,8 +348,8 @@ func TestWebSearchFetchSourceUsesAllowedContextURL(t *testing.T) {
 	ctx := &llm.Context{
 		Parameters: map[string]any{
 			"mm_web_search_allowed_urls": []string{
-				"https://mattermost.com/blog/page",
-				"https://docs.mattermost.com/agents",
+				"https://docs.antimatter.example/blog/page",
+				"https://docs.antimatter.example/agents",
 			},
 		},
 	}

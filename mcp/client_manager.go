@@ -443,7 +443,7 @@ func (m *ClientManager) getCatalogAccess(ctx context.Context, req CatalogRequest
 	var sessionID string
 	var sessionErr error
 	if servers.embedded {
-		// Mattermost session lookup, not an MCP dial. Kept inside the
+		// Antimatter session lookup, not an MCP dial. Kept inside the
 		// lifecycle read lock so task construction stays atomic with plan.
 		sessionID, _, sessionErr = m.ensureEmbeddedSessionID(req.InvokingUserID)
 	}

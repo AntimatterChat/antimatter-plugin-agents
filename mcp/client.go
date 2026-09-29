@@ -25,7 +25,7 @@ import (
 
 const (
 	UserIDHeader       = "X-Mattermost-UserID"
-	EmbeddedServerName = "Mattermost"
+	EmbeddedServerName = "Antimatter"
 	EmbeddedClientKey  = config.MCPEmbeddedServerOrigin
 
 	listToolsMethod = "tools/list"
@@ -324,7 +324,7 @@ func (c *EmbeddedServerClient) CreateClient(ctx context.Context, userID, session
 	// Create MCP client
 	mcpClient := NewSDKClient(
 		&mcp.Implementation{
-			Name:    "mattermost-agents-embedded",
+			Name:    "antimatter-agents-embedded",
 			Version: "1.0",
 		},
 		nil,
@@ -480,7 +480,7 @@ func NewPluginClient(ctx context.Context, userID string, cfg PluginServerConfig,
 		httpClient: httpClient,
 	}
 
-	session, err := ConnectPluginServer(ctx, "mattermost-agents-plugin-bridge", cfg.Path, httpClient)
+	session, err := ConnectPluginServer(ctx, "antimatter-agents-plugin-bridge", cfg.Path, httpClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to plugin MCP server %s: %w", cfg.PluginID, err)
 	}
@@ -522,7 +522,7 @@ func (c *Client) createSession(ctx context.Context, serverConfig ServerConfig) (
 	// We have no information about this server, so try to connect various ways.
 	client := NewSDKClient(
 		&mcp.Implementation{
-			Name:    "mattermost-agents",
+			Name:    "antimatter-agents",
 			Version: "1.0",
 		},
 		nil,

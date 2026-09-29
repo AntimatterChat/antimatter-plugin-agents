@@ -34,7 +34,7 @@ func requestFailedError(statusCode int, responseBody []byte) error {
 }
 
 // AgentCompletion makes a non-streaming completion request to a specific agent by Bot ID.
-// The agent parameter should be the Mattermost Bot User ID (an immutable identifier).
+// The agent parameter should be the Antimatter Bot User ID (an immutable identifier).
 // The agent's stored configuration applies, and UserID and ChannelID in the request are
 // permission inputs: when set, the bridge checks that user's (and channel's) access to
 // the agent.
@@ -72,7 +72,7 @@ func (c *Client) ServiceCompletion(service string, request CompletionRequest) (s
 }
 
 // AgentCompletionStream makes a streaming completion request to a specific agent by Bot ID.
-// The agent parameter should be the Mattermost Bot User ID (an immutable identifier).
+// The agent parameter should be the Antimatter Bot User ID (an immutable identifier).
 // Returns a TextStreamResult with a Stream channel for processing events.
 func (c *Client) AgentCompletionStream(agent string, request CompletionRequest) (*llm.TextStreamResult, error) {
 	requestURL, err := buildAgentCompletionURL(agent, true)

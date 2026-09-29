@@ -31,7 +31,7 @@ func (p *TokenAuthenticationProvider) ValidateAuth(ctx context.Context) error {
 	return validateAuth(ctx, p)
 }
 
-// GetAuthenticatedAntimatterClient returns an authenticated Mattermost client
+// GetAuthenticatedAntimatterClient returns an authenticated Antimatter client
 func (p *TokenAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx context.Context) (*model.Client4, error) {
 	if p.token == "" {
 		return nil, fmt.Errorf("no authentication token available")

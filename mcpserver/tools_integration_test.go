@@ -15,7 +15,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
-// TestMCPToolsIntegration tests MCP tools against a real Mattermost instance
+// TestMCPToolsIntegration tests MCP tools against a real Antimatter instance
 func TestMCPToolsIntegration(t *testing.T) {
 	suite := SetupTestSuite(t)
 	defer suite.TearDown()
@@ -23,7 +23,7 @@ func TestMCPToolsIntegration(t *testing.T) {
 	// Create MCP server
 	suite.CreateMCPServer(false)
 
-	// Create Mattermost client for setup
+	// Create Antimatter client for setup
 	client := model.NewAPIv4Client(suite.serverURL)
 	client.SetToken(suite.adminToken)
 

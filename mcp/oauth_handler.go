@@ -30,7 +30,7 @@ import (
 // multi-node (HA): the 401 surfaces an OAuth link into chat as an
 // *OAuthNeededError, the user clicks it whenever they like, and the callback
 // may arrive later on a different cluster node. PKCE verifiers, state, and
-// tokens therefore live in the Mattermost KV store (see OAuthManager), not in
+// tokens therefore live in the Antimatter KV store (see OAuthManager), not in
 // process memory. Consequently Authorize never returns nil: we never want the
 // transport's silent single retry, we want the error to propagate to the
 // caller so it can be converted into an *OAuthNeededError.

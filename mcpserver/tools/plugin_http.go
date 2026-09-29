@@ -55,10 +55,10 @@ func postPluginJSON(ctx context.Context, client *http.Client, url string, reqBod
 	return resp.StatusCode, respBody, nil
 }
 
-// authorizationTokenFromContext returns a Mattermost bearer token for plugin
+// authorizationTokenFromContext returns an Antimatter bearer token for plugin
 // HTTP callbacks. Direct tokens (OAuth/PAT on the MCP context) win; otherwise
 // a session ID plus token resolver (plugin-hosted MCP) is used so ServeHTTP
-// can restore plugin.Context.SessionId from Mattermost's session lookup.
+// can restore plugin.Context.SessionId from Antimatter's session lookup.
 func authorizationTokenFromContext(ctx context.Context) string {
 	if token, ok := ctx.Value(auth.AuthTokenContextKey).(string); ok && token != "" {
 		return token

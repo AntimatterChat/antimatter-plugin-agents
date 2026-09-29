@@ -9,7 +9,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
-// requireID returns an error when id is not a syntactically valid Mattermost ID.
+// requireID returns an error when id is not a syntactically valid Antimatter ID.
 // field is the argument name and is embedded in the error so the model can tell
 // which parameter was malformed.
 func requireID(field, id string) error {
@@ -19,7 +19,7 @@ func requireID(field, id string) error {
 	return nil
 }
 
-// requireIDs validates a required list argument of Mattermost IDs: the list must
+// requireIDs validates a required list argument of Antimatter IDs: the list must
 // be non-empty and every element must be a valid ID.
 func requireIDs(field string, ids []string) error {
 	if len(ids) == 0 {
