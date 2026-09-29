@@ -195,9 +195,6 @@ func (b *LLM) convertToResponsesTools(request llm.CompletionRequest, cfg llm.Lan
 	for _, nativeTool := range b.enabledNativeTools {
 		switch nativeTool {
 		case llm.NativeToolWebSearch:
-			if cfg.SkipNativeWebSearch {
-				continue
-			}
 			result = append(result, b.webToolResponsesTool(schemas.ResponsesToolTypeWebSearch))
 		case llm.NativeToolWebFetch:
 			result = append(result, b.webToolResponsesTool(schemas.ResponsesToolTypeWebFetch))
@@ -209,8 +206,8 @@ func (b *LLM) convertToResponsesTools(request llm.CompletionRequest, cfg llm.Lan
 	}
 
 	// When NativeWebSearchAllowed is true but web_search is not in enabledNativeTools,
-	// add it dynamically. SkipNativeWebSearch is the license gate for that tool.
-	if !cfg.SkipNativeWebSearch && cfg.NativeWebSearchAllowed && !b.isNativeToolEnabled(llm.NativeToolWebSearch) {
+	// add it dynamically
+	if cfg.NativeWebSearchAllowed && !b.isNativeToolEnabled(llm.NativeToolWebSearch) {
 		result = append(result, b.webToolResponsesTool(schemas.ResponsesToolTypeWebSearch))
 	}
 

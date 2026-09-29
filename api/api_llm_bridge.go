@@ -359,8 +359,6 @@ func (a *API) prepareAgentBridgeCompletion(
 	// allowed_tools; it is available at Professional and above.
 	if bot.HasNativeWebSearchEnabled() && a.licenseChecker.Allows(enterprise.CapProviderWebSearch) {
 		opts = append(opts, llm.WithNativeWebSearchAllowed())
-	} else {
-		opts = append(opts, llm.WithSkipNativeWebSearch())
 	}
 
 	// Build the auto-run predicate from the explicit allowlist. Returning nil

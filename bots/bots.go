@@ -113,9 +113,6 @@ func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, lic
 	}
 
 	tokenUsageSinks := llm.NewTokenUsageSinks(pluginTokenLogger)
-	tokenUsageSinks.SetAccountingEnabled(func() bool {
-		return licenseChecker.Allows(enterprise.CapTokenAccounting)
-	})
 
 	return &MMBots{
 		ensureBotsClusterMutex: mutexPluginAPI,

@@ -437,7 +437,7 @@ func (p *Plugin) OnActivate() error {
 
 	webSearchService := mmtools.NewWebSearchService(func() *config.Config {
 		return p.configuration.Config()
-	}, &pluginLogger{service: &pluginAPI.Log}, untrustedHTTPClient, licenseChecker)
+	}, &pluginLogger{service: &pluginAPI.Log}, untrustedHTTPClient)
 
 	toolProvider := mmtools.NewMMToolProvider(
 		mmClient,
