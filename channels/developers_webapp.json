@@ -134,7 +134,7 @@
       "channel_id": "shfrenxu83ye88puqr5c45ddtw",
       "root_id": "nxfp9dsx9tf9ie86n1in9418wy",
       "original_id": "",
-      "message": "\u003e \u003e I forget if we needed that ref to actually call methods on the component itself rather than just forwarding the ref along to the DOM element somewhere...\n\nThe functions that need firing are passed to `SuggestionBox` as regular props not refs. I also haven't encountered a situation where a function is passed as a ref. Does that happen somewhere in the codebase?\n\n\u003e I think you might be able to mock the SuggestionBox as a class component for now...\n\nThat's the approach I went with initially, but given that the majority of the props passed to `SuggestionBox` are removed via `Reflect`, I don't see any way to call them, hence I mocked [a function component instead that returns simple elements](https://community.mattermost.com/core/pl/ts5wmcakifygj88w1wx19j6fqa) for testing purposes.",
+      "message": "\u003e \u003e I forget if we needed that ref to actually call methods on the component itself rather than just forwarding the ref along to the DOM element somewhere...\n\nThe functions that need firing are passed to `SuggestionBox` as regular props not refs. I also haven't encountered a situation where a function is passed as a ref. Does that happen somewhere in the codebase?\n\n\u003e I think you might be able to mock the SuggestionBox as a class component for now...\n\nThat's the approach I went with initially, but given that the majority of the props passed to `SuggestionBox` are removed via `Reflect`, I don't see any way to call them, hence I mocked [a function component instead that returns simple elements](https://docs.antimatter.example/core/pl/ts5wmcakifygj88w1wx19j6fqa) for testing purposes.",
       "type": "",
       "props": {},
       "hashtags": "",
@@ -333,7 +333,7 @@
       "channel_id": "shfrenxu83ye88puqr5c45ddtw",
       "root_id": "nxfp9dsx9tf9ie86n1in9418wy",
       "original_id": "",
-      "message": "\u003e The functions that need firing are passed to `SuggestionBox` as regular props not refs. I also haven't encountered a situation where a function is passed as a ref. Does that happen somewhere in the codebase?\n\nI meant that the parent component is passing a ref to `SuggestionBox` so that it can call methods of the `SuggestionBox` by calling `suggestionRef.current.someMethod()`. Scanning through the code though, it looks like the only methods we're actually using though are `focus` and `blur` which would be on the underlying textarea or `getTextbox` to get that textarea, so that would mean we could actually forward the ref through anyway. Either I was completely wrong then or I'm just remembering old code.\n\n\u003e That's the approach I went with initially, but given that the majority of the props passed to `SuggestionBox` are removed via `Reflect`, I don't see any way to call them, hence I mocked [a function component instead that returns simple elements](https://community.mattermost.com/core/pl/ts5wmcakifygj88w1wx19j6fqa) for testing purposes.\n\nYeah, I saw that, but I thought you meant that didn't work because of some weird React thing that expected. Maybe I'll just let Daniel handle the testing part of this since I'm worried I'm just making things confusing by jumping in occasionally :sweat_smile: ",
+      "message": "\u003e The functions that need firing are passed to `SuggestionBox` as regular props not refs. I also haven't encountered a situation where a function is passed as a ref. Does that happen somewhere in the codebase?\n\nI meant that the parent component is passing a ref to `SuggestionBox` so that it can call methods of the `SuggestionBox` by calling `suggestionRef.current.someMethod()`. Scanning through the code though, it looks like the only methods we're actually using though are `focus` and `blur` which would be on the underlying textarea or `getTextbox` to get that textarea, so that would mean we could actually forward the ref through anyway. Either I was completely wrong then or I'm just remembering old code.\n\n\u003e That's the approach I went with initially, but given that the majority of the props passed to `SuggestionBox` are removed via `Reflect`, I don't see any way to call them, hence I mocked [a function component instead that returns simple elements](https://docs.antimatter.example/core/pl/ts5wmcakifygj88w1wx19j6fqa) for testing purposes.\n\nYeah, I saw that, but I thought you meant that didn't work because of some weird React thing that expected. Maybe I'll just let Daniel handle the testing part of this since I'm worried I'm just making things confusing by jumping in occasionally :sweat_smile: ",
       "type": "",
       "props": {},
       "hashtags": "",
@@ -525,7 +525,7 @@
       "channel_id": "shfrenxu83ye88puqr5c45ddtw",
       "root_id": "",
       "original_id": "",
-      "message": "I just discovered this, and it is pretty cool: https://react-scan.com/\n\nWithout any plugins or anything, you can run it from the command line and will open any website (like Mattermost) and tell you when and why everything render in a very intuitive way.\n\nIt doesn't do much more than what the developers tool already do, but I find it more accessible and more \"in your face\".\n\n@harrison @mohammed-zubair.ahmed I recommend you to give it a try. You can try it really easily by just running on the command line `npx react-scan@latest https://community.mattermost.com`.\n\nLet me know what you guys think :D",
+      "message": "I just discovered this, and it is pretty cool: https://react-scan.com/\n\nWithout any plugins or anything, you can run it from the command line and will open any website (like Antimatter) and tell you when and why everything render in a very intuitive way.\n\nIt doesn't do much more than what the developers tool already do, but I find it more accessible and more \"in your face\".\n\n@harrison @mohammed-zubair.ahmed I recommend you to give it a try. You can try it really easily by just running on the command line `npx react-scan@latest https://docs.antimatter.example`.\n\nLet me know what you guys think :D",
       "type": "",
       "props": {},
       "hashtags": "",
@@ -548,7 +548,7 @@
               "images": [
                 {
                   "height": 0,
-                  "secure_url": "https://community.mattermost.com/api/v4/image?url=https%3A%2F%2Freact-scan.million.dev%2Fbanner.png",
+                  "secure_url": "https://docs.antimatter.example/api/v4/image?url=https%3A%2F%2Freact-scan.million.dev%2Fbanner.png",
                   "type": "",
                   "url": "",
                   "width": 0
@@ -565,7 +565,7 @@
           }
         ],
         "images": {
-          "https://community.mattermost.com/api/v4/image?url=https%3A%2F%2Freact-scan.million.dev%2Fbanner.png": {
+          "https://docs.antimatter.example/api/v4/image?url=https%3A%2F%2Freact-scan.million.dev%2Fbanner.png": {
             "width": 6655,
             "height": 3662,
             "format": "png",
@@ -619,8 +619,8 @@
     "type": "O",
     "display_name": "Developers: Webapp",
     "name": "webapp",
-    "header": "[GitHub](https://github.com/mattermost/mattermost-webapp) | [Documentation](https://developers.mattermost.com/contribute/webapp/) | Weekly Guild Meeting [Monday every week at @ 10am EDT, 2pm UTC](https://mattermost.zoom.us/s/83020601199)",
-    "purpose": "A channel to discuss all things related to the Mattermost Webapp.",
+    "header": "[GitHub](https://github.com/mattermost/mattermost-webapp) | [Documentation](https://docs.antimatter.example/contribute/webapp/) | Weekly Guild Meeting [Monday every week at @ 10am EDT, 2pm UTC](https://antimatter.zoom.us/s/83020601199)",
+    "purpose": "A channel to discuss all things related to the Antimatter Webapp.",
     "last_post_at": 1749558782341,
     "total_msg_count": 9796,
     "extra_update_at": 0,

@@ -490,7 +490,7 @@
       "channel_id": "8ez1dxdta3bzbgn48j919roieo",
       "root_id": "njjz6shb6tyet81wwh6ggp1c1r",
       "original_id": "",
-      "message": "\u003e Will we be adding 'Channel settings' in the Channel Info [RHS](https://handbook.mattermost.com/company/about-mattermost/list-of-terms#rhs)?\n\nThis was not included in the MVP but we have a ticket to come back to it [MM-61174](https://mattermost.atlassian.net/browse/MM-61174)",
+      "message": "\u003e Will we be adding 'Channel settings' in the Channel Info [RHS](https://docs.antimatter.example/company/about-antimatter/list-of-terms#rhs)?\n\nThis was not included in the MVP but we have a ticket to come back to it [MM-61174](https://antimatter.atlassian.net/browse/MM-61174)",
       "type": "",
       "props": {},
       "hashtags": "",
@@ -584,7 +584,7 @@
       "channel_id": "8ez1dxdta3bzbgn48j919roieo",
       "root_id": "",
       "original_id": "",
-      "message": "## Channel Banner Bug Bash\n\n@infocontrol I invite you all for the most exciting bug bash of the day (because there ain't any other) :tada: :tada: \n\nPlease try out the feature with all the corner cases you can think of and try to break it.\n\nServer URL: https://channel-banner-bug-bash.test.mattermost.cloud\n\nTeam invite link - https://channel-banner-bug-bash.test.mattermost.cloud/signup_user_complete/?id=hucgccc7ebdzfxspp7i4t193qa\u0026md=link\u0026sbr=fa\n\nCredentials-\n\n| Username | Password | Note |\n| -- | -- | -- |\n| `admin` | `admin@3aod169kxjfgxm16ffd7ykn36a` | Admin user |\n| `user` | `user@wo4qy8mbejgfjemabkd8gyznwo` | Regular user |\n\nYou should be able to manage channel banner in channels you are a channel admin in.\n\nPlease report experience, bugs, feedback in this thread.\n\nThank you!\n\n",
+      "message": "## Channel Banner Bug Bash\n\n@infocontrol I invite you all for the most exciting bug bash of the day (because there ain't any other) :tada: :tada: \n\nPlease try out the feature with all the corner cases you can think of and try to break it.\n\nServer URL: https://channel-banner-bug-bash.antimatter.example\n\nTeam invite link - https://channel-banner-bug-bash.antimatter.example/signup_user_complete/?id=hucgccc7ebdzfxspp7i4t193qa\u0026md=link\u0026sbr=fa\n\nCredentials-\n\n| Username | Password | Note |\n| -- | -- | -- |\n| `admin` | `admin@3aod169kxjfgxm16ffd7ykn36a` | Admin user |\n| `user` | `user@wo4qy8mbejgfjemabkd8gyznwo` | Regular user |\n\nYou should be able to manage channel banner in channels you are a channel admin in.\n\nPlease report experience, bugs, feedback in this thread.\n\nThank you!\n\n",
       "type": "",
       "props": {},
       "hashtags": "",
@@ -599,7 +599,7 @@
         "embeds": [
           {
             "type": "link",
-            "url": "https://channel-banner-bug-bash.test.mattermost.cloud"
+            "url": "https://channel-banner-bug-bash.antimatter.example"
           }
         ],
         "emojis": [
@@ -865,7 +865,7 @@
       "channel_id": "8ez1dxdta3bzbgn48j919roieo",
       "root_id": "njjz6shb6tyet81wwh6ggp1c1r",
       "original_id": "",
-      "message": "Will we be adding 'Channel settings' in the Channel Info [RHS](https://handbook.mattermost.com/company/about-mattermost/list-of-terms#rhs)? ",
+      "message": "Will we be adding 'Channel settings' in the Channel Info [RHS](https://docs.antimatter.example/company/about-antimatter/list-of-terms#rhs)? ",
       "type": "",
       "props": {},
       "hashtags": "",
@@ -934,7 +934,7 @@
     "type": "O",
     "display_name": "Team: Information Control",
     "name": "team-information-control",
-    "header": ":jira: [JIRA Board](https://mattermost.atlassian.net/jira/software/c/projects/MM/boards/185) | :ship: [Quarter Plans](https://mattermost.atlassian.net/wiki/spaces/ICT/pages/3408527364/Quarterly+Team+Plans) |  :google_spreadsheets:  [AORs](https://docs.google.com/spreadsheets/d/1lH8QIjQGEoGospDUdVs_LQ_i2b82I1ce6W7z18vhPTQ/edit?gid=1730823498#gid=1730823498)",
+    "header": ":jira: [JIRA Board](https://antimatter.atlassian.net/jira/software/c/projects/MM/boards/185) | :ship: [Quarter Plans](https://antimatter.atlassian.net/wiki/spaces/ICT/pages/3408527364/Quarterly+Team+Plans) |  :google_spreadsheets:  [AORs](https://docs.google.com/spreadsheets/d/1lH8QIjQGEoGospDUdVs_LQ_i2b82I1ce6W7z18vhPTQ/edit?gid=1730823498#gid=1730823498)",
     "purpose": "",
     "last_post_at": 1748927130799,
     "total_msg_count": 476,
@@ -961,7 +961,7 @@
     "email": "",
     "type": "O",
     "company_name": "",
-    "allowed_domains": "mattermost.com",
+    "allowed_domains": "docs.antimatter.example",
     "invite_id": "tmcptnnzypyq5ro7xkzb3xfbjw",
     "allow_open_invite": true,
     "last_team_icon_update": 1738252096998,
@@ -1004,7 +1004,7 @@
       "username": "maria.nunez",
       "auth_data": "",
       "auth_service": "",
-      "email": "maria.nunez@mattermost.com",
+      "email": "maria.nunez@antimatter.example",
       "nickname": "",
       "first_name": "Maria",
       "last_name": "Nunez",
@@ -1031,7 +1031,7 @@
       "username": "harshil.sharma",
       "auth_data": "",
       "auth_service": "",
-      "email": "harshil.sharma@mattermost.com",
+      "email": "harshil.sharma@antimatter.example",
       "nickname": "",
       "first_name": "Harshil",
       "last_name": "Sharma",
@@ -1059,7 +1059,7 @@
       "username": "matthew.birtch",
       "auth_data": "",
       "auth_service": "",
-      "email": "matthew.birtch@mattermost.com",
+      "email": "matthew.birtch@antimatter.example",
       "nickname": "Matt",
       "first_name": "Matt",
       "last_name": "Birtch",
@@ -1067,7 +1067,7 @@
       "roles": "system_user",
       "props": {
         "com.mattermost.plugin-msteams-devsecops.oid": "55a2a200-1f60-4e7f-84f7-32e0093ffe71",
-        "com.mattermost.plugin-msteams-devsecops.sso_username": "matthew.birtch@mattermost.com",
+        "com.mattermost.plugin-msteams-devsecops.sso_username": "matthew.birtch@antimatter.example",
         "customStatus": "{\"emoji\":\"canada\",\"text\":\"Public holiday in Canada\",\"duration\":\"today\",\"expires_at\":\"2025-05-20T03:59:59.999Z\"}",
         "last_search_pointer": "4"
       },
