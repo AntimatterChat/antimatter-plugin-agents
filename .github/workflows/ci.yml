@@ -48,7 +48,7 @@ jobs:
             group: e2e-shard-4
     name: e2e-${{ matrix.shard.name }}
     env:
-      # release-11.10 does not implement plugin EvaluateAccessControl (mattermost#37509 landed on master / 11.11).
+      # release-11.10 does not implement plugin EvaluateAccessControl (upstream server PR 37509 landed on master / 11.11).
       AM_IMAGE: ${{ vars.AM_IMAGE || vars.MM_IMAGE || 'mattermostdevelopment/mattermost-enterprise-edition:master' }}
     defaults:
       run:
@@ -300,7 +300,7 @@ jobs:
 
       - name: Upload dist to S3
         run: |
-          aws s3 cp dist/mattermost-ai-*.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/mattermost-plugin-agents/mattermost-plugin-agents-${{ steps.short-sha.outputs.sha }}.tar.gz
+          aws s3 cp dist/mattermost-ai-*.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/antimatter-plugin-agents/antimatter-plugin-agents-${{ steps.short-sha.outputs.sha }}.tar.gz
 
   deploy:
     needs: [lint, build, plugin-tests, e2e]
@@ -340,7 +340,7 @@ jobs:
             --prerelease \
             $PLUGIN_FILE
 
-      - name: Deploy to Mattermost instances
+      - name: Deploy to Antimatter instances
         env:
           MM_SERVERS_CONFIG: ${{ secrets.MM_SERVERS_CONFIG }}
         run: |

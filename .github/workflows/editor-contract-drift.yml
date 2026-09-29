@@ -3,10 +3,10 @@
 # The plugin mirrors the host's window.Components access-control editor prop
 # types (webapp/src/types/access_control_editors.ts). ci.yml checks those
 # mirrors against a committed host snapshot; this workflow additionally
-# type-checks them against a fresh checkout of mattermost master.
+# type-checks them against a fresh checkout of antimatter master.
 #
 # Runs on every push to this repo's master and on demand; it checks the
-# mirrors against whatever mattermost master is at that moment. Host-side
+# mirrors against whatever antimatter master is at that moment. Host-side
 # drift between plugin pushes is caught on the next push or by a manual
 # dispatch. A failing run is the signal; there are no notifications or issue
 # creation.
@@ -34,7 +34,7 @@ jobs:
           persist-credentials: false
           repository: mattermost/mattermost
           ref: master
-          path: mattermost
+          path: antimatter
           fetch-depth: 1
           sparse-checkout: webapp
       - uses: actions/setup-node@v6
