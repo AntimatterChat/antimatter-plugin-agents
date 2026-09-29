@@ -174,7 +174,7 @@ const BetaMessage = () => (
                         <a
                             target={'_blank'}
                             rel={'noopener noreferrer'}
-                            href='http://github.com/mattermost/mattermost-plugin-agents/issues'
+                            href='http://github.com/antimatterchat/antimatter-plugin-agents/issues'
                         >
                             {chunks}
                         </a>
@@ -308,7 +308,7 @@ const Config = (props: Props) => {
                     }}
                 />
                 <PanelFooterText>
-                    <FormattedMessage defaultMessage='AI services are third-party services. Mattermost is not responsible for service output.'/>
+                    <FormattedMessage defaultMessage='AI services are third-party services. Antimatter is not responsible for service output.'/>
                 </PanelFooterText>
             </Panel>
             <Panel
@@ -345,7 +345,7 @@ const Config = (props: Props) => {
                         label={intl.formatMessage({defaultMessage: 'Allowed Upstream Hostnames (csv)'})}
                         value={value.allowedUpstreamHostnames}
                         onChange={(e) => updateConfig({allowedUpstreamHostnames: e.target.value})}
-                        helptext={intl.formatMessage({defaultMessage: 'Comma separated list of hostnames that LLMs are allowed to contact when using tools. Supports wildcards like *.mydomain.com. For instance to allow JIRA tool use to the Mattermost JIRA instance use mattermost.atlassian.net'})}
+                        helptext={intl.formatMessage({defaultMessage: 'Comma separated list of hostnames that LLMs are allowed to contact when using tools. Supports wildcards like *.mydomain.com. For instance to allow JIRA tool use to your JIRA instance use your-company.atlassian.net'})}
                     />
                     <BooleanItem
                         label={<FormattedMessage defaultMessage='Render AI-generated links'/>}
@@ -387,7 +387,7 @@ const Config = (props: Props) => {
                         label={intl.formatMessage({defaultMessage: 'Trace Output'})}
                         value={value.telemetryOutput || 'off'}
                         onChange={(e) => updateConfig({telemetryOutput: e.target.value as 'off' | 'logs' | 'otlp'})}
-                        helptext={intl.formatMessage({defaultMessage: 'Where to send distributed traces of LLM requests, tool execution, and search operations. "Server Logs" writes spans to the Mattermost server log and requires no extra infrastructure. "OTLP Endpoint" exports spans to a collector such as Grafana Tempo or Jaeger.'})}
+                        helptext={intl.formatMessage({defaultMessage: 'Where to send distributed traces of LLM requests, tool execution, and search operations. "Server Logs" writes spans to the Antimatter server log and requires no extra infrastructure. "OTLP Endpoint" exports spans to a collector such as Grafana Tempo or Jaeger.'})}
                     >
                         <SelectionItemOption value='off'>{intl.formatMessage({defaultMessage: 'Off'})}</SelectionItemOption>
                         <SelectionItemOption value='logs'>{intl.formatMessage({defaultMessage: 'Server Logs'})}</SelectionItemOption>

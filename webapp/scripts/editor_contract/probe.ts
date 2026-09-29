@@ -2,9 +2,9 @@
 // See LICENSE.txt for license information.
 
 // Compile-time drift tripwire between this plugin's mirrored editor prop
-// contracts and the mattermost webapp's exported editor prop types. Never
+// contracts and the antimatter webapp's exported editor prop types. Never
 // executed or bundled: scripts/check_editor_contract.mjs type-checks it
-// against a mattermost webapp checkout when one is available.
+// against an antimatter webapp checkout when one is available.
 //
 // The mirrors must stay assignable to the host types. One payload is a
 // deliberate exception, typed as the server wire shape the plugin proxies

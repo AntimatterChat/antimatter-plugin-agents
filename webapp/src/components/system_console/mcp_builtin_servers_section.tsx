@@ -12,7 +12,7 @@ import ConsolePolicySection from '../access_control/console_policy_section';
 
 import {MCPServerInfo} from './mcp_types';
 
-// Read-only card for the embedded Mattermost MCP server and live plugin servers.
+// Read-only card for the embedded Antimatter MCP server and live plugin servers.
 const BuiltInServerCard = ({
     title,
     badge,
@@ -68,19 +68,19 @@ export const BuiltInPluginServersSection = ({
                     <FormattedMessage defaultMessage='Built-in & plugin servers'/>
                 </BuiltInSectionTitle>
                 <BuiltInSectionDescription>
-                    <FormattedMessage defaultMessage='These servers are provided by Mattermost or other plugins. They are not remote connections and cannot be edited here.'/>
+                    <FormattedMessage defaultMessage='These servers are provided by Antimatter or other plugins. They are not remote connections and cannot be edited here.'/>
                 </BuiltInSectionDescription>
             </BuiltInSectionHeader>
             <ServersList>
                 <BuiltInServerCard
-                    title={intl.formatMessage({defaultMessage: 'Mattermost'})}
+                    title={intl.formatMessage({defaultMessage: 'Antimatter'})}
                     badge={(
                         <TypeBadge>
                             <FormattedMessage defaultMessage='Built-in'/>
                         </TypeBadge>
                     )}
                     helpText={abacSupported && (
-                        <FormattedMessage defaultMessage='Denying access to the built-in Mattermost server removes nearly all in-product Mattermost tools for matching users. This has broader impact than denying a single remote MCP server.'/>
+                        <FormattedMessage defaultMessage='Denying access to the built-in Antimatter server removes nearly all in-product Antimatter tools for matching users. This has broader impact than denying a single remote MCP server.'/>
                     )}
                     policyId={embeddedServerId}
                 />

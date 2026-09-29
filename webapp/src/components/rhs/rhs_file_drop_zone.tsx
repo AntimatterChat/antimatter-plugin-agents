@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import fileOverlayImage from '../../images/file_overlay.svg';
 
-// Mirrors the upstream Mattermost RHS drag-drop behavior. The plugin embeds
+// Mirrors the upstream Antimatter RHS drag-drop behavior. The plugin embeds
 // AdvancedTextEditor outside the standard RHS chrome (no `.post-right__container`
 // / `.row.main` wrapper), so the editor's internal FileUpload component cannot
 // attach its drag listeners. We attach our own and forward dropped files to the

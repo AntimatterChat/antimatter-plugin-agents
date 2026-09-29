@@ -14,9 +14,9 @@ function tool(
 describe('filterMcpsServersBySearchQuery', () => {
     const servers: McpsSearchServerRow[] = [
         {
-            name: 'Mattermost',
+            name: 'Antimatter',
             tools: [
-                tool('read_post', 'Read a specific post and thread from Mattermost.', true),
+                tool('read_post', 'Read a specific post and thread from Antimatter.', true),
                 tool('dm', 'Send a direct message.', true),
             ],
         },
@@ -38,7 +38,7 @@ describe('filterMcpsServersBySearchQuery', () => {
 
     test('1-char query matching server name keeps server', () => {
         const result = filterMcpsServersBySearchQuery(servers, 'M');
-        expect(result.map((s) => s.name)).toContain('Mattermost');
+        expect(result.map((s) => s.name)).toContain('Antimatter');
     });
 
     test('1-char query matching only disabled tool description does not surface server', () => {

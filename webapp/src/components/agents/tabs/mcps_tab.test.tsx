@@ -47,7 +47,7 @@ const serverToggleName = /Enable all tools for \{serverName\}|Disable all tools 
 const toolToggleName = /Enable tool \{toolName\} on \{serverName\}|Disable tool \{toolName\} on \{serverName\}/;
 
 const antimatterServer = {
-    name: 'Mattermost',
+    name: 'Antimatter',
     serverOrigin: 'embedded://mattermost',
     kind: 'embedded' as const,
     authenticated: true,
@@ -157,7 +157,7 @@ describe('McpsTab', () => {
             </IntlProvider>,
         );
 
-        await findByText('Mattermost');
+        await findByText('Antimatter');
         await waitFor(() =>
             expect(onReconcileEnabledTools).toHaveBeenCalledWith([
                 {server_origin: 'embedded://mattermost', tool_name: 'read_post'},
@@ -174,13 +174,13 @@ describe('McpsTab', () => {
         mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const withoutServiceAccounts = renderWithOrphanedTool(false);
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
         await waitFor(() => expect(withoutServiceAccounts.onReconcileEnabledTools).toHaveBeenCalled());
         expect(screen.getByText(orphanWarning)).not.toBeNull();
         withoutServiceAccounts.unmount();
 
         const withServiceAccounts = renderWithOrphanedTool(true);
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
         expect(screen.queryByText(orphanWarning)).toBeNull();
         expect(withServiceAccounts.onReconcileEnabledTools).not.toHaveBeenCalled();
         expect(withServiceAccounts.onChange).not.toHaveBeenCalled();
@@ -190,7 +190,7 @@ describe('McpsTab', () => {
         mockedGetUserMCPTools.mockResolvedValue({servers: [antimatterServer]});
 
         const off = renderTab({useServiceAccountAuth: false});
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
         const toggle = screen.getByRole('checkbox', {name: serviceAccountToggleName});
         expect((toggle as HTMLInputElement).checked).toBe(false);
         expect(screen.queryByText(serviceAccountWarning)).toBeNull();
@@ -200,7 +200,7 @@ describe('McpsTab', () => {
         off.unmount();
 
         renderTab({useServiceAccountAuth: true});
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
         expect((screen.getByRole('checkbox', {name: serviceAccountToggleName}) as HTMLInputElement).checked).toBe(true);
         expect(screen.getByText(serviceAccountWarning)).not.toBeNull();
     });
@@ -213,7 +213,7 @@ describe('McpsTab', () => {
             useServiceAccountAuth: false,
             canEditServiceAccountAuth: false,
         });
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
         expect(screen.queryByRole('checkbox', {name: serviceAccountToggleName})).toBeNull();
         expect(screen.queryByText(serviceAccountWarning)).toBeNull();
         off.unmount();
@@ -222,7 +222,7 @@ describe('McpsTab', () => {
             useServiceAccountAuth: true,
             canEditServiceAccountAuth: false,
         });
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
         const toggle = screen.getByRole('checkbox', {name: serviceAccountToggleName});
         expect((toggle as HTMLInputElement).checked).toBe(true);
         expect(screen.getByText(serviceAccountWarning)).not.toBeNull();
@@ -249,7 +249,7 @@ describe('McpsTab', () => {
                 />
             </IntlProvider>,
         );
-        await screen.findByText('Mattermost');
+        await screen.findByText('Antimatter');
 
         const autoEnable = screen.getByRole('checkbox', {name: /^Automatically enable all MCP tools/});
         expect((autoEnable as HTMLInputElement).disabled).toBe(true);

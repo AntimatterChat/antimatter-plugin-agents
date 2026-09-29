@@ -11,7 +11,7 @@ import AgentsList from './agents_list';
 export const AGENTS_ROUTE = `/plug/${manifest.id}/agents`;
 
 // Product mainComponent — rendered by registerProduct when the route matches.
-// No URL-matching or overlay needed; Mattermost's product routing handles it.
+// No URL-matching or overlay needed; Antimatter's product routing handles it.
 const AgentsPage = () => {
     const pageRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +30,7 @@ const AgentsPage = () => {
         const restored: Array<{el: HTMLElement; overflowY: string}> = [];
 
         if (wrapper) {
-            // Mattermost's product shell may scroll when our page grows taller than the viewport.
+            // Antimatter's product shell may scroll when our page grows taller than the viewport.
             // Pin overflow on those ancestors so only the agents list viewport scrolls.
             let node: HTMLElement | null = wrapper.parentElement;
             while (node) {

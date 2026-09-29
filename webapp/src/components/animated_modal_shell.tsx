@@ -10,7 +10,7 @@ export const MODAL_SHEET_CLASS = 'amAiModal__sheet';
 
 /**
  * Match the longest transition for CSSTransition `timeout`.
- * Mattermost GenericModal uses Bootstrap: .modal-dialog transform 0.3s ease-out; .fade opacity 0.15s linear.
+ * Antimatter GenericModal uses Bootstrap: .modal-dialog transform 0.3s ease-out; .fade opacity 0.15s linear.
  */
 export const MODAL_TRANSITION_MS = 300;
 
@@ -87,7 +87,7 @@ type ShellProps = {
 
 /**
  * Full-screen dimmed overlay with enter/exit animation (fade + sheet from top),
- * aligned with Mattermost GenericModal (Bootstrap fade + modal-dialog motion).
+ * aligned with Antimatter GenericModal (Bootstrap fade + modal-dialog motion).
  */
 export const AnimatedModalShell = ({show, children, onBackdropClick, zIndex = 2000}: ShellProps) => {
     const nodeRef = useRef<HTMLDivElement>(null);

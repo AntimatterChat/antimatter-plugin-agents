@@ -45,7 +45,7 @@ function parseCreatePost(args: ToolCall['arguments']): CreatePostParsed | null {
 
 /**
  * Card for create_post: while the call awaits approval, shows the post-to-be
- * as a Mattermost permalink-style preview — the same rendering the message
+ * as an Antimatter permalink-style preview — the same rendering the message
  * gets once it is actually posted — so the user sees exactly what they are
  * approving. The author is the requesting user (embedded tools execute with
  * the requester's session). Falls back to the generic card when the arguments

@@ -9,7 +9,7 @@ import {isValidId} from '@/utils/ids';
 
 /**
  * useConversationIdForThread resolves the plugin's conversation_id from a
- * Mattermost root post id by scanning posts in the thread for the
+ * Antimatter root post id by scanning posts in the thread for the
  * conversation_id prop the plugin writes onto every bot post. Post props are
  * free-form JSON, so a prop that is not a well-formed id is skipped.
  *

@@ -52,7 +52,7 @@ function toRichProps(ctx: ToolRenderContext): RichCardProps {
     return cardProps;
 }
 
-// Build a registry entry for an embedded Mattermost tool. The card itself
+// Build a registry entry for an embedded Antimatter tool. The card itself
 // falls back to the generic ToolCard when its argument parse fails, so the
 // matcher only needs identity.
 function embeddedEntry(bareName: string, Component: React.FC<RichCardProps>): RendererEntry {

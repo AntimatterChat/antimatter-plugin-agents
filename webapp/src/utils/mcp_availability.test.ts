@@ -35,7 +35,7 @@ describe('mcpServerStatus', () => {
             expected: 'connected',
         },
         {
-            name: 'authenticated Mattermost embedded server',
+            name: 'authenticated Antimatter embedded server',
             server: server({kind: 'embedded', authenticated: true, serviceAccountConfigured: false}),
             useServiceAccountAuth: false,
             expected: 'connected',

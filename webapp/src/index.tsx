@@ -85,7 +85,7 @@ const IconAIContainer = styled.img`
 `;
 
 // Product switcher: in the global header, inherit the same muted header text color as the Channels glyph
-// (see Mattermost ProductBranding). In the dropdown, match string product icons (ProductMenuItem uses --button-bg).
+// (see Antimatter ProductBranding). In the dropdown, match string product icons (ProductMenuItem uses --button-bg).
 const ProductSwitcherIconWrapper = styled.span`
     display: inline-flex;
     align-items: center;
@@ -231,7 +231,7 @@ export default class Plugin {
         registry.registerAdminConsoleCustomSetting('Config', Config);
         const agentsProductLabel = getAgentsProductLabel(store);
 
-        // Channel settings tab (Mattermost >= 11.10 only). The schema is built
+        // Channel settings tab (Antimatter >= 11.10 only). The schema is built
         // exactly once: the host re-runs hydration whenever the schema object
         // reference changes, so it must stay stable for the plugin's lifetime.
         if (registry.registerChannelSettingsTab) {
@@ -290,7 +290,7 @@ export default class Plugin {
         }
 
         // Register Agents as a product so it appears in the product switcher (grid icon).
-        // registerProduct is an internal Mattermost API available on the plugin registry.
+        // registerProduct is an internal Antimatter API available on the plugin registry.
         if ((registry as any).registerProduct) {
             (registry as any).registerProduct(
                 AGENTS_ROUTE,

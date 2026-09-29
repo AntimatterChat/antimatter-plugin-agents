@@ -99,7 +99,7 @@ type NativeToolOption = {
 // Per-provider native tool checklists. Must stay in sync with the server-side
 // support matrix (bifrost.SupportedNativeToolsForServiceType); the server
 // filters unsupported ids at request time regardless of what is persisted.
-// Help text describes what each toggle does in Mattermost and defers to the
+// Help text describes what each toggle does in Antimatter and defers to the
 // provider's own documentation for capabilities, pricing and data handling —
 // those specifics change with provider tool versions.
 const nativeToolOptions = (provider: 'openai' | 'anthropic' | 'google', intl: ReturnType<typeof useIntl>): NativeToolOption[] => {

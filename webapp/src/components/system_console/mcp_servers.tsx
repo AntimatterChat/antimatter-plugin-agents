@@ -546,10 +546,10 @@ const MCPServers = ({mcpConfig, onChange}: Props) => {
                     <>
                         <ItemList title={intl.formatMessage({defaultMessage: 'MCP Configuration'})}>
                             <BooleanItem
-                                label={intl.formatMessage({defaultMessage: 'Enable Mattermost MCP Server (HTTP)'})}
+                                label={intl.formatMessage({defaultMessage: 'Enable Antimatter MCP Server (HTTP)'})}
                                 value={config.enablePluginServer}
                                 onChange={(enablePluginServer) => onChange({...config, enablePluginServer})}
-                                helpText={intl.formatMessage({defaultMessage: 'Enable the Mattermost MCP server over HTTP to allow external MCP clients to access Mattermost channels, users, and posts through the MCP protocol. Note: Streaming support requires Mattermost v11.2+.'})}
+                                helpText={intl.formatMessage({defaultMessage: 'Enable the Antimatter MCP server over HTTP to allow external MCP clients to access Antimatter channels, users, and posts through the MCP protocol. Note: Streaming support requires Antimatter v11.2+.'})}
                             />
                             <TextItem
                                 label={intl.formatMessage({defaultMessage: 'Connection Idle Timeout (minutes)'})}
@@ -592,7 +592,7 @@ const MCPServers = ({mcpConfig, onChange}: Props) => {
                             <CopyableTextItem
                                 label={intl.formatMessage({defaultMessage: 'MCP OAuth Callback URL'})}
                                 value={oauthCallbackURL}
-                                helptext={intl.formatMessage({defaultMessage: 'Register this redirect URI in the remote MCP server\u2019s OAuth application so authorization callbacks return to this Mattermost instance.'})}
+                                helptext={intl.formatMessage({defaultMessage: 'Register this redirect URI in the remote MCP server\u2019s OAuth application so authorization callbacks return to this Antimatter instance.'})}
                             />
                         </ItemList>
                         <BuiltInPluginServersSection

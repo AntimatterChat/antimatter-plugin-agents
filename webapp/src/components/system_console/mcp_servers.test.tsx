@@ -273,12 +273,12 @@ describe('MCPServers built-in & plugin section', () => {
         mockGetMCPTools.mockResolvedValue({servers: []});
     });
 
-    test('always renders the embedded Mattermost card', async () => {
+    test('always renders the embedded Antimatter card', async () => {
         renderServers(makeMCPConfig());
 
         expect(screen.getByTestId('built-in-plugin-servers-section')).not.toBeNull();
         expect(screen.getByText('Built-in & plugin servers')).not.toBeNull();
-        expect(screen.getByText('Mattermost')).not.toBeNull();
+        expect(screen.getByText('Antimatter')).not.toBeNull();
         expect(screen.getByText('Built-in')).not.toBeNull();
         await waitFor(() => {
             expect(mockGetMCPTools).toHaveBeenCalled();

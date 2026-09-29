@@ -28,7 +28,7 @@ import {
 export type WebappStore = Store<GlobalState, UnknownAction>;
 
 // Local structural mirrors of the host's channel-settings schema types
-// (mattermost master webapp/channels/src/types/plugins/channel_settings.ts and
+// (antimatter master webapp/channels/src/types/plugins/channel_settings.ts and
 // plugins/settings_schema/types.ts); @mattermost/types 11.4.0 predates them.
 export type ChannelSettingsValues = {[name: string]: string};
 type RadioOption = {value: string; text: string; helpText?: string};

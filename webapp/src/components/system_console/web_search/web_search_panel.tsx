@@ -78,7 +78,7 @@ const WebSearchPanel = ({value, onChange}: Props) => {
                     label={intl.formatMessage({defaultMessage: 'Enable Web Search'})}
                     value={value.enabled}
                     onChange={(enabled) => handleUpdate({enabled})}
-                    helpText={intl.formatMessage({defaultMessage: 'Allow agents to call Mattermost\'s built-in web search tool. If your LLM already provides native web search support, leave this disabled.'})}
+                    helpText={intl.formatMessage({defaultMessage: 'Allow agents to call Antimatter\'s built-in web search tool. If your LLM already provides native web search support, leave this disabled.'})}
                 />
                 <SelectionItem
                     label={intl.formatMessage({defaultMessage: 'Provider'})}
@@ -159,7 +159,7 @@ const WebSearchPanel = ({value, onChange}: Props) => {
                             label={intl.formatMessage({defaultMessage: 'SearXNG Base URL'})}
                             value={searxng.baseURL}
                             onChange={(e) => handleSearxngUpdate({baseURL: e.target.value})}
-                            helptext={intl.formatMessage({defaultMessage: 'Root URL of your SearXNG instance (e.g. https://searx.example.com). The instance must allow the json format (search.formats in its settings). If the instance is on a private/reserved address, add it to the Mattermost AllowedUntrustedInternalConnections setting.'})}
+                            helptext={intl.formatMessage({defaultMessage: 'Root URL of your SearXNG instance (e.g. https://searx.example.com). The instance must allow the json format (search.formats in its settings). If the instance is on a private/reserved address, add it to the Antimatter AllowedUntrustedInternalConnections setting.'})}
                             disabled={!value.enabled}
                         />
                         <TextItem

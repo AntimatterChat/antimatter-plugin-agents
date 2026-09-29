@@ -36,7 +36,7 @@ interface FetchedPost {
 
 /**
  * Card for read_post: while the call awaits approval, shows the referenced
- * post as a Mattermost permalink-style preview so the user sees what the tool
+ * post as an Antimatter permalink-style preview so the user sees what the tool
  * will actually read. Falls back to the generic card when the call has already
  * executed (the response carries the content, and a preview would re-render
  * the post's markdown next to the deliberately-unrendered result), when the

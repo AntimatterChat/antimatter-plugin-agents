@@ -15,7 +15,7 @@ jest.mock('@/client', () => ({
 
 const mockedDoLoopInAgent = doLoopInAgent as jest.MockedFunction<typeof doLoopInAgent>;
 
-// Mattermost IDs are 26 characters of lowercase letters and digits.
+// Antimatter IDs are 26 characters of lowercase letters and digits.
 const POST_ID = 'ehz9k3wqr7t1a5m2xd8pnb4jsc';
 const TARGET_POST_ID = 'kq3n7vd1x9r4bz2m8sw6t5jhpc';
 const POST_MESSAGE = 'To respond to an agent you must @mention them.';

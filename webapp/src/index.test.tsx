@@ -136,7 +136,7 @@ describe('client base URL', () => {
     beforeEach(() => {
         jest.resetModules();
         mockSetSiteURL.mockReset();
-        window.basename = '/mattermost';
+        window.basename = '/antimatter';
     });
 
     afterEach(() => {
@@ -144,10 +144,10 @@ describe('client base URL', () => {
     });
 
     test('uses the loaded origin and basename instead of the configured SiteURL', async () => {
-        await initializePlugin('https://configured.example.test/mattermost');
+        await initializePlugin('https://configured.example.test/antimatter');
 
         expect(mockSetSiteURL).toHaveBeenCalledTimes(1);
-        expect(mockSetSiteURL).toHaveBeenCalledWith(`${window.location.origin}/mattermost`);
+        expect(mockSetSiteURL).toHaveBeenCalledWith(`${window.location.origin}/antimatter`);
     });
 });
 

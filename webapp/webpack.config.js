@@ -81,7 +81,7 @@ const config = {
         ],
     },
 
-    // The host Mattermost webapp supplies these as globals at runtime, so they
+    // The host Antimatter webapp supplies these as globals at runtime, so they
     // are never bundled. Their versions in package.json exist only for types and
     // tests and must stay in sync with what the host ships for the plugin's
     // min_server_version — see webapp/channels/package.json and the lockfile in

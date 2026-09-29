@@ -30,7 +30,7 @@ export type AgentInactiveReason = 'invalid_config' | 'service_unavailable';
 // The backend API (GET /agents, GET /agents/:id, POST /agents, PUT /agents/:id)
 // returns this shape.
 //
-// NOTE on `name`: the backend emits the agent's Mattermost username under the
+// NOTE on `name`: the backend emits the agent's Antimatter username under the
 // JSON key "name" (llm.BotConfig.Name). The CreateAgentRequest / UpdateAgentRequest
 // DTOs accept the same value under the JSON key "username" — see the asymmetry
 // called out in §2.5 of .planning/phase-2/PLAN.md. UI layers typically display

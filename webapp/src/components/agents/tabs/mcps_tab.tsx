@@ -319,13 +319,13 @@ const McpsTab = (props: Props) => {
                         <FormattedMessage defaultMessage='Use service accounts for authentication'/>
                     </CheckboxTitle>
                     <CheckboxHint>
-                        <FormattedMessage defaultMessage="External MCP servers authenticate with shared service-account credentials. Mattermost and plugin tools run with each requesting user's own permissions. Users are never asked to connect their own accounts."/>
+                        <FormattedMessage defaultMessage="External MCP servers authenticate with shared service-account credentials. Antimatter and plugin tools run with each requesting user's own permissions. Users are never asked to connect their own accounts."/>
                     </CheckboxHint>
                 </CheckboxLabel>
             </CheckboxRow>
             {useServiceAccountAuth && (
                 <WarningBanner>
-                    <FormattedMessage defaultMessage="Anyone who can use this agent acts with its shared service account access on external MCP servers. Mattermost (embedded) and plugin tools run with each requesting user's own permissions. Restrict who can use this agent on the Access tab. External MCP servers without service account credentials configured are excluded from this agent."/>
+                    <FormattedMessage defaultMessage="Anyone who can use this agent acts with its shared service account access on external MCP servers. Antimatter (embedded) and plugin tools run with each requesting user's own permissions. Restrict who can use this agent on the Access tab. External MCP servers without service account credentials configured are excluded from this agent."/>
                 </WarningBanner>
             )}
         </ServiceAccountSection>
@@ -748,7 +748,7 @@ const NotConnectedBadge = styled.span`
     font-weight: 600;
 `;
 
-// Toggle switch — styled to match Mattermost toggle patterns
+// Toggle switch — styled to match Antimatter toggle patterns
 const ServerToggle = styled.button<{$enabled: boolean}>`
     width: 40px;
     height: 22px;

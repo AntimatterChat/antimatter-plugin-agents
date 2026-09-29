@@ -3,7 +3,7 @@
 
 // Prop contracts for the access-control editors the host webapp exports on
 // window.Components, narrowed to exactly the props this plugin passes (see
-// policy_editor.tsx). Source of truth in the mattermost repo (webapp/):
+// policy_editor.tsx). Source of truth in the antimatter repo (webapp/):
 //   - channels/src/components/admin_console/access_control/editors/table_editor/table_editor.tsx (TableEditorProps)
 //   - channels/src/components/admin_console/access_control/editors/cel_editor/editor.tsx (CELEditorProps, CELEditorActions)
 //   - channels/src/packages/mattermost-redux/src/types/actions.ts (ActionResult)

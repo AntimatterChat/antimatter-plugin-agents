@@ -84,7 +84,7 @@ function okResponse(): Response {
     return {ok: true, status: 200, json: () => Promise.resolve({})} as unknown as Response;
 }
 
-// Mattermost IDs are 26 characters of lowercase letters and digits.
+// Antimatter IDs are 26 characters of lowercase letters and digits.
 const WELL_FORMED_ID = 'c7f2m9xq4v1b8n3k6t5w0hzjd2';
 
 // These ids reach the client straight off free-form post props, so a caller can hand them anything.

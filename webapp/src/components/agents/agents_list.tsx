@@ -290,7 +290,7 @@ const AgentsList = () => {
             <FixedChrome>
                 <ContentColumn>
                     <Footer>
-                        <FormattedMessage defaultMessage='AI services are third party services. Mattermost is not responsible for output.'/>
+                        <FormattedMessage defaultMessage='AI services are third party services. Antimatter is not responsible for output.'/>
                     </Footer>
                 </ContentColumn>
             </FixedChrome>

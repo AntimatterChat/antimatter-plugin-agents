@@ -269,7 +269,7 @@ export const SummarizeDateRangeModal = ({show, onClose, onSummarize, channelName
             );
         }
 
-        // Fallback to native date input for older Mattermost versions
+        // Fallback to native date input for older Antimatter versions
         return (
             <>
                 <DateLabel>
@@ -306,7 +306,7 @@ export const SummarizeDateRangeModal = ({show, onClose, onSummarize, channelName
             );
         }
 
-        // Fallback to native date input for older Mattermost versions
+        // Fallback to native date input for older Antimatter versions
         return (
             <>
                 <DateLabel>

@@ -104,7 +104,7 @@ describe('shouldSuppressBotNotification', () => {
         ).toBe(false);
     });
 
-    it('treats from_bot as the string "true" only (Mattermost emits it as a string)', () => {
+    it('treats from_bot as the string "true" only (Antimatter emits it as a string)', () => {
         const post = {
             user_id: 'some-bot',
             root_id: 'parent-1',

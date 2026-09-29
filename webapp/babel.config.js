@@ -6,7 +6,7 @@ const config = {
         ['@babel/preset-env', {
 
             // Minimum supported browsers, per
-            // https://docs.mattermost.com/deployment-guide/software-hardware-requirements.html
+            // https://docs.antimatter.example/deployment-guide/software-hardware-requirements.html
             // Strings, not numbers: a numeric target loses trailing zeroes, so
             // a version like 16.10 would be read as 16.1.
             targets: {

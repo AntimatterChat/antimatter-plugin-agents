@@ -187,7 +187,7 @@ export default function RHS() {
     }
     return (
         <RhsContainer
-            data-testid='mattermost-ai-rhs'
+            data-testid='antimatter-ai-rhs'
         >
             <RHSHeader
                 currentTab={currentTab}

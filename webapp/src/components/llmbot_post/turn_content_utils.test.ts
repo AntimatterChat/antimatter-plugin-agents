@@ -135,7 +135,7 @@ describe('extractToolCallsForPost', () => {
                     server_origin: 'embedded://mattermost',
                     mcp_bare_name: 'create_post',
                     title: 'Create Post',
-                    description: 'Create a new post in Mattermost.',
+                    description: 'Create a new post in Antimatter.',
                     input: {channel_id: 'c1'},
                     status: 'pending',
                     shared: true,
@@ -152,7 +152,7 @@ describe('extractToolCallsForPost', () => {
             server_origin: 'embedded://mattermost',
             mcp_bare_name: 'create_post',
             title: 'Create Post',
-            description: 'Create a new post in Mattermost.',
+            description: 'Create a new post in Antimatter.',
         });
     });
 

@@ -3,7 +3,7 @@
 
 import {isValidId} from './ids';
 
-// Mattermost IDs are 26 characters of lowercase letters and digits.
+// Antimatter IDs are 26 characters of lowercase letters and digits.
 const WELL_FORMED_ID = 'c7f2m9xq4v1b8n3k6t5w0hzjd2';
 
 describe('isValidId', () => {

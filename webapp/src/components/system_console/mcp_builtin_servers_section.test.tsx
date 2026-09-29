@@ -65,7 +65,7 @@ function makePluginServer(overrides: Partial<MCPServerInfo> = {}): MCPServerInfo
 }
 
 describe('BuiltInPluginServersSection', () => {
-    it('renders the Mattermost built-in card and plugin cards', () => {
+    it('renders the Antimatter built-in card and plugin cards', () => {
         render(
             <IntlProvider locale='en'>
                 <BuiltInPluginServersSection
@@ -76,7 +76,7 @@ describe('BuiltInPluginServersSection', () => {
         );
 
         expect(screen.getByTestId('built-in-plugin-servers-section')).not.toBeNull();
-        expect(screen.getByText('Mattermost')).not.toBeNull();
+        expect(screen.getByText('Antimatter')).not.toBeNull();
         expect(screen.getByText('Built-in')).not.toBeNull();
         expect(screen.getByText('Demo Plugin')).not.toBeNull();
         expect(screen.getByText('Plugin ID: com.example.demo')).not.toBeNull();
@@ -119,7 +119,7 @@ describe('BuiltInPluginServersSection', () => {
             </IntlProvider>,
         );
 
-        expect(screen.queryByText(/Denying access to the built-in Mattermost server/) !== null).toBe(shown);
+        expect(screen.queryByText(/Denying access to the built-in Antimatter server/) !== null).toBe(shown);
         useABACSupport.mockReturnValue({supported: true, loading: false});
     });
 });
