@@ -103,9 +103,8 @@ export async function readAgentErrorMessage(response: Response): Promise<string>
     return '';
 }
 
-// readClientErrorMessage returns the server's error text for 403 responses,
-// which carry `{error, license_required}` for license denials. Other statuses
-// yield an empty message; callers inspect status_code for those.
+// readClientErrorMessage returns the server's error text for 403 responses.
+// Other statuses yield an empty message; callers inspect status_code for those.
 export async function readClientErrorMessage(response: Response): Promise<string> {
     if (response.status !== 403) {
         return '';
@@ -979,7 +978,6 @@ export async function savePluginConfig(config: PluginConfig): Promise<PluginConf
 
 export type AgentsListResult = {
     agents: UserAgent[];
-    activeAgentCount?: number;
 };
 
 export async function getAgents(): Promise<AgentsListResult> {
@@ -990,14 +988,7 @@ export async function getAgents(): Promise<AgentsListResult> {
 
     if (response.ok) {
         const agents = await response.json() as UserAgent[];
-        const activeCountHeader = response.headers.get('X-Agent-Active-Count');
-        const result: AgentsListResult = {agents};
-
-        // Only trust a strict non-negative integer (rejects e.g. "1foo", "", null).
-        if (activeCountHeader !== null && (/^\d+$/).test(activeCountHeader)) {
-            result.activeAgentCount = Number.parseInt(activeCountHeader, 10);
-        }
-        return result;
+        return {agents};
     }
 
     throw new ClientError(Client4.url, {

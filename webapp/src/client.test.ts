@@ -329,20 +329,19 @@ describe('getConversationContext', () => {
     });
 });
 
-describe('license denial errors', () => {
+describe('forbidden errors', () => {
     test('403 responses surface the server error text', async () => {
         mockFetch.mockResolvedValue({
             ok: false,
             status: 403,
             json: () => Promise.resolve({
-                error: 'Thread summarization is available on Professional plans and above.',
-                license_required: 'professional',
+                error: 'user doesn\'t have permission to access this channel',
             }),
         } as unknown as Response);
 
         await expect(doThreadAnalysis('post-1', 'summarize_thread', 'bot')).rejects.toMatchObject({
             status_code: 403,
-            message: 'Thread summarization is available on Professional plans and above.',
+            message: 'user doesn\'t have permission to access this channel',
         });
     });
 
