@@ -6,19 +6,7 @@ package mcp
 import (
 	"net/url"
 	"strings"
-
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 )
-
-// IsRemoteServerOrigin reports whether an MCP server origin points at a
-// remote/external server. Built-in tools carry an empty origin and the
-// embedded Mattermost server uses EmbeddedClientKey; neither counts as
-// remote. Every other origin — remote HTTP servers and plugin-registered
-// servers — belongs to the licensed "MCP Support" feature.
-func IsRemoteServerOrigin(origin string) bool {
-	origin = llm.NormalizeMCPServerOrigin(origin)
-	return origin != "" && origin != EmbeddedClientKey
-}
 
 // SeedVettedToolConfigs returns one-time seed tool configs for vetted MCP hosts.
 //

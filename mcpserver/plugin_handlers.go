@@ -51,9 +51,8 @@ type PluginMCPHandlers struct {
 	registry        PluginServerRegistry
 	sourcePluginAPI mmapi.Client
 
-	accessChecker           mcppkg.ServerAccessChecker
-	embeddedServerID        func() string
-	allowStateChangingTools func() bool
+	accessChecker    mcppkg.ServerAccessChecker
+	embeddedServerID func() string
 
 	// Bounds each source-plugin Connect/ListTools during rebuilds.
 	proxyDiscoveryTimeout time.Duration
@@ -69,8 +68,6 @@ type PluginMCPHandlers struct {
 // NewPluginMCPHandlers creates MCP handlers for the Mattermost plugin.
 // registry may be nil to disable plugin-server aggregation. Callers must
 // inject auth (bearer token or user-ID) via plugin middleware.
-// allowStateChangingTools is a runtime predicate evaluated per request; a nil
-// predicate means state-changing tools are not available.
 // Runtime services, when supplied, are the access checker followed by the
 // embedded-server ID lookup. Omitting both preserves compatibility for
 // standalone servers without ABAC.
@@ -79,7 +76,6 @@ func NewPluginMCPHandlers(
 	logger loggerlib.Logger,
 	registry PluginServerRegistry,
 	sourcePluginAPI mmapi.Client,
-	allowStateChangingTools func() bool,
 	runtimeServices ...any,
 ) (*PluginMCPHandlers, error) {
 	if siteURL == "" {
@@ -117,15 +113,14 @@ func NewPluginMCPHandlers(
 	}
 
 	h := &PluginMCPHandlers{
-		siteURL:                 siteURL,
-		internalURL:             internalURL,
-		logger:                  logger,
-		registry:                registry,
-		sourcePluginAPI:         sourcePluginAPI,
-		accessChecker:           accessChecker,
-		embeddedServerID:        embeddedServerID,
-		allowStateChangingTools: allowStateChangingTools,
-		proxyDiscoveryTimeout:   externalProxyDiscoveryTimeout,
+		siteURL:               siteURL,
+		internalURL:           internalURL,
+		logger:                logger,
+		registry:              registry,
+		sourcePluginAPI:       sourcePluginAPI,
+		accessChecker:         accessChecker,
+		embeddedServerID:      embeddedServerID,
+		proxyDiscoveryTimeout: externalProxyDiscoveryTimeout,
 	}
 
 	h.currentServer = h.buildServer()
@@ -184,7 +179,6 @@ func (h *PluginMCPHandlers) buildServer() *mcp.Server {
 		tools.AccessModeRemote,
 		searchService,
 		fileContentService,
-		h.allowStateChangingTools,
 	)
 	toolProvider.ProvideTools(mcpServer)
 

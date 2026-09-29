@@ -26,20 +26,12 @@ type ToolSelection struct {
 	// DeniedOrigins removes server origins from the selection, including ones
 	// AllowedOrigins lists.
 	DeniedOrigins []string
-
-	// ExcludeRemoteServers drops everything but the embedded Mattermost
-	// server. Remote and plugin MCP servers are available at Enterprise and
-	// above, so below that level they are never contacted.
-	ExcludeRemoteServers bool
 }
 
 // Allows reports whether origin is part of the selection.
 func (s ToolSelection) Allows(origin string) bool {
 	normalized := llm.NormalizeMCPServerOrigin(origin)
 	if normalized == "" {
-		return false
-	}
-	if s.ExcludeRemoteServers && IsRemoteServerOrigin(normalized) {
 		return false
 	}
 	if slices.Contains(llm.NormalizeMCPServerOrigins(s.DeniedOrigins), normalized) {

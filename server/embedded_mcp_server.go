@@ -61,7 +61,7 @@ func NewEmbeddedMCPServer(pluginAPI *pluginapi.Client, logger pluginapi.LogServi
 	mcpLogger := NewPluginAPILoggerAdapter(logger)
 
 	// Create the in-memory MCP server
-	server, err := mcpserver.NewInMemoryServer(config, mcpLogger, searchService, fileContentService, allowStateChangingTools)
+	server, err := mcpserver.NewInMemoryServer(config, mcpLogger, searchService, fileContentService)
 	if err != nil {
 		return nil, err
 	}

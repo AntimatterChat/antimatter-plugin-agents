@@ -88,24 +88,13 @@ type ClientManager struct {
 	admission *connectionAdmission
 	// accessChecker filters servers for the invoking user (nil = no filtering).
 	accessChecker ServerAccessChecker
-	// remoteAllowed reports whether remote and plugin MCP servers may be
-	// connected. Nil fails closed. The embedded Mattermost server is always
-	// connected when configured.
-	remoteAllowed func() bool
 	// closed is set by Close and makes ReInit a no-op so shutdown stays permanent.
 	closed bool
 }
 
-// RemoteMCPAlwaysAllowed is the remoteAllowed predicate for callers that have
-// no license information (tests and standalone tooling); the plugin passes a
-// license-backed predicate instead.
-var RemoteMCPAlwaysAllowed = func() bool { return true }
-
 // NewClientManager creates a new MCP client manager. embeddedServer may be nil.
-// sourcePluginAPI routes PluginHTTP to source plugins; may be nil. remoteAllowed
-// reports whether remote and plugin MCP servers may be connected; nil fails
-// closed so only the embedded Mattermost server is ever connected.
-func NewClientManager(config Config, log pluginapi.LogService, pluginAPI *pluginapi.Client, oauthManager *OAuthManager, embeddedServer EmbeddedMCPServer, httpClient *http.Client, sourcePluginAPI mmapi.Client, remoteAllowed func() bool, accessCheckers ...ServerAccessChecker) *ClientManager {
+// sourcePluginAPI routes PluginHTTP to source plugins; may be nil.
+func NewClientManager(config Config, log pluginapi.LogService, pluginAPI *pluginapi.Client, oauthManager *OAuthManager, embeddedServer EmbeddedMCPServer, httpClient *http.Client, sourcePluginAPI mmapi.Client, accessCheckers ...ServerAccessChecker) *ClientManager {
 	var accessChecker ServerAccessChecker
 	if len(accessCheckers) > 0 {
 		accessChecker = accessCheckers[0]
@@ -121,20 +110,12 @@ func NewClientManager(config Config, log pluginapi.LogService, pluginAPI *plugin
 		sourcePluginAPI:  sourcePluginAPI,
 		admission:        newConnectionAdmission(maxNodeConnections),
 		accessChecker:    accessChecker,
-		remoteAllowed:    remoteAllowed,
 	}
 	manager.hydratePluginRegistrations()
 	// PluginMCPHandlers is constructed later and builds the external aggregate
 	// from this hydrated registry.
 	manager.ReInit(config, embeddedServer)
 	return manager
-}
-
-func (m *ClientManager) remoteMCPAllowed() bool {
-	if m == nil || m.remoteAllowed == nil {
-		return false
-	}
-	return m.remoteAllowed()
 }
 
 // EnsureMCPSessionID ensures there is a valid MCP session for the user
@@ -213,10 +194,6 @@ func (m *ClientManager) ReInit(config Config, embeddedServer EmbeddedMCPServer) 
 
 	m.syncPluginServersFromConfig(config)
 
-	if !m.remoteMCPAllowed() && mcpConfigHasRemoteOrPlugin(config) {
-		m.log.Info("Remote and plugin MCP servers are available at Enterprise and above; only the embedded Mattermost MCP server is connected")
-	}
-
 	var discarded []*Client
 	for _, userClients := range m.snapshotUserClients() {
 		valid := m.liveOriginIdentities(config, newEmbedded, userClients.serviceAccount())
@@ -224,13 +201,6 @@ func (m *ClientManager) ReInit(config Config, embeddedServer EmbeddedMCPServer) 
 	}
 	m.lifecycleMu.Unlock()
 	closeDetachedClients(m.log, discarded)
-}
-
-func mcpConfigHasRemoteOrPlugin(cfg Config) bool {
-	if len(cfg.Servers) > 0 || len(cfg.PluginServers) > 0 {
-		return true
-	}
-	return false
 }
 
 // Close closes the client manager and all managed clients.
@@ -342,12 +312,8 @@ func (m *ClientManager) resolveEligibleServers(cfg Config, embeddedClient *Embed
 		conflicting[conflict.Index] = true
 	}
 
-	remoteAllowed := m.remoteMCPAllowed()
-
 	for i, server := range cfg.Servers {
 		switch {
-		case !remoteAllowed:
-			continue
 		case !server.Enabled || server.BaseURL == "":
 			continue
 		case conflicting[i]:
@@ -373,9 +339,6 @@ func (m *ClientManager) resolveEligibleServers(cfg Config, embeddedClient *Embed
 	}
 
 	for _, pluginCfg := range plugins {
-		if !remoteAllowed {
-			continue
-		}
 		origin := pluginServerOriginKey(pluginCfg.PluginID)
 		if deniedOrigins[origin] || !selection.Allows(origin) {
 			continue
@@ -430,7 +393,7 @@ func (m *ClientManager) GetTools(ctx context.Context, req CatalogRequest) ([]llm
 }
 
 // GetToolsWithSelection is GetTools with request-scoped server eligibility.
-// Callers that enforce licensing or agent-specific origin selection must use
+// Callers that enforce agent-specific origin selection must use
 // this entry point so excluded servers are never contacted.
 func (m *ClientManager) GetToolsWithSelection(ctx context.Context, req CatalogRequest, selection ToolSelection) ([]llm.Tool, *Errors) {
 	access := m.GetCatalogAccessWithSelection(ctx, req, selection)
@@ -857,18 +820,15 @@ func (m *ClientManager) GetConfig() Config {
 // liveOriginIdentities is the connection-identity map ReInit uses to decide
 // which cached sessions remain valid. Tool policies are not part of identity.
 func (m *ClientManager) liveOriginIdentities(cfg Config, embeddedClient *EmbeddedServerClient, serviceAccount bool) map[string]originIdentity {
-	identities := make(map[string]originIdentity)
-	if m.remoteMCPAllowed() {
-		identities = remoteOriginIdentities(cfg)
-		if serviceAccount {
-			for _, server := range cfg.Servers {
-				if !server.HasServiceAccountAuth() {
-					delete(identities, server.BaseURL)
-					continue
-				}
-				base := identities[server.BaseURL]
-				identities[server.BaseURL] = remoteOriginIdentityForMode(server, !base.usable, true)
+	identities := remoteOriginIdentities(cfg)
+	if serviceAccount {
+		for _, server := range cfg.Servers {
+			if !server.HasServiceAccountAuth() {
+				delete(identities, server.BaseURL)
+				continue
 			}
+			base := identities[server.BaseURL]
+			identities[server.BaseURL] = remoteOriginIdentityForMode(server, !base.usable, true)
 		}
 	}
 
@@ -877,10 +837,6 @@ func (m *ClientManager) liveOriginIdentities(cfg Config, embeddedClient *Embedde
 		embeddedServer = embeddedClient.server
 	}
 	identities[EmbeddedClientKey] = embeddedOriginIdentity(embeddedServer, cfg.EmbeddedServer.Enabled)
-
-	if !m.remoteMCPAllowed() {
-		return identities
-	}
 
 	m.pluginServersMu.RLock()
 	defer m.pluginServersMu.RUnlock()

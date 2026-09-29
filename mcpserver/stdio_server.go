@@ -69,10 +69,8 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 		fileContentService = defaultFileContentService
 	}
 
-	// Register tools with local access mode. Standalone stdio servers run
-	// outside the plugin and have no license information, so state-changing
-	// tools stay available.
-	mattermostServer.registerTools(tools.AccessModeLocal, searchService, fileContentService, func() bool { return true })
+	// Register tools with local access mode
+	mattermostServer.registerTools(tools.AccessModeLocal, searchService, fileContentService)
 
 	return mattermostServer, nil
 }

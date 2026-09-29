@@ -392,8 +392,7 @@ func (h *runtimeHarness) newManagerMaybeRegister(registerPlugins bool) *ClientMa
 		nil,
 		embedded,
 		&http.Client{},
-		h.pluginForwarder(),
-		RemoteMCPAlwaysAllowed)
+		h.pluginForwarder())
 	h.t.Cleanup(manager.Close)
 
 	if registerPlugins {
@@ -463,7 +462,7 @@ func TestGetToolsForUserDialsEveryServerTypeConcurrently(t *testing.T) {
 		elapsed, dialDelay, 6*dialDelay)
 }
 
-// Servers the admin, the user, the agent, or the license rules out must not be
+// Servers the admin, the user, or the agent rules out must not be
 // contacted at all, not merely have their tools filtered out afterwards.
 func TestGetToolsForUserNeverContactsIneligibleServers(t *testing.T) {
 	testCases := []struct {
@@ -515,23 +514,6 @@ func TestGetToolsForUserNeverContactsIneligibleServers(t *testing.T) {
 				"an ineligible MCP server must never be contacted")
 		})
 	}
-}
-
-// Without the MCP license, remote and plugin servers are off limits while the
-// embedded Mattermost server stays available.
-func TestGetToolsForUserSkipsRemoteServersWhenUnlicensed(t *testing.T) {
-	harness := newRuntimeHarness(t, "alice")
-	harness.addRemote("remotea", 1, 0)
-	harness.addPlugin("com.example.one", "pluginone", 1, 0)
-	harness.withEmbedded("embedded_tool", 0)
-
-	manager := harness.newManager()
-	tools, mcpErrors := manager.GetToolsForUser(context.Background(), "alice", ToolSelection{ExcludeRemoteServers: true})
-
-	require.Nil(t, mcpErrors)
-	require.Equal(t, map[string]int{EmbeddedClientKey: 1}, toolOrigins(tools))
-	require.Zero(t, harness.remoteSrv["remotea"].requestCount())
-	require.Zero(t, harness.pluginSrv["com.example.one"].requestCount())
 }
 
 // One user client is filled in incrementally: switching between agents with
@@ -987,18 +969,6 @@ func TestToolSelectionAllows(t *testing.T) {
 			selection: ToolSelection{AllowedOrigins: []string{remote}, DeniedOrigins: []string{remote}},
 			origin:    remote,
 			allowed:   false,
-		},
-		{
-			name:      "excluding remote servers rejects a plugin origin",
-			selection: ToolSelection{ExcludeRemoteServers: true},
-			origin:    plugin,
-			allowed:   false,
-		},
-		{
-			name:      "excluding remote servers keeps the embedded server",
-			selection: ToolSelection{ExcludeRemoteServers: true},
-			origin:    EmbeddedClientKey,
-			allowed:   true,
 		},
 	}
 
