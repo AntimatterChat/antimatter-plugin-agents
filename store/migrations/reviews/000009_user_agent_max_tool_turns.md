@@ -27,7 +27,7 @@
 
 ## Backwards Compatibility
 - Compatible with previous ESR: Yes (plugin-owned).
-- Can previous Mattermost version run with new schema: Yes — older plugin code paths simply ignore the column.
+- Can previous Antimatter version run with new schema: Yes — older plugin code paths simply ignore the column.
 - Impact if not compatible: N/A.
 
 ## Table Locks & Impact

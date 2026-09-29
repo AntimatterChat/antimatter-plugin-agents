@@ -24,7 +24,7 @@
 
 ## Backwards Compatibility
 - Compatible with previous ESR: Yes (plugin-owned tables only).
-- Can previous Mattermost version run with new schema: Yes.
+- Can previous Antimatter version run with new schema: Yes.
 - Impact if not compatible: N/A.
 
 ## Table Locks & Impact
@@ -51,7 +51,7 @@
 
 ## SQL Queries
 ```sql
--- No foreign keys: consistent with Mattermost conventions.
+-- No foreign keys: consistent with Antimatter conventions.
 -- IF NOT EXISTS is safe for existing installs that already have this table.
 CREATE TABLE IF NOT EXISTS LLM_PostMeta (
     RootPostID TEXT NOT NULL PRIMARY KEY,

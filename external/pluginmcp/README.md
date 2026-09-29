@@ -1,11 +1,11 @@
 # pluginmcp
 
-Expose MCP (Model Context Protocol) tools from a Mattermost plugin to the
+Expose MCP (Model Context Protocol) tools from an Antimatter plugin to the
 Agents plugin. `pluginmcp` wraps the [go-sdk MCP server](https://github.com/modelcontextprotocol/go-sdk)
 with the namespacing, inter-plugin auth, user-ID propagation, and async
 registration that Agents-plugin tool calls require.
 
-Requires Mattermost 11.3 or newer (uses `Plugin.PluginHTTPStream`).
+Requires Antimatter 11.3 or newer (uses `Plugin.PluginHTTPStream`).
 
 ## Install
 
@@ -13,7 +13,7 @@ Until the Agents plugin cuts a release tag with `external/pluginmcp/`
 exported, point your `go.mod` at a local checkout:
 
 ```go
-replace github.com/mattermost/mattermost-plugin-agents/v2 => ../mattermost-plugin-agents
+replace github.com/antimatterchat/antimatter-plugin-agents/v2 => ../antimatter-plugin-agents
 ```
 
 ## Quickstart
@@ -31,7 +31,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/external/pluginmcp"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/external/pluginmcp"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -89,7 +89,7 @@ func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Req
 func (p *Plugin) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ WhoAmIArgs) (*mcp.CallToolResult, WhoAmIOutput, error) {
 	userID := pluginmcp.GetUserID(ctx)
 	if userID == "" {
-		return nil, WhoAmIOutput{}, fmt.Errorf("no Mattermost user ID in context")
+		return nil, WhoAmIOutput{}, fmt.Errorf("no Antimatter user ID in context")
 	}
 	user, err := p.client.User.Get(userID)
 	if err != nil {
@@ -170,12 +170,12 @@ streamable HTTP handler in stateless / JSON-response mode (PluginHTTP
 buffers the full response, so streaming SSE is not used).
 
 For registration and unregister auth, the Agents plugin treats the trusted
-`Mattermost-Plugin-ID` header added by Mattermost inter-plugin RPC as the
+`Mattermost-Plugin-ID` header added by Antimatter inter-plugin RPC as the
 canonical plugin identity. The JSON `plugin_id` field is still sent for
 compatibility, but it is not trusted for identity.
 
-User-ID flow per call: browser -> Mattermost server (sets
-`Mattermost-User-Id`) -> Agents plugin -> `PluginHTTP` (Mattermost adds
+User-ID flow per call: browser -> Antimatter server (sets
+`Mattermost-User-Id`) -> Agents plugin -> `PluginHTTP` (Antimatter adds
 `Mattermost-Plugin-ID: mattermost-ai`, Agents adds
 `X-Mattermost-UserID`) -> your `ServeHTTP` -> `pluginmcp` checks the
 plugin-ID header and stashes the user ID in the request context ->
@@ -206,7 +206,7 @@ reverse-DNS ID like `com.example.plugin-foo`.
 
 **`GetUserID` is trustworthy only inside a `ServeHTTP` request.**
 `ServeHTTP` rejects requests without `Mattermost-Plugin-ID:
-mattermost-ai` (Mattermost strips that header on external requests, so
+mattermost-ai` (Antimatter strips that header on external requests, so
 only inter-plugin RPC sees it). The user ID is then read from
 `X-Mattermost-UserID` and stored under an unexported context key.
 External callers can't inject one. Don't add a second auth gate in

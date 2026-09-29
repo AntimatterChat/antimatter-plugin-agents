@@ -18,21 +18,21 @@ script, not in this file. The cloud image additionally provides:
 - AWS CLI — uploads non-sensitive reproduction artifacts to
   `AWS_S3_BUCKET_NAME`.
 
-## Running Mattermost + plugin locally in the cloud VM
+## Running Antimatter + plugin locally in the cloud VM
 
-A local Mattermost instance is needed for plugin development.
+A local Antimatter instance is needed for plugin development.
 Use the development image and a companion PostgreSQL container:
 
 ```bash
-docker network create mm-network 2>/dev/null || true
+docker network create am-network 2>/dev/null || true
 
-docker run -d --name mm-postgres --network mm-network \
-  -e POSTGRES_USER=mmuser -e POSTGRES_PASSWORD=mostest -e POSTGRES_DB=mattermost \
+docker run -d --name am-postgres --network am-network \
+  -e POSTGRES_USER=mmuser -e POSTGRES_PASSWORD=mostest -e POSTGRES_DB=antimatter \
   -p 5432:5432 postgres:15-alpine
 
-docker run -d --name mm-server --network mm-network -p 8065:8065 \
+docker run -d --name am-server --network am-network -p 8065:8065 \
   -e MM_SQLSETTINGS_DRIVERNAME=postgres \
-  -e MM_SQLSETTINGS_DATASOURCE="postgres://mmuser:mostest@mm-postgres:5432/mattermost?sslmode=disable&connect_timeout=10" \
+  -e MM_SQLSETTINGS_DATASOURCE="postgres://mmuser:mostest@am-postgres:5432/mattermost?sslmode=disable&connect_timeout=10" \
   -e MM_SERVICESETTINGS_SITEURL=http://localhost:8065 \
   -e MM_PLUGINSETTINGS_ENABLEUPLOADS=true \
   -e MM_PLUGINSETTINGS_ENABLEUPLOAD=true \
@@ -41,9 +41,9 @@ docker run -d --name mm-server --network mm-network -p 8065:8065 \
   -e MM_SERVICESETTINGS_ENABLELOCALMODE=true \
   mattermostdevelopment/mattermost-enterprise-edition:master
 
-docker exec mm-server mmctl user create --email admin@example.com --username admin --password 'Admin1234!' --system-admin --local
-docker exec mm-server mmctl team create --name dev --display-name "Dev Team" --local
-docker exec mm-server mmctl team users add dev admin --local
+docker exec am-server mmctl user create --email admin@example.com --username admin --password 'Admin1234!' --system-admin --local
+docker exec am-server mmctl team create --name dev --display-name "Dev Team" --local
+docker exec am-server mmctl team users add dev admin --local
 ```
 
 ## Deploying the plugin into the cloud VM container
@@ -52,7 +52,7 @@ docker exec mm-server mmctl team users add dev admin --local
 rm -rf server/dist dist
 make dist-ci
 MM_SERVICESETTINGS_SITEURL=http://localhost:8065 \
-  MM_ADMIN_USERNAME=admin MM_ADMIN_PASSWORD='Admin1234!' \
+  AM_ADMIN_USERNAME=admin AM_ADMIN_PASSWORD='Admin1234!' \
   ./build/bin/pluginctl deploy mattermost-ai dist/*.tar.gz
 ```
 
@@ -61,7 +61,7 @@ left other-platform binaries that bloat the upload.
 
 ## Configuring an Anthropic agent via API
 
-After deploying the plugin and starting Mattermost, configure an
+After deploying the plugin and starting Antimatter, configure an
 Anthropic service and create a user agent using the `ANTHROPIC_API_KEY`
 environment variable. Do not use `/api/v4/config/patch` for plugin
 config — write to `PUT /plugins/mattermost-ai/admin/config`.
@@ -70,8 +70,8 @@ config — write to `PUT /plugins/mattermost-ai/admin/config`.
 curl -s -X POST http://localhost:8065/api/v4/users/login \
   -H 'Content-Type: application/json' \
   -d '{"login_id":"admin","password":"Admin1234!"}' \
-  -D /tmp/mm-login-headers -o /tmp/mm-login-body >/dev/null
-TOKEN=$(awk 'tolower($1)=="token:" {gsub("\r", "", $2); print $2}' /tmp/mm-login-headers)
+  -D /tmp/am-login-headers -o /tmp/am-login-body >/dev/null
+TOKEN=$(awk 'tolower($1)=="token:" {gsub("\r", "", $2); print $2}' /tmp/am-login-headers)
 
 curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8065/plugins/mattermost-ai/admin/config |
   jq --arg key "$ANTHROPIC_API_KEY" '
@@ -148,13 +148,13 @@ artifacts. Upload before creating or updating the PR description.
 
 ## Cloud-VM-specific gotchas
 
-- The Mattermost server port comes from the Docker port mapping above
+- The Antimatter server port comes from the Docker port mapping above
   (`8065`); if you re-run with a different `-p` flag, look it up with
-  `docker port mm-server`.
+  `docker port am-server`.
 - The VM has `/.dockerenv`, so testcontainers reports the Docker gateway
   IP (e.g. `http://172.18.0.1:<port>`) as the e2e host. That origin is not
   a secure context, so Clipboard API specs fail. Run e2e with
   `TESTCONTAINERS_HOST_OVERRIDE=localhost`.
 - Outbound LLM traffic from the container respects `HTTP_PROXY` /
-  `HTTPS_PROXY` on the Mattermost process environment if the cloud VM
+  `HTTPS_PROXY` on the Antimatter process environment if the cloud VM
   routes egress through a proxy.

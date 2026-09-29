@@ -1,13 +1,13 @@
-# Mattermost AI Plugin - LLM Bridge Client
+# Antimatter AI Plugin - LLM Bridge Client
 
-Go client library for Mattermost plugins and the server to interact with the AI plugin's LLM Bridge API.
+Go client library for Antimatter plugins and the server to interact with the AI plugin's LLM Bridge API.
 
 ## Quick Start
 
 ### From a Plugin
 
 ```go
-import "github.com/mattermost/mattermost-plugin-agents/v2/public/bridgeclient"
+import "github.com/antimatterchat/antimatter-plugin-agents/v2/public/bridgeclient"
 
 type MyPlugin struct {
     plugin.MattermostPlugin
@@ -31,10 +31,10 @@ func (p *MyPlugin) handleCommand() {
 }
 ```
 
-### From Mattermost Server
+### From Antimatter Server
 
 ```go
-import "github.com/mattermost/mattermost-plugin-agents/v2/public/bridgeclient"
+import "github.com/antimatterchat/antimatter-plugin-agents/v2/public/bridgeclient"
 
 type MyService struct {
     app       *app.App
@@ -79,7 +79,7 @@ The streaming methods return `*llm.TextStreamResult`, so a streaming caller also
 the plugin's `llm` package for the event types:
 
 ```go
-import "github.com/mattermost/mattermost-plugin-agents/v2/llm"
+import "github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 
 result, err := client.AgentCompletionStream("bot-user-id", request)
 if err != nil {
@@ -229,15 +229,15 @@ applies to both agent and direct-service completions.
 
 An agent can be configured (on its MCPs tab) to use **service account authentication**: external
 MCP tool calls run with admin-configured service account credentials instead of per-user OAuth.
-Embedded Mattermost and plugin tools still run as the caller-asserted user. For bridge callers
+Embedded Antimatter and plugin tools still run as the caller-asserted user. For bridge callers
 this changes what `UserID` means:
 
 - **External MCP tools come from the agent's service account catalog.** For a service account
   agent, `GetAgentTools` and `AllowedTools` resolution use that catalog for remotes. External
   MCP servers without service account headers configured are excluded (fail closed) — they never
-  appear in discovery and never execute. Mattermost and plugin tools are discovered and executed
+  appear in discovery and never execute. Antimatter and plugin tools are discovered and executed
   as the caller-asserted `UserID`.
-- **`UserID` selects Mattermost and plugin identity, and is still used for permission checks
+- **`UserID` selects Antimatter and plugin identity, and is still used for permission checks
   and attribution.** Passing `UserID` still enforces the agent's user and channel access rules
   and is recorded in token usage logs.
 - **`UserID` is still required for `AllowedTools`**, in both modes.
@@ -268,7 +268,7 @@ request := bridgeclient.CompletionRequest{
 
 ## Agent vs Service
 
-- **Agent**: Target a specific bot by its Bot ID (the immutable Mattermost Bot User ID)
+- **Agent**: Target a specific bot by its Bot ID (the immutable Antimatter Bot User ID)
   - Uses bot's custom configuration, tools, and prompts
   - Get bot IDs via the `GetAgents()` discovery endpoint
 

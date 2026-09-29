@@ -29,8 +29,8 @@
 | Transactional/nontransactional split correct | ✅ | Single transactional statement. |
 
 ## Backwards Compatibility
-- Compatible with previous ESR: Yes (plugin-owned table; no Mattermost core change).
-- Can previous Mattermost version run with new schema: Yes — additive; older plugin code
+- Compatible with previous ESR: Yes (plugin-owned table; no Antimatter core change).
+- Can previous Antimatter version run with new schema: Yes — additive; older plugin code
   never references the table.
 - Impact if not compatible: N/A.
 

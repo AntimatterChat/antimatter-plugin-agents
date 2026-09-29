@@ -4,7 +4,7 @@
 
 ## Project
 
-Mattermost server plugin (`mattermost-ai`) that integrates LLM providers. Go 1.26 backend + React/TypeScript webapp (Node 24.11).
+Antimatter server plugin (`mattermost-ai`) that integrates LLM providers. Go 1.26 backend + React/TypeScript webapp (Node 24.11).
 
 ## Commands
 
@@ -15,7 +15,7 @@ Mattermost server plugin (`mattermost-ai`) that integrates LLM providers. Go 1.2
 - Lint only: `make check-style`
 - All unit tests: `make test`
 - Single Go test: `go test -v ./<pkg> -run TestName`
-- Build & deploy plugin to a running Mattermost: `make deploy`
+- Build & deploy plugin to a running Antimatter: `make deploy`
 - E2E (self-contained, no env setup needed; slow, defer to CI when possible): `make e2e`
 - Single e2e spec: `cd e2e && npx playwright test tests/path/spec.ts --reporter=list`
 - Prompt evals (non-interactive): `make evals-ci`
@@ -30,10 +30,10 @@ When `make check` fails, run the underlying targets individually (`make check-st
 Most Go packages live at the **repo root**, not under `server/`.
 
 - `server/` — plugin entrypoint, lifecycle, configuration adapter.
-- `api/`, `mmapi/` — HTTP handlers; Mattermost API wrappers.
+- `api/`, `amapi/` — HTTP handlers; Antimatter API wrappers.
 - `llm/` — LLM provider abstractions and provider implementations.
 - `mcp/`, `mcpserver/` — MCP client; embedded/HTTP/stdio MCP servers and tools.
-- `format/` — formatting of Mattermost entities for LLM consumption (see Conventions).
+- `format/` — formatting of Antimatter entities for LLM consumption (see Conventions).
 - Other top-level feature packages exist (e.g. `bots/`, `channels/`, `threads/`, `meetings/`, `search/`, `embeddings/`, `streaming/`, `toolrunner/`, `websearch/`, …). Read the package name and skim the package source before assuming purpose — note in particular that both `conversation/` and `conversations/` exist and are not the same.
 - `config/` — plugin configuration types and migration.
 - `webapp/` — React/TypeScript UI bundle (`webapp/src/`).
@@ -53,7 +53,7 @@ Linters (golangci-lint, ESLint, gofmt/goimports, header check, editorconfig) alr
 - Go tests must be table-driven when there is more than one case.
 - Never introduce a new test/mocking library; prefer to test against real implementations instead.
 - Test-only LLM helpers (mock stream generators, logging wrappers) live in `llm/llmtest`; never import `testing` from a production package.
-- All formatting of Mattermost entities (posts, users, channels, teams, members) for LLM consumption or tool output must go through the `format/` package. Never `fmt.Sprintf` model types inline; add a formatter to `format/` instead.
+- All formatting of Antimatter entities (posts, users, channels, teams, members) for LLM consumption or tool output must go through the `format/` package. Never `fmt.Sprintf` model types inline; add a formatter to `format/` instead.
 - E2E shard maintenance: when adding a new spec that should run in CI, assign it in `e2e/scripts/ci-test-groups.mjs` in the same change. `make check-shards` validates coverage and is part of `make check`. Use the lightest `e2e-shard-*` group and balance by expected runtime, not alphabetically.
 - Test for behavior that could break due to a real bug. Before writing a test ask: "If this test fails, does it indicate a real bug in our code?" In particular, do not assert on implementation details like validation order or which error appears first.
 
@@ -86,8 +86,8 @@ The plugin emits OpenTelemetry traces. Agent-relevant rules:
 
 - If `make install-go-tools` fails to build `mattermost-govet`, the pinned commit is incompatible with the active Go toolchain. The Makefile prints the exact fix: bump `MATTERMOST_GOVET_VERSION` in the Makefile to a newer commit. This is a real problem to fix, not a warning to ignore.
 - `postgres/pgvector_test.go` boots its own pgvector container via `testcontainers-go` (`pgvector/pgvector:pg17`); `go test ./postgres/...` works on a fresh checkout as long as Docker is available. To run against an existing pgvector instance for fast iteration, set `PGVECTOR_TEST_DSN`.
-- Plugin config is migrated to the plugin DB on activation. For automation, read/write `GET`/`PUT /plugins/mattermost-ai/admin/config` rather than patching the Mattermost server config.
-- The embedded MCP server requires `SiteURL` to be set on the Mattermost server, and uses in-memory transport (no HTTP). On tool name collisions across MCP servers, first-registered wins; later duplicates are skipped with a warning.
+- Plugin config is migrated to the plugin DB on activation. For automation, read/write `GET`/`PUT /plugins/mattermost-ai/admin/config` rather than patching the Antimatter server config.
+- The embedded MCP server requires `SiteURL` to be set on the Antimatter server, and uses in-memory transport (no HTTP). On tool name collisions across MCP servers, first-registered wins; later duplicates are skipped with a warning.
 - `public/bridgeclient/` is consumed by other plugins — treat its exported API as frozen. It is a package of the root module (no own `go.mod`), not HTTP assets; `HAS_PUBLIC` is intentionally cleared in the Makefile. Changes there are covered by the root-module lint/test gates.
 - A fresh checkout does not compile: run `make apply` first to generate `server/manifest.go` (`undefined: manifest` errors otherwise).
 - The repo has three Go modules: the root, `loadtest/controller/`, and `cmd/evalviewer/`. Go version bumps, `go mod tidy`, and `go fix` must be run in each.

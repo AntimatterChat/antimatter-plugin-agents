@@ -24,7 +24,7 @@
 
 ## Backwards Compatibility
 - Compatible with previous ESR: Yes (plugin-owned).
-- Can previous Mattermost version run with new schema: Yes — additive.
+- Can previous Antimatter version run with new schema: Yes — additive.
 - Impact if not compatible: N/A.
 
 ## Observations

@@ -43,7 +43,7 @@ The summary is emitted **once per bot service initialization**, not per chat req
 
 ## Configure Tool Auto-Run
 
-Mattermost MCP tools respect channel/user policy in the System Console. For unattended load tests, tool calls must not block on approval prompts.
+Antimatter MCP tools respect channel/user policy in the System Console. For unattended load tests, tool calls must not block on approval prompts.
 
 Configure MCP tool policies so relevant tools use **`auto_run_everywhere`** (see `webapp` System Console components such as `mcp_tool_config_row.tsx`). Without this, simulations may stall waiting for approval while the mock LLM still completes streams.
 
@@ -51,7 +51,7 @@ Configure MCP tool policies so relevant tools use **`auto_run_everywhere`** (see
 
 Integration is **cross-repository**:
 
-- This repo exposes `github.com/mattermost/mattermost-plugin-agents/loadtest/controller` (a standalone nested Go module) for blank-import registration of the Agents SimulController.
+- This repo exposes `github.com/antimatterchat/antimatter-plugin-agents/loadtest/controller` (a standalone nested Go module) for blank-import registration of the Agents SimulController.
 - mattermost-load-test-ng must import that package and include **`mattermost-ai`** in `EnabledPlugins` for the simulated server configuration.
 
 **Plugin ID:** `mattermost-ai` (not `agents`).
@@ -64,7 +64,7 @@ Integration is **cross-repository**:
 **Controller configuration:**
 
 - Default file path: `./config/mattermost-ai-loadtest.json`
-- Override with environment variable: `MM_AGENTS_LOADTEST_CONFIG` pointing at a JSON file
+- Override with environment variable: `AM_AGENTS_LOADTEST_CONFIG` (the legacy `MM_AGENTS_LOADTEST_CONFIG` is still accepted) pointing at a JSON file
 
 **Trigger frequencies** (`triggerFrequencyChannelMention`, `triggerFrequencyDM`) are **relative weights** inside load-test-ng, not global percentages. For example, `0.001` is one-thousandth the weight of an action configured with frequency `1.0`. The simulator scales from the smallest non-zero frequency.
 
@@ -119,7 +119,7 @@ Run an integrated mattermost-load-test-ng scenario only after both this branch (
 | Symptom | What to check |
 |--------|----------------|
 | Plugin fails to start or bot LLM errors mentioning `loadtest profile` | Fix `loadTestMockConfig` JSON (unknown fields are rejected). Validate weights sum positively and reference existing latency profile keys. |
-| No simulated agent traffic | Confirm `EnabledPlugins` includes **`mattermost-ai`**. Confirm ng imports `github.com/mattermost/mattermost-plugin-agents/loadtest/controller`. |
+| No simulated agent traffic | Confirm `EnabledPlugins` includes **`mattermost-ai`**. Confirm ng imports `github.com/antimatterchat/antimatter-plugin-agents/loadtest/controller`. |
 | Actions never hit the agent user | Verify `agentUsername` / `agentUserID` match a real bot user in the test data set; check simulator logs for target resolution errors. |
 | Tool calls hang or never execute | Ensure MCP tools use **`auto_run_everywhere`** for load-test channels/users so approvals do not block automation. |
 | Need to confirm mock parameters | Search logs for `Initialized load-test mock LLM` and read `profile_summary` (initialization-time only). |

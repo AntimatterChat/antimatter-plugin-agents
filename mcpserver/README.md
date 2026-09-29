@@ -1,15 +1,15 @@
-# Mattermost MCP Server
+# Antimatter MCP Server
 
-A Model Context Protocol (MCP) server that provides AI agents and automation tools with secure access to Mattermost channels, users, and content.
+A Model Context Protocol (MCP) server that provides AI agents and automation tools with secure access to Antimatter channels, users, and content.
 
-**Standalone binary:** The `mattermost-mcp-server` process (for example, stdio transport for local clients) is intended for **development and local tooling only** and is **not** supported for production deployments. For production, use the Agents plugin’s embedded MCP and the in-server integration described in the [admin guide](../docs/admin_guide.md#mattermost-mcp-server).
+**Standalone binary:** The `antimatter-mcp-server` process (for example, stdio transport for local clients) is intended for **development and local tooling only** and is **not** supported for production deployments. For production, use the Agents plugin’s embedded MCP and the in-server integration described in the [admin guide](../docs/admin_guide.md#antimatter-mcp-server).
 
 ## Features
 
 - **MCP Protocol Support**: Implements the Model Context Protocol for standardized AI agent communication
 - **Authentication**: Personal Access Token (PAT) authentication
-- **Transport** (development use): Configurable transport layer (stdio JSON-RPC for desktop clients, HTTP with SSE for web applications). The standalone binary note at the top of this file also applies. For production, use the Agents plugin’s embedded MCP and the [admin guide](../docs/admin_guide.md#mattermost-mcp-server).
-- **Comprehensive Mattermost Integration**: Read posts, channels, search, create content
+- **Transport** (development use): Configurable transport layer (stdio JSON-RPC for desktop clients, HTTP with SSE for web applications). The standalone binary note at the top of this file also applies. For production, use the Agents plugin’s embedded MCP and the [admin guide](../docs/admin_guide.md#antimatter-mcp-server).
+- **Comprehensive Antimatter Integration**: Read posts, channels, search, create content
 - **Dual Mode Operation**: Runs standalone or embedded in the AI plugin
 
 ## Tools Available
@@ -17,14 +17,14 @@ A Model Context Protocol (MCP) server that provides AI agents and automation too
 The MCP server exposes the following tools to AI agents:
 
 ### `read_post`
-Read a specific post and its thread from Mattermost.
+Read a specific post and its thread from Antimatter.
 
 **Parameters:**
 - `post_id` (required): The ID of the post to read
 - `include_thread` (optional): Whether to include the entire thread (default: true)
 
 ### `read_channel`
-Read recent posts from a Mattermost channel.
+Read recent posts from an Antimatter channel.
 
 **Parameters:**
 - `channel_id` (required): The ID of the channel to read from
@@ -32,7 +32,7 @@ Read recent posts from a Mattermost channel.
 - `since` (optional): Only get posts since this timestamp (ISO 8601 format)
 
 ### `search_posts`
-Search for posts in Mattermost.
+Search for posts in Antimatter.
 
 **Parameters:**
 - `query` (required): The search query
@@ -41,7 +41,7 @@ Search for posts in Mattermost.
 - `limit` (optional): Number of results to return (default: 20, max: 100)
 
 ### `create_post`
-Create a new post in Mattermost.
+Create a new post in Antimatter.
 
 **Parameters:**
 - `channel_id` (required): The ID of the channel to post in
@@ -53,7 +53,7 @@ Create a new post in Mattermost.
   - **File Path Format**: Use relative paths like `document.pdf` or `folder/image.png` (files are accessed from the `mcpserver/data/` directory)
 
 ### `create_channel`
-Create a new channel in Mattermost.
+Create a new channel in Antimatter.
 
 **Parameters:**
 - `name` (required): The channel name (URL-friendly)
@@ -150,21 +150,23 @@ Create a post as a specific user using username/password login. Simply provide t
    
    # Or manually from the project root
    mkdir -p mcpserver/bin
-   go build -o mcpserver/bin/mattermost-mcp-server ./mcpserver/cmd/main.go
+   go build -o mcpserver/bin/antimatter-mcp-server ./mcpserver/cmd/main.go
    ```
 
 2. **Set up authentication:**
-   - Create a Personal Access Token in Mattermost (User Settings > Security > Personal Access Tokens)
-   - Note your Mattermost server URL
+   - Create a Personal Access Token in Antimatter (User Settings > Security > Personal Access Tokens)
+   - Note your Antimatter server URL
 
 ### Configuration Options
 
 **Required:**
-- `--server-url`: Mattermost server URL (or set `MM_SERVER_URL` env var)
-- `--token`: Personal Access Token (or set `MM_ACCESS_TOKEN` env var for stdio transport)
+- `--server-url`: Antimatter server URL (or set `AM_SERVER_URL` env var)
+- `--token`: Personal Access Token (or set `AM_ACCESS_TOKEN` env var for stdio transport)
+
+The legacy `MM_SERVER_URL`, `MM_INTERNAL_SERVER_URL` and `MM_ACCESS_TOKEN` environment variables are still accepted when the corresponding `AM_` variable is unset.
 
 **Optional:**
-- `--internal-server-url`: Internal Mattermost server URL for API communication (or set `MM_INTERNAL_SERVER_URL` env var). Use this when the MCP server runs on the same machine as Mattermost to enable localhost communication while providing external URLs for OAuth clients.
+- `--internal-server-url`: Internal Antimatter server URL for API communication (or set `AM_INTERNAL_SERVER_URL` env var). Use this when the MCP server runs on the same machine as Antimatter to enable localhost communication while providing external URLs for OAuth clients.
 - `--transport`: Transport type ('stdio' or 'http', default: 'stdio')
 - `--logfile`: Path to log file (logs to file in addition to stderr, JSON format)
 - `--debug`: Enable debug logging (recommended for troubleshooting)
@@ -188,7 +190,7 @@ Create a post as a specific user using username/password login. Simply provide t
 #### Claude Code Integration
 
 ```bash
-claude mcp add mattermost -e MM_SERVER_URL=https://mattermost-url MM_ACCESS_TOKEN=<token> -- /path/to/mattermost-plugin-agents/mcpserver/bin/mattermost-mcp-server --dev --debug
+claude mcp add antimatter -e AM_SERVER_URL=https://antimatter-url AM_ACCESS_TOKEN=<token> -- /path/to/antimatter-plugin-agents/mcpserver/bin/antimatter-mcp-server --dev --debug
 ```
 
 #### Claude Desktop Integration
@@ -202,12 +204,12 @@ To use with Claude Desktop, add the server to your MCP configuration:
 ```json
 {
   "mcpServers": {
-    "mattermost": {
-      "command": "/path/to/mattermost-plugin-agents/mcpserver/bin/mattermost-mcp-server",
+    "antimatter": {
+      "command": "/path/to/antimatter-plugin-agents/mcpserver/bin/antimatter-mcp-server",
       "args": ["--debug"],
       "env": {
-        "MM_SERVER_URL": "https://your-mattermost.com",
-        "MM_ACCESS_TOKEN": "your-pat-token"
+        "AM_SERVER_URL": "https://your-antimatter.com",
+        "AM_ACCESS_TOKEN": "your-pat-token"
       }
     }
   }
@@ -216,13 +218,13 @@ To use with Claude Desktop, add the server to your MCP configuration:
 
 #### HTTP Transport Integration (development and local use)
 
-For HTTP-based MCP clients and web applications, the server supports HTTP transport with OAuth authentication. The standalone binary is for development; for production, use the Agents plugin’s embedded MCP and the [admin guide](../docs/admin_guide.md#mattermost-mcp-server) integration.
+For HTTP-based MCP clients and web applications, the server supports HTTP transport with OAuth authentication. The standalone binary is for development; for production, use the Agents plugin’s embedded MCP and the [admin guide](../docs/admin_guide.md#antimatter-mcp-server) integration.
 
 **Basic HTTP server setup:**
 ```bash
-./mcpserver/bin/mattermost-mcp-server \
+./mcpserver/bin/antimatter-mcp-server \
   --transport http \
-  --server-url https://your-mattermost.com \
+  --server-url https://your-antimatter.com \
   --http-port 8080 \
   --debug
 ```
@@ -230,9 +232,9 @@ For HTTP-based MCP clients and web applications, the server supports HTTP transp
 **External access via specific network interface:**
 ```bash
 # Bind to specific network interface IP
-./mcpserver/bin/mattermost-mcp-server \
+./mcpserver/bin/antimatter-mcp-server \
   --transport http \
-  --server-url https://your-mattermost.com \
+  --server-url https://your-antimatter.com \
   --http-bind-addr 192.168.1.100 \
   --http-port 3000 \
   --debug
@@ -240,9 +242,9 @@ For HTTP-based MCP clients and web applications, the server supports HTTP transp
 
 **Environment variables:**
 ```bash
-export MM_SERVER_URL=https://your-mattermost.com
-export MM_INTERNAL_SERVER_URL=http://localhost:8065  # optional for localhost optimization
-./mcpserver/bin/mattermost-mcp-server --transport http --http-port 8080 --site-url https://mcp.yourcompany.com
+export AM_SERVER_URL=https://your-antimatter.com
+export AM_INTERNAL_SERVER_URL=http://localhost:8065  # optional for localhost optimization
+./mcpserver/bin/antimatter-mcp-server --transport http --http-port 8080 --site-url https://mcp.yourcompany.com
 ```
 
 **Available endpoints:**
@@ -260,11 +262,11 @@ export MM_INTERNAL_SERVER_URL=http://localhost:8065  # optional for localhost op
 
 ### Development Mode
 
-Development mode (`--dev` flag) enables additional tools for setting up realistic test data and user scenarios. This is particularly useful for Mattermost developers who need to bootstrap development environments or create sophisticated test scenarios.
+Development mode (`--dev` flag) enables additional tools for setting up realistic test data and user scenarios. This is particularly useful for Antimatter developers who need to bootstrap development environments or create sophisticated test scenarios.
 
 **Enable development mode:**
 ```bash
-./mcpserver/bin/mattermost-mcp-server --dev --server-url https://your-mattermost.com --token your-admin-pat-token
+./mcpserver/bin/antimatter-mcp-server --dev --server-url https://your-antimatter.com --token your-admin-pat-token
 ```
 
 **Security Note:** Development mode should only be used in development environments with admin-level access tokens, never in production.
@@ -278,10 +280,10 @@ The STDIO MCP server supports file attachments and uploads for various tools. Fi
 All local file operations use the `mcpserver/data/` directory within your project:
 
 ```
-mattermost-plugin-agents/
+antimatter-plugin-agents/
 ├── mcpserver/
 │   ├── bin/
-│   │   └── mattermost-mcp-server  # MCP server binary
+│   │   └── antimatter-mcp-server  # MCP server binary
 │   ├── data/                      # File storage directory
 │   │   ├── documents/             # Example: organized folders
 │   │   ├── images/
@@ -305,25 +307,25 @@ mattermost-plugin-agents/
 
 ### Advanced Configuration: Internal Server URL
 
-When the MCP server runs on the same machine as your Mattermost server, you can optimize performance and security by using the internal server URL option:
+When the MCP server runs on the same machine as your Antimatter server, you can optimize performance and security by using the internal server URL option:
 
 ```bash
-# MCP server and Mattermost on the same machine
-./mcpserver/bin/mattermost-mcp-server \
-  --server-url https://mattermost.company.com \
+# MCP server and Antimatter on the same machine
+./mcpserver/bin/antimatter-mcp-server \
+  --server-url https://antimatter.company.com \
   --internal-server-url http://localhost:8065 \
   --token your-pat-token
 ```
 
 **Environment variables:**
 ```bash
-export MM_SERVER_URL=https://mattermost.company.com
-export MM_INTERNAL_SERVER_URL=http://localhost:8065
-export MM_ACCESS_TOKEN=your-pat-token
-./mcpserver/bin/mattermost-mcp-server
+export AM_SERVER_URL=https://antimatter.company.com
+export AM_INTERNAL_SERVER_URL=http://localhost:8065
+export AM_ACCESS_TOKEN=your-pat-token
+./mcpserver/bin/antimatter-mcp-server
 ```
 
 **When to use:**
-- MCP server deployed on the same server as Mattermost
+- MCP server deployed on the same server as Antimatter
 - Docker containers on the same network
 - Local development environments

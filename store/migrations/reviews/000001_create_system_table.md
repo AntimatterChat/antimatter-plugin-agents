@@ -23,8 +23,8 @@
 | Transactional/nontransactional split correct | ✅ | Pure DDL inside a transaction. |
 
 ## Backwards Compatibility
-- Compatible with previous ESR: Yes (plugin schema; no Mattermost core change).
-- Can previous Mattermost version run with new schema: Yes — the table is plugin-owned and additive; nothing in core references it.
+- Compatible with previous ESR: Yes (plugin schema; no Antimatter core change).
+- Can previous Antimatter version run with new schema: Yes — the table is plugin-owned and additive; nothing in core references it.
 - Impact if not compatible: None.
 
 ## Table Locks & Impact

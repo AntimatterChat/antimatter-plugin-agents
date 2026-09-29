@@ -28,7 +28,7 @@
 
 ## Backwards Compatibility
 - Compatible with previous ESR: Yes — plugin schema only.
-- Can previous Mattermost version run with new schema: Yes for Mattermost core. **No** for older versions of *this plugin* — code that still tries to read/write `LLM_PostMeta` will fail. Confirm the plugin's minimum supported version is bumped accordingly.
+- Can previous Antimatter version run with new schema: Yes for Antimatter core. **No** for older versions of *this plugin* — code that still tries to read/write `LLM_PostMeta` will fail. Confirm the plugin's minimum supported version is bumped accordingly.
 - Impact if not compatible: A previously-installed older plugin binary running against this schema would error on `LLM_PostMeta` access.
 
 ## Table Locks & Impact

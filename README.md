@@ -1,12 +1,12 @@
 <div align="center">
 
-# Mattermost Agents Plugin [![Download Latest Master Build](https://img.shields.io/badge/Download-Latest%20Master%20Build-blue)](https://github.com/mattermost/mattermost-plugin-agents/releases/tag/latest-master)
+# Antimatter Agents Plugin [![Download Latest Master Build](https://img.shields.io/badge/Download-Latest%20Master%20Build-blue)](https://github.com/antimatterchat/antimatter-plugin-agents/releases/tag/latest-master)
 
-The Mattermost Agents Plugin integrates AI capabilities directly into your [Mattermost](https://github.com/mattermost/mattermost) workspace. **Run any local LLM** on your infrastructure or connect to cloud providers - you control your data and deployment.
+The Antimatter Agents Plugin integrates AI capabilities directly into your Antimatter workspace. **Run any local LLM** on your infrastructure or connect to cloud providers - you control your data and deployment.
 
 </div>
 
-![The Mattermost Agents AI Plugin is an extension for mattermost that provides functionality for self-hosted and vendor-hosted LLMs](img/mattermost-ai-llm-access.webp)
+![The Antimatter Agents AI Plugin is an extension for antimatter that provides functionality for self-hosted and vendor-hosted LLMs](img/antimatter-ai-llm-access.webp)
 
 ## Key Features
 
@@ -14,7 +14,7 @@ The Mattermost Agents Plugin integrates AI capabilities directly into your [Matt
 - **Thread & Channel Summarization**: Get concise summaries of long discussions with a single click
 - **Action Item Extraction**: Automatically identify and extract action items from threads
 - **Meeting Transcription**: Transcribe and summarize meeting recordings
-- **Semantic Search**: Find relevant content across your Mattermost instance using natural language
+- **Semantic Search**: Find relevant content across your Antimatter instance using natural language
 - **Smart Reactions**: Let AI suggest contextually appropriate emoji reactions
 - **Direct Conversations**: Chat directly with AI assistants in dedicated channels
 - **Flexible LLM Support**: Use local models (Ollama, vLLM, etc.), cloud providers (OpenAI, Anthropic, Azure), or any OpenAI-compatible API
@@ -32,13 +32,13 @@ Comprehensive documentation is available in the `/docs` directory:
 
 ## Installation
 
-1. Download the latest release from the [releases page](https://github.com/mattermost/mattermost-plugin-agents/releases). You can also download the **experimental** [latest master](https://github.com/mattermost/mattermost-plugin-agents/releases/tag/latest-master)
-2. Upload and enable the plugin through the Mattermost System Console
+1. Download the latest release from the [releases page](https://github.com/antimatterchat/antimatter-plugin-agents/releases). You can also download the **experimental** [latest master](https://github.com/antimatterchat/antimatter-plugin-agents/releases/tag/latest-master)
+2. Upload and enable the plugin through the Antimatter System Console
 3. Configure your desired LLM provider settings
 
 ### System Requirements
 
-- Mattermost Server v11.9.0+
+- Antimatter Server v11.9.0+
 - PostgreSQL database with pgvector extension for semantic search capabilities
 - Network access to your chosen LLM provider
 
@@ -58,7 +58,7 @@ For detailed configuration instructions, see the [Admin Guide](docs/admin_guide.
 
 ### Bridge Client
 
-The plugin provides a Go client library for other Mattermost plugins and the Mattermost server to interact with the AI plugin's LLM Bridge API. This allows you to easily add AI capabilities to your own plugins or server-side features.
+The plugin provides a Go client library for other Antimatter plugins and the Antimatter server to interact with the AI plugin's LLM Bridge API. This allows you to easily add AI capabilities to your own plugins or server-side features.
 
 See the [Bridge Client README](public/bridgeclient/README.md) for installation and usage instructions.
 
@@ -72,22 +72,23 @@ See the [Bridge Client README](public/bridgeclient/README.md) for installation a
 
 ### Local Setup
 
-1. Setup your Mattermost development environment by following the [Mattermost developer setup guide](https://developers.mattermost.com/contribute/server/developer-setup/). If you have a remote mattermost server you want to develop to you can skip this step. 
+1. Setup your Antimatter development environment by following the [Antimatter developer setup guide](https://docs.antimatter.example/contribute/server/developer-setup/). If you have a remote antimatter server you want to develop to you can skip this step. 
 
-2. Setup your Mattermost plugin development environment by following the [Plugin Developer setup guide](https://developers.mattermost.com/integrate/plugins/developer-setup/).
+2. Setup your Antimatter plugin development environment by following the [Plugin Developer setup guide](https://docs.antimatter.example/integrate/plugins/developer-setup/).
 
 3. Clone the repository:
 ```bash
-git clone https://github.com/mattermost/mattermost-plugin-agents.git
-cd mattermost-plugin-agents
+git clone https://github.com/antimatterchat/antimatter-plugin-agents.git
+cd antimatter-plugin-agents
 ```
 
 4. **Optional**. If you are developing to a remote server, setup environment variables to deploy:
 ```bash
 MM_SERVICESETTINGS_SITEURL=http://localhost:8065
-MM_ADMIN_USERNAME=<YOUR_USERNAME>
-MM_ADMIN_PASSWORD=<YOUR_PASSWORD>
+AM_ADMIN_USERNAME=<YOUR_USERNAME>
+AM_ADMIN_PASSWORD=<YOUR_PASSWORD>
 ```
+(`AM_SERVICESETTINGS_SITEURL`, `AM_ADMIN_TOKEN` and `AM_LOCALSOCKETPATH` are also read; the legacy `MM_` names are still accepted.)
 
 5. Run deploy to build the plugin
 ```bash
