@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -11,7 +11,7 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * Tests the initial state display and navigation of the system console configuration UI.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe.serial('Initial State and Navigation', () => {
@@ -19,21 +19,21 @@ test.describe.serial('Initial State and Navigation', () => {
         test.setTimeout(60000);
 
         // Start container with NO pre-configured services or bots
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [],
             bots: [],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as admin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Verify beta message is visible
         const betaMessage = systemConsole.getBetaMessage();
@@ -50,14 +50,14 @@ test.describe.serial('Initial State and Navigation', () => {
 
         // Cleanup
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show AI Bots moved notice when services exist but no legacy config bots', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with one service but no bots
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [{
                 id: 'test-service-1',
                 name: 'Test OpenAI Service',
@@ -73,16 +73,16 @@ test.describe.serial('Initial State and Navigation', () => {
             bots: [],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as admin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Verify AI Services panel is visible
         const servicesPanel = systemConsole.getServicesPanel();
@@ -96,14 +96,14 @@ test.describe.serial('Initial State and Navigation', () => {
 
         // Cleanup
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should display full configuration when both services and bots exist', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with services and bots
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [{
                 id: 'test-service-1',
                 name: 'Test Service',
@@ -127,16 +127,16 @@ test.describe.serial('Initial State and Navigation', () => {
             }],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as admin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Verify all panels are visible
         await expect(systemConsole.getServicesPanel()).toBeVisible();
@@ -155,6 +155,6 @@ test.describe.serial('Initial State and Navigation', () => {
 
         // Cleanup
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 });

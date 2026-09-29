@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import { RunToolConfigContainer } from 'helpers/tool-config-container';
 import { ToolConfigUIHelper, createToolConfigAPIHelper } from 'helpers/tool-config';
@@ -13,7 +13,7 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * with "Auto Run (DM)" policy and enabled state for READ-only tools.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 // Known vetted READ tools for the embedded Mattermost server
@@ -31,23 +31,23 @@ const VETTED_READ_TOOLS = [
 
 test.describe('Vetted Server Seed', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show vetted Mattermost tools pre-seeded as Auto Run (DM)', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Expand the embedded server
         const serverHeader = page.getByText(/\d+\/\d+ tools? enabled/).first();
@@ -71,12 +71,12 @@ test.describe('Vetted Server Seed', () => {
     test('should verify vetted seed via API', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Use the API helper to check tool configurations
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         const toolsResponse = await apiHelper.getUserMCPTools(token);

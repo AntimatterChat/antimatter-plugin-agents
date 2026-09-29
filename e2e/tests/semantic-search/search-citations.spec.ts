@@ -1,8 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
@@ -39,23 +39,23 @@ function buildSearchResponseWithCitations(siteURL: string, teamName: string, pos
 
 const searchResponseText = 'Based on the discussion';
 
-async function setupTestPage(page: Page, mattermost: MattermostContainer) {
-    const mmPage = new MattermostPage(page);
+async function setupTestPage(page: Page, antimatter: AntimatterContainer) {
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 test.describe('Post Citations Display', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     test.beforeAll(async () => {
-        mattermost = await RunContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.beforeEach(async () => {
@@ -64,22 +64,22 @@ test.describe('Post Citations Display', () => {
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('Permalink citations render as clickable links', async ({ page }) => {
-        const { mmPage, aiPlugin } = await setupTestPage(page, mattermost);
+        const { amPage, aiPlugin } = await setupTestPage(page, antimatter);
 
         // Create posts and capture their IDs for citation URLs
-        const post1 = await mmPage.sendMessageAsUser(
-            mattermost,
+        const post1 = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'We need to discuss the Q4 budget allocation for the marketing department'
         );
 
-        const post2 = await mmPage.sendMessageAsUser(
-            mattermost,
+        const post2 = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'The budget for the new project has been approved by leadership'
@@ -90,7 +90,7 @@ test.describe('Post Citations Display', () => {
 
         // Build the mock response dynamically with real post IDs, team name, and site URL.
         // The team name in the URL ensures links pass the unsafeLinks permalink filter.
-        const siteURL = mattermost.url();
+        const siteURL = antimatter.url();
         const mockResponse = buildSearchResponseWithCitations(siteURL, 'test', post1.id, post2.id);
         await openAIMock.addCompletionMock(mockResponse);
 

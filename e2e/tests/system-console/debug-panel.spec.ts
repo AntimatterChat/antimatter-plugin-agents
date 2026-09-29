@@ -2,8 +2,8 @@
 // seed: e2e/tests/seed.spec.ts
 
 import { test, expect, Page } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -45,7 +45,7 @@ function getSettingRadios(page: Page, setting: keyof typeof RADIO_INDICES) {
     };
 }
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe.serial('Debug Panel', () => {
@@ -53,7 +53,7 @@ test.describe.serial('Debug Panel', () => {
         test.setTimeout(60000);
 
         // Start container with enableTokenUsageLogging set to false
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             enableTokenUsageLogging: false,
             services: [
                 {
@@ -82,16 +82,16 @@ test.describe.serial('Debug Panel', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as sysadmin user
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console AI plugin configuration page
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Scroll to the Debug panel
         const debugPanel = systemConsole.getDebugPanel();
@@ -139,6 +139,6 @@ test.describe.serial('Debug Panel', () => {
         await expect(finalTokenLogging.false).toBeChecked();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 });

@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { Client4 } from '@mattermost/client';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 import { OpenAIMockContainer, RunOpenAIMocks, buildTextResponse } from 'helpers/openai-mock';
 
@@ -25,25 +25,25 @@ Alice: We should ship the feature by Friday.
 Bob: Agreed, I'll handle the backend work.
 `;
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
     test.setTimeout(180000);
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 
     // Bot accounts + tokens are needed to author the calls transcription post,
     // and inline replies (CRT off) keep the streamed summary in the center
     // channel where the helper can find it by post id.
-    await mattermost.container.exec(['mmctl', '--local', 'config', 'set', 'ServiceSettings.EnableBotAccountCreation', 'true']);
-    await mattermost.container.exec(['mmctl', '--local', 'config', 'set', 'ServiceSettings.EnableUserAccessTokens', 'true']);
-    await mattermost.container.exec(['mmctl', '--local', 'config', 'set', 'ServiceSettings.CollapsedThreads', 'disabled']);
+    await antimatter.container.exec(['mmctl', '--local', 'config', 'set', 'ServiceSettings.EnableBotAccountCreation', 'true']);
+    await antimatter.container.exec(['mmctl', '--local', 'config', 'set', 'ServiceSettings.EnableUserAccessTokens', 'true']);
+    await antimatter.container.exec(['mmctl', '--local', 'config', 'set', 'ServiceSettings.CollapsedThreads', 'disabled']);
 });
 
 test.afterAll(async () => {
     await openAIMock?.stop();
-    await mattermost?.stop();
+    await antimatter?.stop();
 });
 
 test.beforeEach(async () => {
@@ -56,8 +56,8 @@ test.beforeEach(async () => {
 test('meeting summary stays visible in the DM after it is generated', async ({ page }) => {
     test.setTimeout(120000);
 
-    const adminClient = await mattermost.getAdminClient();
-    const userClient = await mattermost.getClient(username, password);
+    const adminClient = await antimatter.getAdminClient();
+    const userClient = await antimatter.getClient(username, password);
 
     // 1) A "calls" bot must author the transcription post (server validation).
     const callsBot = await adminClient.createBot({
@@ -76,7 +76,7 @@ test('meeting summary stays visible in the DM after it is generated', async ({ p
     await adminClient.addToChannel(callsBot.user_id, townSquare!.id);
 
     const callsClient = new Client4();
-    callsClient.setUrl(mattermost.url());
+    callsClient.setUrl(antimatter.url());
     callsClient.setToken(callsToken.token);
 
     // 2) Upload the VTT transcript and attach it to the calls transcription post.
@@ -97,7 +97,7 @@ test('meeting summary stays visible in the DM after it is generated', async ({ p
     await openAIMock.addCompletionMock(buildTextResponse(SUMMARY_TEXT));
 
     // 4) Trigger "Create meeting summary" exactly as the Calls button does.
-    const summarizeUrl = `${mattermost.url()}/plugins/mattermost-ai/post/${transcriptionPost.id}/summarize_transcription?botUsername=${agentBotUsername}`;
+    const summarizeUrl = `${antimatter.url()}/plugins/mattermost-ai/post/${transcriptionPost.id}/summarize_transcription?botUsername=${agentBotUsername}`;
     const summarizeResp = await fetch(summarizeUrl, {
         method: 'POST',
         headers: { Authorization: `Bearer ${userClient.getToken()}` },
@@ -124,10 +124,10 @@ test('meeting summary stays visible in the DM after it is generated', async ({ p
     // 6) Open the DM and confirm the summary is actually rendered. Before the
     // fix the post.message was persisted but the UI dropped it once streaming
     // finished, leaving only the follow-up prompt.
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const llmBotHelper = new LLMBotPostHelper(page);
-    await mmPage.login(mattermost.url(), username, password);
-    await mmPage.createAndNavigateToDMWithBot(mattermost, username, password, agentBotUsername);
+    await amPage.login(antimatter.url(), username, password);
+    await amPage.createAndNavigateToDMWithBot(antimatter, username, password, agentBotUsername);
 
     const summaryPost = llmBotHelper.getLLMBotPost(summaryPostId);
     await expect(summaryPost).toBeVisible({ timeout: 30000 });

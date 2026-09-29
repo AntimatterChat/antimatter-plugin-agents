@@ -4,8 +4,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
 const username = 'regularuser';
@@ -15,22 +15,22 @@ const TOUR_PREFERENCE_CATEGORY = 'mattermost-ai-tutorial';
 const TOUR_PREFERENCE_NAME = 'agents_tour_v1';
 const TOUR_FINISHED_VALUE = '999';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 test.describe('Agents Tour - Display Conditions', () => {
     test('Tour does not appear when preference already set to FINISHED (999)', async ({ page }) => {
-        const client = await mattermost.getClient(username, password);
+        const client = await antimatter.getClient(username, password);
         const user = await client.getMe();
         await client.savePreferences(user.id, [{
             user_id: user.id,
@@ -39,8 +39,8 @@ test.describe('Agents Tour - Display Conditions', () => {
             value: TOUR_FINISHED_VALUE
         }]);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         const pulsatingDot = page.getByTestId('agents-tour-dot');

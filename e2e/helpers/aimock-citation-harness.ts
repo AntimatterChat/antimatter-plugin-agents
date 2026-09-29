@@ -4,8 +4,8 @@ import { AIPlugin } from './ai-plugin';
 import { AIMockContainer, RunAIMockSidecar } from './aimock-container';
 import { AIMockFixtureFile } from './aimock-fixtures';
 import { LLMBotPostHelper } from './llmbot-post';
-import { MattermostPage } from './mm';
-import MattermostContainer from './mmcontainer';
+import { AntimatterPage } from './am';
+import AntimatterContainer from './amcontainer';
 import { AIMOCK_BOT_NAME, RunAIMockContainer } from './plugincontainer';
 import {
     RunWebSearchMockSidecar,
@@ -19,7 +19,7 @@ export const AIMOCK_CITATION_MODE = 'webSearchTool' as const;
 export const AIMOCK_BEFORE_ALL_TIMEOUT_MS = 180000;
 
 export type AIMockCitationStack = {
-    mattermost: MattermostContainer;
+    antimatter: AntimatterContainer;
     aimock: AIMockContainer;
     webSearchMock: WebSearchMockContainer;
     botUsername: string;
@@ -29,12 +29,12 @@ export async function startAIMockCitationStack(options: {
     fixtures: AIMockFixtureFile;
     reasoningEnabled?: boolean;
 }): Promise<AIMockCitationStack> {
-    let mattermost: MattermostContainer | null = null;
+    let antimatter: AntimatterContainer | null = null;
     let webSearchMock: WebSearchMockContainer | null = null;
     let aimock: AIMockContainer | null = null;
 
     try {
-        mattermost = await RunAIMockContainer({
+        antimatter = await RunAIMockContainer({
             webSearch: WEB_SEARCH_PLUGIN_CONFIG,
             bot: {
                 reasoningEnabled: options.reasoningEnabled ?? false,
@@ -42,13 +42,13 @@ export async function startAIMockCitationStack(options: {
             },
         });
 
-        webSearchMock = await RunWebSearchMockSidecar(mattermost.network);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        webSearchMock = await RunWebSearchMockSidecar(antimatter.network);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: options.fixtures,
         });
 
         return {
-            mattermost,
+            antimatter,
             aimock,
             webSearchMock,
             botUsername: AIMOCK_BOT_NAME,
@@ -60,8 +60,8 @@ export async function startAIMockCitationStack(options: {
         if (webSearchMock) {
             await webSearchMock.stop().catch(() => undefined);
         }
-        if (mattermost) {
-            await mattermost.stop().catch(() => undefined);
+        if (antimatter) {
+            await antimatter.stop().catch(() => undefined);
         }
         throw error;
     }
@@ -123,14 +123,14 @@ export function describeAIMockCitationCase(options: {
         test(options.title, async ({ page, context }) => {
             test.setTimeout(options.timeoutMs ?? 120000);
 
-            const mmPage = new MattermostPage(page);
+            const amPage = new AntimatterPage(page);
             const aiPlugin = new AIPlugin(page);
             const llmBotHelper = new LLMBotPostHelper(page);
 
-            await mmPage.login(stack.mattermost.url(), 'regularuser', 'regularuser', {
+            await amPage.login(stack.mattermost.url(), 'regularuser', 'regularuser', {
                 channelViewTimeoutMs: 90000,
             });
-            await mmPage.createAndNavigateToDMWithBot(
+            await amPage.createAndNavigateToDMWithBot(
                 stack.mattermost,
                 'regularuser',
                 'regularuser',

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest } from 'helpers/openai-mock';
 import {
     RunAgentContainer,
@@ -12,29 +12,29 @@ import {
 import { AgentAPIHelper } from 'helpers/agent-api';
 import { AgentPageHelper } from 'helpers/agent-page';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Agent CRUD', () => {
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunAgentContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunAgentContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
         await openAIMock.addCompletionMock(responseTest);
     });
 
     test.afterAll(async () => {
         await openAIMock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('should create a new agent via UI', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         // Click create button
         await agentPage.getCreateButton().click();
@@ -58,12 +58,12 @@ test.describe('Agent CRUD', () => {
 
     test('should edit an existing agent', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
-        const agentApi = new AgentAPIHelper(mattermost.url());
+        const agentApi = new AgentAPIHelper(antimatter.url());
 
         // Create agent via API for test setup
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         await agentApi.createTestAgent(token, {
             displayName: 'Edit Me',
@@ -71,8 +71,8 @@ test.describe('Agent CRUD', () => {
             serviceID: mockServiceId,
         });
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         // Open edit via actions menu
         await agentPage.openAgentActions('Edit Me');
@@ -94,11 +94,11 @@ test.describe('Agent CRUD', () => {
 
     test('should prompt before closing the agent modal with unsaved changes', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
-        const agentApi = new AgentAPIHelper(mattermost.url());
+        const agentApi = new AgentAPIHelper(antimatter.url());
 
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         await agentApi.createTestAgent(token, {
             displayName: 'Unsaved Prompt',
@@ -106,8 +106,8 @@ test.describe('Agent CRUD', () => {
             serviceID: mockServiceId,
         });
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.openAgentActions('Unsaved Prompt');
         await agentPage.clickEditAction('Unsaved Prompt');
@@ -129,12 +129,12 @@ test.describe('Agent CRUD', () => {
 
     test('should delete an agent with confirmation', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
-        const agentApi = new AgentAPIHelper(mattermost.url());
+        const agentApi = new AgentAPIHelper(antimatter.url());
 
         // Create agent via API
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         await agentApi.createTestAgent(token, {
             displayName: 'Delete Me',
@@ -142,8 +142,8 @@ test.describe('Agent CRUD', () => {
             serviceID: mockServiceId,
         });
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         // Open actions menu and click delete
         await agentPage.openAgentActions('Delete Me');
@@ -159,11 +159,11 @@ test.describe('Agent CRUD', () => {
 
     test('should block saving with actionable error when custom instructions exceed limit', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.getCreateButton().click();
         await agentPage.waitForModal();
@@ -188,12 +188,12 @@ test.describe('Agent CRUD', () => {
 
     test('should reject duplicate username with error', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
-        const agentApi = new AgentAPIHelper(mattermost.url());
+        const agentApi = new AgentAPIHelper(antimatter.url());
 
         // Create existing agent via API
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         await agentApi.createTestAgent(token, {
             displayName: 'Existing Agent',
@@ -201,8 +201,8 @@ test.describe('Agent CRUD', () => {
             serviceID: mockServiceId,
         });
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         // Try to create agent with same username
         await agentPage.getCreateButton().click();
@@ -222,11 +222,11 @@ test.describe('Agent CRUD', () => {
 
     test('should show agent in "Your agents" tab for creator', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         // Create agent via UI
         await agentPage.getCreateButton().click();
@@ -248,12 +248,12 @@ test.describe('Agent CRUD', () => {
 
     test('regular user sees UserAccessLevel=All agents in the listing', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
-        const agentApi = new AgentAPIHelper(mattermost.url());
+        const agentApi = new AgentAPIHelper(antimatter.url());
         const suffix = Date.now().toString(36);
 
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         await agentApi.createTestAgent(token, {
             displayName: `Visible To Regular ${suffix}`,
@@ -262,34 +262,34 @@ test.describe('Agent CRUD', () => {
             userAccessLevel: 0,
         });
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await agentPage.navigateToAgents(antimatter.url());
         await expect(agentPage.getAgentRowByName(`Visible To Regular ${suffix}`)).toBeVisible({ timeout: 10000 });
     });
 
     test('denies create in UI when user lacks manage_own_agent permission', async ({ page }) => {
         test.setTimeout(60000);
-        await mattermost.revokeManageOwnAgentFromSystemUser();
+        await antimatter.revokeManageOwnAgentFromSystemUser();
         try {
-            const mmPage = new MattermostPage(page);
+            const amPage = new AntimatterPage(page);
             const agentPage = new AgentPageHelper(page);
 
-            await mmPage.login(mattermost.url(), agentUnprivilegedUsername, agentUnprivilegedPassword);
-            await agentPage.navigateToAgents(mattermost.url());
+            await amPage.login(antimatter.url(), agentUnprivilegedUsername, agentUnprivilegedPassword);
+            await agentPage.navigateToAgents(antimatter.url());
 
             await expect(agentPage.getCreateButton()).not.toBeVisible({ timeout: 15000 });
         } finally {
-            await mattermost.grantSelfServiceAgentPermissions();
+            await antimatter.grantSelfServiceAgentPermissions();
         }
     });
 
     test('search shows no-results message when nothing matches', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.getSearchInput().fill('zzzznonexistentquery9999');
         await expect(page.getByText('No agents match "zzzznonexistentquery9999"')).toBeVisible({
@@ -299,11 +299,11 @@ test.describe('Agent CRUD', () => {
 
     test('disables MCPs tab when Enable Tools is off', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.getCreateButton().click();
         await agentPage.waitForModal();
@@ -326,11 +326,11 @@ test.describe('Agent CRUD', () => {
 
     test('warns before discarding unsaved agent view changes', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.getCreateButton().click();
         await agentPage.waitForModal();

@@ -1,6 +1,6 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIMockContainer, RunAIMockSidecar } from 'helpers/aimock-container';
 import { buildToolCallAndTextResponse, mergeFixtureFiles } from 'helpers/aimock-fixtures';
 import { expandToolActivity } from 'helpers/llmbot-post';
@@ -19,8 +19,8 @@ const dmOnlyContinuationText = 'Aimock channel dm-only follow-up after share.';
 const everywhereUserMessage = 'aimock channel everywhere read channel';
 const everywhereContinuationText = 'Aimock channel everywhere auto-run completed.';
 
-async function getTownSquareChannelID(mattermost: MattermostContainer): Promise<string> {
-    const userClient = await mattermost.getClient(username, password);
+async function getTownSquareChannelID(antimatter: AntimatterContainer): Promise<string> {
+    const userClient = await antimatter.getClient(username, password);
     const teams = await userClient.getMyTeams();
     const channels = await userClient.getMyChannels(teams[0].id);
     const townSquare = channels.find((channel) => channel.name === 'town-square');
@@ -51,11 +51,11 @@ async function openThreadForPost(post: Locator, timeout = 30000): Promise<void> 
 
 async function mentionBotAndOpenThread(
     page: Page,
-    mmPage: MattermostPage,
+    amPage: AntimatterPage,
     message: string,
     timeout = 30000,
 ): Promise<void> {
-    await mmPage.mentionBot(botName, message);
+    await amPage.mentionBot(botName, message);
     const post = await waitForSentPost(page, `@${botName} ${message}`, timeout);
     await openThreadForPost(post, timeout);
 }
@@ -72,18 +72,18 @@ async function closeRHSIfOpen(page: Page): Promise<void> {
 test.describe('Channel Auto Run Policy (Aimock)', () => {
     test.describe.configure({ mode: 'serial' });
 
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
     let townSquareChannelID: string;
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunToolConfigAIMockContainer([
+        antimatter = await RunToolConfigAIMockContainer([
             { name: readChannelConfigName, policy: 'auto_run_in_dm', enabled: true },
         ]);
-        await setupRegularTestUser(mattermost);
-        townSquareChannelID = await getTownSquareChannelID(mattermost);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        await setupRegularTestUser(antimatter);
+        townSquareChannelID = await getTownSquareChannelID(antimatter);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: mergeFixtureFiles(
                 buildToolCallAndTextResponse({
                     userMessage: dmOnlyUserMessage,
@@ -106,21 +106,21 @@ test.describe('Channel Auto Run Policy (Aimock)', () => {
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('auto_run_in_dm in channel requires call approval and then share approval', async ({ page }) => {
         test.setTimeout(180000);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/off-topic`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/off-topic`);
         await page.locator('#channelHeaderTitle').getByText('Off-Topic', { exact: true }).waitFor({
             state: 'visible',
             timeout: 10000,
         });
 
-        await mentionBotAndOpenThread(page, mmPage, dmOnlyUserMessage);
+        await mentionBotAndOpenThread(page, amPage, dmOnlyUserMessage);
 
         const rhs = page.locator('#rhsContainer');
         const latestBotPost = rhs.locator('[data-testid="llm-bot-post"]').last();
@@ -152,21 +152,21 @@ test.describe('Channel Auto Run Policy (Aimock)', () => {
     test('auto_run_everywhere in channel skips approval and shares automatically', async ({ page }) => {
         test.setTimeout(180000);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
         await apiHelper.setEmbeddedServerToolConfigs([
             { name: readChannelConfigName, policy: 'auto_run_everywhere', enabled: true },
         ]);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/off-topic`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/off-topic`);
         await page.locator('#channelHeaderTitle').getByText('Off-Topic', { exact: true }).waitFor({
             state: 'visible',
             timeout: 10000,
         });
 
         await closeRHSIfOpen(page);
-        await mentionBotAndOpenThread(page, mmPage, everywhereUserMessage);
+        await mentionBotAndOpenThread(page, amPage, everywhereUserMessage);
 
         const rhs = page.locator('#rhsContainer');
         await expect(rhs.getByText(everywhereContinuationText)).toBeVisible({ timeout: 45000 });

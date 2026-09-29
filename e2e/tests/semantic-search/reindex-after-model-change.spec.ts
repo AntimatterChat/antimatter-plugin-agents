@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { mattermostAIAdminConfigApiFromClient, mattermostAIPluginRoutes } from 'helpers/plugin-http';
+import AntimatterContainer from 'helpers/amcontainer';
+import { antimatterAIAdminConfigApiFromClient, antimatterAIPluginRoutes } from 'helpers/plugin-http';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
+    antimatter = await RunContainer();
 });
 
 test.afterAll(async () => {
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 type JobStatus = { status: string; error?: string };
@@ -24,7 +24,7 @@ type HealthCheck = {
 type AIBots = { searchEnabled: boolean };
 
 async function waitForReindexComplete(
-    routes: ReturnType<typeof mattermostAIPluginRoutes>,
+    routes: ReturnType<typeof antimatterAIPluginRoutes>,
     token: string,
 ): Promise<JobStatus> {
     const deadline = Date.now() + 60000;
@@ -47,13 +47,13 @@ test.describe('Reindex after embedding model change', () => {
     // MM-69713: an embedding model change disables query search until a full
     // reindex completes, while keeping the admin reindex path available.
     test('admin can start a full reindex after changing the embedding model, which re-enables search', async () => {
-        const admin = await mattermost.getAdminClient();
+        const admin = await antimatter.getAdminClient();
         const token = admin.getToken();
-        const routes = mattermostAIPluginRoutes(mattermost.url());
-        const configApi = mattermostAIAdminConfigApiFromClient(admin, mattermost.url());
+        const routes = antimatterAIPluginRoutes(antimatter.url());
+        const configApi = antimatterAIAdminConfigApiFromClient(admin, antimatter.url());
 
         // Index a real post so there is content in the index.
-        const userClient = await mattermost.getClient('regularuser', 'regularuser');
+        const userClient = await antimatter.getClient('regularuser', 'regularuser');
         const team = await userClient.getTeamByName('test');
         const channel = await userClient.getChannelByName(team.id, 'town-square');
         await userClient.createPost({

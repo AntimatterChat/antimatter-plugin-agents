@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import { RunToolConfigContainer } from 'helpers/tool-config-container';
 import { ToolConfigUIHelper } from 'helpers/tool-config';
@@ -13,28 +13,28 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * including tool names, descriptions, policy dropdowns, and enable toggles.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Tools Tab Display', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should display embedded server with tools in Tools tab', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Verify the MCP Tools Configuration header is visible
         await expect(page.getByText('MCP Tools Configuration')).toBeVisible();
@@ -69,11 +69,11 @@ test.describe('Tools Tab Display', () => {
     test('should show correct policy values for vetted tools', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Expand the embedded server
         const serverHeader = page.getByText(/\d+\/\d+ tools? enabled/).first();

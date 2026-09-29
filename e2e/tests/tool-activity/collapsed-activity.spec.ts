@@ -18,7 +18,7 @@ import {
     mainAreaText,
     TOOL_STATUS_SELECTOR,
 } from 'helpers/llmbot-post';
-import MattermostContainer, {getTownSquareChannel} from 'helpers/mmcontainer';
+import AntimatterContainer, {getTownSquareChannel} from 'helpers/amcontainer';
 import {RunToolConfigAIMockContainer, setupRegularTestUser} from 'helpers/tool-config-container';
 
 /**
@@ -64,20 +64,20 @@ const stopAnswer = `${stopAnswerStart} ${stopAnswerTail.repeat(16)}`;
 test.describe('Collapsed Tool Activity (Aimock)', () => {
     test.describe.configure({mode: 'serial'});
 
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(300000);
-        mattermost = await RunToolConfigAIMockContainer({
+        antimatter = await RunToolConfigAIMockContainer({
             toolConfigs: [
                 {name: 'get_channel_info', policy: 'auto_run_in_dm', enabled: true},
                 {name: 'read_channel', policy: 'auto_run_in_dm', enabled: true},
             ],
             reasoningEnabled: true,
         });
-        await setupRegularTestUser(mattermost);
-        const townSquare = await getTownSquareChannel(mattermost, username, password);
+        await setupRegularTestUser(antimatter);
+        const townSquare = await getTownSquareChannel(antimatter, username, password);
 
         // The title fixture has to come first: aimock matches user messages by
         // substring, and a title request embeds the original prompt.
@@ -202,18 +202,18 @@ test.describe('Collapsed Tool Activity (Aimock)', () => {
             },
         );
 
-        aimock = await RunAIMockSidecar(mattermost.network, {fixtures});
+        aimock = await RunAIMockSidecar(antimatter.network, {fixtures});
     });
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('collapses multiple auto-run tools into a summary that expands and collapses again', async ({page}) => {
         test.setTimeout(180000);
 
-        const {botPost} = await askAimockBot(page, mattermost.url(), multiToolPrompt);
+        const {botPost} = await askAimockBot(page, antimatter.url(), multiToolPrompt);
         await expect(botPost.getByText(multiToolFinal)).toBeVisible({timeout: 120000});
         await expect(page.getByRole('button', {name: /stop/i})).not.toBeVisible({timeout: 30000});
 
@@ -238,7 +238,7 @@ test.describe('Collapsed Tool Activity (Aimock)', () => {
     test('hides intermediate narration text until the activity area is expanded', async ({page}) => {
         test.setTimeout(180000);
 
-        const {botPost} = await askAimockBot(page, mattermost.url(), narrationPrompt);
+        const {botPost} = await askAimockBot(page, antimatter.url(), narrationPrompt);
         await expect(botPost.getByText(narrationFinal)).toBeVisible({timeout: 120000});
         await expect(page.getByRole('button', {name: /stop/i})).not.toBeVisible({timeout: 30000});
 
@@ -253,7 +253,7 @@ test.describe('Collapsed Tool Activity (Aimock)', () => {
     test('summarizes a failed tool with an error glyph', async ({page}) => {
         test.setTimeout(180000);
 
-        const {botPost} = await askAimockBot(page, mattermost.url(), failingPrompt);
+        const {botPost} = await askAimockBot(page, antimatter.url(), failingPrompt);
         await expect(botPost.getByText(failingFinal)).toBeVisible({timeout: 120000});
         await expect(page.getByRole('button', {name: /stop/i})).not.toBeVisible({timeout: 30000});
 
@@ -266,7 +266,7 @@ test.describe('Collapsed Tool Activity (Aimock)', () => {
     test('folds the closing reasoning block into the activity area while its answer stays in the post', async ({page}) => {
         test.setTimeout(180000);
 
-        const {botPost, llmBotHelper} = await askAimockBot(page, mattermost.url(), reasoningPrompt);
+        const {botPost, llmBotHelper} = await askAimockBot(page, antimatter.url(), reasoningPrompt);
         await expect(botPost.getByText(reasoningFinal)).toBeVisible({timeout: 120000});
         await expect(page.getByRole('button', {name: /stop/i})).not.toBeVisible({timeout: 30000});
 
@@ -289,7 +289,7 @@ test.describe('Collapsed Tool Activity (Aimock)', () => {
     test('streams the answer into the post body while the row names the finished tool, even when expanded mid-stream', async ({page}) => {
         test.setTimeout(180000);
 
-        const {botPost} = await askAimockBot(page, mattermost.url(), midStreamPrompt);
+        const {botPost} = await askAimockBot(page, antimatter.url(), midStreamPrompt);
         const stopButton = page.getByRole('button', {name: /stop/i});
 
         await expectToolActivityCurrent(botPost, getChannelInfoLabel);
@@ -310,7 +310,7 @@ test.describe('Collapsed Tool Activity (Aimock)', () => {
     test('settles the post without a stuck spinner when generation is stopped after a tool round', async ({page}) => {
         test.setTimeout(180000);
 
-        const {botPost} = await askAimockBot(page, mattermost.url(), stopPrompt);
+        const {botPost} = await askAimockBot(page, antimatter.url(), stopPrompt);
 
         // The tool round runs first and the answer then trickles in, which is
         // the window where Stop is on offer. Whether the finished tool round

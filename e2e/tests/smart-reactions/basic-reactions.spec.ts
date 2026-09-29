@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, buildTextResponse } from 'helpers/openai-mock';
 
@@ -12,12 +12,12 @@ import { OpenAIMockContainer, RunOpenAIMocks, buildTextResponse } from 'helpers/
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -27,21 +27,21 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 async function setupTestPage(page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 async function gotoTownSquare(page) {
-    const target = mattermost.url() + '/test/channels/town-square';
+    const target = antimatter.url() + '/test/channels/town-square';
 
     for (let attempt = 0; attempt < 3; attempt++) {
         try {
@@ -61,11 +61,11 @@ test.describe('Smart Reactions - Basic Functionality', () => {
     test.describe.configure({ retries: 1 });
 
     test('Access React for me menu option', async ({ page }) => {
-        const { mmPage } = await setupTestPage(page);
+        const { amPage } = await setupTestPage(page);
 
         // Create a post
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Great job on completing the project milestone!'
@@ -87,11 +87,11 @@ test.describe('Smart Reactions - Basic Functionality', () => {
 
     test('Positive message gets appropriate reaction suggestion', async ({ page }) => {
         test.setTimeout(120000);
-        const { mmPage } = await setupTestPage(page);
+        const { amPage } = await setupTestPage(page);
 
         // Create positive message
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Congratulations on the successful launch! Amazing work by everyone!'
@@ -128,11 +128,11 @@ test.describe('Smart Reactions - Basic Functionality', () => {
 
 test.describe('Smart Reactions - Error Handling', () => {
     test('Handle API error gracefully', async ({ page }) => {
-        const { mmPage } = await setupTestPage(page);
+        const { amPage } = await setupTestPage(page);
 
         // Create a post
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Test message for error handling'

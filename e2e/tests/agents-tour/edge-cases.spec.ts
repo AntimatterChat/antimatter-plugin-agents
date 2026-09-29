@@ -4,8 +4,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
 const username = 'regularuser';
@@ -14,16 +14,16 @@ const password = 'regularuser';
 const TOUR_PREFERENCE_CATEGORY = 'mattermost-ai-tutorial';
 const TOUR_PREFERENCE_NAME = 'agents_tour_v1';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
-    const client = await mattermost.getClient(username, password);
+    const client = await antimatter.getClient(username, password);
     const user = await client.getMe();
     try {
         await client.deletePreferences(user.id, [{
@@ -38,14 +38,14 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 test.describe('Agents Tour - Edge Cases', () => {
     test('Browser resize during tour display keeps popover functional', async ({ page }) => {
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         const pulsatingDot = page.getByTestId('agents-tour-dot');

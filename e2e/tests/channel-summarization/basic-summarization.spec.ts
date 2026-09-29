@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
@@ -12,7 +12,7 @@ import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const summarizationResponse = `
@@ -29,8 +29,8 @@ data: [DONE]
 `.trim().split('\n').filter(l => l).join('\n\n') + '\n\n';
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -40,23 +40,23 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 async function setupTestPage(page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 test.describe('Channel Summarization - Basic Functionality', () => {
     test.skip('Summarize channel with moderate activity', async ({ page }) => {
         // Skipped: /summarize-channel command needs investigation - may not be implemented yet
-        const { mmPage, aiPlugin } = await setupTestPage(page);
+        const { amPage, aiPlugin } = await setupTestPage(page);
 
         // Create several messages in the channel
         const messages = [
@@ -68,11 +68,11 @@ test.describe('Channel Summarization - Basic Functionality', () => {
         ];
 
         for (const message of messages) {
-            await mmPage.sendMessageAsUser(mattermost, username, password, message);
+            await amPage.sendMessageAsUser(antimatter, username, password, message);
         }
 
         // Navigate to town-square channel
-        await page.goto(mattermost.url() + '/test/channels/town-square');
+        await page.goto(antimatter.url() + '/test/channels/town-square');
         await page.waitForLoadState('networkidle');
 
         // Open RHS

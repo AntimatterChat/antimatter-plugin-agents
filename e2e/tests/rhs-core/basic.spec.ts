@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { resetSelectedAgentPreference } from 'helpers/agent_preferences';
 import { OpenAIMockContainer, RunOpenAIMocks, turnMocksWithTitleSiphon, responseTest, responseTest2, responseTest2Text, responseTestText } from 'helpers/openai-mock';
@@ -11,35 +11,35 @@ import { OpenAIMockContainer, RunOpenAIMocks, turnMocksWithTitleSiphon, response
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 // Setup for all tests in the file
 test.beforeAll(async () => {
-  mattermost = await RunContainer();
-  openAIMock = await RunOpenAIMocks(mattermost.network);
+  antimatter = await RunContainer();
+  openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 // Cleanup after all tests
 test.afterAll(async () => {
   await openAIMock.stop();
-  await mattermost.stop();
+  await antimatter.stop();
 });
 
 // Agent selection persists server-side; reset so mock-bot tests stay isolated.
 test.beforeEach(async () => {
-  await resetSelectedAgentPreference(mattermost, username, password);
+  await resetSelectedAgentPreference(antimatter, username, password);
 });
 
 // Common test setup
 async function setupTestPage(page) {
-  const mmPage = new MattermostPage(page);
+  const amPage = new AntimatterPage(page);
   const aiPlugin = new AIPlugin(page);
-  const url = mattermost.url();
+  const url = antimatter.url();
 
-  await mmPage.login(url, username, password);
+  await amPage.login(url, username, password);
 
-  return { mmPage, aiPlugin };
+  return { amPage, aiPlugin };
 }
 
 // Test suites
@@ -92,20 +92,20 @@ test.describe('RHS Bot Interactions', () => {
 
 test.describe('Bot Mentions', () => {
   test('bot responds to channel mentions but ignores code blocks', async ({ page }) => {
-    const { mmPage } = await setupTestPage(page);
+    const { amPage } = await setupTestPage(page);
     await openAIMock.addCompletionMock(responseTest);
 
     // Code block mention - should be ignored
-    await mmPage.sendChannelMessage('`@mock` TestBotMention1');
-    await mmPage.expectNoReply();
+    await amPage.sendChannelMessage('`@mock` TestBotMention1');
+    await amPage.expectNoReply();
 
     // Multi-line code block mention - should be ignored
-    await mmPage.sendChannelMessage('```\n@mock\n``` TestBotMention2');
-    await mmPage.expectNoReply();
+    await amPage.sendChannelMessage('```\n@mock\n``` TestBotMention2');
+    await amPage.expectNoReply();
 
     // Regular mention - should get response
-    await mmPage.mentionBot('mock', 'TestBotMention3');
-    await mmPage.waitForReply();
+    await amPage.mentionBot('mock', 'TestBotMention3');
+    await amPage.waitForReply();
   });
 });
 
@@ -191,13 +191,13 @@ test.describe('Chat History', () => {
 
 test.describe('Thread Analysis', () => {
   test('thread summarization follow-up questions work correctly', async ({ page }) => {
-    const { mmPage, aiPlugin } = await setupTestPage(page);
+    const { amPage, aiPlugin } = await setupTestPage(page);
 
     // Create a thread by posting a root message and replies
-    const rootPost = await mmPage.sendMessageAsUser(mattermost, username, password, 'First message in the thread discussing the project timeline');
+    const rootPost = await amPage.sendMessageAsUser(antimatter, username, password, 'First message in the thread discussing the project timeline');
 
     // Get client to create replies
-    const userClient = await mattermost.getClient(username, password);
+    const userClient = await antimatter.getClient(username, password);
 
     // Create replies to form a thread
     await userClient.createPost({
@@ -213,7 +213,7 @@ test.describe('Thread Analysis', () => {
     });
 
     // Navigate to the post
-    await page.goto(mattermost.url() + '/test/channels/town-square');
+    await page.goto(antimatter.url() + '/test/channels/town-square');
 
     // Wait for the post to be visible
     await page.locator(`#post_${rootPost.id}`).waitFor({ state: 'visible' });

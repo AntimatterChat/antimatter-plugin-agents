@@ -17,8 +17,8 @@ import {
     buildTitleFixture,
     mergeFixtureFiles,
 } from 'helpers/aimock-fixtures';
-import MattermostContainer from 'helpers/mmcontainer';
-import {MattermostPage} from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import {AntimatterPage} from 'helpers/am';
 import {AIPlugin} from 'helpers/ai-plugin';
 import {expandToolActivity} from 'helpers/llmbot-post';
 import {
@@ -38,8 +38,8 @@ type TownSquareChannel = {
     teamDisplayName: string;
 };
 
-async function getTownSquareChannel(mattermostInstance: MattermostContainer): Promise<TownSquareChannel> {
-    const client = await mattermostInstance.getClient(username, password);
+async function getTownSquareChannel(antimatterInstance: AntimatterContainer): Promise<TownSquareChannel> {
+    const client = await antimatterInstance.getClient(username, password);
     const teams = await client.getMyTeams();
     const team = teams[0];
     const channels = await client.getMyChannels(team.id);
@@ -103,13 +103,13 @@ test.describe('Response File Attachments (Aimock)', () => {
     // Serial: one shared Mattermost + aimock sidecar; each test swaps fixtures via setFixtures.
     test.describe.configure({mode: 'serial'});
 
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
     let townSquare: TownSquareChannel;
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunToolConfigAIMockContainer({
+        antimatter = await RunToolConfigAIMockContainer({
             toolConfigs: [
                 {name: 'get_channel_info', policy: 'ask', enabled: true},
                 {name: 'create_post', policy: 'ask', enabled: true},
@@ -119,16 +119,16 @@ test.describe('Response File Attachments (Aimock)', () => {
             botId: 'tool-test-bot',
             botDisplayName: 'Tool Test Bot',
         });
-        await setupRegularTestUser(mattermost);
-        townSquare = await getTownSquareChannel(mattermost);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        await setupRegularTestUser(antimatter);
+        townSquare = await getTownSquareChannel(antimatter);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: {fixtures: [buildTitleFixture('Create file bootstrap')]},
         });
     });
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('CreateFile auto-executes in DM and attaches the file to the reply', async ({page}) => {
@@ -150,10 +150,10 @@ test.describe('Response File Attachments (Aimock)', () => {
             }),
         ));
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await aiPlugin.openRHS();
         await aiPlugin.sendMessage(prompt);
 
@@ -201,15 +201,15 @@ test.describe('Response File Attachments (Aimock)', () => {
             }),
         ));
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/off-topic`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/off-topic`);
         await page.locator('#channelHeaderTitle').getByText('Off-Topic', {exact: true}).waitFor({
             state: 'visible',
             timeout: 10000,
         });
 
-        await mmPage.mentionBot(botName, prompt);
+        await amPage.mentionBot(botName, prompt);
         const mentionPost = await waitForSentPost(page, `@${botName} ${prompt}`);
         await openThreadForPost(mentionPost, 120000);
 
@@ -221,7 +221,7 @@ test.describe('Response File Attachments (Aimock)', () => {
         await expect(rhs.getByText(finalText)).toBeVisible({timeout: 120000});
 
         // The created post in Town Square carries the message and the inline file.
-        await page.goto(`${mattermost.url()}/test/channels/town-square`);
+        await page.goto(`${antimatter.url()}/test/channels/town-square`);
         const createdPost = page.locator('.post').filter({
             has: page.locator('.post-message__text').getByText(postText, {exact: true}),
         }).last();

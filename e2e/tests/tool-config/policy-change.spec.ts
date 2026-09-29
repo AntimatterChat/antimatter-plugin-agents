@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import { RunToolConfigContainer } from 'helpers/tool-config-container';
 import { ToolConfigUIHelper } from 'helpers/tool-config';
@@ -14,28 +14,28 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * and that the changes persist across reload.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe.serial('Per-Tool Policy Change', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should change tool policy from Auto Run (DM) to Ask Every Time and persist', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Expand the embedded server
         const serverHeader = page.getByText(/\d+\/\d+ tools? enabled/).first();
@@ -55,7 +55,7 @@ test.describe.serial('Per-Tool Policy Change', () => {
         await toolConfig.clickSave();
 
         // Reload page
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Expand server again
         const serverHeader2 = page.getByText(/\d+\/\d+ tools? enabled/).first();
@@ -71,11 +71,11 @@ test.describe.serial('Per-Tool Policy Change', () => {
     test('should change tool policy from Ask Every Time to Auto Run (DM) and persist', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Expand the embedded server
         const serverHeader = page.getByText(/\d+\/\d+ tools? enabled/).first();
@@ -95,7 +95,7 @@ test.describe.serial('Per-Tool Policy Change', () => {
         await toolConfig.clickSave();
 
         // Reload page
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         // Expand server again
         const serverHeader2 = page.getByText(/\d+\/\d+ tools? enabled/).first();
@@ -111,11 +111,11 @@ test.describe.serial('Per-Tool Policy Change', () => {
     test('should change tool policy to Auto Run (Everywhere) and persist', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         const serverHeader = page.getByText(/\d+\/\d+ tools? enabled/).first();
         await serverHeader.click();
@@ -129,7 +129,7 @@ test.describe.serial('Per-Tool Policy Change', () => {
 
         await toolConfig.clickSave();
 
-        await toolConfig.navigateToToolsTab(mattermost.url());
+        await toolConfig.navigateToToolsTab(antimatter.url());
 
         const serverHeader2 = page.getByText(/\d+\/\d+ tools? enabled/).first();
         await serverHeader2.click();

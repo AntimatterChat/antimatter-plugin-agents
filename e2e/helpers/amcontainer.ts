@@ -21,7 +21,7 @@ const defaultTeamDisplayName = "Test";
 const defaultMattermostImage = "mattermostdevelopment/mattermost-enterprise-edition:master";
 export const POSTGRES_IMAGE = "pgvector/pgvector:pg15";
 
-export function mattermostImage(): string {
+export function antimatterImage(): string {
     return process.env.MM_IMAGE || defaultMattermostImage;
 }
 
@@ -39,11 +39,11 @@ export type TownSquareChannel = {
  * ID to build tool-call arguments that the server will accept.
  */
 export async function getTownSquareChannel(
-    mattermost: MattermostContainer,
+    antimatter: AntimatterContainer,
     username: string,
     password: string,
 ): Promise<TownSquareChannel> {
-    const client = await mattermost.getClient(username, password);
+    const client = await antimatter.getClient(username, password);
     const teams = await client.getMyTeams();
     const team = teams[0];
     if (!team) {
@@ -63,8 +63,8 @@ export async function getTownSquareChannel(
     };
 }
 
-// MattermostContainer represents the mattermost container type used in the module
-export default class MattermostContainer {
+// AntimatterContainer represents the antimatter container type used in the module
+export default class AntimatterContainer {
     container: StartedTestContainer;
     pgContainer: StartedPostgreSqlContainer;
     network:     StartedNetwork;
@@ -211,25 +211,25 @@ export default class MattermostContainer {
         await api.put(config as Record<string, unknown>, { settleMs: 2000 });
     }
 
-    withEnv = (env: string, value: string): MattermostContainer => {
+    withEnv = (env: string, value: string): AntimatterContainer => {
         this.envs[env] = value
         return this
     }
 
-    withAdmin = (email: string, username: string, password: string): MattermostContainer => {
+    withAdmin = (email: string, username: string, password: string): AntimatterContainer => {
         this.email = email;
         this.username = username;
         this.password = password;
         return this;
     }
 
-    withTeam = (teamName: string, teamDisplayName: string): MattermostContainer => {
+    withTeam = (teamName: string, teamDisplayName: string): AntimatterContainer => {
         this.teamName = teamName;
         this.teamDisplayName = teamDisplayName;
         return this;
     }
 
-    withConfigFile = (cfg: string): MattermostContainer => {
+    withConfigFile = (cfg: string): AntimatterContainer => {
         const cfgFile = {
             source: cfg,
             target: "/etc/mattermost.json",
@@ -239,7 +239,7 @@ export default class MattermostContainer {
         return this
     }
 
-    withPlugin = (pluginPath: string, pluginID: string, pluginConfig: PluginConfigInput): MattermostContainer => {
+    withPlugin = (pluginPath: string, pluginID: string, pluginConfig: PluginConfigInput): AntimatterContainer => {
         this.plugins.push({id: pluginID, path: pluginPath, config: pluginConfig})
 
         return this
@@ -271,8 +271,8 @@ export default class MattermostContainer {
         this.isLogStreamClosed = false;
     }
 
-    start = async (): Promise<MattermostContainer> => {
-        const image = mattermostImage();
+    start = async (): Promise<AntimatterContainer> => {
+        const image = antimatterImage();
         const isCustomImage = !!process.env.MM_IMAGE;
         console.log(`\n🚀 Starting Mattermost container`);
         console.log(`   Image: ${image}${isCustomImage ? ' (custom via MM_IMAGE)' : ' (default)'}`);

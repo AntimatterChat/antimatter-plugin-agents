@@ -1,35 +1,35 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest } from 'helpers/openai-mock';
 
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 async function setupTestPage(page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 /**
@@ -40,7 +40,7 @@ async function createPromptViaAPI(
     client: any,
     data: { name: string; description: string; template: string; is_shared: boolean },
 ) {
-    const baseUrl = mattermost.url();
+    const baseUrl = antimatter.url();
     const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts`, {
         method: 'POST',
         headers: {
@@ -59,7 +59,7 @@ async function createPromptViaAPI(
  * Helper: delete a custom prompt via the plugin REST API.
  */
 async function deletePromptViaAPI(client: any, promptId: string) {
-    const baseUrl = mattermost.url();
+    const baseUrl = antimatter.url();
     const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts/${promptId}`, {
         method: 'DELETE',
         headers: {
@@ -75,7 +75,7 @@ async function deletePromptViaAPI(client: any, promptId: string) {
  * Helper: pin or unpin a prompt via the plugin REST API.
  */
 async function setPinViaAPI(client: any, promptId: string, pinned: boolean) {
-    const baseUrl = mattermost.url();
+    const baseUrl = antimatter.url();
     const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts/pins`, {
         method: 'PUT',
         headers: {
@@ -93,7 +93,7 @@ async function setPinViaAPI(client: any, promptId: string, pinned: boolean) {
  * Helper: list all custom prompts via the plugin REST API.
  */
 async function listPromptsViaAPI(client: any) {
-    const baseUrl = mattermost.url();
+    const baseUrl = antimatter.url();
     const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts`, {
         method: 'GET',
         headers: {
@@ -110,7 +110,7 @@ async function listPromptsViaAPI(client: any) {
  * Helper: get pinned prompt IDs via the plugin REST API.
  */
 async function getPinsViaAPI(client: any): Promise<string[]> {
-    const baseUrl = mattermost.url();
+    const baseUrl = antimatter.url();
     const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts/pins`, {
         method: 'GET',
         headers: {
@@ -132,7 +132,7 @@ async function renderPromptViaAPI(
     channelId = '',
     botUsername = '',
 ) {
-    const baseUrl = mattermost.url();
+    const baseUrl = antimatter.url();
     const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts/${promptId}/render`, {
         method: 'POST',
         headers: {
@@ -170,7 +170,7 @@ test.describe('Custom Prompts Management Modal', () => {
     let userClient: any;
 
     test.beforeAll(async () => {
-        userClient = await mattermost.getClient(username, password);
+        userClient = await antimatter.getClient(username, password);
     });
 
     test.afterAll(async () => {
@@ -311,7 +311,7 @@ test.describe('Custom Prompts Management Modal', () => {
         createdPromptIds.push(myPrompt.id);
 
         // Seed a prompt by admin (a different user)
-        const adminClient = await mattermost.getAdminClient();
+        const adminClient = await antimatter.getAdminClient();
         const adminPrompt = await createPromptViaAPI(adminClient, {
             name: 'Admin Created Prompt',
             description: 'Created by admin',
@@ -392,7 +392,7 @@ test.describe('Custom Prompts in AI Actions Submenu', () => {
     let createdPromptIds: string[] = [];
 
     test.beforeAll(async () => {
-        userClient = await mattermost.getClient(username, password);
+        userClient = await antimatter.getClient(username, password);
     });
 
     test.afterAll(async () => {
@@ -420,7 +420,7 @@ test.describe('Custom Prompts in AI Actions Submenu', () => {
         await postTextbox.click();
 
         // The AI actions button is only present when the server includes the
-        // pluggable AI actions menu (custom mattermost build). Skip on stock images.
+        // pluggable AI actions menu (custom antimatter build). Skip on stock images.
         const aiButton = page.locator('#aiActionsMenu');
         if (!await aiButton.isVisible({ timeout: 5000 }).catch(() => false)) {
             test.skip(true, 'AI Actions menu not available (requires custom server build)');
@@ -465,7 +465,7 @@ test.describe('Pinned Prompt Pills in RHS', () => {
     let createdPromptIds: string[] = [];
 
     test.beforeAll(async () => {
-        userClient = await mattermost.getClient(username, password);
+        userClient = await antimatter.getClient(username, password);
     });
 
     test.afterAll(async () => {
@@ -566,8 +566,8 @@ test.describe('Prompt Visibility', () => {
     let createdPromptIds: string[] = [];
 
     test.beforeAll(async () => {
-        regularClient = await mattermost.getClient(username, password);
-        secondClient = await mattermost.getClient('seconduser', 'seconduser');
+        regularClient = await antimatter.getClient(username, password);
+        secondClient = await antimatter.getClient('seconduser', 'seconduser');
     });
 
     test.afterAll(async () => {
@@ -626,7 +626,7 @@ test.describe('Prompt Visibility', () => {
         createdPromptIds.push(prompt.id);
 
         // Second user tries to delete it -- should fail
-        const baseUrl = mattermost.url();
+        const baseUrl = antimatter.url();
         const response = await fetch(`${baseUrl}/plugins/mattermost-ai/custom-prompts/${prompt.id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${secondClient.getToken()}` },
@@ -647,7 +647,7 @@ test.describe('Context Variables', () => {
     let createdPromptIds: string[] = [];
 
     test.beforeAll(async () => {
-        userClient = await mattermost.getClient(username, password);
+        userClient = await antimatter.getClient(username, password);
     });
 
     test.afterAll(async () => {

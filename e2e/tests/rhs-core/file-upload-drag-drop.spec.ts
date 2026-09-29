@@ -5,33 +5,33 @@ import {test, expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import {MattermostPage} from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import {AntimatterPage} from 'helpers/am';
 import {AIPlugin} from 'helpers/ai-plugin';
 import {OpenAIMockContainer, RunOpenAIMocks} from 'helpers/openai-mock';
 
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 async function setupTestPage(page: Page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    await mmPage.login(mattermost.url(), username, password);
+    await amPage.login(antimatter.url(), username, password);
     await aiPlugin.openRHS();
-    return {mmPage, aiPlugin};
+    return {amPage, aiPlugin};
 }
 
 // Synthesizes a file drop on the given element by building a DataTransfer in

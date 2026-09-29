@@ -4,8 +4,8 @@
 import { test, expect, Locator, Page } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
 // Test configuration
@@ -17,11 +17,11 @@ const TOUR_PREFERENCE_CATEGORY = 'mattermost-ai-tutorial';
 const TOUR_PREFERENCE_NAME = 'agents_tour_v1';
 const TOUR_FINISHED_VALUE = '999';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const getTourPreferenceValue = async () => {
-    const client = await mattermost.getClient(username, password);
+    const client = await antimatter.getClient(username, password);
     const prefs = await client.getMyPreferences();
     const tourPref = prefs.find(
         (p: { category: string; name: string; value: string }) =>
@@ -56,13 +56,13 @@ const expectTourFinished = async (page: Page, pulsatingDot: Locator, tourPopover
 
 // Setup for all tests in the file
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 // Reset tour preference before each test
 test.beforeEach(async () => {
-    const client = await mattermost.getClient(username, password);
+    const client = await antimatter.getClient(username, password);
     const user = await client.getMe();
     try {
         await client.deletePreferences(user.id, [{
@@ -78,15 +78,15 @@ test.beforeEach(async () => {
 // Cleanup after all tests
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 test.describe('Agents Tour - Basic Flow', () => {
     test('Full tour flow: appear, open, dismiss via X, preference saved, no reappear on reload', async ({ page }) => {
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
         // 1. Login as the test user
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         const {pulsatingDot, tourPopover} = await openTour(page);
@@ -108,8 +108,8 @@ test.describe('Agents Tour - Basic Flow', () => {
     });
 
     test('Dismiss via outside click finishes the tour', async ({page}) => {
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
         await page.getByTestId('channel_view').waitFor({state: 'visible', timeout: 30000});
 
         const {pulsatingDot, tourPopover} = await openTour(page);
@@ -129,8 +129,8 @@ test.describe('Agents Tour - Basic Flow', () => {
     });
 
     test('Dismiss via Escape finishes the tour', async ({page}) => {
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
         await page.getByTestId('channel_view').waitFor({state: 'visible', timeout: 30000});
 
         const {pulsatingDot, tourPopover} = await openTour(page);
@@ -141,8 +141,8 @@ test.describe('Agents Tour - Basic Flow', () => {
     });
 
     test('Pulsing dot stays aligned with the Agents icon after a layout shift (MM-67439)', async ({page}) => {
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
         await page.getByTestId('channel_view').waitFor({state: 'visible', timeout: 30000});
 
         const appBarIcon = page.locator('#app-bar-icon-mattermost-ai');

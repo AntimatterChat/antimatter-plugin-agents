@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
+import AntimatterContainer from 'helpers/amcontainer';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import { createBotConfigHelper, generateBotId } from 'helpers/bot-config';
 
@@ -14,24 +14,24 @@ import { createBotConfigHelper, generateBotId } from 'helpers/bot-config';
  */
 
 function createTestSuite() {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     test.describe('Reasoning Configuration Integration Tests', () => {
         // Setup for all tests in the file
         test.beforeAll(async () => {
-            mattermost = await RunContainer();
-            openAIMock = await RunOpenAIMocks(mattermost.network);
+            antimatter = await RunContainer();
+            openAIMock = await RunOpenAIMocks(antimatter.network);
         });
 
         // Cleanup after all tests
         test.afterAll(async () => {
             await openAIMock.stop();
-            await mattermost.stop();
+            await antimatter.stop();
         });
 
         test('should allow reasoning config on OpenAI Compatible service without Responses API', async () => {
-            const botConfig = await createBotConfigHelper(mattermost);
+            const botConfig = await createBotConfigHelper(antimatter);
             const serviceId = 'no-responses-api-service';
             const botId = generateBotId();
 
@@ -80,7 +80,7 @@ function createTestSuite() {
         });
 
         test('should allow switching bot between OpenAI and Anthropic services with reasoning', async () => {
-            const botConfig = await createBotConfigHelper(mattermost);
+            const botConfig = await createBotConfigHelper(antimatter);
 
             // Create OpenAI service
             await botConfig.addService({
@@ -135,7 +135,7 @@ function createTestSuite() {
         });
 
         test('should persist reasoning configuration across service updates', async () => {
-            const botConfig = await createBotConfigHelper(mattermost);
+            const botConfig = await createBotConfigHelper(antimatter);
             const serviceId = 'reasoning-persist-test';
             const botId = generateBotId();
 

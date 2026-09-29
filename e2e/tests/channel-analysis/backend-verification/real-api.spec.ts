@@ -6,8 +6,8 @@ import type { Client4 } from '@mattermost/client';
 
 import { AIMockContainer, RunAIMockSidecar } from 'helpers/aimock-container';
 import { buildToolNameAndTextResponse } from 'helpers/aimock-fixtures';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 import { AIMOCK_BOT_NAME, RunAIMockContainer } from 'helpers/plugincontainer';
@@ -38,7 +38,7 @@ type ConversationResponse = {
     }>;
 };
 
-type MattermostPost = {
+type AntimatterPost = {
     id: string;
     user_id: string;
     message: string;
@@ -56,8 +56,8 @@ class ChannelAnalysisBackendHelper {
         await this.page.waitForTimeout(2000);
     }
 
-    async navigateToChannel(mattermost: MattermostContainer, channelName: string) {
-        await this.page.goto(mattermost.url() + `/test/channels/${channelName}`);
+    async navigateToChannel(antimatter: AntimatterContainer, channelName: string) {
+        await this.page.goto(antimatter.url() + `/test/channels/${channelName}`);
         await this.waitForPageReady();
     }
 }
@@ -75,11 +75,11 @@ function buildReadChannelAnalysisFixtures(options: {
     });
 }
 
-function getPostsArray(postsResponse: {posts?: Record<string, MattermostPost>}): MattermostPost[] {
+function getPostsArray(postsResponse: {posts?: Record<string, AntimatterPost>}): AntimatterPost[] {
     return Object.values(postsResponse.posts || {});
 }
 
-async function fetchPostsForChannel(client: Client4, channelID: string): Promise<MattermostPost[]> {
+async function fetchPostsForChannel(client: Client4, channelID: string): Promise<AntimatterPost[]> {
     const getPosts = (client as unknown as { getPostsForChannel?: typeof client.getPosts }).getPostsForChannel ||
         client.getPosts;
     if (typeof getPosts !== 'function') {
@@ -91,9 +91,9 @@ async function fetchPostsForChannel(client: Client4, channelID: string): Promise
 }
 
 async function fetchConversationForLatestLLMBotPost(
-    mattermost: MattermostContainer,
+    antimatter: AntimatterContainer,
 ): Promise<ConversationResponse> {
-    const userClient = await mattermost.getClient(username, password);
+    const userClient = await antimatter.getClient(username, password);
     const user = await userClient.getMe();
     const botUser = await userClient.getUserByUsername(AIMOCK_BOT_NAME);
     const dmChannel = await userClient.createDirectChannel([user.id, botUser.id]);
@@ -110,7 +110,7 @@ async function fetchConversationForLatestLLMBotPost(
         throw new Error(`Post ${latestBotPost.id} did not include a conversation_id prop`);
     }
 
-    const response = await fetch(`${mattermost.url()}/plugins/mattermost-ai/conversations/${conversationID}`, {
+    const response = await fetch(`${antimatter.url()}/plugins/mattermost-ai/conversations/${conversationID}`, {
         headers: {
             Authorization: `Bearer ${userClient.getToken()}`,
         },
@@ -123,11 +123,11 @@ async function fetchConversationForLatestLLMBotPost(
 }
 
 async function expectReadChannelToolResult(
-    mattermost: MattermostContainer,
+    antimatter: AntimatterContainer,
     expectedMarkers: string[],
     rejectedMarkers: string[] = [],
 ): Promise<void> {
-    const conversation = await fetchConversationForLatestLLMBotPost(mattermost);
+    const conversation = await fetchConversationForLatestLLMBotPost(antimatter);
     const contentBlocks = conversation.turns.flatMap((turn) => turn.content);
     const readChannelToolUseIDs = new Set(contentBlocks
         .filter((block) => block.type === 'tool_use' && block.name === 'read_channel' && block.id)
@@ -157,14 +157,14 @@ async function expectReadChannelToolResult(
 test.describe('Channel Analysis Aimock Backend Verification', () => {
     test.describe.configure({ mode: 'serial' });
 
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunAIMockContainer({ mcp: CHANNEL_ANALYSIS_MCP });
+        antimatter = await RunAIMockContainer({ mcp: CHANNEL_ANALYSIS_MCP });
         // aimock strict mode requires at least one fixture at startup; each test replaces these.
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: buildReadChannelAnalysisFixtures({
                 toolCallId: 'bootstrap_read_channel',
                 finalContent: 'bootstrap response',
@@ -176,15 +176,15 @@ test.describe('Channel Analysis Aimock Backend Verification', () => {
         if (aimock) {
             await aimock.stop();
         }
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
     test('Sanity check: Channel analysis produces valid summary', async ({ page }) => {
         test.setTimeout(360000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
         const llmBotHelper = new LLMBotPostHelper(page);
         const apiHelper = new ChannelAnalysisBackendHelper(page);
@@ -200,11 +200,11 @@ test.describe('Channel Analysis Aimock Backend Verification', () => {
             }),
         );
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await apiHelper.waitForPageReady();
 
-        await mmPage.sendChannelMessage(`Feature discussion ${summaryMarker}: We need to implement SSO.`);
-        await mmPage.sendChannelMessage(`Deadline ${deadlineMarker}: Next Friday.`);
+        await amPage.sendChannelMessage(`Feature discussion ${summaryMarker}: We need to implement SSO.`);
+        await amPage.sendChannelMessage(`Deadline ${deadlineMarker}: Next Friday.`);
 
         await aiPlugin.openChannelAnalysisPopover();
         await aiPlugin.sendChannelAnalysisMessage('What feature and deadline were discussed?');
@@ -217,13 +217,13 @@ test.describe('Channel Analysis Aimock Backend Verification', () => {
         expect(content).toBeTruthy();
         expect(content!.toLowerCase()).toContain('sso');
         expect(content!.toLowerCase()).toContain('friday');
-        await expectReadChannelToolResult(mattermost, [summaryMarker, deadlineMarker]);
+        await expectReadChannelToolResult(antimatter, [summaryMarker, deadlineMarker]);
     });
 
     test('Context isolation: Analysis reflects correct channel after switching', async ({ page }) => {
         test.setTimeout(480000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
         const llmBotHelper = new LLMBotPostHelper(page);
         const apiHelper = new ChannelAnalysisBackendHelper(page);
@@ -232,12 +232,12 @@ test.describe('Channel Analysis Aimock Backend Verification', () => {
         const offTopicMarker = `phase5-offtopic-scifi-${Date.now()}`;
         const toolCallId = `call_phase5_isolation_read_${Date.now()}`;
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await apiHelper.waitForPageReady();
 
-        await mmPage.sendChannelMessage(`Town square topic ${townMarker}: Company picnic.`);
-        await apiHelper.navigateToChannel(mattermost, 'off-topic');
-        await mmPage.sendChannelMessage(`Off-topic discussion ${offTopicMarker}: Best sci-fi movies.`);
+        await amPage.sendChannelMessage(`Town square topic ${townMarker}: Company picnic.`);
+        await apiHelper.navigateToChannel(antimatter, 'off-topic');
+        await amPage.sendChannelMessage(`Off-topic discussion ${offTopicMarker}: Best sci-fi movies.`);
 
         await aimock.setFixtures(
             buildReadChannelAnalysisFixtures({
@@ -258,6 +258,6 @@ test.describe('Channel Analysis Aimock Backend Verification', () => {
         expect(content!.toLowerCase()).toMatch(/sci-fi|movie/);
         expect(content!.toLowerCase()).not.toContain('picnic');
         expect(content!).not.toContain(townMarker);
-        await expectReadChannelToolResult(mattermost, [offTopicMarker], [townMarker]);
+        await expectReadChannelToolResult(antimatter, [offTopicMarker], [townMarker]);
     });
 });

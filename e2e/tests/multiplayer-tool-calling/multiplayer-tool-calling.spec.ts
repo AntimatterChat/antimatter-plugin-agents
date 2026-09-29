@@ -18,8 +18,8 @@ import {
     expectToolActivityCurrent,
     TOOL_CARD_SELECTOR,
 } from 'helpers/llmbot-post';
-import MattermostContainer, {getTownSquareChannel, TownSquareChannel} from 'helpers/mmcontainer';
-import {MattermostPage} from 'helpers/mm';
+import AntimatterContainer, {getTownSquareChannel, TownSquareChannel} from 'helpers/amcontainer';
+import {AntimatterPage} from 'helpers/am';
 import {
     MULTIPLAYER_ASK_TOOL_CONFIGS,
     RunToolConfigAIMockContainer,
@@ -49,17 +49,17 @@ const multiplayerCustomInstructions = [
     'When a user asks you to post a message, call get_channel_info first, then create_post.',
 ].join(' ');
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let aimock: AIMockContainer;
 
-async function setupMultiplayerUsers(mattermostInstance: MattermostContainer): Promise<void> {
-    await mattermostInstance.createUser('regularuser@sample.com', invokerUsername, invokerPassword);
-    await mattermostInstance.addUserToTeam(invokerUsername, 'test');
-    await mattermostInstance.createUser('seconduser@sample.com', onlookerUsername, onlookerPassword);
-    await mattermostInstance.addUserToTeam(onlookerUsername, 'test');
+async function setupMultiplayerUsers(antimatterInstance: AntimatterContainer): Promise<void> {
+    await antimatterInstance.createUser('regularuser@sample.com', invokerUsername, invokerPassword);
+    await antimatterInstance.addUserToTeam(invokerUsername, 'test');
+    await antimatterInstance.createUser('seconduser@sample.com', onlookerUsername, onlookerPassword);
+    await antimatterInstance.addUserToTeam(onlookerUsername, 'test');
 
     for (const [username, password] of [[invokerUsername, invokerPassword], [onlookerUsername, onlookerPassword], [adminUsername, adminPassword]]) {
-        const client = await mattermostInstance.getClient(username, password);
+        const client = await antimatterInstance.getClient(username, password);
         const user = await client.getMe();
         await client.savePreferences(user.id, [
             {user_id: user.id, category: 'tutorial_step', name: user.id, value: '999'},
@@ -75,7 +75,7 @@ async function setupMultiplayerUsers(mattermostInstance: MattermostContainer): P
         ]);
     }
 
-    const adminClient = await mattermostInstance.getAdminClient();
+    const adminClient = await antimatterInstance.getAdminClient();
     await adminClient.completeSetup({organization: 'test', install_plugins: []});
 }
 
@@ -267,7 +267,7 @@ test.describe('Multiplayer Tool Calling (Aimock)', () => {
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunToolConfigAIMockContainer({
+        antimatter = await RunToolConfigAIMockContainer({
             toolConfigs: MULTIPLAYER_ASK_TOOL_CONFIGS,
             customInstructions: multiplayerCustomInstructions,
             enableVectorIndex: true,
@@ -275,17 +275,17 @@ test.describe('Multiplayer Tool Calling (Aimock)', () => {
             botId: 'tool-test-bot',
             botDisplayName: 'Tool Test Bot',
         });
-        await setupMultiplayerUsers(mattermost);
-        townSquare = await getTownSquareChannel(mattermost, invokerUsername, invokerPassword);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        await setupMultiplayerUsers(antimatter);
+        townSquare = await getTownSquareChannel(antimatter, invokerUsername, invokerPassword);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: {fixtures: [buildTitleFixture('Multiplayer bootstrap')]},
         });
     });
 
     test.afterAll(async () => {
         await aimock?.stop();
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
@@ -318,9 +318,9 @@ test.describe('Multiplayer Tool Calling (Aimock)', () => {
         const onlookerPage = await onlookerContext.newPage();
 
         try {
-            const invokerMM = new MattermostPage(invokerPage);
-            const onlookerMM = new MattermostPage(onlookerPage);
-            const baseUrl = mattermost.url();
+            const invokerMM = new AntimatterPage(invokerPage);
+            const onlookerMM = new AntimatterPage(onlookerPage);
+            const baseUrl = antimatter.url();
 
             await invokerMM.login(baseUrl, invokerUsername, invokerPassword);
             await onlookerMM.login(baseUrl, onlookerUsername, onlookerPassword);
@@ -390,9 +390,9 @@ test.describe('Multiplayer Tool Calling (Aimock)', () => {
         const onlookerPage = await onlookerContext.newPage();
 
         try {
-            const invokerMM = new MattermostPage(invokerPage);
-            const onlookerMM = new MattermostPage(onlookerPage);
-            const baseUrl = mattermost.url();
+            const invokerMM = new AntimatterPage(invokerPage);
+            const onlookerMM = new AntimatterPage(onlookerPage);
+            const baseUrl = antimatter.url();
 
             await invokerMM.login(baseUrl, invokerUsername, invokerPassword);
             await onlookerMM.login(baseUrl, onlookerUsername, onlookerPassword);
@@ -462,14 +462,14 @@ test.describe('Multiplayer Tool Calling (Aimock)', () => {
         const page = await context.newPage();
 
         try {
-            const mmPage = new MattermostPage(page);
-            const baseUrl = mattermost.url();
+            const amPage = new AntimatterPage(page);
+            const baseUrl = antimatter.url();
 
-            await mmPage.login(baseUrl, invokerUsername, invokerPassword);
+            await amPage.login(baseUrl, invokerUsername, invokerPassword);
             await navigateToChannel(page, baseUrl, 'off-topic');
 
             const replyCountBeforeSend = await captureReplyCount(page);
-            await mmPage.mentionBot(botUsername, rejectPrompt);
+            await amPage.mentionBot(botUsername, rejectPrompt);
             await waitForReplyAndOpenThread(page, replyCountBeforeSend);
 
             await waitForAnyButtonInThread(page, ['Accept', 'Share', 'Keep private']);
@@ -522,9 +522,9 @@ test.describe('Multiplayer Tool Calling (Aimock)', () => {
         const onlookerPage = await onlookerContext.newPage();
 
         try {
-            const invokerMM = new MattermostPage(invokerPage);
-            const onlookerMM = new MattermostPage(onlookerPage);
-            const baseUrl = mattermost.url();
+            const invokerMM = new AntimatterPage(invokerPage);
+            const onlookerMM = new AntimatterPage(onlookerPage);
+            const baseUrl = antimatter.url();
 
             await invokerMM.login(baseUrl, invokerUsername, invokerPassword);
             await onlookerMM.login(baseUrl, onlookerUsername, onlookerPassword);

@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
@@ -12,7 +12,7 @@ import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const actionItemsResponse = `
@@ -24,8 +24,8 @@ data: [DONE]
 `.trim().split('\n').filter(l => l).join('\n\n') + '\n\n';
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -35,32 +35,32 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 async function setupTestPage(page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 test.describe('UI and Display Verification', () => {
     test('Verify RHS Opens Correctly', async ({ page }) => {
-        const { mmPage, aiPlugin } = await setupTestPage(page);
+        const { amPage, aiPlugin } = await setupTestPage(page);
 
         // 1. Create a thread with action items
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Action items discussion'
         );
 
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
 
         await userClient.createPost({
             channel_id: rootPost.channel_id,
@@ -69,7 +69,7 @@ test.describe('UI and Display Verification', () => {
         });
 
         // 2. Navigate to post
-        await page.goto(mattermost.url() + '/test/channels/town-square');
+        await page.goto(antimatter.url() + '/test/channels/town-square');
         await page.locator(`#post_${rootPost.id}`).waitFor({ state: 'visible' });
 
         // 3. Open AI Actions menu
@@ -87,18 +87,18 @@ test.describe('UI and Display Verification', () => {
     });
 
     test('Verify AI Actions Menu Icon and Tooltip', async ({ page }) => {
-        const { mmPage } = await setupTestPage(page);
+        const { amPage } = await setupTestPage(page);
 
         // 1. Create a thread
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Test message for menu'
         );
 
         // 2. Navigate to post
-        await page.goto(mattermost.url() + '/test/channels/town-square');
+        await page.goto(antimatter.url() + '/test/channels/town-square');
         await page.locator(`#post_${rootPost.id}`).waitFor({ state: 'visible' });
 
         // 3. Hover over the root post

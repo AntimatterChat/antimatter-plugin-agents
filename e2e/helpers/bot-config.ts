@@ -1,10 +1,10 @@
 import { Client4 } from '@mattermost/client';
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 import { mergeAgentIntoUpdate, type AgentResponse, type UpdateAgentRequest } from './agent-api';
 import {
-    mattermostAIAdminConfigApiFromClient,
-    mattermostAIPluginRoutes,
-    normalizeMattermostAiConfigFromApi,
+    antimatterAIAdminConfigApiFromClient,
+    antimatterAIPluginRoutes,
+    normalizeAntimatterAiConfigFromApi,
     type PluginAdminConfigApi,
     type PluginRoutesApi,
 } from './plugin-http';
@@ -97,8 +97,8 @@ export class BotConfigHelper {
 
     constructor(client: Client4, baseUrl: string) {
         this.client = client;
-        this.adminApi = mattermostAIAdminConfigApiFromClient(client, baseUrl);
-        this.routes = mattermostAIPluginRoutes(baseUrl);
+        this.adminApi = antimatterAIAdminConfigApiFromClient(client, baseUrl);
+        this.routes = antimatterAIPluginRoutes(baseUrl);
     }
 
     private async listAgents(): Promise<AgentResponse[]> {
@@ -127,7 +127,7 @@ export class BotConfigHelper {
      */
     async getPluginConfig(): Promise<PluginConfig> {
         const apiConfig = await this.adminApi.get();
-        const config = normalizeMattermostAiConfigFromApi(apiConfig);
+        const config = normalizeAntimatterAiConfigFromApi(apiConfig);
         // API returns config.Config (flat); helper expects { config: {...} }
         return { config } as PluginConfig;
     }
@@ -273,10 +273,10 @@ export class BotConfigHelper {
      * Verify bot configuration in database.
      * Config is stored in Agents_ConfigHistory when using database-config.
      */
-    async verifyBotInDatabase(mattermost: MattermostContainer, botId: string): Promise<boolean> {
+    async verifyBotInDatabase(antimatter: AntimatterContainer, botId: string): Promise<boolean> {
         let db;
         try {
-            db = await mattermost.db();
+            db = await antimatter.db();
             const result = await db.query(
                 `SELECT Config FROM Agents_ConfigHistory WHERE Active = true LIMIT 1`
             );
@@ -302,10 +302,10 @@ export class BotConfigHelper {
      * Get bot configuration from database.
      * Config is stored in Agents_ConfigHistory when using database-config.
      */
-    async getBotFromDatabase(mattermost: MattermostContainer, botId: string): Promise<BotConfig | null> {
+    async getBotFromDatabase(antimatter: AntimatterContainer, botId: string): Promise<BotConfig | null> {
         let db;
         try {
-            db = await mattermost.db();
+            db = await antimatter.db();
             const result = await db.query(
                 `SELECT Config FROM Agents_ConfigHistory WHERE Active = true LIMIT 1`
             );
@@ -331,9 +331,9 @@ export class BotConfigHelper {
 /**
  * Create a bot config helper from a Mattermost container
  */
-export async function createBotConfigHelper(mattermost: MattermostContainer): Promise<BotConfigHelper> {
-    const adminClient = await mattermost.getAdminClient();
-    return new BotConfigHelper(adminClient, mattermost.url());
+export async function createBotConfigHelper(antimatter: AntimatterContainer): Promise<BotConfigHelper> {
+    const adminClient = await antimatter.getAdminClient();
+    return new BotConfigHelper(adminClient, antimatter.url());
 }
 
 /**

@@ -17,7 +17,7 @@ import {
     TOOL_CARD_SELECTOR,
     TOOL_STATUS_SELECTOR,
 } from 'helpers/llmbot-post';
-import MattermostContainer, {getTownSquareChannel} from 'helpers/mmcontainer';
+import AntimatterContainer, {getTownSquareChannel} from 'helpers/amcontainer';
 import {RunToolConfigAIMockContainer, setupRegularTestUser} from 'helpers/tool-config-container';
 
 /**
@@ -75,19 +75,19 @@ async function approvalPlacement(post: Locator): Promise<ApprovalPlacement> {
 test.describe('Tool Activity Approval Placement (Aimock)', () => {
     test.describe.configure({mode: 'serial'});
 
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(300000);
-        mattermost = await RunToolConfigAIMockContainer({
+        antimatter = await RunToolConfigAIMockContainer({
             toolConfigs: [
                 {name: 'read_channel', policy: 'auto_run_in_dm', enabled: true},
                 {name: 'get_channel_info', policy: 'ask', enabled: true},
             ],
         });
-        await setupRegularTestUser(mattermost);
-        const townSquare = await getTownSquareChannel(mattermost, username, password);
+        await setupRegularTestUser(antimatter);
+        const townSquare = await getTownSquareChannel(antimatter, username, password);
 
         const preludeThenAsk = (options: {
             prompt: string;
@@ -114,7 +114,7 @@ test.describe('Tool Activity Approval Placement (Aimock)', () => {
 
         // The title fixture matches by substring and every title request embeds
         // the original prompt, so it has to be matched first.
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: mergeFixtureFiles(
                 {fixtures: [buildTitleFixture('Tool activity approval')]},
                 preludeThenAsk({
@@ -135,13 +135,13 @@ test.describe('Tool Activity Approval Placement (Aimock)', () => {
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('renders the approval card below the collapsed activity area and folds it back in on accept', async ({page}) => {
         test.setTimeout(180000);
 
-        const {rhs, botPost} = await askAimockBot(page, mattermost.url(), acceptPrompt);
+        const {rhs, botPost} = await askAimockBot(page, antimatter.url(), acceptPrompt);
 
         const acceptButton = rhs.getByRole('button', {name: /^accept$/i});
         await expect(acceptButton).toBeVisible({timeout: 120000});
@@ -173,7 +173,7 @@ test.describe('Tool Activity Approval Placement (Aimock)', () => {
     test('summarizes a rejected tool as rejected', async ({page}) => {
         test.setTimeout(180000);
 
-        const {rhs, botPost} = await askAimockBot(page, mattermost.url(), rejectPrompt);
+        const {rhs, botPost} = await askAimockBot(page, antimatter.url(), rejectPrompt);
 
         const rejectButton = rhs.getByRole('button', {name: /^reject$/i});
         await expect(rejectButton).toBeVisible({timeout: 120000});

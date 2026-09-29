@@ -10,8 +10,8 @@ import {
     TITLE_GENERATION_PROMPT_PREFIX,
 } from 'helpers/aimock-fixtures';
 import { RunAIMockContainer } from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 
@@ -118,13 +118,13 @@ test.describe('aimock sidecar HTTP', () => {
 });
 
 test.describe('aimock Mattermost stack', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunAIMockContainer();
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        antimatter = await RunAIMockContainer();
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: buildTextResponse({
                 userMessage: TEXT_USER_MESSAGE,
                 content: TEXT_RESPONSE,
@@ -135,14 +135,14 @@ test.describe('aimock Mattermost stack', () => {
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('RHS receives deterministic aimock response', async ({ page }) => {
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await aiPlugin.openRHS();
         await aiPlugin.switchBotWhenListed('Aimock Bot');
         await aiPlugin.sendMessage(TEXT_USER_MESSAGE);
@@ -152,13 +152,13 @@ test.describe('aimock Mattermost stack', () => {
 
 test.describe('aimock schema probes', () => {
     test.describe('reasoning via Bifrost chat completions', () => {
-        let mattermost: MattermostContainer;
+        let antimatter: AntimatterContainer;
         let aimock: AIMockContainer;
 
         test.beforeAll(async () => {
             test.setTimeout(180000);
-            mattermost = await RunAIMockContainer();
-            aimock = await RunAIMockSidecar(mattermost.network, {
+            antimatter = await RunAIMockContainer();
+            aimock = await RunAIMockSidecar(antimatter.network, {
                 fixtures: buildReasoningResponse({
                     userMessage: REASONING_USER_MESSAGE,
                     reasoning: REASONING_CONTENT,
@@ -170,15 +170,15 @@ test.describe('aimock schema probes', () => {
 
         test.afterAll(async () => {
             await aimock?.stop();
-            await mattermost?.stop();
+            await antimatter?.stop();
         });
 
         test('waitForReasoning succeeds with aimock reasoning fixture', async ({ page }) => {
-            const mmPage = new MattermostPage(page);
+            const amPage = new AntimatterPage(page);
             const aiPlugin = new AIPlugin(page);
             const llmBotHelper = new LLMBotPostHelper(page);
 
-            await mmPage.login(mattermost.url(), username, password);
+            await amPage.login(antimatter.url(), username, password);
             await aiPlugin.openRHS();
             await aiPlugin.switchBotWhenListed('Aimock Bot');
             await aiPlugin.sendMessage(REASONING_USER_MESSAGE);
@@ -188,13 +188,13 @@ test.describe('aimock schema probes', () => {
     });
 
     test.describe('citation via webSearches metadata', () => {
-        let mattermost: MattermostContainer;
+        let antimatter: AntimatterContainer;
         let aimock: AIMockContainer;
 
         test.beforeAll(async () => {
             test.setTimeout(180000);
-            mattermost = await RunAIMockContainer();
-            aimock = await RunAIMockSidecar(mattermost.network, {
+            antimatter = await RunAIMockContainer();
+            aimock = await RunAIMockSidecar(antimatter.network, {
                 fixtures: buildCitationResponse({
                     userMessage: CITATION_USER_MESSAGE,
                     content: CITATION_TEXT,
@@ -206,15 +206,15 @@ test.describe('aimock schema probes', () => {
 
         test.afterAll(async () => {
             await aimock?.stop();
-            await mattermost?.stop();
+            await antimatter?.stop();
         });
 
         test('records whether native webSearches produce citation UI', async ({ page }) => {
-            const mmPage = new MattermostPage(page);
+            const amPage = new AntimatterPage(page);
             const aiPlugin = new AIPlugin(page);
             const llmBotHelper = new LLMBotPostHelper(page);
 
-            await mmPage.login(mattermost.url(), username, password);
+            await amPage.login(antimatter.url(), username, password);
             await aiPlugin.openRHS();
             await aiPlugin.switchBotWhenListed('Aimock Bot');
             await aiPlugin.sendMessage(CITATION_USER_MESSAGE);

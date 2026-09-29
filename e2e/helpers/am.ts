@@ -1,7 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import type { Client4 } from '@mattermost/client';
 import type { Post } from '@mattermost/types/posts';
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 
 function getPostsArray(postsResponse: {posts?: Record<string, Post>}): Post[] {
     return Object.values(postsResponse.posts || {});
@@ -17,7 +17,7 @@ async function fetchPostsForChannel(client: Client4, channelId: string): Promise
     return getPostsArray(postsResponse);
 }
 
-export class MattermostPage {
+export class AntimatterPage {
     readonly page: Page;
     readonly postTextbox: Locator;
     readonly sendButton: Locator;
@@ -146,12 +146,12 @@ export class MattermostPage {
      * Resolve DM channel and bot user id for assertions (same channel as createAndNavigateToDMWithBot).
      */
     async getClientAndDmChannelForBot(
-        mattermost: MattermostContainer,
+        antimatter: AntimatterContainer,
         username: string,
         password: string,
         botUsername: string,
     ): Promise<{ client: Client4; channelId: string; botUserId: string }> {
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
         const me = await userClient.getMe();
         const botUser = await userClient.getUserByUsername(botUsername);
         const channel = await userClient.createDirectChannel([me.id, botUser.id]);
@@ -245,9 +245,9 @@ export class MattermostPage {
         }, { timeout, intervals: [500, 1000, 2000] }).toBeGreaterThan(0);
     }
 
-    async sendMessageAsUser(mattermost: any, username: string, password: string, message: string, channelId?: string) {
+    async sendMessageAsUser(antimatter: any, username: string, password: string, message: string, channelId?: string) {
         // Get client for the specific user
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
 
         // Get the current channel ID if not provided
         let targetChannelId = channelId;
@@ -297,9 +297,9 @@ export class MattermostPage {
         }
     }
 
-    async createAndNavigateToDMWithBot(mattermost: any, username: string, password: string, botUsername: string) {
+    async createAndNavigateToDMWithBot(antimatter: any, username: string, password: string, botUsername: string) {
         // Get client for the user
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
         const currentUser = await userClient.getMe();
 
         // Get the bot user by username
@@ -312,13 +312,13 @@ export class MattermostPage {
         const teams = await userClient.getMyTeams();
         const team = teams[0];
 
-        await this.page.goto(`${mattermost.url()}/${team.name}/messages/@${botUsername}`);
+        await this.page.goto(`${antimatter.url()}/${team.name}/messages/@${botUsername}`);
         await this.page.waitForTimeout(2000);
     }
 }
 
 // Legacy function for backward compatibility
 export const login = async (page: Page, url: string, username: string, password: string) => {
-    const mmPage = new MattermostPage(page);
-    await mmPage.login(url, username, password);
+    const amPage = new AntimatterPage(page);
+    await amPage.login(url, username, password);
 };

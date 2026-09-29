@@ -2,8 +2,8 @@
 // seed: e2e/tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -19,7 +19,7 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * - Badges appear in collapsed card state with red/danger styling and alert icon
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 // Legacy System Console bot editor removed (MM-65671). Covered by tests/agents/provider-config.spec.ts.
@@ -28,7 +28,7 @@ test.describe.skip('Bot Validation Badges', () => {
         test.setTimeout(60000);
 
         // Start container with bot configured with empty name
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'service-1',
@@ -53,16 +53,16 @@ test.describe.skip('Bot Validation Badges', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Locate the bot card in AI Bots panel
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -107,14 +107,14 @@ test.describe.skip('Bot Validation Badges', () => {
         await expect(noUsernameBadge).toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show "Invalid Username" badge for username with spaces', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with bot configured with name containing space
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'service-1',
@@ -139,16 +139,16 @@ test.describe.skip('Bot Validation Badges', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Locate bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -193,14 +193,14 @@ test.describe.skip('Bot Validation Badges', () => {
         await expect(invalidUsernameBadge).toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show "Invalid Username" badge for username starting with number', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with bot configured with name starting with number
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'service-1',
@@ -225,16 +225,16 @@ test.describe.skip('Bot Validation Badges', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Locate bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -265,14 +265,14 @@ test.describe.skip('Bot Validation Badges', () => {
         await expect(invalidUsernameBadge).not.toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show "Invalid Username" badge for uppercase letters', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with bot configured with uppercase name
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'service-1',
@@ -297,16 +297,16 @@ test.describe.skip('Bot Validation Badges', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Locate bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -340,14 +340,14 @@ test.describe.skip('Bot Validation Badges', () => {
         await expect(invalidUsernameBadge).toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show "No Service Selected" badge when service is missing', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with bot configured with empty serviceID
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'service-1',
@@ -372,16 +372,16 @@ test.describe.skip('Bot Validation Badges', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Locate bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -428,14 +428,14 @@ test.describe.skip('Bot Validation Badges', () => {
         await expect(noServiceBadge).toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show multiple validation badges simultaneously', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with bot configured with both empty name and empty serviceID
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'service-1',
@@ -460,16 +460,16 @@ test.describe.skip('Bot Validation Badges', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Locate bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -526,6 +526,6 @@ test.describe.skip('Bot Validation Badges', () => {
         await expect(noServiceBadge).not.toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 });

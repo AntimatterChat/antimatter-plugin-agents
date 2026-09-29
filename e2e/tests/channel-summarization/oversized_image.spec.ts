@@ -5,8 +5,8 @@ import {deflateSync} from 'node:zlib';
 
 import {expect, test} from '@playwright/test';
 
-import MattermostContainer from 'helpers/mmcontainer';
-import {MattermostPage} from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import {AntimatterPage} from 'helpers/am';
 import {
     OpenAIMockContainer,
     RunOpenAIMocks,
@@ -64,21 +64,21 @@ function grayscalePNG(width: number, height: number): Buffer {
     ]);
 }
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunAIMockContainer({
+    antimatter = await RunAIMockContainer({
         bot: {
             enableVision: true,
         },
     });
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 test('summarizes a channel thread after omitting an oversized image', async ({page}) => {
@@ -110,7 +110,7 @@ test('summarizes a channel thread after omitting an oversized image', async ({pa
         titleGenerationMockRule(),
     ]);
 
-    const userClient = await mattermost.getClient(username, password);
+    const userClient = await antimatter.getClient(username, password);
     const team = await userClient.getTeamByName('test');
     const channel = await userClient.getChannelByName(team.id, 'town-square');
     const form = new FormData();
@@ -123,9 +123,9 @@ test('summarizes a channel thread after omitting an oversized image', async ({pa
         file_ids: [upload.file_infos[0].id],
     });
 
-    const mmPage = new MattermostPage(page);
-    await mmPage.login(mattermost.url(), username, password);
-    await page.goto(`${mattermost.url()}/test/channels/town-square`);
+    const amPage = new AntimatterPage(page);
+    await amPage.login(antimatter.url(), username, password);
+    await page.goto(`${antimatter.url()}/test/channels/town-square`);
 
     const rootPost = page.getByText(rootMessage, {exact: true});
     await expect(rootPost).toBeVisible();

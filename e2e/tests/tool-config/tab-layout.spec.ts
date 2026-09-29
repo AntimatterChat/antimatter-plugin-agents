@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import { RunToolConfigContainer } from 'helpers/tool-config-container';
 import { ToolConfigUIHelper } from 'helpers/tool-config';
@@ -13,28 +13,28 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * "Configuration" and "Tools". No "Approved Servers" tab should exist.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Tab Layout', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show exactly 2 tabs: Configuration and Tools', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToPluginConfig(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToPluginConfig(antimatter.url());
 
         // Get all tab buttons
         const tabs = toolConfig.getTabButtons();
@@ -54,11 +54,11 @@ test.describe('Tab Layout', () => {
     test('should switch between tabs', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const toolConfig = new ToolConfigUIHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await toolConfig.navigateToPluginConfig(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await toolConfig.navigateToPluginConfig(antimatter.url());
 
         // Verify Configuration tab content is visible by default
         await expect(page.getByText('Enable Mattermost MCP Server (HTTP)')).toBeVisible();

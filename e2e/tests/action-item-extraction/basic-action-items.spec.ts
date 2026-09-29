@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
@@ -13,7 +13,7 @@ import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 // Mock response for action items
@@ -47,8 +47,8 @@ const actionItemsResponseText = "Based on the conversation, here are the action 
 
 // Setup for all tests in the file
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -59,33 +59,33 @@ test.beforeEach(async () => {
 // Cleanup after all tests
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 // Common test setup
 async function setupTestPage(page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 test.describe('Basic Action Item Extraction', () => {
     test('Extract Action Items from Thread', async ({ page }) => {
-        const { mmPage, aiPlugin } = await setupTestPage(page);
+        const { amPage, aiPlugin } = await setupTestPage(page);
 
         // Create a thread with some replies
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'We need to discuss the project timeline'
         );
 
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
 
         // Add some thread replies
         await userClient.createPost({
@@ -101,7 +101,7 @@ test.describe('Basic Action Item Extraction', () => {
         });
 
         // Navigate to the post
-        await page.goto(mattermost.url() + '/test/channels/town-square');
+        await page.goto(antimatter.url() + '/test/channels/town-square');
         await page.locator(`#post_${rootPost.id}`).waitFor({ state: 'visible' });
 
         // Open AI Actions menu and click "Find action items"

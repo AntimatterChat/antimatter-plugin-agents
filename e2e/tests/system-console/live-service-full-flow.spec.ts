@@ -5,8 +5,8 @@ import {test, expect, Locator, Page} from '@playwright/test';
 
 import {AIMockContainer, RunAIMockSidecar} from 'helpers/aimock-container';
 import {buildTextResponse, buildTitleFixture, mergeFixtureFiles, stubAimockModelFetch} from 'helpers/aimock-fixtures';
-import MattermostContainer from 'helpers/mmcontainer';
-import {MattermostPage} from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import {AntimatterPage} from 'helpers/am';
 import {SystemConsoleHelper} from 'helpers/system-console';
 import {AgentPageHelper} from 'helpers/agent-page';
 import {AgentAPIHelper} from 'helpers/agent-api';
@@ -28,11 +28,11 @@ type Post = {
     create_at: number;
 };
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let aimock: AIMockContainer;
 
-async function setTestPreferences(mattermostInstance: MattermostContainer, username: string, password: string): Promise<void> {
-    const userClient = await mattermostInstance.getClient(username, password);
+async function setTestPreferences(antimatterInstance: AntimatterContainer, username: string, password: string): Promise<void> {
+    const userClient = await antimatterInstance.getClient(username, password);
     const user = await userClient.getMe();
     await userClient.savePreferences(user.id, [
         {user_id: user.id, category: 'tutorial_step', name: user.id, value: '999'},
@@ -48,12 +48,12 @@ async function setTestPreferences(mattermostInstance: MattermostContainer, usern
     ]);
 }
 
-async function setupRegularUser(mattermostInstance: MattermostContainer): Promise<void> {
-    await mattermostInstance.createUser('regularuser@sample.com', regularUsername, regularPassword);
-    await mattermostInstance.addUserToTeam(regularUsername, 'test');
-    await setTestPreferences(mattermostInstance, regularUsername, regularPassword);
+async function setupRegularUser(antimatterInstance: AntimatterContainer): Promise<void> {
+    await antimatterInstance.createUser('regularuser@sample.com', regularUsername, regularPassword);
+    await antimatterInstance.addUserToTeam(regularUsername, 'test');
+    await setTestPreferences(antimatterInstance, regularUsername, regularPassword);
 
-    const adminClient = await mattermostInstance.getClient(adminUsername, adminPassword);
+    const adminClient = await antimatterInstance.getClient(adminUsername, adminPassword);
     await adminClient.completeSetup({
         organization: 'test',
         install_plugins: [],
@@ -90,8 +90,8 @@ async function waitForPost(
     return matchedPost!;
 }
 
-async function waitForBotUserID(mattermostInstance: MattermostContainer, username: string): Promise<string> {
-    const adminClient = await mattermostInstance.getClient(adminUsername, adminPassword);
+async function waitForBotUserID(antimatterInstance: AntimatterContainer, username: string): Promise<string> {
+    const adminClient = await antimatterInstance.getClient(adminUsername, adminPassword);
     let botUserID = '';
 
     await expect.poll(async () => {
@@ -173,21 +173,21 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
     test.beforeAll(async () => {
         test.setTimeout(180000);
 
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [],
             bots: [],
             enableChannelMentionToolCalling: true,
         });
-        await setupRegularUser(mattermost);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        await setupRegularUser(antimatter);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: {fixtures: [buildTitleFixture('System console bootstrap')]},
         });
     });
 
     test.afterAll(async () => {
         await aimock?.stop();
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
@@ -197,13 +197,13 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
         await stubAimockModelFetch(page, [{id: aimockModel, displayName: aimockModel}]);
 
         const systemConsole = new SystemConsoleHelper(page);
-        const mmPage = new MattermostPage(page);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(adminUsername, adminPassword);
+        const amPage = new AntimatterPage(page);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(adminUsername, adminPassword);
         const adminToken = adminClient.getToken();
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         await systemConsole.clickAddService();
 
@@ -235,7 +235,7 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
         await systemConsole.clickSave();
         await page.reload();
         await page.waitForLoadState('domcontentloaded');
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         await expect(page.getByText(serviceName).first()).toBeVisible();
         const reloadedServiceCard = page.locator('[class*="ServiceContainer"]').filter({hasText: serviceName}).first();
@@ -243,7 +243,7 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
 
         await systemConsole.waitForBotsPanel();
 
-        await page.goto(`${mattermost.url()}/plug/mattermost-ai/agents`);
+        await page.goto(`${antimatter.url()}/plug/mattermost-ai/agents`);
         await page.waitForLoadState('domcontentloaded');
         const agentPage = new AgentPageHelper(page);
         await agentPage.getCreateButton().waitFor({state: 'visible', timeout: 15000});
@@ -274,7 +274,7 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
             disableTools: false,
         });
 
-        const botUserID = await waitForBotUserID(mattermost, botUsername);
+        const botUserID = await waitForBotUserID(antimatter, botUsername);
 
         const dmPrompt = `aimock dm verification ${Date.now()}`;
         const dmReplyText = `AIMOCK_DM_OK_${Date.now()}`;
@@ -294,19 +294,19 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
             }),
         ));
 
-        await ensureLoggedOut(page, mattermost.url());
-        await mmPage.login(`${mattermost.url()}/login`, regularUsername, regularPassword);
+        await ensureLoggedOut(page, antimatter.url());
+        await amPage.login(`${antimatter.url()}/login`, regularUsername, regularPassword);
 
-        const regularClient = await mattermost.getClient(regularUsername, regularPassword);
+        const regularClient = await antimatter.getClient(regularUsername, regularPassword);
         const regularUser = await regularClient.getMe();
         const dmChannel = await regularClient.createDirectChannel([regularUser.id, botUserID]);
 
-        await page.goto(`${mattermost.url()}/test/messages/@${botUsername}`);
+        await page.goto(`${antimatter.url()}/test/messages/@${botUsername}`);
         await page.getByTestId('channel_view').waitFor({state: 'visible', timeout: 30000});
 
         const postTimeSkewMs = 5000;
         const dmStartTime = Date.now();
-        await mmPage.sendChannelMessage(dmPrompt);
+        await amPage.sendChannelMessage(dmPrompt);
 
         const dmBotReply = await waitForPost(
             regularClient,
@@ -319,11 +319,11 @@ test.describe.serial('System Console Aimock Live Service Full Flow', () => {
         expect(dmBotReply.message).toContain(dmReplyText);
 
         const townSquareChannelID = await getTownSquareChannelID(regularClient);
-        await page.goto(`${mattermost.url()}/test/channels/town-square`);
+        await page.goto(`${antimatter.url()}/test/channels/town-square`);
         await page.getByTestId('channel_view').waitFor({state: 'visible', timeout: 30000});
 
         const mentionStartTime = Date.now();
-        await mmPage.mentionBot(botUsername, mentionPrompt);
+        await amPage.mentionBot(botUsername, mentionPrompt);
         await expect(page.getByText(`@${botUsername} ${mentionPrompt}`, {exact: true})).toBeVisible();
 
         const mentionPost = await waitForPost(

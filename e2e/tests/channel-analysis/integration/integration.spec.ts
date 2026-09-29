@@ -4,8 +4,8 @@
 import { test, expect, Page } from '@playwright/test';
 import RunContainer from 'helpers/plugincontainer';
 import { RunOpenAIMocks, OpenAIMockContainer, buildChatCompletionMockRule, titleGenerationMockRule, turnMocksWithTitleSiphon } from 'helpers/openai-mock';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 
@@ -42,8 +42,8 @@ class IntegrationHelper {
     /**
      * Navigate to a specific channel
      */
-    async navigateToChannel(mattermost: MattermostContainer, channelName: string) {
-        await this.page.goto(mattermost.url() + `/test/channels/${channelName}`);
+    async navigateToChannel(antimatter: AntimatterContainer, channelName: string) {
+        await this.page.goto(antimatter.url() + `/test/channels/${channelName}`);
         await this.waitForPageReady();
     }
 
@@ -120,23 +120,23 @@ class IntegrationHelper {
 }
 
 async function setupTestPage(page: Page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
     const llmBotHelper = new LLMBotPostHelper(page);
     const integrationHelper = new IntegrationHelper(page);
     const botUsername = 'Mock Bot';
 
-    return { mmPage, aiPlugin, llmBotHelper, integrationHelper, botUsername };
+    return { amPage, aiPlugin, llmBotHelper, integrationHelper, botUsername };
 }
 
 test.describe('Channel Analysis Integration (Mocked)', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(120000);
-        mattermost = await RunContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.beforeEach(async () => {
@@ -150,23 +150,23 @@ test.describe('Channel Analysis Integration (Mocked)', () => {
         if (openAIMock) {
             await openAIMock.stop();
         }
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
     test('Channel analysis after regular RHS chat', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await integrationHelper.waitForPageReady();
 
         // 3. Post some test messages to the channel for context
-        await mmPage.sendChannelMessage('We discussed the new feature implementation today.');
-        await mmPage.sendChannelMessage('The team agreed on the deadline for next sprint.');
+        await amPage.sendChannelMessage('We discussed the new feature implementation today.');
+        await amPage.sendChannelMessage('The team agreed on the deadline for next sprint.');
 
         // 4. Open RHS via app bar icon for regular chat first
         await aiPlugin.openRHS();
@@ -230,17 +230,17 @@ data: [DONE]
     });
 
     test('Regular chat after channel analysis', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await integrationHelper.waitForPageReady();
 
         // 3. Post some test messages to the channel for context
-        await mmPage.sendChannelMessage('Project kickoff meeting scheduled for Monday.');
-        await mmPage.sendChannelMessage('Budget approval received from management.');
+        await amPage.sendChannelMessage('Project kickoff meeting scheduled for Monday.');
+        await amPage.sendChannelMessage('Budget approval received from management.');
 
         // 4. Use channel analysis feature via agents button
         await integrationHelper.openChannelAgentsPopover();
@@ -284,17 +284,17 @@ data: [DONE]
     });
 
     test('Chat history navigation with channel analysis', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await integrationHelper.waitForPageReady();
 
         // 3. Post some test messages
-        await mmPage.sendChannelMessage('First topic: API design patterns');
-        await mmPage.sendChannelMessage('Second topic: Database optimization');
+        await amPage.sendChannelMessage('First topic: API design patterns');
+        await amPage.sendChannelMessage('Second topic: Database optimization');
 
         // 4. Use channel analysis for first query
         await integrationHelper.openChannelAgentsPopover();
@@ -358,10 +358,10 @@ data: [DONE]
     });
 
     test('Large response rendering with comprehensive channel analysis', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await integrationHelper.waitForPageReady();
@@ -369,7 +369,7 @@ data: [DONE]
         // 3. Create many test messages for comprehensive analysis
         const testMessages = integrationHelper.generateTestMessages(10);
         for (const message of testMessages) {
-            await mmPage.sendChannelMessage(message);
+            await amPage.sendChannelMessage(message);
         }
 
         // 4. Use channel analysis with a comprehensive query
@@ -402,17 +402,17 @@ data: [DONE]
     });
 
     test('Multiple quick actions in sequence', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await integrationHelper.waitForPageReady();
 
         // 3. Post some test messages
-        await mmPage.sendChannelMessage('Sprint planning session for Q2 roadmap');
-        await mmPage.sendChannelMessage('Release candidate testing in progress');
+        await amPage.sendChannelMessage('Sprint planning session for Q2 roadmap');
+        await amPage.sendChannelMessage('Release candidate testing in progress');
 
         // 4. Use first quick action - summarize last 7 days
         await integrationHelper.openChannelAgentsPopover();
@@ -470,17 +470,17 @@ data: [DONE]
     });
 
     test('RHS state management with channel analysis integration', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await integrationHelper.waitForPageReady();
 
         // 3. Post some test messages
-        await mmPage.sendChannelMessage('Infrastructure update: New servers deployed');
-        await mmPage.sendChannelMessage('Monitoring dashboard is now live');
+        await amPage.sendChannelMessage('Infrastructure update: New servers deployed');
+        await amPage.sendChannelMessage('Monitoring dashboard is now live');
 
         // 4. Use channel analysis first
         await integrationHelper.openChannelAgentsPopover();

@@ -1,4 +1,4 @@
-import { mattermostAIPluginRoutes, PluginRoutesApi } from './plugin-http';
+import { antimatterAIPluginRoutes, PluginRoutesApi } from './plugin-http';
 
 // EnabledTool matches llm.EnabledMCPTool on the backend.
 // Inner field names stay snake_case to match the backend's json:"server_origin"
@@ -121,7 +121,7 @@ export class AgentAPIHelper {
     private routes: PluginRoutesApi;
 
     constructor(baseUrl: string) {
-        this.routes = mattermostAIPluginRoutes(baseUrl);
+        this.routes = antimatterAIPluginRoutes(baseUrl);
     }
 
     async createAgent(token: string, req: CreateAgentRequest): Promise<AgentResponse> {

@@ -1,10 +1,10 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { Client4 } from '@mattermost/client';
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 import {
-    mattermostAIAdminConfigApiFromClient,
-    mattermostAIPluginRoutes,
-    normalizeMattermostAiConfigFromApi,
+    antimatterAIAdminConfigApiFromClient,
+    antimatterAIPluginRoutes,
+    normalizeAntimatterAiConfigFromApi,
     type PluginAdminConfigApi,
     type PluginRoutesApi,
 } from './plugin-http';
@@ -176,14 +176,14 @@ export class ToolConfigAPIHelper {
     private routes: PluginRoutesApi;
 
     constructor(client: Client4, baseUrl: string) {
-        this.adminApi = mattermostAIAdminConfigApiFromClient(client, baseUrl);
-        this.routes = mattermostAIPluginRoutes(baseUrl);
+        this.adminApi = antimatterAIAdminConfigApiFromClient(client, baseUrl);
+        this.routes = antimatterAIPluginRoutes(baseUrl);
     }
 
     /** Get current plugin config */
     async getPluginConfig(): Promise<any> {
         const apiConfig = await this.adminApi.get();
-        const config = normalizeMattermostAiConfigFromApi(apiConfig);
+        const config = normalizeAntimatterAiConfigFromApi(apiConfig);
         return { config };
     }
 
@@ -259,8 +259,8 @@ export class ToolConfigAPIHelper {
 
 /** Factory to create API helper from container */
 export async function createToolConfigAPIHelper(
-    mattermost: MattermostContainer,
+    antimatter: AntimatterContainer,
 ): Promise<ToolConfigAPIHelper> {
-    const adminClient = await mattermost.getAdminClient();
-    return new ToolConfigAPIHelper(adminClient, mattermost.url());
+    const adminClient = await antimatter.getAdminClient();
+    return new ToolConfigAPIHelper(adminClient, antimatter.url());
 }

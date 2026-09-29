@@ -2,8 +2,8 @@
 // seed: e2e/tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -14,7 +14,7 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * Tests configuration options in the AI Functions panel of the system console.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe.serial('AI Functions Panel', () => {
@@ -22,7 +22,7 @@ test.describe.serial('AI Functions Panel', () => {
         test.setTimeout(60000);
 
         // Start container with two pre-configured services and three bots
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             defaultBotName: 'primaryassistant',
             services: [
                 {
@@ -78,16 +78,16 @@ test.describe.serial('AI Functions Panel', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as sysadmin user
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console AI plugin configuration page
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Scroll to the AI Functions panel
         const functionsPanel = systemConsole.getFunctionsPanel();
@@ -122,14 +122,14 @@ test.describe.serial('AI Functions Panel', () => {
         await expect(reloadedDropdown).toHaveValue(/secondarybot|Secondary Bot/i);
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should configure allowed upstream hostnames', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with one service and one bot
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             allowedUpstreamHostnames: '',
             services: [
                 {
@@ -158,16 +158,16 @@ test.describe.serial('AI Functions Panel', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as sysadmin user
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console AI plugin configuration page
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Scroll to the AI Functions panel
         const functionsPanel = systemConsole.getFunctionsPanel();
@@ -188,10 +188,10 @@ test.describe.serial('AI Functions Panel', () => {
         await hostnamesField.click();
 
         // Type hostnames into the field
-        await hostnamesField.fill('api.example.com, *.mydomain.com, mattermost.atlassian.net');
+        await hostnamesField.fill('api.example.com, *.mydomain.com, antimatter.atlassian.net');
 
         // Verify the text appears in the field as typed
-        await expect(hostnamesField).toHaveValue('api.example.com, *.mydomain.com, mattermost.atlassian.net');
+        await expect(hostnamesField).toHaveValue('api.example.com, *.mydomain.com, antimatter.atlassian.net');
 
         // Click the Save button
         const saveButton = systemConsole.getSaveButton();
@@ -207,7 +207,7 @@ test.describe.serial('AI Functions Panel', () => {
         const reloadedField = page.getByLabel(/allowed upstream hostnames/i).or(
             page.locator('text=Allowed Upstream Hostnames').locator('..').getByRole('textbox')
         );
-        await expect(reloadedField).toHaveValue('api.example.com, *.mydomain.com, mattermost.atlassian.net');
+        await expect(reloadedField).toHaveValue('api.example.com, *.mydomain.com, antimatter.atlassian.net');
 
         // Clear the field completely
         await reloadedField.click();
@@ -226,14 +226,14 @@ test.describe.serial('AI Functions Panel', () => {
         await expect(finalField).toHaveValue('');
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should toggle render AI-generated links', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with allowUnsafeLinks set to false
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             allowUnsafeLinks: false,
             services: [
                 {
@@ -262,16 +262,16 @@ test.describe.serial('AI Functions Panel', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as sysadmin user
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to system console AI plugin configuration page
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Scroll to the AI Functions panel
         const functionsPanel = systemConsole.getFunctionsPanel();
@@ -359,6 +359,6 @@ test.describe.serial('AI Functions Panel', () => {
         await expect(finalTrueRadio).not.toBeChecked();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 });

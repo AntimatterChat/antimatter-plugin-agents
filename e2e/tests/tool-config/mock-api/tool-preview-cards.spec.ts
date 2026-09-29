@@ -1,6 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import {
     OpenAIMockContainer,
     RunOpenAIMocks,
@@ -21,7 +21,7 @@ import { createBotConfigHelper } from 'helpers/bot-config';
  * policy keeps the cards in the pending approval stage.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const embeddedReadPostTool = 'mattermost__read_post';
@@ -36,7 +36,7 @@ type EmbeddedToolConfig = {
 };
 
 async function setEmbeddedToolPolicies(toolConfigs: EmbeddedToolConfig[]) {
-    const helper = await createBotConfigHelper(mattermost);
+    const helper = await createBotConfigHelper(antimatter);
     const pluginConfig = await helper.getPluginConfig();
 
     if (!pluginConfig.config.mcp) {
@@ -53,7 +53,7 @@ async function setEmbeddedToolPolicies(toolConfigs: EmbeddedToolConfig[]) {
 }
 
 async function getTownSquareChannelID(): Promise<string> {
-    const adminClient = await mattermost.getAdminClient();
+    const adminClient = await antimatter.getAdminClient();
     const teams = await adminClient.getMyTeams();
     const defaultTeam = teams[0];
     const channels = await adminClient.getMyChannels(defaultTeam.id);
@@ -83,16 +83,16 @@ async function openThreadForPost(post: Locator, timeout: number = 30000): Promis
     await rhs.locator('[data-testid="llm-bot-post"]').first().waitFor({state: 'visible', timeout: 10000});
 }
 
-async function mentionBotAndOpenThread(page: Page, mmPage: MattermostPage, botName: string, message: string, timeout: number = 30000): Promise<void> {
-    await mmPage.mentionBot(botName, message);
+async function mentionBotAndOpenThread(page: Page, amPage: AntimatterPage, botName: string, message: string, timeout: number = 30000): Promise<void> {
+    await amPage.mentionBot(botName, message);
     const post = await waitForSentPost(page, `@${botName} ${message}`, timeout);
     await openThreadForPost(post, timeout);
 }
 
 test.describe('post preview cards (Mocked LLM)', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainerWithPolicies();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainerWithPolicies();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
         await setEmbeddedToolPolicies([
             {name: 'read_post', policy: 'ask', enabled: true},
             {name: 'create_post', policy: 'ask', enabled: true},
@@ -101,14 +101,14 @@ test.describe('post preview cards (Mocked LLM)', () => {
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('shows a preview of the referenced post before approval, with View raw', async ({ page }) => {
         test.setTimeout(120000);
 
         const townSquareChannelID = await getTownSquareChannelID();
-        const adminClient = await mattermost.getAdminClient();
+        const adminClient = await antimatter.getAdminClient();
         const seededMessage = `Post preview seed ${Date.now()}`;
         const seededPost = await adminClient.createPost({
             channel_id: townSquareChannelID,
@@ -162,16 +162,16 @@ test.describe('post preview cards (Mocked LLM)', () => {
             },
         ]);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', userMessage);
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', userMessage);
 
         const rhs = page.locator('#rhsContainer');
         const botPost = rhs.locator('[data-testid="llm-bot-post"]').last();
@@ -242,16 +242,16 @@ test.describe('post preview cards (Mocked LLM)', () => {
             },
         ]);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', userMessage);
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', userMessage);
 
         const rhs = page.locator('#rhsContainer');
         const botPost = rhs.locator('[data-testid="llm-bot-post"]').last();

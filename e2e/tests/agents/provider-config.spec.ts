@@ -4,8 +4,8 @@
 import {test, expect, Page} from '@playwright/test';
 
 import {AgentPageHelper} from 'helpers/agent-page';
-import {MattermostPage} from 'helpers/mm';
-import MattermostContainer from 'helpers/mmcontainer';
+import {AntimatterPage} from 'helpers/am';
+import AntimatterContainer from 'helpers/amcontainer';
 import {OpenAIMockContainer, RunOpenAIMocks} from 'helpers/openai-mock';
 import RunSystemConsoleContainer, {adminUsername, adminPassword} from 'helpers/system-console-container';
 
@@ -74,20 +74,20 @@ async function stubAgentModelFetch(page: Page): Promise<void> {
 }
 
 test.describe('Agent provider configuration', () => {
-    let mattermost: MattermostContainer | undefined;
+    let antimatter: AntimatterContainer | undefined;
     let openAIMock: OpenAIMockContainer | undefined;
 
-    const startFixture = async (config: ProviderFixtureConfig): Promise<MattermostContainer> => {
-        mattermost = await RunSystemConsoleContainer(config);
-        openAIMock = await RunOpenAIMocks(mattermost.network);
-        return mattermost;
+    const startFixture = async (config: ProviderFixtureConfig): Promise<AntimatterContainer> => {
+        antimatter = await RunSystemConsoleContainer(config);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
+        return antimatter;
     };
 
     test.afterEach(async () => {
         await openAIMock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
         openAIMock = undefined;
-        mattermost = undefined;
+        antimatter = undefined;
     });
 
     test('shows validation errors for required fields and invalid usernames in the agent builder', async ({page}) => {
@@ -103,11 +103,11 @@ test.describe('Agent provider configuration', () => {
             bots: [],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
         await stubAgentModelFetch(page);
-        await mmPage.login(mm.url(), adminUsername, adminPassword);
+        await amPage.login(mm.url(), adminUsername, adminPassword);
         await agentPage.navigateToAgents(mm.url());
         await agentPage.getCreateButton().click();
         await agentPage.waitForModal();
@@ -142,11 +142,11 @@ test.describe('Agent provider configuration', () => {
             bots: [],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
         await stubAgentModelFetch(page);
-        await mmPage.login(mm.url(), adminUsername, adminPassword);
+        await amPage.login(mm.url(), adminUsername, adminPassword);
         await agentPage.navigateToAgents(mm.url());
         await agentPage.getCreateButton().click();
         await agentPage.waitForModal();
@@ -204,11 +204,11 @@ test.describe('Agent provider configuration', () => {
             ],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
         await stubAgentModelFetch(page);
-        await mmPage.login(mm.url(), adminUsername, adminPassword);
+        await amPage.login(mm.url(), adminUsername, adminPassword);
         await agentPage.navigateToAgents(mm.url());
         await expect(agentPage.getAgentRowByName('Legacy Responses Agent')).toBeVisible({timeout: 15000});
 
@@ -271,11 +271,11 @@ test.describe('Agent provider configuration', () => {
             ],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
         await stubAgentModelFetch(page);
-        await mmPage.login(mm.url(), adminUsername, adminPassword);
+        await amPage.login(mm.url(), adminUsername, adminPassword);
         await agentPage.navigateToAgents(mm.url());
         await expect(agentPage.getAgentRowByName('Legacy Anthropic Agent')).toBeVisible({timeout: 15000});
 

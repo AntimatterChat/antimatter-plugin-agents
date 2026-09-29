@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import {
     OpenAIMockContainer,
     RunOpenAIMocks,
@@ -19,27 +19,27 @@ import { AgentPageHelper } from 'helpers/agent-page';
 import { AIPlugin } from 'helpers/ai-plugin';
 
 /** Matches mcp.EmbeddedClientKey — MCP server origin for the embedded Mattermost tools server. */
-const embeddedMattermostOrigin = 'embedded://mattermost';
+const embeddedAntimatterOrigin = 'embedded://mattermost';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Agent MCP Tools', () => {
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunAgentContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunAgentContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('agent with no enabledMCPTools gets no MCP tools', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         const noToolsAgent = await agentApi.createTestAgent(token, {
@@ -61,10 +61,10 @@ test.describe('Agent MCP Tools', () => {
             buildChatCompletionMockRule(buildTextResponse('I have no tools available.')),
         ]);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await page.goto(`${mattermost.url()}/test/channels/town-square`);
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await page.goto(`${antimatter.url()}/test/channels/town-square`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 60000 });
 
         await aiPlugin.openRHS();
@@ -75,11 +75,11 @@ test.describe('Agent MCP Tools', () => {
 
     test('MCPs tab shows embedded server and tool affordances in config view', async ({ page }) => {
         test.setTimeout(60000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.getCreateButton().click();
         await agentPage.waitForModal();
@@ -97,8 +97,8 @@ test.describe('Agent MCP Tools', () => {
     // Cancel then incorrectly raised the "Discard changes?" confirmation modal.
     test('Cancel on MCPs tab with orphaned saved tools does not prompt to discard (MM-69185)', async ({ page }) => {
         test.setTimeout(60000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         const orphanAgent = await agentApi.createTestAgent(token, {
@@ -110,16 +110,16 @@ test.describe('Agent MCP Tools', () => {
             // the live MCP catalog will report it as an orphan when the editor
             // mounts the MCPs tab.
             enabledMCPTools: [
-                { server_origin: embeddedMattermostOrigin, tool_name: 'ghost_tool' },
+                { server_origin: embeddedAntimatterOrigin, tool_name: 'ghost_tool' },
             ],
             enabledNativeTools: [],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
         await agentPage.openAgentActions(orphanAgent.displayName);
         await agentPage.clickEditAction(orphanAgent.displayName);
         await agentPage.waitForModal();
@@ -140,8 +140,8 @@ test.describe('Agent MCP Tools', () => {
 
     test('agent with specific enabledMCPTools responds correctly', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         const teams = await adminClient.getMyTeams();
         const defaultTeam = teams[0];
@@ -158,7 +158,7 @@ test.describe('Agent MCP Tools', () => {
             serviceID: mockServiceId,
             autoEnableNewMCPTools: false,
             enabledMCPTools: [
-                { server_origin: embeddedMattermostOrigin, tool_name: 'read_post' },
+                { server_origin: embeddedAntimatterOrigin, tool_name: 'read_post' },
             ],
             enabledNativeTools: [],
         });
@@ -199,10 +199,10 @@ test.describe('Agent MCP Tools', () => {
             }),
         ]);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await page.goto(`${mattermost.url()}/test/channels/town-square`);
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await page.goto(`${antimatter.url()}/test/channels/town-square`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 60000 });
 
         await aiPlugin.openRHS();
@@ -216,8 +216,8 @@ test.describe('Agent MCP Tools', () => {
     // Individual tools are not listed here — the MCPs tab / server policy covers tool-level affordances.
     test('RHS Tools popover shows no providers when agent has empty enabledMCPTools', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         const agent = await agentApi.createTestAgent(token, {
@@ -228,12 +228,12 @@ test.describe('Agent MCP Tools', () => {
             enabledNativeTools: [],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost, agentRegularUsername, agentRegularPassword, agent.name,
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter, agentRegularUsername, agentRegularPassword, agent.name,
         );
 
         await aiPlugin.openRHS();
@@ -247,8 +247,8 @@ test.describe('Agent MCP Tools', () => {
 
     test('RHS Tools popover shows Mattermost provider when only embedded tools are enabled', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         const agent = await agentApi.createTestAgent(token, {
@@ -256,17 +256,17 @@ test.describe('Agent MCP Tools', () => {
             serviceID: mockServiceId,
             autoEnableNewMCPTools: false,
             enabledMCPTools: [
-                { server_origin: embeddedMattermostOrigin, tool_name: 'read_post' },
+                { server_origin: embeddedAntimatterOrigin, tool_name: 'read_post' },
             ],
             enabledNativeTools: [],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost, agentRegularUsername, agentRegularPassword, agent.name,
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter, agentRegularUsername, agentRegularPassword, agent.name,
         );
 
         await aiPlugin.openRHS();
@@ -281,8 +281,8 @@ test.describe('Agent MCP Tools', () => {
 
     test('editing an auto-enable-all agent preserves MCP provider access', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         const agent = await agentApi.createTestAgent(token, {
@@ -295,12 +295,12 @@ test.describe('Agent MCP Tools', () => {
         let fetched = await agentApi.getAgent(token, agent.id);
         expect(fetched.autoEnableNewMCPTools).toBe(true);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
         await agentPage.openAgentActions('Implicit All Agent');
         await agentPage.clickEditAction('Implicit All Agent');
         await agentPage.waitForModal();
@@ -314,9 +314,9 @@ test.describe('Agent MCP Tools', () => {
         expect(fetched.autoEnableNewMCPTools).toBe(true);
 
         await page.context().clearCookies();
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost, agentRegularUsername, agentRegularPassword, agent.name,
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter, agentRegularUsername, agentRegularPassword, agent.name,
         );
 
         await aiPlugin.openRHS();
@@ -333,11 +333,11 @@ test.describe('Agent MCP Tools', () => {
         page,
     }) => {
         test.setTimeout(90000);
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await page.goto(`${mattermost.url()}/test/channels/town-square`);
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await page.goto(`${antimatter.url()}/test/channels/town-square`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 60000 });
 
         await aiPlugin.openRHS();

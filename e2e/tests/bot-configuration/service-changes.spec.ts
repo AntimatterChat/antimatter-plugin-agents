@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTestText } from 'helpers/openai-mock';
 import { createBotConfigHelper, generateBotId } from 'helpers/bot-config';
@@ -12,37 +12,37 @@ const username = 'regularuser';
 const password = 'regularuser';
 
 function createTestSuite() {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     // Common test setup
     async function setupTestPage(page) {
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
-        const url = mattermost.url();
+        const url = antimatter.url();
 
-        await mmPage.login(url, username, password);
+        await amPage.login(url, username, password);
 
-        return { mmPage, aiPlugin };
+        return { amPage, aiPlugin };
     }
 
     test.describe('Service Changes Tests', () => {
         // Setup for all tests in the file
         test.beforeAll(async () => {
-            mattermost = await RunContainer();
-            openAIMock = await RunOpenAIMocks(mattermost.network);
+            antimatter = await RunContainer();
+            openAIMock = await RunOpenAIMocks(antimatter.network);
         });
 
         // Cleanup after all tests
         test.afterAll(async () => {
             await openAIMock.stop();
-            await mattermost.stop();
+            await antimatter.stop();
         });
 
         test.describe('Service Provider Changes', () => {
             test('should switch bot between different services', async ({ page }) => {
                 const { aiPlugin } = await setupTestPage(page);
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Get the original bot configuration
                 const originalBot = await botConfig.getBotByName('mock');
@@ -72,7 +72,7 @@ function createTestSuite() {
 
             test('should handle bot with non-existent service gracefully', async ({ page }) => {
                 const { aiPlugin } = await setupTestPage(page);
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Create a test bot
                 const botId = generateBotId();
@@ -105,7 +105,7 @@ function createTestSuite() {
 
             test('should persist service change after page reload', async ({ page }) => {
                 const { aiPlugin } = await setupTestPage(page);
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Get the original bot
                 const originalBot = await botConfig.getBotByName('mock');
@@ -137,7 +137,7 @@ function createTestSuite() {
             });
 
             test('should allow multiple bots to share same service', async () => {
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Create two new bots using same service
                 const botId1 = generateBotId();
@@ -174,7 +174,7 @@ function createTestSuite() {
 
             test('should handle changing service while bot is in active conversation', async ({ page }) => {
                 const { aiPlugin } = await setupTestPage(page);
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Open RHS and start conversation
                 await aiPlugin.openRHS();
@@ -205,7 +205,7 @@ function createTestSuite() {
 
         test.describe('Service Configuration Changes', () => {
             test('should update service API URL', async () => {
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Get original service
                 const originalService = await botConfig.getService('second-service');
@@ -229,7 +229,7 @@ function createTestSuite() {
             });
 
             test('should update service model configuration', async () => {
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Get original service
                 const originalService = await botConfig.getService('mock-service');
@@ -252,7 +252,7 @@ function createTestSuite() {
 
             test('should create new service and assign to bot', async ({ page }) => {
                 const { aiPlugin } = await setupTestPage(page);
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Create new service
                 await botConfig.addService({
@@ -290,7 +290,7 @@ function createTestSuite() {
             });
 
             test('should handle deleting service that is in use by bot', async () => {
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Create service and bot
                 await botConfig.addService({
@@ -327,7 +327,7 @@ function createTestSuite() {
             });
 
             test('should update service affecting all bots using it', async () => {
-                const botConfig = await createBotConfigHelper(mattermost);
+                const botConfig = await createBotConfigHelper(antimatter);
 
                 // Get both bots using different services
                 const bot1 = await botConfig.getBotByName('mock');

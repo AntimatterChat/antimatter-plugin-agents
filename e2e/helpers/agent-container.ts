@@ -1,5 +1,5 @@
 import { RunSystemConsoleContainer } from './system-console-container';
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 
 export const agentAdminUsername = 'sysadmin';
 export const agentAdminPassword = 'Sys@dmin-sample1';
@@ -17,8 +17,8 @@ export const secondServiceId = 'second-service';
  * - MCP enabled with embedded server (for tool selection tests)
  * - Three users: admin (sysadmin), regularuser, unprivileged (self-service agent perms come from RunSystemConsoleContainer)
  */
-export async function RunAgentContainer(): Promise<MattermostContainer> {
-    const mattermost = await RunSystemConsoleContainer({
+export async function RunAgentContainer(): Promise<AntimatterContainer> {
+    const antimatter = await RunSystemConsoleContainer({
         services: [
             {
                 id: mockServiceId,
@@ -59,22 +59,22 @@ export async function RunAgentContainer(): Promise<MattermostContainer> {
     });
 
     // Create additional test users
-    await mattermost.createUser(
+    await antimatter.createUser(
         'regularuser@sample.com', agentRegularUsername, agentRegularPassword
     );
-    await mattermost.addUserToTeam(agentRegularUsername, 'test');
+    await antimatter.addUserToTeam(agentRegularUsername, 'test');
 
-    await mattermost.createUser(
+    await antimatter.createUser(
         'unprivileged@sample.com', agentUnprivilegedUsername, agentUnprivilegedPassword
     );
-    await mattermost.addUserToTeam(agentUnprivilegedUsername, 'test');
+    await antimatter.addUserToTeam(agentUnprivilegedUsername, 'test');
 
     // Set user preferences to skip tours/onboarding
     for (const [username, password] of [
         [agentRegularUsername, agentRegularPassword],
         [agentUnprivilegedUsername, agentUnprivilegedPassword],
     ] as const) {
-        const client = await mattermost.getClient(username, password);
+        const client = await antimatter.getClient(username, password);
         const user = await client.getMe();
         await client.savePreferences(user.id, [
             { user_id: user.id, category: 'tutorial_step', name: user.id, value: '999' },
@@ -90,5 +90,5 @@ export async function RunAgentContainer(): Promise<MattermostContainer> {
         ]);
     }
 
-    return mattermost;
+    return antimatter;
 }

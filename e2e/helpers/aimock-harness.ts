@@ -7,12 +7,12 @@ import { AIMockContainer, RunAIMockSidecar } from './aimock-container';
 import { AIMockFixtureFile } from './aimock-fixtures';
 import { AIPlugin } from './ai-plugin';
 import { LLMBotPostHelper } from './llmbot-post';
-import { MattermostPage } from './mm';
-import MattermostContainer from './mmcontainer';
+import { AntimatterPage } from './am';
+import AntimatterContainer from './amcontainer';
 import { RunAIMockContainer } from './plugincontainer';
 
 export type AIMockHarness = {
-    mattermost: MattermostContainer;
+    antimatter: AntimatterContainer;
     aimock: AIMockContainer;
     stop: () => Promise<void>;
 };
@@ -28,25 +28,25 @@ const DEFAULT_AIMOCK_PASSWORD = 'regularuser';
 
 export async function setupAimockTestPage(
     page: Page,
-    mattermostUrl: string,
+    antimatterUrl: string,
     credentials: { username?: string; password?: string } = {},
 ): Promise<{
-    mmPage: MattermostPage;
+    amPage: AntimatterPage;
     aiPlugin: AIPlugin;
     llmBotHelper: LLMBotPostHelper;
 }> {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
     const llmBotHelper = new LLMBotPostHelper(page);
 
-    await mmPage.login(
-        mattermostUrl,
+    await amPage.login(
+        antimatterUrl,
         credentials.username ?? DEFAULT_AIMOCK_USERNAME,
         credentials.password ?? DEFAULT_AIMOCK_PASSWORD,
     );
     await aiPlugin.resetState();
 
-    return { mmPage, aiPlugin, llmBotHelper };
+    return { amPage, aiPlugin, llmBotHelper };
 }
 
 /**
@@ -55,14 +55,14 @@ export async function setupAimockTestPage(
  */
 export async function askAimockBot(
     page: Page,
-    mattermostUrl: string,
+    antimatterUrl: string,
     prompt: string,
 ): Promise<{
     llmBotHelper: LLMBotPostHelper;
     rhs: Locator;
     botPost: Locator;
 }> {
-    const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, mattermostUrl);
+    const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, antimatterUrl);
     await aiPlugin.sendMessage(prompt);
 
     const rhs = page.getByTestId('mattermost-ai-rhs');
@@ -75,21 +75,21 @@ export async function RunAIMockHarness(options: {
     service?: Partial<Record<string, unknown>>;
 }): Promise<AIMockHarness> {
     const fixtures = loadAimockFixtureFile(options.fixtureFile);
-    const mattermost = await RunAIMockContainer({
+    const antimatter = await RunAIMockContainer({
         bot: options.bot,
         service: options.service,
     });
     try {
-        const aimock = await RunAIMockSidecar(mattermost.network, {
+        const aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures,
         });
 
         return {
-            mattermost,
+            antimatter,
             aimock,
             stop: async () => {
                 const errors: unknown[] = [];
-                for (const stop of [() => aimock.stop(), () => mattermost.stop()]) {
+                for (const stop of [() => aimock.stop(), () => antimatter.stop()]) {
                     try {
                         await stop();
                     } catch (error) {
@@ -103,7 +103,7 @@ export async function RunAIMockHarness(options: {
             },
         };
     } catch (error) {
-        await mattermost.stop().catch(() => undefined);
+        await antimatter.stop().catch(() => undefined);
         throw error;
     }
 }

@@ -1,5 +1,5 @@
 import RunSystemConsoleContainer from './system-console-container';
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 import {AIMOCK_COMPATIBLE_SERVICE} from './aimock-fixtures';
 
 export type ToolPolicyConfig = {
@@ -24,11 +24,11 @@ export const MULTIPLAYER_ASK_TOOL_CONFIGS: ToolPolicyConfig[] = [
 ];
 
 /** Creates regularuser with standard onboarding prefs for tool-config aimock specs. */
-export async function setupRegularTestUser(mattermost: MattermostContainer): Promise<void> {
-    await mattermost.createUser('regularuser@sample.com', 'regularuser', 'regularuser');
-    await mattermost.addUserToTeam('regularuser', 'test');
+export async function setupRegularTestUser(antimatter: AntimatterContainer): Promise<void> {
+    await antimatter.createUser('regularuser@sample.com', 'regularuser', 'regularuser');
+    await antimatter.addUserToTeam('regularuser', 'test');
 
-    const userClient = await mattermost.getClient('regularuser', 'regularuser');
+    const userClient = await antimatter.getClient('regularuser', 'regularuser');
     const user = await userClient.getMe();
     await userClient.savePreferences(user.id, [
         { user_id: user.id, category: 'tutorial_step', name: user.id, value: '999' },
@@ -50,7 +50,7 @@ export async function setupRegularTestUser(mattermost: MattermostContainer): Pro
  * Uses Smocker mock as LLM + enables MCP with the embedded server.
  * The embedded server provides real Mattermost tools for testing tool configs.
  */
-export async function RunToolConfigContainer(): Promise<MattermostContainer> {
+export async function RunToolConfigContainer(): Promise<AntimatterContainer> {
     return RunSystemConsoleContainer({
         services: [
             {
@@ -87,7 +87,7 @@ export async function RunToolConfigContainer(): Promise<MattermostContainer> {
  * Container with MCP embedded server and explicit tool_configs
  * preset for testing policy changes. Uses same base config.
  */
-export async function RunToolConfigContainerWithPolicies(): Promise<MattermostContainer> {
+export async function RunToolConfigContainerWithPolicies(): Promise<AntimatterContainer> {
     return RunSystemConsoleContainer({
         enableChannelMentionToolCalling: true,
         services: [
@@ -133,7 +133,7 @@ export async function RunToolConfigContainerWithPolicies(): Promise<MattermostCo
  * Enables mcpDynamicToolLoading so only search_tools/load_tool are visible
  * initially; business tools must be discovered and loaded first.
  */
-export async function RunToolConfigContainerWithDynamicPolicies(): Promise<MattermostContainer> {
+export async function RunToolConfigContainerWithDynamicPolicies(): Promise<AntimatterContainer> {
     return RunSystemConsoleContainer({
         enableChannelMentionToolCalling: true,
         services: [
@@ -181,7 +181,7 @@ export async function RunToolConfigContainerWithDynamicPolicies(): Promise<Matte
  */
 export async function RunToolConfigAIMockContainer(
     options: ToolConfigAIMockOptions | ToolPolicyConfig[] = {},
-): Promise<MattermostContainer> {
+): Promise<AntimatterContainer> {
     const resolved: ToolConfigAIMockOptions = Array.isArray(options)
         ? {toolConfigs: options}
         : options;

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 
 /**
  * Container setup for System Console tests
@@ -65,13 +65,13 @@ function findPluginFile(): string {
 /**
  * Setup admin user with standard preferences
  */
-async function setupAdminUser(mattermost: MattermostContainer): Promise<void> {
+async function setupAdminUser(antimatter: AntimatterContainer): Promise<void> {
     // Create sysadmin user
-    await mattermost.createAdmin('sysadmin@example.com', adminUsername, adminPassword);
-    await mattermost.addUserToTeam(adminUsername, 'test');
+    await antimatter.createAdmin('sysadmin@example.com', adminUsername, adminPassword);
+    await antimatter.addUserToTeam(adminUsername, 'test');
 
     // Set up preferences for sysadmin
-    const adminClient = await mattermost.getClient(adminUsername, adminPassword);
+    const adminClient = await antimatter.getClient(adminUsername, adminPassword);
     const admin = await adminClient.getMe();
     await adminClient.savePreferences(admin.id, [
         { user_id: admin.id, category: 'tutorial_step', name: admin.id, value: '999' },
@@ -90,9 +90,9 @@ async function setupAdminUser(mattermost: MattermostContainer): Promise<void> {
 /**
  * Run a Mattermost container configured for System Console tests
  * @param config Plugin configuration (services, bots, etc.)
- * @returns Configured MattermostContainer
+ * @returns Configured AntimatterContainer
  */
-export async function RunSystemConsoleContainer(config: SystemConsolePluginConfig): Promise<MattermostContainer> {
+export async function RunSystemConsoleContainer(config: SystemConsolePluginConfig): Promise<AntimatterContainer> {
     const filename = findPluginFile();
     const mcpServers = config.mcp?.servers === undefined ? [] : config.mcp.servers;
 
@@ -129,15 +129,15 @@ export async function RunSystemConsoleContainer(config: SystemConsolePluginConfi
         pluginConfig.config.embeddingSearchConfig = config.embeddingSearchConfig;
     }
 
-    const mattermost = await new MattermostContainer()
+    const antimatter = await new AntimatterContainer()
         .withEnv('MM_SERVICESETTINGS_ALLOWEDUNTRUSTEDINTERNALCONNECTIONS', 'openai')
         .withPlugin(filename, 'mattermost-ai', pluginConfig)
         .start();
 
-    await setupAdminUser(mattermost);
-    await mattermost.grantSelfServiceAgentPermissions();
+    await setupAdminUser(antimatter);
+    await antimatter.grantSelfServiceAgentPermissions();
 
-    return mattermost;
+    return antimatter;
 }
 
 export { adminUsername, adminPassword };

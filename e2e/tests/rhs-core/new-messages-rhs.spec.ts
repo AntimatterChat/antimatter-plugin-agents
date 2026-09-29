@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTestText } from 'helpers/openai-mock';
 
@@ -10,45 +10,45 @@ import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTestText } f
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 // Setup for all tests in the file
 test.beforeAll(async () => {
-  mattermost = await RunContainer();
-  openAIMock = await RunOpenAIMocks(mattermost.network);
+  antimatter = await RunContainer();
+  openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 // Cleanup after all tests
 test.afterAll(async () => {
   await openAIMock.stop();
-  await mattermost.stop();
+  await antimatter.stop();
 });
 
 // Common test setup
 async function setupTestPage(page) {
-  const mmPage = new MattermostPage(page);
+  const amPage = new AntimatterPage(page);
   const aiPlugin = new AIPlugin(page);
-  const url = mattermost.url();
+  const url = antimatter.url();
 
-  await mmPage.login(url, username, password);
+  await amPage.login(url, username, password);
 
-  return { mmPage, aiPlugin };
+  return { amPage, aiPlugin };
 }
 
 test.describe('New Messages Line RHS Functionality', () => {
   test('new messages line opens RHS when summarize is clicked', async ({ page }) => {
-    const { mmPage, aiPlugin } = await setupTestPage(page);
+    const { amPage, aiPlugin } = await setupTestPage(page);
 
     // First, user1 (regularuser) sends a message to establish baseline
-    await mmPage.sendChannelMessage('Initial message for testing');
+    await amPage.sendChannelMessage('Initial message for testing');
 
     // Second user posts a message
     const secondUserMessage = 'This is a new message from second user';
-    const secondPost = await mmPage.sendMessageAsUser(mattermost, 'seconduser', 'seconduser', secondUserMessage);
+    const secondPost = await amPage.sendMessageAsUser(antimatter, 'seconduser', 'seconduser', secondUserMessage);
 
     // Mark the second user's message as unread to trigger new messages line
-    await mmPage.markMessageAsUnread(secondPost.id);
+    await amPage.markMessageAsUnread(secondPost.id);
 
     // Set up the mock for the OpenAI completion request
     await openAIMock.addCompletionMock(responseTest);

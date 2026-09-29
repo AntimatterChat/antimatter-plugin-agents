@@ -3,13 +3,13 @@
 
 import {test, expect} from '@playwright/test';
 
-import MattermostContainer from 'helpers/mmcontainer';
-import {MattermostPage} from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import {AntimatterPage} from 'helpers/am';
 import {SystemConsoleHelper} from 'helpers/system-console';
 import {OpenAIMockContainer, RunOpenAIMocks} from 'helpers/openai-mock';
 import RunSystemConsoleContainer, {adminUsername, adminPassword} from 'helpers/system-console-container';
 
-async function setupMattermost(): Promise<MattermostContainer> {
+async function setupAntimatter(): Promise<AntimatterContainer> {
     return RunSystemConsoleContainer({
         mcp: {
             enabled: true,
@@ -48,18 +48,18 @@ async function setupMattermost(): Promise<MattermostContainer> {
 test.describe.serial('MCP Panel', () => {
     test('should keep Connection Idle Timeout empty when cleared', async ({page}) => {
         test.setTimeout(60000);
-        let mattermost: MattermostContainer | undefined;
+        let antimatter: AntimatterContainer | undefined;
         let openAIMock: OpenAIMockContainer | undefined;
 
         try {
-            mattermost = await setupMattermost();
-            openAIMock = await RunOpenAIMocks(mattermost.network);
+            antimatter = await setupAntimatter();
+            openAIMock = await RunOpenAIMocks(antimatter.network);
 
-            const mmPage = new MattermostPage(page);
+            const amPage = new AntimatterPage(page);
             const systemConsole = new SystemConsoleHelper(page);
 
-            await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-            await systemConsole.navigateToPluginConfig(mattermost.url());
+            await amPage.login(antimatter.url(), adminUsername, adminPassword);
+            await systemConsole.navigateToPluginConfig(antimatter.url());
 
             const timeoutField = page.getByLabel(/Connection Idle Timeout \(minutes\)/i).or(
                 page.locator('text=Connection Idle Timeout (minutes)').locator('..').getByRole('spinbutton'),
@@ -81,26 +81,26 @@ test.describe.serial('MCP Panel', () => {
             if (openAIMock) {
                 await openAIMock.stop();
             }
-            if (mattermost) {
-                await mattermost.stop();
+            if (antimatter) {
+                await antimatter.stop();
             }
         }
     });
 
     test('should display the MCP OAuth callback URL with a copy button', async ({page, context}) => {
         test.setTimeout(60000);
-        let mattermost: MattermostContainer | undefined;
+        let antimatter: AntimatterContainer | undefined;
         let openAIMock: OpenAIMockContainer | undefined;
 
         try {
-            mattermost = await setupMattermost();
-            openAIMock = await RunOpenAIMocks(mattermost.network);
+            antimatter = await setupAntimatter();
+            openAIMock = await RunOpenAIMocks(antimatter.network);
 
-            const mmPage = new MattermostPage(page);
+            const amPage = new AntimatterPage(page);
             const systemConsole = new SystemConsoleHelper(page);
 
-            await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-            await systemConsole.navigateToPluginConfig(mattermost.url());
+            await amPage.login(antimatter.url(), adminUsername, adminPassword);
+            await systemConsole.navigateToPluginConfig(antimatter.url());
 
             const callbackField = page.getByLabel(/MCP OAuth Callback URL/i);
             const callbackRow = callbackField.locator('xpath=..');
@@ -117,7 +117,7 @@ test.describe.serial('MCP Panel', () => {
             // reports the Docker gateway IP as the host, which is not a secure origin.
             expect(
                 await page.evaluate(() => window.isSecureContext),
-                `${mattermost.url()} is not a secure context; set TESTCONTAINERS_HOST_OVERRIDE=localhost when running e2e inside a container`,
+                `${antimatter.url()} is not a secure context; set TESTCONTAINERS_HOST_OVERRIDE=localhost when running e2e inside a container`,
             ).toBe(true);
 
             // Grant clipboard permissions so navigator.clipboard.writeText succeeds.
@@ -135,8 +135,8 @@ test.describe.serial('MCP Panel', () => {
             if (openAIMock) {
                 await openAIMock.stop();
             }
-            if (mattermost) {
-                await mattermost.stop();
+            if (antimatter) {
+                await antimatter.stop();
             }
         }
     });

@@ -4,8 +4,8 @@
 import { test, expect, Page } from '@playwright/test';
 import RunContainer from 'helpers/plugincontainer';
 import { RunOpenAIMocks, OpenAIMockContainer, buildChatCompletionMockRule, titleGenerationMockRule } from 'helpers/openai-mock';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 
@@ -50,25 +50,25 @@ class EdgeCasesHelper {
 }
 
 async function setupTestPage(page: Page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
     const llmBotHelper = new LLMBotPostHelper(page);
     const edgeCasesHelper = new EdgeCasesHelper(page);
     const botUsername = 'Mock Bot'; // Default bot name
 
-    return { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper, botUsername };
+    return { amPage, aiPlugin, llmBotHelper, edgeCasesHelper, botUsername };
 }
 
 test.describe('Channel Analysis Edge Cases', () => {
     test.describe.configure({timeout: CHANNEL_ANALYSIS_EDGE_CASE_TIMEOUT_MS});
 
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(120000);
-        mattermost = await RunContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.beforeEach(async () => {
@@ -79,22 +79,22 @@ test.describe('Channel Analysis Edge Cases', () => {
         if (openAIMock) {
             await openAIMock.stop();
         }
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
     test('Channel with minimal content', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post a single minimal message to the channel
-        await mmPage.sendChannelMessage('This is the only message in the channel.');
+        await amPage.sendChannelMessage('This is the only message in the channel.');
 
         // 4. Open channel analysis popover via agents button in channel header
         await aiPlugin.openChannelAnalysisPopover();
@@ -123,20 +123,20 @@ data: [DONE]
     });
 
     test('Unicode and international characters', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post messages with unicode and international characters
-        await mmPage.sendChannelMessage('Test emoji message 😀🎉🚀💡⚡');
-        await mmPage.sendChannelMessage('Chinese: 你好世界，这是一个测试');
-        await mmPage.sendChannelMessage('Arabic: مرحبا بالعالم');
-        await mmPage.sendChannelMessage('Japanese: こんにちは世界');
-        await mmPage.sendChannelMessage('Special chars: ñ ü é ö ß');
+        await amPage.sendChannelMessage('Test emoji message 😀🎉🚀💡⚡');
+        await amPage.sendChannelMessage('Chinese: 你好世界，这是一个测试');
+        await amPage.sendChannelMessage('Arabic: مرحبا بالعالم');
+        await amPage.sendChannelMessage('Japanese: こんにちは世界');
+        await amPage.sendChannelMessage('Special chars: ñ ü é ö ß');
 
         // 4. Open channel analysis popover via agents button in channel header
         await aiPlugin.openChannelAnalysisPopover();
@@ -166,10 +166,10 @@ data: [DONE]
     });
 
     test('Long message in channel', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
@@ -177,7 +177,7 @@ data: [DONE]
         // 3. Post a very long message (2000+ characters)
         const longMessage = edgeCasesHelper.generateLongMessage(2100);
         expect(longMessage.length).toBeGreaterThan(2000);
-        await mmPage.sendChannelMessage(longMessage);
+        await amPage.sendChannelMessage(longMessage);
 
         // 4. Open channel analysis popover via agents button in channel header
         await aiPlugin.openChannelAnalysisPopover();
@@ -206,18 +206,18 @@ data: [DONE]
     });
 
     test('Multiple questions sequentially', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post some context messages
-        await mmPage.sendChannelMessage('Project status: Development phase');
-        await mmPage.sendChannelMessage('Timeline: Q1 deadline');
-        await mmPage.sendChannelMessage('Team size: 5 developers');
+        await amPage.sendChannelMessage('Project status: Development phase');
+        await amPage.sendChannelMessage('Timeline: Q1 deadline');
+        await amPage.sendChannelMessage('Team size: 5 developers');
 
         // 4. Open channel analysis popover and send first question
         await aiPlugin.openChannelAnalysisPopover();
@@ -268,16 +268,16 @@ data: [DONE]
     });
 
     test('Channel analysis while RHS already open', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post some context messages
-        await mmPage.sendChannelMessage('Discussion about the new API design');
+        await amPage.sendChannelMessage('Discussion about the new API design');
 
         // 4. Open general AI RHS first (via app bar)
         await aiPlugin.openRHS();
@@ -313,16 +313,16 @@ data: [DONE]
     });
 
     test('Refresh page and check persistence', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post a distinctive message
-        await mmPage.sendChannelMessage('Important meeting scheduled for Friday');
+        await amPage.sendChannelMessage('Important meeting scheduled for Friday');
 
         // 4. Open channel analysis popover and send a query
         await aiPlugin.openChannelAnalysisPopover();
@@ -364,16 +364,16 @@ data: [DONE]
     });
 
     test('Special characters in queries', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post some context
-        await mmPage.sendChannelMessage('The @admin mentioned #bug-123 in the *urgent* issue');
+        await amPage.sendChannelMessage('The @admin mentioned #bug-123 in the *urgent* issue');
 
         // 4. Open channel analysis popover via agents button in channel header
         await aiPlugin.openChannelAnalysisPopover();
@@ -402,16 +402,16 @@ data: [DONE]
     });
 
     test('Very short query', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await edgeCasesHelper.waitForPageReady();
 
         // 3. Post some context
-        await mmPage.sendChannelMessage('The team discussed various features and improvements');
+        await amPage.sendChannelMessage('The team discussed various features and improvements');
 
         // 4. Open channel analysis popover via agents button in channel header
         await aiPlugin.openChannelAnalysisPopover();

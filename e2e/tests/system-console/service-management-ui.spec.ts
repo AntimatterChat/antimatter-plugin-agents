@@ -2,8 +2,8 @@
 // seed: e2e/tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -14,39 +14,39 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * Tests UI-based service management operations in the system console.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Service Management', () => {
     test.beforeAll(async () => {
         // Start container with NO pre-configured services
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [],
             bots: [],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should add and configure service through card-based UI', async ({ page }) => {
         // Login + container startup after a long shard can exceed 60s on CI.
         test.setTimeout(120000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // Login as admin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword, {
+        await amPage.login(antimatter.url(), adminUsername, adminPassword, {
             channelViewTimeoutMs: 90000,
         });
 
         // Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // Count existing service cards before adding
         const existingServiceCards = page.locator('[class*="ServiceContainer"]');

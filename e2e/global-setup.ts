@@ -5,7 +5,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import { AIMOCK_IMAGE } from './helpers/aimock-container';
-import { POSTGRES_IMAGE, mattermostImage } from './helpers/mmcontainer';
+import { POSTGRES_IMAGE, antimatterImage } from './helpers/amcontainer';
 import { SMOCKER_IMAGE } from './helpers/openai-mock';
 
 const execFileAsync = promisify(execFile);
@@ -14,7 +14,7 @@ const execFileAsync = promisify(execFile);
 // beforeAll timeout downloading them. Failures are non-fatal: testcontainers
 // still pulls on demand.
 async function prePullImages() {
-  const images = [mattermostImage(), POSTGRES_IMAGE, SMOCKER_IMAGE, AIMOCK_IMAGE];
+  const images = [antimatterImage(), POSTGRES_IMAGE, SMOCKER_IMAGE, AIMOCK_IMAGE];
   const startedAt = Date.now();
   await Promise.all(images.map(async (image) => {
     try {

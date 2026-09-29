@@ -6,7 +6,7 @@
 
 import { Client4 } from '@mattermost/client';
 
-export const MATTERMOST_AI_PLUGIN_ID = 'mattermost-ai';
+export const ANTIMATTER_AI_PLUGIN_ID = 'mattermost-ai';
 
 const DEFAULT_PUT_SETTLE_MS = 500;
 
@@ -83,14 +83,14 @@ export function pluginAdminConfigApiFromClient(
     return new PluginAdminConfigApi(baseUrl, () => client.getToken(), pluginId);
 }
 
-export function mattermostAIAdminConfigApiFromClient(client: Client4, baseUrl: string): PluginAdminConfigApi {
-    return pluginAdminConfigApiFromClient(client, baseUrl, MATTERMOST_AI_PLUGIN_ID);
+export function antimatterAIAdminConfigApiFromClient(client: Client4, baseUrl: string): PluginAdminConfigApi {
+    return pluginAdminConfigApiFromClient(client, baseUrl, ANTIMATTER_AI_PLUGIN_ID);
 }
 
 /**
  * Normalizes GET /admin/config JSON for helpers that expect non-null collections.
  */
-export function normalizeMattermostAiConfigFromApi(apiConfig: Record<string, unknown>): Record<string, unknown> {
+export function normalizeAntimatterAiConfigFromApi(apiConfig: Record<string, unknown>): Record<string, unknown> {
     return {
         ...apiConfig,
         bots: apiConfig.bots ?? [],
@@ -105,7 +105,7 @@ export function normalizeMattermostAiConfigFromApi(apiConfig: Record<string, unk
 export class PluginRoutesApi {
     constructor(
         private readonly baseUrl: string,
-        private readonly pluginId: string = MATTERMOST_AI_PLUGIN_ID,
+        private readonly pluginId: string = ANTIMATTER_AI_PLUGIN_ID,
     ) {}
 
     pluginUrl(path: string): string {
@@ -171,6 +171,6 @@ export class PluginRoutesApi {
     }
 }
 
-export function mattermostAIPluginRoutes(baseUrl: string): PluginRoutesApi {
-    return new PluginRoutesApi(baseUrl, MATTERMOST_AI_PLUGIN_ID);
+export function antimatterAIPluginRoutes(baseUrl: string): PluginRoutesApi {
+    return new PluginRoutesApi(baseUrl, ANTIMATTER_AI_PLUGIN_ID);
 }

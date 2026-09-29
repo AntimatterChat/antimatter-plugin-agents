@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
@@ -12,13 +12,13 @@ import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
     test.setTimeout(120000);
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -30,37 +30,37 @@ test.afterAll(async () => {
     if (openAIMock) {
         await openAIMock.stop();
     }
-    if (mattermost) {
-        await mattermost.stop();
+    if (antimatter) {
+        await antimatter.stop();
     }
 });
 
 async function setupTestPage(page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 test.describe('Error Handling and Resilience', () => {
     test('Handle API Error from LLM Service', async ({ page }) => {
-        const { mmPage, aiPlugin } = await setupTestPage(page);
+        const { amPage, aiPlugin } = await setupTestPage(page);
 
         // 1. Configure OpenAI mock to return 500 error
         await openAIMock.addErrorMock(500, "Internal Server Error");
 
         // 2. Create a thread with action items
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Task discussion'
         );
 
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
 
         await userClient.createPost({
             channel_id: rootPost.channel_id,
@@ -69,7 +69,7 @@ test.describe('Error Handling and Resilience', () => {
         });
 
         // 3. Navigate to post and open AI Actions menu
-        await page.goto(mattermost.url() + '/test/channels/town-square');
+        await page.goto(antimatter.url() + '/test/channels/town-square');
         await page.locator(`#post_${rootPost.id}`).waitFor({ state: 'visible' });
         await page.locator(`#post_${rootPost.id}`).hover();
         await page.getByTestId(`ai-actions-menu`).click();
@@ -85,17 +85,17 @@ test.describe('Error Handling and Resilience', () => {
     });
 
     test.skip('Handle Streaming Interruption', async ({ page }) => {
-        const { mmPage, aiPlugin } = await setupTestPage(page);
+        const { amPage, aiPlugin } = await setupTestPage(page);
 
         // 1. Create a thread with action items
-        const rootPost = await mmPage.sendMessageAsUser(
-            mattermost,
+        const rootPost = await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Project planning'
         );
 
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
 
         await userClient.createPost({
             channel_id: rootPost.channel_id,
@@ -113,7 +113,7 @@ data: {"id":"chatcmpl-ai-8","object":"chat.completion.chunk","created":170812457
 data: [DONE]
 `.trim().split('\n').filter(l => l).join('\n\n') + '\n\n';
 
-        await page.goto(mattermost.url() + '/test/channels/town-square');
+        await page.goto(antimatter.url() + '/test/channels/town-square');
         await page.locator(`#post_${rootPost.id}`).waitFor({ state: 'visible' });
         await page.locator(`#post_${rootPost.id}`).hover();
         await page.getByTestId(`ai-actions-menu`).click();

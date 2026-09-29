@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { AIMockContainer, RunAIMockSidecar } from 'helpers/aimock-container';
 import { buildToolCallAndTextResponse } from 'helpers/aimock-fixtures';
@@ -18,16 +18,16 @@ const userMessage = 'aimock dm auto-run get channel info';
 const continuationText = 'Aimock DM auto-run completed after channel lookup.';
 
 test.describe('Auto Run (DM) Policy (Aimock)', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunToolConfigAIMockContainer([
+        antimatter = await RunToolConfigAIMockContainer([
             { name: getChannelInfoConfigName, policy: 'auto_run_in_dm', enabled: true },
         ]);
-        await setupRegularTestUser(mattermost);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        await setupRegularTestUser(antimatter);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: buildToolCallAndTextResponse({
                 userMessage,
                 toolCallId: 'call_aimock_dm_auto_get_channel_info',
@@ -41,16 +41,16 @@ test.describe('Auto Run (DM) Policy (Aimock)', () => {
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('auto_run embedded tool executes without approval in DM', async ({ page }) => {
         test.setTimeout(180000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await aiPlugin.openRHS();
         await aiPlugin.sendMessage(userMessage);
 

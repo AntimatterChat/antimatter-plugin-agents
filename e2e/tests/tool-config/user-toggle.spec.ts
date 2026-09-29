@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest } from 'helpers/openai-mock';
 import { RunToolConfigContainer } from 'helpers/tool-config-container';
 import { createToolConfigAPIHelper } from 'helpers/tool-config';
@@ -14,30 +14,30 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * via the tool provider popover, and that the preference persists.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('User Provider Toggle', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
         await openAIMock.addCompletionMock(responseTest);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should persist user provider preference via API', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Use the API helper to manage user preferences
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         // Get initial preferences
@@ -67,11 +67,11 @@ test.describe('User Provider Toggle', () => {
     test('should keep disabled provider visible in tool list so user can re-enable it', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         // Get the full tool list with all providers enabled

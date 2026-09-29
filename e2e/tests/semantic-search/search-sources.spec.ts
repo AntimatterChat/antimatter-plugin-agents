@@ -1,16 +1,16 @@
 import { test, expect, Page } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
-import { mattermostAIPluginRoutes } from 'helpers/plugin-http';
+import { antimatterAIPluginRoutes } from 'helpers/plugin-http';
 
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const searchResponseWithSources = `
@@ -36,8 +36,8 @@ const searchResponseWithSourcesText = "Based on the search results, here are the
 const searchResponseNoResultsText = "I couldn't find any relevant messages for your query. Please try a different search term.";
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -47,40 +47,40 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock.stop();
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 async function setupTestPage(page: Page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
-    const url = mattermost.url();
+    const url = antimatter.url();
 
-    await mmPage.login(url, username, password);
+    await amPage.login(url, username, password);
 
-    return { mmPage, aiPlugin };
+    return { amPage, aiPlugin };
 }
 
 test.describe('Search Sources Display', () => {
     test('Search response text displays in RHS', async ({ page }) => {
-        const { mmPage, aiPlugin } = await setupTestPage(page);
+        const { amPage, aiPlugin } = await setupTestPage(page);
 
         // Create posts with searchable content about budget
-        await mmPage.sendMessageAsUser(
-            mattermost,
+        await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'The Q4 budget report shows a 15% increase in marketing spend'
         );
 
-        await mmPage.sendMessageAsUser(
-            mattermost,
+        await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'Budget allocation for engineering has been approved for next quarter'
         );
 
-        await mmPage.sendMessageAsUser(
-            mattermost,
+        await amPage.sendMessageAsUser(
+            antimatter,
             username,
             password,
             'We need to finalize the budget review meeting notes'
@@ -111,12 +111,12 @@ test.describe('Search Sources Display', () => {
     test('Search query with no channel results returns appropriate message', async ({ page }) => {
         await setupTestPage(page);
 
-        const userClient = await mattermost.getClient(username, password);
+        const userClient = await antimatter.getClient(username, password);
         const currentUser = await userClient.getMe();
         const secondUser = await userClient.getUserByUsername('seconduser');
         const emptyDMChannel = await userClient.createDirectChannel([currentUser.id, secondUser.id]);
 
-        const routes = mattermostAIPluginRoutes(mattermost.url());
+        const routes = antimatterAIPluginRoutes(antimatter.url());
         const payload = await routes.postJson('search', userClient.getToken(), {
             query: 'xyznonexistent12345',
             channelId: emptyDMChannel.id,

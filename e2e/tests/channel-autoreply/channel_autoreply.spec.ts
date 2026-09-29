@@ -13,20 +13,20 @@ import type { UserProfile } from '@mattermost/types/users';
 import type { Channel } from '@mattermost/types/channels';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
-import { mattermostAIPluginRoutes } from 'helpers/plugin-http';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
+import { antimatterAIPluginRoutes } from 'helpers/plugin-http';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTestText } from 'helpers/openai-mock';
 
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -36,7 +36,7 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock?.stop();
-    await mattermost?.stop();
+    await antimatter?.stop();
 });
 
 /**
@@ -48,7 +48,7 @@ test.afterAll(async () => {
  * regular member and implicitly exercise the phase-2 channel-management
  * permission path (the Mattermost default scheme grants
  * manage_public_channel_properties to channel members). If the PUT ever 403s
- * under a future default-scheme change, fall back to mattermost.getAdminClient()
+ * under a future default-scheme change, fall back to antimatter.getAdminClient()
  * for the PUT only.
  */
 async function setupClientAndChannel(testTag: string): Promise<{
@@ -56,7 +56,7 @@ async function setupClientAndChannel(testTag: string): Promise<{
     botUser: UserProfile;
     channel: Channel;
 }> {
-    const client = await mattermost.getClient(username, password);
+    const client = await antimatter.getClient(username, password);
     const teams = await client.getMyTeams();
     const team = teams[0];
     // bot_id in the autoreply payload is the bot's Mattermost user id
@@ -72,7 +72,7 @@ async function setupClientAndChannel(testTag: string): Promise<{
 }
 
 async function putAutoReply(client: Client4, channelId: string, botId: string, mode: string): Promise<void> {
-    const routes = mattermostAIPluginRoutes(mattermost.url());
+    const routes = antimatterAIPluginRoutes(antimatter.url());
     await routes.putJson(`channel/${channelId}/autoreply`, client.getToken(), {
         bot_id: botId,
         mode,
@@ -125,21 +125,21 @@ test.describe('Per-channel agent auto-reply', () => {
         const { client, botUser, channel } = await setupClientAndChannel('rootposts');
         await putAutoReply(client, channel.id, botUser.id, 'root_posts');
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/${channel.name}`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/${channel.name}`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         // Root post without any @mention must trigger an in-thread auto-reply.
         const me = await client.getMe();
         const rootMessage = 'Auto-reply root post test';
-        await mmPage.sendChannelMessage(rootMessage);
+        await amPage.sendChannelMessage(rootMessage);
         const rootPost = await waitForUserPost(client, channel.id, me.id, rootMessage);
 
-        const botReply = await mmPage.expectBotThreadReplyFromApi(
+        const botReply = await amPage.expectBotThreadReplyFromApi(
             client, channel.id, botUser.id, rootPost.id, responseTestText,
         );
-        await mmPage.waitForReply();
+        await amPage.waitForReply();
 
         // Negative half: in root_posts mode a thread reply must NOT trigger another
         // auto-reply. The user gets the ephemeral @mention reminder instead, but
@@ -152,7 +152,7 @@ test.describe('Per-channel agent auto-reply', () => {
             root_id: rootPost.id,
             message: 'thread reply without mention',
         });
-        await mmPage.expectNoBotDmReplyFromApi(client, channel.id, botUser.id, sinceMs2, { observeDurationMs: 15000 });
+        await amPage.expectNoBotDmReplyFromApi(client, channel.id, botUser.id, sinceMs2, { observeDurationMs: 15000 });
     });
 
     test('threads mode: agent auto-replies to thread replies too', async ({ page }) => {
@@ -161,7 +161,7 @@ test.describe('Per-channel agent auto-reply', () => {
         const { client, botUser, channel } = await setupClientAndChannel('threads');
         await putAutoReply(client, channel.id, botUser.id, 'threads');
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
         // API-only for speed; the UI path is exercised by the root_posts test.
         const rootPost = await client.createPost({
@@ -169,7 +169,7 @@ test.describe('Per-channel agent auto-reply', () => {
             message: 'Auto-reply threads mode root post',
         });
 
-        const firstReply = await mmPage.expectBotThreadReplyFromApi(
+        const firstReply = await amPage.expectBotThreadReplyFromApi(
             client, channel.id, botUser.id, rootPost.id, responseTestText,
         );
 
@@ -204,23 +204,23 @@ test.describe('Per-channel agent auto-reply', () => {
         test.setTimeout(120000);
 
         const { client, botUser, channel } = await setupClientAndChannel('mixedcase');
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/${channel.name}`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/${channel.name}`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         const rootPost = await client.createPost({
             channel_id: channel.id,
             message: '@mock mixed-case mention test',
         });
-        const firstReply = await mmPage.expectBotThreadReplyFromApi(
+        const firstReply = await amPage.expectBotThreadReplyFromApi(
             client, channel.id, botUser.id, rootPost.id, responseTestText,
         );
 
         // The root post was created via API, so the channel view may not have
         // the websocket thread footer yet. Reload, then wait for the indicator
         // instead of clicking '1 reply' against the remaining test timeout.
-        await page.goto(`${mattermost.url()}/test/channels/${channel.name}`);
+        await page.goto(`${antimatter.url()}/test/channels/${channel.name}`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
         const mixedCaseReplyIndicator = page.getByText(/\d+ repl/i);
         await expect(mixedCaseReplyIndicator).toBeVisible({ timeout: 30000 });
@@ -253,23 +253,23 @@ test.describe('Per-channel agent auto-reply', () => {
         // No PUT — the channel stays on the default (unset/off) path.
         const { client, botUser, channel } = await setupClientAndChannel('off');
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/${channel.name}`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/${channel.name}`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         // A root post without a mention must not get any reply.
         const sinceMs = Date.now();
-        await mmPage.sendChannelMessage('No auto-reply expected');
-        await mmPage.expectNoBotDmReplyFromApi(client, channel.id, botUser.id, sinceMs, { observeDurationMs: 15000 });
+        await amPage.sendChannelMessage('No auto-reply expected');
+        await amPage.expectNoBotDmReplyFromApi(client, channel.id, botUser.id, sinceMs, { observeDurationMs: 15000 });
 
         // Reminder baseline: proves phase 2 did not regress maybeNotifyAgentMentionNeeded
         // in non-auto-reply channels.
         const me = await client.getMe();
         const mentionMessage = 'please reply';
-        await mmPage.mentionBot('mock', mentionMessage);
+        await amPage.mentionBot('mock', mentionMessage);
         const mentionPost = await waitForUserPost(client, channel.id, me.id, `@mock ${mentionMessage}`);
-        const botReply = await mmPage.expectBotThreadReplyFromApi(
+        const botReply = await amPage.expectBotThreadReplyFromApi(
             client, channel.id, botUser.id, mentionPost.id, responseTestText,
         );
 
@@ -294,6 +294,6 @@ test.describe('Per-channel agent auto-reply', () => {
         ).toBeVisible({ timeout: 15000 });
 
         // ...and no bot post follows the un-mentioned reply.
-        await mmPage.expectNoBotDmReplyFromApi(client, channel.id, botUser.id, sinceMs2, { observeDurationMs: 10000 });
+        await amPage.expectNoBotDmReplyFromApi(client, channel.id, botUser.id, sinceMs2, { observeDurationMs: 10000 });
     });
 });

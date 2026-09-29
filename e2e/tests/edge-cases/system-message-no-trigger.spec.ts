@@ -4,19 +4,19 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest } from 'helpers/openai-mock';
 
 const username = 'regularuser';
 const password = 'regularuser';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunContainer();
-    openAIMock = await RunOpenAIMocks(mattermost.network);
+    antimatter = await RunContainer();
+    openAIMock = await RunOpenAIMocks(antimatter.network);
 });
 
 test.beforeEach(async () => {
@@ -25,7 +25,7 @@ test.beforeEach(async () => {
 
 test.afterAll(async () => {
     await openAIMock?.stop();
-    await mattermost?.stop();
+    await antimatter?.stop();
 });
 
 test.describe('System messages do not trigger agent', () => {
@@ -33,7 +33,7 @@ test.describe('System messages do not trigger agent', () => {
         // Seed a mock so a regressed agent call becomes visible as a bot post.
         await openAIMock.addCompletionMock(responseTest);
 
-        const client = await mattermost.getClient(username, password);
+        const client = await antimatter.getClient(username, password);
         const teams = await client.getMyTeams();
         const channels = await client.getMyChannels(teams[0].id);
         const townSquare = channels.find((c) => c.name === 'town-square');
@@ -44,9 +44,9 @@ test.describe('System messages do not trigger agent', () => {
         const beforePosts = await client.getPosts(townSquare.id, 0, 200);
         const beforeIds = new Set(Object.keys(beforePosts.posts || {}));
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), username, password);
-        await page.goto(`${mattermost.url()}/test/channels/town-square`);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), username, password);
+        await page.goto(`${antimatter.url()}/test/channels/town-square`);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         await client.patchChannel(townSquare.id, { header: '@mock please respond' });

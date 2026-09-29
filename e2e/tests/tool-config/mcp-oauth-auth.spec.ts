@@ -2,8 +2,8 @@
 // See LICENSE.txt for license information.
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
 import { createToolConfigAPIHelper } from 'helpers/tool-config';
@@ -14,12 +14,12 @@ import {
     registerMCPOAuthMocks,
 } from 'helpers/mcp-oauth-mock';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('MCP OAuth Authentication', () => {
     test.beforeAll(async () => {
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'mock-service',
@@ -58,20 +58,20 @@ test.describe('MCP OAuth Authentication', () => {
             },
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
         await registerMCPOAuthMocks(openAIMock, responseTest);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('embedded server should return authenticated=true and needsOAuth=false', async () => {
         test.setTimeout(60000);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         const tools = await apiHelper.getUserMCPTools(token);
@@ -87,8 +87,8 @@ test.describe('MCP OAuth Authentication', () => {
     test('OAuth-requiring server should return needsOAuth=true with authURL', async () => {
         test.setTimeout(60000);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         const tools = await apiHelper.getUserMCPTools(token);
@@ -103,15 +103,15 @@ test.describe('MCP OAuth Authentication', () => {
         expect(oauthServer.authURL).toBeDefined();
 
         const authURL = new URL(oauthServer.authURL);
-        expect(authURL.origin).toBe(mattermost.url());
+        expect(authURL.origin).toBe(antimatter.url());
         expect(authURL.pathname).toBe(`/plugins/mattermost-ai/mcp/oauth/${encodeURIComponent(MOCK_OAUTH_SERVER_NAME)}/start`);
     });
 
     test('disconnect endpoint should succeed for any server', async () => {
         test.setTimeout(60000);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         await expect(
@@ -130,8 +130,8 @@ test.describe('MCP OAuth Authentication', () => {
     test('disconnect endpoint should succeed even for non-OAuth server', async () => {
         test.setTimeout(60000);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const adminClient = await mattermost.getAdminClient();
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const adminClient = await antimatter.getAdminClient();
         const token = adminClient.getToken();
 
         await expect(
@@ -148,11 +148,11 @@ test.describe('MCP OAuth Authentication', () => {
     test('system console should show updated OAuth description text', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         const toolsUI = new ToolConfigUIHelper(page);
-        await toolsUI.navigateToToolsTab(mattermost.url());
+        await toolsUI.navigateToToolsTab(antimatter.url());
 
         const oauthRow = page.getByText(MOCK_OAUTH_SERVER_NAME);
         await expect(oauthRow.first()).toBeVisible();

@@ -4,8 +4,8 @@
 import { test, expect, Page } from '@playwright/test';
 import RunContainer from 'helpers/plugincontainer';
 import { RunOpenAIMocks, OpenAIMockContainer } from 'helpers/openai-mock';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 
@@ -44,23 +44,23 @@ class ChannelAnalysisCitationsHelper {
 }
 
 async function setupTestPage(page: Page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
     const llmBotHelper = new LLMBotPostHelper(page);
     const channelAnalysisHelper = new ChannelAnalysisCitationsHelper(page);
     const botUsername = 'Mock Bot';
 
-    return { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper, botUsername };
+    return { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper, botUsername };
 }
 
 test.describe('Channel Analysis Citations', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(120000);
-        mattermost = await RunContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.beforeEach(async () => {
@@ -71,24 +71,24 @@ test.describe('Channel Analysis Citations', () => {
         if (openAIMock) {
             await openAIMock.stop();
         }
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
     test('Channel analysis with custom query produces citations', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post test messages to the channel that will be analyzed
-        await mmPage.sendChannelMessage('The project deadline has been moved to next Friday.');
-        await mmPage.sendChannelMessage('We need to complete the code review by Wednesday.');
-        await mmPage.sendChannelMessage('Testing should begin on Thursday morning.');
+        await amPage.sendChannelMessage('The project deadline has been moved to next Friday.');
+        await amPage.sendChannelMessage('We need to complete the code review by Wednesday.');
+        await amPage.sendChannelMessage('Testing should begin on Thursday morning.');
 
         // 4. Open channel analysis popover via agents button in channel header
         await aiPlugin.openChannelAnalysisPopover();
@@ -133,18 +133,18 @@ data: [DONE]
     });
 
     test('Quick action "Summarize last 7 days" produces citations', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post context messages to the channel
-        await mmPage.sendChannelMessage('Discussing the API changes needed for v2.');
-        await mmPage.sendChannelMessage('Breaking changes will be documented in the wiki.');
-        await mmPage.sendChannelMessage('Migration guide will be published next week.');
+        await amPage.sendChannelMessage('Discussing the API changes needed for v2.');
+        await amPage.sendChannelMessage('Breaking changes will be documented in the wiki.');
+        await amPage.sendChannelMessage('Migration guide will be published next week.');
 
         // 4. Open channel analysis popover via agents button
         await aiPlugin.openChannelAnalysisPopover();
@@ -186,20 +186,20 @@ data: [DONE]
     });
 
     test('Quick action "Summarize last 14 days" with multiple messages', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post multiple test messages to create a richer channel history
-        await mmPage.sendChannelMessage('First topic: Database migration strategy. We decided to use a phased approach.');
-        await mmPage.sendChannelMessage('Second topic: API versioning. We will maintain v1 for 6 months.');
-        await mmPage.sendChannelMessage('Third topic: Performance testing. Load tests will be run weekly.');
-        await mmPage.sendChannelMessage('Fourth topic: Security review. Penetration testing scheduled for Q2.');
-        await mmPage.sendChannelMessage('Fifth topic: Documentation updates. All APIs must be documented by launch.');
+        await amPage.sendChannelMessage('First topic: Database migration strategy. We decided to use a phased approach.');
+        await amPage.sendChannelMessage('Second topic: API versioning. We will maintain v1 for 6 months.');
+        await amPage.sendChannelMessage('Third topic: Performance testing. Load tests will be run weekly.');
+        await amPage.sendChannelMessage('Fourth topic: Security review. Penetration testing scheduled for Q2.');
+        await amPage.sendChannelMessage('Fifth topic: Documentation updates. All APIs must be documented by launch.');
 
         // 4. Open channel analysis popover via agents button
         await aiPlugin.openChannelAnalysisPopover();
@@ -254,18 +254,18 @@ data: [DONE]
     });
 
     test('Channel analysis response and citations persist after RHS close/reopen', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post test messages to the channel
-        await mmPage.sendChannelMessage('Sprint planning starts Monday at 9 AM.');
-        await mmPage.sendChannelMessage('All tickets must be estimated before planning.');
-        await mmPage.sendChannelMessage('Retrospective will be held on Friday afternoon.');
+        await amPage.sendChannelMessage('Sprint planning starts Monday at 9 AM.');
+        await amPage.sendChannelMessage('All tickets must be estimated before planning.');
+        await amPage.sendChannelMessage('Retrospective will be held on Friday afternoon.');
 
         // 4. Open channel analysis popover and submit query
         await aiPlugin.openChannelAnalysisPopover();
@@ -326,18 +326,18 @@ data: [DONE]
     });
 
     test('Citation format and structure in channel analysis', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post distinctive messages that will be easy to cite
-        await mmPage.sendChannelMessage('Budget approved: $50,000 for Q1 development.');
-        await mmPage.sendChannelMessage('Team size: 5 developers and 2 QA engineers.');
-        await mmPage.sendChannelMessage('Timeline: Launch scheduled for March 15th.');
+        await amPage.sendChannelMessage('Budget approved: $50,000 for Q1 development.');
+        await amPage.sendChannelMessage('Team size: 5 developers and 2 QA engineers.');
+        await amPage.sendChannelMessage('Timeline: Launch scheduled for March 15th.');
 
         // 4. Open channel analysis popover
         await aiPlugin.openChannelAnalysisPopover();
@@ -385,18 +385,18 @@ data: [DONE]
     });
 
     test('Citation tooltip displays message preview on hover', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post messages with distinctive content for tooltip verification
-        await mmPage.sendChannelMessage('IMPORTANT: Security audit scheduled for next Tuesday.');
-        await mmPage.sendChannelMessage('REMINDER: Code freeze starts on Friday evening.');
-        await mmPage.sendChannelMessage('UPDATE: Production deployment moved to Saturday morning.');
+        await amPage.sendChannelMessage('IMPORTANT: Security audit scheduled for next Tuesday.');
+        await amPage.sendChannelMessage('REMINDER: Code freeze starts on Friday evening.');
+        await amPage.sendChannelMessage('UPDATE: Production deployment moved to Saturday morning.');
 
         // 4. Open channel analysis popover
         await aiPlugin.openChannelAnalysisPopover();
@@ -451,21 +451,21 @@ data: [DONE]
     });
 
     test('Multiple citations appear in channel analysis response', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post many distinct messages to increase likelihood of multiple citations
-        await mmPage.sendChannelMessage('Point 1: Frontend will use React 18 with TypeScript.');
-        await mmPage.sendChannelMessage('Point 2: Backend will be Node.js with Express framework.');
-        await mmPage.sendChannelMessage('Point 3: Database will be PostgreSQL for primary storage.');
-        await mmPage.sendChannelMessage('Point 4: Redis will be used for caching and sessions.');
-        await mmPage.sendChannelMessage('Point 5: AWS will host all production infrastructure.');
-        await mmPage.sendChannelMessage('Point 6: CI/CD pipeline will run on GitHub Actions.');
+        await amPage.sendChannelMessage('Point 1: Frontend will use React 18 with TypeScript.');
+        await amPage.sendChannelMessage('Point 2: Backend will be Node.js with Express framework.');
+        await amPage.sendChannelMessage('Point 3: Database will be PostgreSQL for primary storage.');
+        await amPage.sendChannelMessage('Point 4: Redis will be used for caching and sessions.');
+        await amPage.sendChannelMessage('Point 5: AWS will host all production infrastructure.');
+        await amPage.sendChannelMessage('Point 6: CI/CD pipeline will run on GitHub Actions.');
 
         // 4. Open channel analysis popover
         await aiPlugin.openChannelAnalysisPopover();
@@ -509,19 +509,19 @@ data: [DONE]
     });
 
     test('Channel analysis response with markdown formatting includes citations', async ({ page }) => {
-        const { mmPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
+        const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await channelAnalysisHelper.waitForPageReady();
 
         // 3. Post structured content that lends itself to markdown formatting
-        await mmPage.sendChannelMessage('Task 1: Setup database schema and migrations.');
-        await mmPage.sendChannelMessage('Task 2: Create REST API endpoints for user management.');
-        await mmPage.sendChannelMessage('Task 3: Write comprehensive unit tests for all services.');
-        await mmPage.sendChannelMessage('Priority levels: High for database, Medium for API, Low for tests.');
+        await amPage.sendChannelMessage('Task 1: Setup database schema and migrations.');
+        await amPage.sendChannelMessage('Task 2: Create REST API endpoints for user management.');
+        await amPage.sendChannelMessage('Task 3: Write comprehensive unit tests for all services.');
+        await amPage.sendChannelMessage('Priority levels: High for database, Medium for API, Low for tests.');
 
         // 4. Open channel analysis popover
         await aiPlugin.openChannelAnalysisPopover();

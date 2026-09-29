@@ -1,6 +1,6 @@
 import {ClientError} from '@mattermost/client';
 
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 
 // Must match webapp/src/bots.tsx preference contract.
 export const SELECTED_AGENT_PREFERENCE_CATEGORY = 'agents';
@@ -11,11 +11,11 @@ function isMissingPreferenceError(err: unknown): boolean {
 }
 
 export async function resetSelectedAgentPreference(
-    mattermost: MattermostContainer,
+    antimatter: AntimatterContainer,
     username: string,
     password: string,
 ): Promise<void> {
-    const client = await mattermost.getClient(username, password);
+    const client = await antimatter.getClient(username, password);
     const user = await client.getMe();
     try {
         await client.deletePreferences(user.id, [{

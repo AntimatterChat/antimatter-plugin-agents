@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import MattermostContainer from './mmcontainer';
+import AntimatterContainer from './amcontainer';
 
 export const AIMOCK_SERVICE_ID = 'aimock-service';
 export const AIMOCK_BOT_ID = 'aimock-bot';
@@ -21,13 +21,13 @@ function findPluginTarball(): string {
   return path.join(distPath, tarballs[0]);
 }
 
-async function setupStandardTestUsers(mattermost: MattermostContainer): Promise<void> {
-  await mattermost.createUser('regularuser@sample.com', 'regularuser', 'regularuser');
-  await mattermost.addUserToTeam('regularuser', 'test');
-  await mattermost.createUser('seconduser@sample.com', 'seconduser', 'seconduser');
-  await mattermost.addUserToTeam('seconduser', 'test');
+async function setupStandardTestUsers(antimatter: AntimatterContainer): Promise<void> {
+  await antimatter.createUser('regularuser@sample.com', 'regularuser', 'regularuser');
+  await antimatter.addUserToTeam('regularuser', 'test');
+  await antimatter.createUser('seconduser@sample.com', 'seconduser', 'seconduser');
+  await antimatter.addUserToTeam('seconduser', 'test');
 
-  const userClient = await mattermost.getClient('regularuser', 'regularuser');
+  const userClient = await antimatter.getClient('regularuser', 'regularuser');
   const user = await userClient.getMe();
   await userClient.savePreferences(user.id, [
     { user_id: user.id, category: 'tutorial_step', name: user.id, value: '999' },
@@ -42,7 +42,7 @@ async function setupStandardTestUsers(mattermost: MattermostContainer): Promise<
     { user_id: user.id, category: 'crt_thread_pane_step', name: user.id, value: '999' },
   ]);
 
-  const adminClient = await mattermost.getAdminClient();
+  const adminClient = await antimatter.getAdminClient();
   const admin = await adminClient.getMe();
   await adminClient.savePreferences(admin.id, [
     { user_id: admin.id, category: 'tutorial_step', name: admin.id, value: '999' },
@@ -62,15 +62,15 @@ async function setupStandardTestUsers(mattermost: MattermostContainer): Promise<
     install_plugins: [],
   });
 
-  await mattermost.grantSelfServiceAgentPermissions();
+  await antimatter.grantSelfServiceAgentPermissions();
 }
 
-async function finalizeContainerSetup(mattermost: MattermostContainer): Promise<MattermostContainer> {
+async function finalizeContainerSetup(antimatter: AntimatterContainer): Promise<AntimatterContainer> {
   try {
-    await setupStandardTestUsers(mattermost);
-    return mattermost;
+    await setupStandardTestUsers(antimatter);
+    return antimatter;
   } catch (error) {
-    await mattermost.stop().catch(() => undefined);
+    await antimatter.stop().catch(() => undefined);
     throw error;
   }
 }
@@ -81,7 +81,7 @@ export async function RunAIMockContainer(overrides?: {
   mcp?: Record<string, unknown>;
   webSearch?: Record<string, unknown>;
   enableChannelMentionToolCalling?: boolean;
-}): Promise<MattermostContainer> {
+}): Promise<AntimatterContainer> {
   const filename = findPluginTarball();
 
   const pluginConfig = {
@@ -129,15 +129,15 @@ export async function RunAIMockContainer(overrides?: {
   };
 
   const allowedConnections = overrides?.webSearch ? 'openai,websearch' : 'openai';
-  const mattermost = await new MattermostContainer()
+  const antimatter = await new AntimatterContainer()
     .withEnv('MM_SERVICESETTINGS_ALLOWEDUNTRUSTEDINTERNALCONNECTIONS', allowedConnections)
     .withPlugin(filename, 'mattermost-ai', pluginConfig)
     .start();
 
-  return finalizeContainerSetup(mattermost);
+  return finalizeContainerSetup(antimatter);
 }
 
-const RunContainer = async (): Promise<MattermostContainer> => {
+const RunContainer = async (): Promise<AntimatterContainer> => {
   const filename = findPluginTarball();
   const pluginConfig = {
 	  "config": {
@@ -215,10 +215,10 @@ const RunContainer = async (): Promise<MattermostContainer> => {
 		  }
 	  }
   }
-  const mattermost = await new MattermostContainer()
+  const antimatter = await new AntimatterContainer()
         .withPlugin(filename, "mattermost-ai", pluginConfig)
         .start();
-  return finalizeContainerSetup(mattermost);
+  return finalizeContainerSetup(antimatter);
 }
 
 export default RunContainer

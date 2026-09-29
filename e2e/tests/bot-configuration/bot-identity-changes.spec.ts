@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 import RunContainer from 'helpers/plugincontainer';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTestText } from 'helpers/openai-mock';
 import { createBotConfigHelper } from 'helpers/bot-config';
@@ -12,36 +12,36 @@ const username = 'regularuser';
 const password = 'regularuser';
 
 function createTestSuite() {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     // Common test setup
     async function setupTestPage(page) {
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
-        const url = mattermost.url();
+        const url = antimatter.url();
 
-        await mmPage.login(url, username, password);
+        await amPage.login(url, username, password);
 
-        return { mmPage, aiPlugin };
+        return { amPage, aiPlugin };
     }
 
     test.describe('Bot Identity Changes', () => {
     // Setup for all tests in the file
     test.beforeAll(async () => {
-        mattermost = await RunContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     // Cleanup after all tests
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should update bot display name and reflect in UI', async ({ page }) => {
         const { aiPlugin } = await setupTestPage(page);
-        const botConfig = await createBotConfigHelper(mattermost);
+        const botConfig = await createBotConfigHelper(antimatter);
 
         // Get the original bot configuration
         const originalBot = await botConfig.getBotByName('mock');
@@ -79,7 +79,7 @@ function createTestSuite() {
 
     test('should display updated display name in bot selector after multiple changes', async ({ page }) => {
         const { aiPlugin } = await setupTestPage(page);
-        const botConfig = await createBotConfigHelper(mattermost);
+        const botConfig = await createBotConfigHelper(antimatter);
 
         // Get the original bot configuration
         const originalBot = await botConfig.getBotByName('mock');
@@ -120,7 +120,7 @@ function createTestSuite() {
 
     test.skip('should persist display name change across bot interactions', async ({ page }) => {
         const { aiPlugin } = await setupTestPage(page);
-        const botConfig = await createBotConfigHelper(mattermost);
+        const botConfig = await createBotConfigHelper(antimatter);
 
         // Get the original bot configuration
         const originalBot = await botConfig.getBotByName('mock');

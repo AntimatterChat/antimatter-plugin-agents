@@ -2,8 +2,8 @@
 // seed: e2e/tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -14,12 +14,12 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * Legacy card-based bot editing was removed from System Console; agents are managed from the Agents product page.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Bot Management UI', () => {
     test.beforeAll(async () => {
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'test-service-id',
@@ -38,22 +38,22 @@ test.describe('Bot Management UI', () => {
             bots: [],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show moved notice instead of legacy bot editor', async ({ page }) => {
         test.setTimeout(60000);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await systemConsole.navigateToPluginConfig(antimatter.url());
         await systemConsole.waitForBotsPanel();
 
         await expect(page.getByText(/AI bot configuration has moved/i)).toBeVisible();

@@ -1,7 +1,7 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
+import AntimatterContainer from 'helpers/amcontainer';
 import { expandToolActivity } from 'helpers/llmbot-post';
-import { MattermostPage } from 'helpers/mm';
+import { AntimatterPage } from 'helpers/am';
 import {
     OpenAIMockContainer,
     RunOpenAIMocks,
@@ -24,7 +24,7 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * again with valid arguments.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const questionText = 'Which channel should I post the release notes in?';
@@ -58,13 +58,13 @@ async function waitForSentPost(page: Page, message: string, timeout = 30000): Pr
 
 test.describe('AskUserQuestion with malformed arguments (Mocked LLM)', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainerWithPolicies();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainerWithPolicies();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('rejects the malformed call and shows the model\'s valid retry as a question card', async ({ page }) => {
@@ -85,16 +85,16 @@ test.describe('AskUserQuestion with malformed arguments (Mocked LLM)', () => {
             ),
         ]);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
-        await mmPage.mentionBot('toolbot', userMessage);
+        await amPage.mentionBot('toolbot', userMessage);
         const post = await waitForSentPost(page, `@toolbot ${userMessage}`);
         await expect(post.getByText(/\d+ repl/i)).toBeVisible({ timeout: 30000 });
         await post.getByText(/\d+ repl/i).click();

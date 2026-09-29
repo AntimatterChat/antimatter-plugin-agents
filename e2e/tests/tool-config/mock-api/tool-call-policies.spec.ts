@@ -1,8 +1,8 @@
 import * as http from 'http';
 
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import {
     OpenAIMockContainer,
@@ -23,7 +23,7 @@ import { expandToolActivity } from 'helpers/llmbot-post';
  * that policy enforcement works at tool-call time.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const embeddedReadPostTool = 'mattermost__read_post';
@@ -89,7 +89,7 @@ async function startImageTrapServer(assetName: string): Promise<ImageTrapServer>
 }
 
 async function setEmbeddedToolPolicies(toolConfigs: EmbeddedToolConfig[]) {
-    const helper = await createBotConfigHelper(mattermost);
+    const helper = await createBotConfigHelper(antimatter);
     const pluginConfig = await helper.getPluginConfig();
 
     if (!pluginConfig.config.mcp) {
@@ -106,7 +106,7 @@ async function setEmbeddedToolPolicies(toolConfigs: EmbeddedToolConfig[]) {
 }
 
 async function getTownSquareChannelID(): Promise<string> {
-    const adminClient = await mattermost.getAdminClient();
+    const adminClient = await antimatter.getAdminClient();
     const teams = await adminClient.getMyTeams();
     const defaultTeam = teams[0];
     const channels = await adminClient.getMyChannels(defaultTeam.id);
@@ -136,8 +136,8 @@ async function openThreadForPost(post: Locator, timeout: number = 30000): Promis
     await rhs.locator('[data-testid="llm-bot-post"]').first().waitFor({state: 'visible', timeout: 10000});
 }
 
-async function mentionBotAndOpenThread(page: Page, mmPage: MattermostPage, botName: string, message: string, timeout: number = 30000): Promise<void> {
-    await mmPage.mentionBot(botName, message);
+async function mentionBotAndOpenThread(page: Page, amPage: AntimatterPage, botName: string, message: string, timeout: number = 30000): Promise<void> {
+    await amPage.mentionBot(botName, message);
     const post = await waitForSentPost(page, `@${botName} ${message}`, timeout);
     await openThreadForPost(post, timeout);
 }
@@ -160,8 +160,8 @@ async function waitForChannelReady(page: Page, channelDisplayName: string): Prom
 
 test.describe('Tool Call Policies (Mocked LLM)', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainerWithPolicies();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainerWithPolicies();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
         await setEmbeddedToolPolicies([
             {name: 'read_post', policy: 'auto_run_in_dm', enabled: true},
             {name: 'get_channel_info', policy: 'ask', enabled: true},
@@ -171,7 +171,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     // Note: does not configure a disabled tool; it only checks a text-only mock response
@@ -183,10 +183,10 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
         // Set up a simple text response (no tool calls)
         await openAIMock.addCompletionMock(responseTest);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Open Copilot RHS
         await aiPlugin.openRHS();
@@ -264,21 +264,21 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
             },
         ]);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // Navigate to DM with bot
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
         // Send message to trigger tool call
-        await mmPage.sendChannelMessage('Please read post test123');
+        await amPage.sendChannelMessage('Please read post test123');
 
         // Wait for some response to appear (tool call processing)
         // With auto_run, Accept/Reject should NOT appear
@@ -298,14 +298,14 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
         test.setTimeout(120000);
 
         const townSquareChannelID = await getTownSquareChannelID();
-        const adminClient = await mattermost.getAdminClient();
+        const adminClient = await antimatter.getAdminClient();
         const imageTrap = await startImageTrapServer(`tool-result-image-${Date.now()}.svg`);
         const seedMessage = `Tool result markdown image seed ${Date.now()}`;
         try {
-            const mmPage = new MattermostPage(page);
-            await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-            await mmPage.createAndNavigateToDMWithBot(
-                mattermost,
+            const amPage = new AntimatterPage(page);
+            await amPage.login(antimatter.url(), adminUsername, adminPassword);
+            await amPage.createAndNavigateToDMWithBot(
+                antimatter,
                 adminUsername,
                 adminPassword,
                 'toolbot',
@@ -390,7 +390,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
             ]);
 
             const promptMessage = `Please read the Mattermost post with ID ${seededPost.id}.`;
-            await mmPage.sendChannelMessage(promptMessage);
+            await amPage.sendChannelMessage(promptMessage);
 
             const sentPost = await waitForSentPost(page, promptMessage);
             await openThreadForPost(sentPost);
@@ -418,7 +418,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
         test.setTimeout(120000);
 
         const townSquareChannelID = await getTownSquareChannelID();
-        const adminClient = await mattermost.getAdminClient();
+        const adminClient = await antimatter.getAdminClient();
         const seededMessage = `DM follow-up auto-run regression seed ${Date.now()}`;
 
         await adminClient.createPost({
@@ -525,17 +525,17 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
             },
         ]);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', mainTurnUserMessage);
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', mainTurnUserMessage);
 
         const rhs = page.locator('#rhsContainer');
         await rhs.waitFor({state: 'visible', timeout: 10000});
@@ -620,17 +620,17 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
             },
         ]);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', userMessage);
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', userMessage);
 
         const rhs = page.locator('#rhsContainer');
         await rhs.waitFor({state: 'visible', timeout: 10000});
@@ -660,10 +660,10 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
         test.setTimeout(120000);
 
         const townSquareChannelID = await getTownSquareChannelID();
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await page.goto(`${mattermost.url()}/test/channels/off-topic`);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await page.goto(`${antimatter.url()}/test/channels/off-topic`);
         await waitForChannelReady(page, 'Off-Topic');
 
         await setEmbeddedToolPolicies([
@@ -720,7 +720,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
             },
         ]);
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', 'tool policy channel dm-only');
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', 'tool policy channel dm-only');
 
         const rhs = page.locator('#rhsContainer');
         // In a channel, the legacy auto_run policy is DM-only: the call stage
@@ -805,7 +805,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
         ]);
 
         await closeRHSIfOpen(page);
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', 'tool policy channel everywhere');
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', 'tool policy channel everywhere');
 
         await expect(rhs.getByText('Channel everywhere auto-run completed without share approval.')).toBeVisible({timeout: 45000});
         await expect(rhs.getByRole('button', {name: /^accept$/i})).not.toBeVisible();
@@ -820,10 +820,10 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
         test.setTimeout(120000);
 
         const townSquareChannelID = await getTownSquareChannelID();
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await page.goto(`${mattermost.url()}/test/channels/off-topic`);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await page.goto(`${antimatter.url()}/test/channels/off-topic`);
         await waitForChannelReady(page, 'Off-Topic');
 
         await setEmbeddedToolPolicies([
@@ -892,7 +892,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
             },
         ]);
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', userMessageMarker);
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', userMessageMarker);
 
         const rhs = page.locator('#rhsContainer');
 

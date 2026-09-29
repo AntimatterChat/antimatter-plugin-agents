@@ -11,8 +11,8 @@
 //     (CEL autocomplete via ?agent_id=) but not service/MCP policies.
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest } from 'helpers/openai-mock';
 import {
     RunAgentContainer,
@@ -23,32 +23,32 @@ import {
 import { AgentAPIHelper } from 'helpers/agent-api';
 import { AgentPageHelper } from 'helpers/agent-page';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 test.describe('Agent Access Control', () => {
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunAgentContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunAgentContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
         await openAIMock.addCompletionMock(responseTest);
     });
 
     test.afterAll(async () => {
         await Promise.allSettled([
             openAIMock ? openAIMock.stop() : Promise.resolve(),
-            mattermost ? mattermost.stop() : Promise.resolve(),
+            antimatter ? antimatter.stop() : Promise.resolve(),
         ]);
     });
 
     test('should block user when UserAccessLevel=Block', async ({ page }) => {
         test.setTimeout(120000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         // Get the regularuser's ID for the blocklist
-        const regularClient = await mattermost.getClient(agentRegularUsername, agentRegularPassword);
+        const regularClient = await antimatter.getClient(agentRegularUsername, agentRegularPassword);
         const regularUser = await regularClient.getMe();
 
         // Create agent that blocks regularuser
@@ -60,28 +60,28 @@ test.describe('Agent Access Control', () => {
             userIDs: [regularUser.id],
         });
 
-        const mmPage = new MattermostPage(page);
-        const { client, channelId, botUserId } = await mmPage.getClientAndDmChannelForBot(
-            mattermost, agentRegularUsername, agentRegularPassword, 'blockingagent',
+        const amPage = new AntimatterPage(page);
+        const { client, channelId, botUserId } = await amPage.getClientAndDmChannelForBot(
+            antimatter, agentRegularUsername, agentRegularPassword, 'blockingagent',
         );
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await mmPage.createAndNavigateToDMWithBot(mattermost, agentRegularUsername, agentRegularPassword, 'blockingagent');
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await amPage.createAndNavigateToDMWithBot(antimatter, agentRegularUsername, agentRegularPassword, 'blockingagent');
 
         const sinceMs = Date.now();
-        await mmPage.sendChannelMessage('Hello agent');
+        await amPage.sendChannelMessage('Hello agent');
 
-        await mmPage.expectNoBotDmReplyFromApi(client, channelId, botUserId, sinceMs);
+        await amPage.expectNoBotDmReplyFromApi(client, channelId, botUserId, sinceMs);
     });
 
     test('should allow user when UserAccessLevel=Allow and user is in allowlist', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         // Get the regularuser's ID for the allowlist
-        const regularClient = await mattermost.getClient(agentRegularUsername, agentRegularPassword);
+        const regularClient = await antimatter.getClient(agentRegularUsername, agentRegularPassword);
         const regularUser = await regularClient.getMe();
 
         // Create agent that only allows regularuser
@@ -93,22 +93,22 @@ test.describe('Agent Access Control', () => {
             userIDs: [regularUser.id],
         });
 
-        const mmPage = new MattermostPage(page);
-        const { client, channelId, botUserId } = await mmPage.getClientAndDmChannelForBot(
-            mattermost, agentRegularUsername, agentRegularPassword, 'restrictedagent',
+        const amPage = new AntimatterPage(page);
+        const { client, channelId, botUserId } = await amPage.getClientAndDmChannelForBot(
+            antimatter, agentRegularUsername, agentRegularPassword, 'restrictedagent',
         );
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await mmPage.createAndNavigateToDMWithBot(mattermost, agentRegularUsername, agentRegularPassword, 'restrictedagent');
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await amPage.createAndNavigateToDMWithBot(antimatter, agentRegularUsername, agentRegularPassword, 'restrictedagent');
 
         const sinceMs = Date.now();
-        await mmPage.sendChannelMessage('Hello agent');
-        await mmPage.expectBotDmReplyFromApi(client, channelId, botUserId, sinceMs);
+        await amPage.sendChannelMessage('Hello agent');
+        await amPage.expectBotDmReplyFromApi(client, channelId, botUserId, sinceMs);
     });
 
     test('creator should have access to their own agent via API', async () => {
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         // Create agent
@@ -126,8 +126,8 @@ test.describe('Agent Access Control', () => {
 
     test('should block user not on allowlist when UserAccessLevel=Allow', async ({ page }) => {
         test.setTimeout(120000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
         const adminUser = await adminClient.getMe();
 
@@ -139,25 +139,25 @@ test.describe('Agent Access Control', () => {
             userIDs: [adminUser.id],
         });
 
-        const mmPage = new MattermostPage(page);
-        const { client, channelId, botUserId } = await mmPage.getClientAndDmChannelForBot(
-            mattermost, agentRegularUsername, agentRegularPassword, 'allowonlyadmin',
+        const amPage = new AntimatterPage(page);
+        const { client, channelId, botUserId } = await amPage.getClientAndDmChannelForBot(
+            antimatter, agentRegularUsername, agentRegularPassword, 'allowonlyadmin',
         );
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost, agentRegularUsername, agentRegularPassword, 'allowonlyadmin',
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter, agentRegularUsername, agentRegularPassword, 'allowonlyadmin',
         );
 
         const sinceMs = Date.now();
-        await mmPage.sendChannelMessage('Hello agent');
-        await mmPage.expectNoBotDmReplyFromApi(client, channelId, botUserId, sinceMs);
+        await amPage.sendChannelMessage('Hello agent');
+        await amPage.expectNoBotDmReplyFromApi(client, channelId, botUserId, sinceMs);
     });
 
     test('UserAccessLevel=None hides agent from non-creators in the agents list', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
         const token = adminClient.getToken();
 
         await agentApi.createTestAgent(token, {
@@ -167,26 +167,26 @@ test.describe('Agent Access Control', () => {
             userAccessLevel: 3,
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await agentPage.navigateToAgents(antimatter.url());
         await expect(agentPage.getAgentRowByName('Private To Creator Only')).not.toBeVisible({
             timeout: 5000,
         });
 
         await page.context().clearCookies();
-        await mmPage.login(mattermost.url(), agentAdminUsername, agentAdminPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentAdminUsername, agentAdminPassword);
+        await agentPage.navigateToAgents(antimatter.url());
         await expect(agentPage.getAgentRowByName('Private To Creator Only')).toBeVisible({ timeout: 10000 });
     });
 
     test('delegated admin can edit an agent from the listing', async ({ page }) => {
         test.setTimeout(90000);
-        const agentApi = new AgentAPIHelper(mattermost.url());
-        const adminClient = await mattermost.getClient(agentAdminUsername, agentAdminPassword);
-        const regularClient = await mattermost.getClient(agentRegularUsername, agentRegularPassword);
+        const agentApi = new AgentAPIHelper(antimatter.url());
+        const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
+        const regularClient = await antimatter.getClient(agentRegularUsername, agentRegularPassword);
         const token = adminClient.getToken();
         const regularUser = await regularClient.getMe();
 
@@ -200,11 +200,11 @@ test.describe('Agent Access Control', () => {
             adminUserIDs: [regularUser.id],
         });
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const agentPage = new AgentPageHelper(page);
 
-        await mmPage.login(mattermost.url(), agentRegularUsername, agentRegularPassword);
-        await agentPage.navigateToAgents(mattermost.url());
+        await amPage.login(antimatter.url(), agentRegularUsername, agentRegularPassword);
+        await agentPage.navigateToAgents(antimatter.url());
 
         await agentPage.openAgentActions('Delegate Me');
         await agentPage.clickEditAction('Delegate Me');

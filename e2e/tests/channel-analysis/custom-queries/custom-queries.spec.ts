@@ -4,8 +4,8 @@
 import { test, expect, Page } from '@playwright/test';
 import RunContainer from 'helpers/plugincontainer';
 import { RunOpenAIMocks, OpenAIMockContainer, responseTest } from 'helpers/openai-mock';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { LLMBotPostHelper } from 'helpers/llmbot-post';
 
@@ -65,23 +65,23 @@ class CustomQueriesHelper {
 }
 
 async function setupTestPage(page: Page) {
-    const mmPage = new MattermostPage(page);
+    const amPage = new AntimatterPage(page);
     const aiPlugin = new AIPlugin(page);
     const llmBotHelper = new LLMBotPostHelper(page);
     const customQueriesHelper = new CustomQueriesHelper(page);
     const botUsername = 'Mock Bot'; // Default bot name from plugincontainer
 
-    return { mmPage, aiPlugin, llmBotHelper, customQueriesHelper, botUsername };
+    return { amPage, aiPlugin, llmBotHelper, customQueriesHelper, botUsername };
 }
 
 test.describe('Channel Analysis Custom Queries', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let openAIMock: OpenAIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(120000);
-        mattermost = await RunContainer();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunContainer();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.beforeEach(async () => {
@@ -92,24 +92,24 @@ test.describe('Channel Analysis Custom Queries', () => {
         if (openAIMock) {
             await openAIMock.stop();
         }
-        if (mattermost) {
-            await mattermost.stop();
+        if (antimatter) {
+            await antimatter.stop();
         }
     });
 
     test('Channel-specific custom question submission and response', async ({ page }) => {
-        const { mmPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
+        const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await customQueriesHelper.waitForPageReady();
 
         // 3. Post some test messages to the channel for context
-        await mmPage.sendChannelMessage('We discussed the new feature implementation today.');
-        await mmPage.sendChannelMessage('The team agreed on the deadline for next sprint.');
-        await mmPage.sendChannelMessage('Bug fixes will be prioritized this week.');
+        await amPage.sendChannelMessage('We discussed the new feature implementation today.');
+        await amPage.sendChannelMessage('The team agreed on the deadline for next sprint.');
+        await amPage.sendChannelMessage('Bug fixes will be prioritized this week.');
 
         // 4. Open channel analysis popover via agents button in channel header
         await customQueriesHelper.openChannelAnalysisPopover();
@@ -141,17 +141,17 @@ data: [DONE]
     });
 
     test('Channel analysis question with special characters', async ({ page }) => {
-        const { mmPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
+        const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await customQueriesHelper.waitForPageReady();
 
         // 3. Post messages with special characters
-        await mmPage.sendChannelMessage('@user mentioned feature-x implementation');
-        await mmPage.sendChannelMessage('Tracking #bugs in the latest release');
+        await amPage.sendChannelMessage('@user mentioned feature-x implementation');
+        await amPage.sendChannelMessage('Tracking #bugs in the latest release');
 
         // 4. Open channel analysis popover via agents button
         await customQueriesHelper.openChannelAnalysisPopover();
@@ -182,18 +182,18 @@ data: [DONE]
     });
 
     test('Long channel analysis question (200+ characters)', async ({ page }) => {
-        const { mmPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
+        const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await customQueriesHelper.waitForPageReady();
 
         // 3. Post diverse content to the channel
-        await mmPage.sendChannelMessage('Action item: Complete API integration by Friday');
-        await mmPage.sendChannelMessage('Blocker: Waiting for database schema approval');
-        await mmPage.sendChannelMessage('Decision: We will use TypeScript for the frontend');
+        await amPage.sendChannelMessage('Action item: Complete API integration by Friday');
+        await amPage.sendChannelMessage('Blocker: Waiting for database schema approval');
+        await amPage.sendChannelMessage('Decision: We will use TypeScript for the frontend');
 
         // 4. Open channel analysis popover via agents button
         await customQueriesHelper.openChannelAnalysisPopover();
@@ -224,19 +224,19 @@ data: [DONE]
     });
 
     test('Multiple channel analysis questions in sequence', async ({ page }) => {
-        const { mmPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
+        const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await customQueriesHelper.waitForPageReady();
 
         // 3. Post messages to the channel
-        await mmPage.sendChannelMessage('Q: What is our release timeline?');
-        await mmPage.sendChannelMessage('A: We target end of month for beta release');
-        await mmPage.sendChannelMessage('Q: Who is handling QA testing?');
-        await mmPage.sendChannelMessage('A: Sarah from the QA team will coordinate');
+        await amPage.sendChannelMessage('Q: What is our release timeline?');
+        await amPage.sendChannelMessage('A: We target end of month for beta release');
+        await amPage.sendChannelMessage('Q: Who is handling QA testing?');
+        await amPage.sendChannelMessage('A: Sarah from the QA team will coordinate');
 
         // 4. Open channel analysis popover via agents button
         await customQueriesHelper.openChannelAnalysisPopover();
@@ -304,17 +304,17 @@ data: [DONE]
     });
 
     test('Emoji in channel analysis question', async ({ page }) => {
-        const { mmPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
+        const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await customQueriesHelper.waitForPageReady();
 
         // 3. Post positive updates to the channel
-        await mmPage.sendChannelMessage('Great news! Our customer satisfaction score increased by 15%');
-        await mmPage.sendChannelMessage('Congratulations to the team on the successful launch');
+        await amPage.sendChannelMessage('Great news! Our customer satisfaction score increased by 15%');
+        await amPage.sendChannelMessage('Congratulations to the team on the successful launch');
 
         // 4. Open channel analysis popover via agents button
         await customQueriesHelper.openChannelAnalysisPopover();
@@ -344,18 +344,18 @@ data: [DONE]
     });
 
     test('Short single-word query about channel', async ({ page }) => {
-        const { mmPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
+        const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
         // 1. Login to Mattermost as regularuser
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
         await customQueriesHelper.waitForPageReady();
 
         // 3. Post some messages for summarization
-        await mmPage.sendChannelMessage('Project kickoff scheduled for Monday');
-        await mmPage.sendChannelMessage('Budget approved by management');
-        await mmPage.sendChannelMessage('Team ready to start implementation');
+        await amPage.sendChannelMessage('Project kickoff scheduled for Monday');
+        await amPage.sendChannelMessage('Budget approved by management');
+        await amPage.sendChannelMessage('Team ready to start implementation');
 
         // 4. Open channel analysis popover via agents button
         await customQueriesHelper.openChannelAnalysisPopover();

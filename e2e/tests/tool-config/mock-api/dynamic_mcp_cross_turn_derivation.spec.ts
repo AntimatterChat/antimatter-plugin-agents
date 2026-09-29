@@ -1,6 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { expandToolActivity, expectNoToolActivity, expectToolActivityCurrent } from 'helpers/llmbot-post';
 import {
     OpenAIMockContainer,
@@ -20,7 +20,7 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
  * retained turns so the second call executes instead of hitting the unloaded hint.
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 const businessTool = 'mattermost__get_channel_info';
@@ -46,21 +46,21 @@ async function openThreadForPost(post: Locator, timeout: number = 30000): Promis
     await rhs.locator('[data-testid="llm-bot-post"]').first().waitFor({state: 'visible', timeout: 10000});
 }
 
-async function mentionBotAndOpenThread(page: Page, mmPage: MattermostPage, botName: string, message: string, timeout: number = 30000): Promise<void> {
-    await mmPage.mentionBot(botName, message);
+async function mentionBotAndOpenThread(page: Page, amPage: AntimatterPage, botName: string, message: string, timeout: number = 30000): Promise<void> {
+    await amPage.mentionBot(botName, message);
     const post = await waitForSentPost(page, `@${botName} ${message}`, timeout);
     await openThreadForPost(post, timeout);
 }
 
 test.describe('Dynamic MCP Cross-Turn Derivation (Mocked LLM)', () => {
     test.beforeAll(async () => {
-        mattermost = await RunToolConfigContainerWithDynamicPolicies();
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        antimatter = await RunToolConfigContainerWithDynamicPolicies();
+        openAIMock = await RunOpenAIMocks(antimatter.network);
     });
 
     test.afterAll(async () => {
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('derives loaded tools from retained turns across interactions', async ({ page }) => {
@@ -192,16 +192,16 @@ test.describe('Dynamic MCP Cross-Turn Derivation (Mocked LLM)', () => {
             },
         ]);
 
-        const mmPage = new MattermostPage(page);
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
-        await mmPage.createAndNavigateToDMWithBot(
-            mattermost,
+        const amPage = new AntimatterPage(page);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
+        await amPage.createAndNavigateToDMWithBot(
+            antimatter,
             adminUsername,
             adminPassword,
             'toolbot',
         );
 
-        await mentionBotAndOpenThread(page, mmPage, 'toolbot', turn1User);
+        await mentionBotAndOpenThread(page, amPage, 'toolbot', turn1User);
 
         const rhs = page.locator('#rhsContainer');
         await rhs.waitFor({state: 'visible', timeout: 10000});

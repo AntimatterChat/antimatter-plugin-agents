@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { AIMockContainer, RunAIMockSidecar } from 'helpers/aimock-container';
 import { buildTextResponse } from 'helpers/aimock-fixtures';
@@ -38,14 +38,14 @@ function buildEmbeddedToolConfigs(disabledToolNames: string[] = []) {
 }
 
 test.describe('Disabled Tool Excluded (Aimock)', () => {
-    let mattermost: MattermostContainer;
+    let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 
     test.beforeAll(async () => {
         test.setTimeout(180000);
-        mattermost = await RunToolConfigAIMockContainer(buildEmbeddedToolConfigs([TARGET_TOOL_NAME]));
-        await setupRegularTestUser(mattermost);
-        aimock = await RunAIMockSidecar(mattermost.network, {
+        antimatter = await RunToolConfigAIMockContainer(buildEmbeddedToolConfigs([TARGET_TOOL_NAME]));
+        await setupRegularTestUser(antimatter);
+        aimock = await RunAIMockSidecar(antimatter.network, {
             fixtures: buildTextResponse({
                 userMessage: 'aimock-disabled-tool-placeholder',
                 content: 'placeholder',
@@ -55,16 +55,16 @@ test.describe('Disabled Tool Excluded (Aimock)', () => {
 
     test.afterAll(async () => {
         await aimock?.stop();
-        await mattermost?.stop();
+        await antimatter?.stop();
     });
 
     test('disabled embedded tool is filtered out and does not surface in RHS turn', async ({ page }) => {
         test.setTimeout(120000);
 
-        const apiHelper = await createToolConfigAPIHelper(mattermost);
-        const userClient = await mattermost.getClient(username, password);
+        const apiHelper = await createToolConfigAPIHelper(antimatter);
+        const userClient = await antimatter.getClient(username, password);
         const token = userClient.getToken();
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const aiPlugin = new AIPlugin(page);
 
         const teams = await userClient.getMyTeams();
@@ -97,7 +97,7 @@ test.describe('Disabled Tool Excluded (Aimock)', () => {
         expect(names).not.toContain(TARGET_TOOL_NAME);
         expect(names).toContain('get_channel_info');
 
-        await mmPage.login(mattermost.url(), username, password);
+        await amPage.login(antimatter.url(), username, password);
         await aiPlugin.openRHS();
 
         const rhsContainer = page.getByTestId('mattermost-ai-rhs');

@@ -2,8 +2,8 @@
 // seed: e2e/tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 import { SystemConsoleHelper } from 'helpers/system-console';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers/system-console-container';
@@ -18,7 +18,7 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * - Web Search checkbox with provider-specific help text
  */
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
 // Legacy System Console bot editor removed (MM-65671). Covered by tests/agents/provider-config.spec.ts.
@@ -27,7 +27,7 @@ test.describe.skip('Bot Native Tools', () => {
         test.setTimeout(60000);
 
         // Start container with Anthropic service
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'anthropic-service',
@@ -53,16 +53,16 @@ test.describe.skip('Bot Native Tools', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 4. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 5. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 6. Expand bot card in AI Bots panel
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -124,14 +124,14 @@ test.describe.skip('Bot Native Tools', () => {
         }
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should show Native OpenAI Tools for OpenAI service with ResponsesAPI', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with OpenAI service that has useResponsesAPI set to true
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'openai-service',
@@ -160,16 +160,16 @@ test.describe.skip('Bot Native Tools', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 4. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 5. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 6. Expand bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -219,7 +219,7 @@ test.describe.skip('Bot Native Tools', () => {
         await expect(reloadedWebSearchCheckbox).not.toBeChecked();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should NOT show native tools for OpenAI Compatible service without ResponsesAPI', async ({ page }) => {
@@ -227,7 +227,7 @@ test.describe.skip('Bot Native Tools', () => {
 
         // Start container with OpenAI Compatible service that has useResponsesAPI set to false
         // (OpenAI direct always uses Responses API, so this test uses openaicompatible)
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'openai-service',
@@ -257,16 +257,16 @@ test.describe.skip('Bot Native Tools', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 3. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 4. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 5. Expand bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -336,14 +336,14 @@ test.describe.skip('Bot Native Tools', () => {
         await expect(helpText).toBeVisible();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should enable and disable Web Search for Anthropic service', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with Anthropic service
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'anthropic-service',
@@ -369,16 +369,16 @@ test.describe.skip('Bot Native Tools', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 2. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 3. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 4. Expand bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -428,14 +428,14 @@ test.describe.skip('Bot Native Tools', () => {
         await expect(reloadedCheckbox2).not.toBeChecked();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 
     test('should enable and disable Web Search for OpenAI service with ResponsesAPI', async ({ page }) => {
         test.setTimeout(60000);
 
         // Start container with OpenAI service with ResponsesAPI enabled
-        mattermost = await RunSystemConsoleContainer({
+        antimatter = await RunSystemConsoleContainer({
             services: [
                 {
                     id: 'openai-service',
@@ -464,16 +464,16 @@ test.describe.skip('Bot Native Tools', () => {
             ],
         });
 
-        openAIMock = await RunOpenAIMocks(mattermost.network);
+        openAIMock = await RunOpenAIMocks(antimatter.network);
 
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
         const systemConsole = new SystemConsoleHelper(page);
 
         // 2. Login as sysadmin
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
 
         // 3. Navigate to system console
-        await systemConsole.navigateToPluginConfig(mattermost.url());
+        await systemConsole.navigateToPluginConfig(antimatter.url());
 
         // 4. Expand bot card
         const botCard = page.locator('[class*="BotContainer"]').first();
@@ -523,6 +523,6 @@ test.describe.skip('Bot Native Tools', () => {
         await expect(reloadedCheckbox2).not.toBeChecked();
 
         await openAIMock.stop();
-        await mattermost.stop();
+        await antimatter.stop();
     });
 });

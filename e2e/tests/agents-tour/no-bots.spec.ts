@@ -4,13 +4,13 @@
 import { test, expect } from '@playwright/test';
 
 import { RunSystemConsoleContainer, adminUsername, adminPassword } from 'helpers/system-console-container';
-import MattermostContainer from 'helpers/mmcontainer';
-import { MattermostPage } from 'helpers/mm';
+import AntimatterContainer from 'helpers/amcontainer';
+import { AntimatterPage } from 'helpers/am';
 
-let mattermost: MattermostContainer;
+let antimatter: AntimatterContainer;
 
 test.beforeAll(async () => {
-    mattermost = await RunSystemConsoleContainer({
+    antimatter = await RunSystemConsoleContainer({
         services: [{
             id: 'mock-service',
             name: 'Mock Service',
@@ -23,14 +23,14 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-    await mattermost.stop();
+    await antimatter.stop();
 });
 
 test.describe('Agents Tour - No Bots Configured', () => {
     test('Tour does not appear when no bots are configured', async ({ page }) => {
-        const mmPage = new MattermostPage(page);
+        const amPage = new AntimatterPage(page);
 
-        await mmPage.login(mattermost.url(), adminUsername, adminPassword);
+        await amPage.login(antimatter.url(), adminUsername, adminPassword);
         await page.getByTestId('channel_view').waitFor({ state: 'visible', timeout: 30000 });
 
         const pulsatingDot = page.getByTestId('agents-tour-dot');
