@@ -44,7 +44,7 @@ const (
 )
 
 // getRoleTools returns the role and permission tools.
-func (p *MattermostToolProvider) getRoleTools() []MCPTool {
+func (p *AntimatterToolProvider) getRoleTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_role", getRoleDescription, p.toolGetRole),
 		mcpReadTool(p, "get_channel_moderations", getChannelModerationsDescription, p.toolGetChannelModerations),
@@ -54,7 +54,7 @@ func (p *MattermostToolProvider) getRoleTools() []MCPTool {
 }
 
 // toolGetRole implements the get_role tool.
-func (p *MattermostToolProvider) toolGetRole(mcpContext *MCPToolContext, args GetRoleArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetRole(mcpContext *MCPToolContext, args GetRoleArgs) (string, error) {
 	client := mcpContext.Client
 	ctx := mcpContext.Ctx
 
@@ -81,7 +81,7 @@ func (p *MattermostToolProvider) toolGetRole(mcpContext *MCPToolContext, args Ge
 }
 
 // toolGetChannelModerations implements the get_channel_moderations tool.
-func (p *MattermostToolProvider) toolGetChannelModerations(mcpContext *MCPToolContext, args GetChannelModerationsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelModerations(mcpContext *MCPToolContext, args GetChannelModerationsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -98,7 +98,7 @@ func (p *MattermostToolProvider) toolGetChannelModerations(mcpContext *MCPToolCo
 }
 
 // toolUpdateChannelMemberRoles implements the update_channel_member_roles tool.
-func (p *MattermostToolProvider) toolUpdateChannelMemberRoles(mcpContext *MCPToolContext, args UpdateChannelMemberRolesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateChannelMemberRoles(mcpContext *MCPToolContext, args UpdateChannelMemberRolesArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -119,7 +119,7 @@ func (p *MattermostToolProvider) toolUpdateChannelMemberRoles(mcpContext *MCPToo
 }
 
 // toolUpdateTeamMemberRoles implements the update_team_member_roles tool.
-func (p *MattermostToolProvider) toolUpdateTeamMemberRoles(mcpContext *MCPToolContext, args UpdateTeamMemberRolesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateTeamMemberRoles(mcpContext *MCPToolContext, args UpdateTeamMemberRolesArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}

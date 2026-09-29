@@ -420,7 +420,7 @@ func (p *Plugin) OnActivate() error {
 		return p.configuration.Config()
 	}, &pluginLogger{service: &pluginAPI.Log}, untrustedHTTPClient)
 
-	toolProvider := amtools.NewMMToolProvider(
+	toolProvider := amtools.NewAMToolProvider(
 		amClient,
 		webSearchService,
 	)

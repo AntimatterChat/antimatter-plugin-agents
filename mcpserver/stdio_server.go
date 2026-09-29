@@ -13,15 +13,15 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// MattermostStdioMCPServer wraps MattermostMCPServer for STDIO transport
-type MattermostStdioMCPServer struct {
-	*MattermostMCPServer
+// AntimatterStdioMCPServer wraps AntimatterMCPServer for STDIO transport
+type AntimatterStdioMCPServer struct {
+	*AntimatterMCPServer
 }
 
 // NewStdioServer creates a new STDIO transport MCP server.
 // searchService and fileContentService are optional — if nil, default HTTP-based
 // services are created that call back to the plugin's /api/v1 endpoints.
-func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*MattermostStdioMCPServer, error) {
+func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*AntimatterStdioMCPServer, error) {
 	if config.MMServerURL == "" {
 		return nil, fmt.Errorf("server URL cannot be empty")
 	}
@@ -37,17 +37,17 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 		}
 	}
 
-	mattermostServer := &MattermostStdioMCPServer{
-		MattermostMCPServer: &MattermostMCPServer{
+	antimatterServer := &AntimatterStdioMCPServer{
+		AntimatterMCPServer: &AntimatterMCPServer{
 			logger: logger,
 			config: config,
 		},
 	}
 
 	// Create authentication provider
-	mattermostServer.authProvider = auth.NewTokenAuthenticationProvider(config.GetMMServerURL(), config.GetMMInternalServerURL(), config.PersonalAccessToken, logger)
+	antimatterServer.authProvider = auth.NewTokenAuthenticationProvider(config.GetMMServerURL(), config.GetMMInternalServerURL(), config.PersonalAccessToken, logger)
 
-	mattermostServer.mcpServer = mcp.NewServer(
+	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
 			Name:    "mattermost-mcp-server",
 			Version: "0.1.0",
@@ -56,7 +56,7 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 	)
 
 	// Validate token at startup for STDIO
-	if err := mattermostServer.authProvider.ValidateAuth(context.Background()); err != nil {
+	if err := antimatterServer.authProvider.ValidateAuth(context.Background()); err != nil {
 		return nil, fmt.Errorf("startup token validation failed: %w", err)
 	}
 
@@ -70,18 +70,18 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 	}
 
 	// Register tools with local access mode
-	mattermostServer.registerTools(tools.AccessModeLocal, searchService, fileContentService)
+	antimatterServer.registerTools(tools.AccessModeLocal, searchService, fileContentService)
 
-	return mattermostServer, nil
+	return antimatterServer, nil
 }
 
 // Serve starts the STDIO MCP server
-func (s *MattermostStdioMCPServer) Serve() error {
+func (s *AntimatterStdioMCPServer) Serve() error {
 	return s.serveStdio()
 }
 
 // serveStdio starts the server using stdio transport
-func (s *MattermostMCPServer) serveStdio() error {
+func (s *AntimatterMCPServer) serveStdio() error {
 	ctx := context.Background()
 	if cfg, ok := s.config.(StdioConfig); ok && cfg.PersonalAccessToken != "" {
 		// Tool handlers inherit this context. HTTP callbacks (read_file,

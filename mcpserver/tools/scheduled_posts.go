@@ -55,7 +55,7 @@ const (
 )
 
 // getScheduledPostTools returns the scheduled-post and reminder tools.
-func (p *MattermostToolProvider) getScheduledPostTools() []MCPTool {
+func (p *AntimatterToolProvider) getScheduledPostTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "list_scheduled_posts", listScheduledPostsDescription, p.toolListScheduledPosts),
 		mcpTool(p, "create_scheduled_post", createScheduledPostDescription, p.toolCreateScheduledPost),
@@ -66,7 +66,7 @@ func (p *MattermostToolProvider) getScheduledPostTools() []MCPTool {
 }
 
 // toolListScheduledPosts implements the list_scheduled_posts tool.
-func (p *MattermostToolProvider) toolListScheduledPosts(mcpContext *MCPToolContext, args ListScheduledPostsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListScheduledPosts(mcpContext *MCPToolContext, args ListScheduledPostsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -100,7 +100,7 @@ func (p *MattermostToolProvider) toolListScheduledPosts(mcpContext *MCPToolConte
 }
 
 // toolCreateScheduledPost implements the create_scheduled_post tool.
-func (p *MattermostToolProvider) toolCreateScheduledPost(mcpContext *MCPToolContext, args CreateScheduledPostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreateScheduledPost(mcpContext *MCPToolContext, args CreateScheduledPostArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -134,7 +134,7 @@ func (p *MattermostToolProvider) toolCreateScheduledPost(mcpContext *MCPToolCont
 }
 
 // toolUpdateScheduledPost implements the update_scheduled_post tool.
-func (p *MattermostToolProvider) toolUpdateScheduledPost(mcpContext *MCPToolContext, args UpdateScheduledPostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateScheduledPost(mcpContext *MCPToolContext, args UpdateScheduledPostArgs) (string, error) {
 	if err := requireID("scheduled_post_id", args.ScheduledPostID); err != nil {
 		return "", err
 	}
@@ -178,7 +178,7 @@ func (p *MattermostToolProvider) toolUpdateScheduledPost(mcpContext *MCPToolCont
 // findScheduledPost locates a pending scheduled post by ID. There is no
 // get-by-ID endpoint, so it derives the team from the channel and scans the
 // user's scheduled posts, requesting direct-channel posts too.
-func (p *MattermostToolProvider) findScheduledPost(mcpContext *MCPToolContext, channelID, scheduledPostID string) (*model.ScheduledPost, error) {
+func (p *AntimatterToolProvider) findScheduledPost(mcpContext *MCPToolContext, channelID, scheduledPostID string) (*model.ScheduledPost, error) {
 	channel, _, err := mcpContext.Client.GetChannel(mcpContext.Ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching channel for scheduled post: %w", err)
@@ -220,7 +220,7 @@ func (p *MattermostToolProvider) findScheduledPost(mcpContext *MCPToolContext, c
 }
 
 // toolDeleteScheduledPost implements the delete_scheduled_post tool.
-func (p *MattermostToolProvider) toolDeleteScheduledPost(mcpContext *MCPToolContext, args DeleteScheduledPostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolDeleteScheduledPost(mcpContext *MCPToolContext, args DeleteScheduledPostArgs) (string, error) {
 	if err := requireID("scheduled_post_id", args.ScheduledPostID); err != nil {
 		return "", err
 	}
@@ -233,7 +233,7 @@ func (p *MattermostToolProvider) toolDeleteScheduledPost(mcpContext *MCPToolCont
 }
 
 // toolSetPostReminder implements the set_post_reminder tool.
-func (p *MattermostToolProvider) toolSetPostReminder(mcpContext *MCPToolContext, args SetPostReminderArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSetPostReminder(mcpContext *MCPToolContext, args SetPostReminderArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -263,7 +263,7 @@ func (p *MattermostToolProvider) toolSetPostReminder(mcpContext *MCPToolContext,
 
 // stampAIGeneratedDraft applies AI attribution to a Draft's props, mirroring
 // stampAIGenerated for posts.
-func (p *MattermostToolProvider) stampAIGeneratedDraft(draft *model.Draft, mcpContext *MCPToolContext) {
+func (p *AntimatterToolProvider) stampAIGeneratedDraft(draft *model.Draft, mcpContext *MCPToolContext) {
 	if !p.trackAIGenerated {
 		return
 	}

@@ -24,7 +24,7 @@ import (
 const (
 	externalProxyDiscoveryTimeout = 10 * time.Second
 	maxConcurrentProxyDiscoveries = 32
-	nativeMattermostToolOwner     = "mattermost"
+	nativeAntimatterToolOwner     = "mattermost"
 )
 
 // PluginServerRegistry is the read-side contract for plugin-server aggregation.
@@ -172,7 +172,7 @@ func (h *PluginMCPHandlers) buildServer() *mcp.Server {
 	authProvider := auth.NewSessionAuthenticationProvider(h.siteURL, h.internalURL, h.logger)
 	searchService, fileContentService := newPluginCallbackServices(h.siteURL)
 
-	toolProvider := tools.NewMattermostToolProvider(
+	toolProvider := tools.NewAntimatterToolProvider(
 		authProvider,
 		h.logger,
 		config,
@@ -184,7 +184,7 @@ func (h *PluginMCPHandlers) buildServer() *mcp.Server {
 
 	toolOwners := make(map[string]toolOwner, len(toolProvider.ToolNames()))
 	for _, toolName := range toolProvider.ToolNames() {
-		toolOwners[toolName] = toolOwner{ownerKey: nativeMattermostToolOwner}
+		toolOwners[toolName] = toolOwner{ownerKey: nativeAntimatterToolOwner}
 	}
 
 	// Disabled plugin tools are not registered on the external server.
@@ -198,7 +198,7 @@ func (h *PluginMCPHandlers) buildServer() *mcp.Server {
 
 // toolOwner is the catalog snapshot for one registered tool.
 type toolOwner struct {
-	ownerKey string // nativeMattermostToolOwner or source plugin ID
+	ownerKey string // nativeAntimatterToolOwner or source plugin ID
 	serverID string // ABAC identity; unused for native tools
 }
 
@@ -253,7 +253,7 @@ func (h *PluginMCPHandlers) addProxyTools(mcpServer *mcp.Server, toolOwners map[
 				continue
 			}
 			if existing, taken := toolOwners[proxyTool.Name]; taken {
-				if existing.ownerKey == nativeMattermostToolOwner {
+				if existing.ownerKey == nativeAntimatterToolOwner {
 					h.logger.Error("proxy tool name conflicts with native Mattermost tool; skipping",
 						"tool_name", proxyTool.Name,
 						"plugin_id", ps.PluginID)
@@ -356,7 +356,7 @@ func (h *PluginMCPHandlers) toolAccessDenied(ctx context.Context, userID, toolNa
 		return true
 	}
 	serverID := owner.serverID
-	if owner.ownerKey == nativeMattermostToolOwner {
+	if owner.ownerKey == nativeAntimatterToolOwner {
 		serverID = h.currentEmbeddedServerID()
 	}
 	if serverID == "" {

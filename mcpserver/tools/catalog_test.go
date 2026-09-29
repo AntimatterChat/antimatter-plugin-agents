@@ -14,7 +14,7 @@ import (
 // registrations across the (now large) catalog, in both production and dev mode.
 func TestToolCatalogNoDuplicateNames(t *testing.T) {
 	for _, devMode := range []bool{false, true} {
-		provider := &MattermostToolProvider{
+		provider := &AntimatterToolProvider{
 			logger:     &testLogger{t: t},
 			accessMode: AccessModeRemote,
 			devMode:    devMode,
@@ -31,7 +31,7 @@ func TestToolCatalogNoDuplicateNames(t *testing.T) {
 // TestToolCatalogContainsExpectedFamilies verifies a representative tool from
 // each new domain family is registered, so a missing group wiring is caught.
 func TestToolCatalogContainsExpectedFamilies(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger:     &testLogger{t: t},
 		accessMode: AccessModeRemote,
 	}

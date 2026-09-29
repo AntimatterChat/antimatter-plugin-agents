@@ -146,7 +146,7 @@ type EmbeddedTestSuite struct {
 	container      *mmcontainer.MattermostContainer
 	serverURL      string
 	adminClient    *model.Client4
-	embeddedServer *mcpserver.MattermostInMemoryMCPServer
+	embeddedServer *mcpserver.AntimatterInMemoryMCPServer
 	logger         *testLogger
 }
 
@@ -477,9 +477,9 @@ func (s *EmbeddedTestSuite) CreateClient(t *testing.T, user *model.User, session
 	return client
 }
 
-// embeddedServerWrapper wraps the MattermostInMemoryMCPServer to work with mock plugin API
+// embeddedServerWrapper wraps the AntimatterInMemoryMCPServer to work with mock plugin API
 type embeddedServerWrapper struct {
-	server *mcpserver.MattermostInMemoryMCPServer
+	server *mcpserver.AntimatterInMemoryMCPServer
 	api    *mockPluginAPI
 }
 

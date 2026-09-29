@@ -111,7 +111,7 @@ func TestAppAPIRoundTripper(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, fakeAPI.called)
 	require.Equal(t, "abcdefghijklmnopqrstuvwxyz", fakeAPI.gotUserID)
-	require.Equal(t, mattermostServerID, fakeAPI.gotSourcePluginID)
+	require.Equal(t, antimatterServerID, fakeAPI.gotSourcePluginID)
 	require.Equal(t, AiPluginID, fakeAPI.gotDestinationID)
 	require.Equal(t, "/bridge/v1/services", fakeAPI.gotPath)
 	require.Equal(t, http.StatusOK, resp.StatusCode)

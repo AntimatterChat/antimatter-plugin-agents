@@ -56,7 +56,7 @@ type SearchUsersArgs struct {
 const searchUsersDescription = "Search for existing users by username, email, or name. Parameters: term (required search text), limit (1-100, default 20). Returns user details including username, email, display name, and position for matching users. Example: {\"term\": \"john\", \"limit\": 5}"
 
 // getSearchTools returns all search-related tools.
-func (p *MattermostToolProvider) getSearchTools() []MCPTool {
+func (p *AntimatterToolProvider) getSearchTools() []MCPTool {
 	semanticEnabled := p.searchService != nil && p.searchService.Enabled()
 
 	var schema *jsonschema.Schema
@@ -114,7 +114,7 @@ func buildSearchTermWithChannel(query, channelName string) string {
 // before:, after:) derived from the structured filter args. The in: filter accepts
 // either a channel name or a channel ID; an ID is resolved to its URL name so the
 // modifier matches. Modifiers only affect the keyword search leg.
-func (p *MattermostToolProvider) applySearchModifiers(ctx context.Context, client *model.Client4, term string, args CombinedSearchArgs) string {
+func (p *AntimatterToolProvider) applySearchModifiers(ctx context.Context, client *model.Client4, term string, args CombinedSearchArgs) string {
 	var modifiers []string
 
 	if from := strings.TrimPrefix(strings.TrimSpace(args.From), "@"); from != "" {
@@ -163,7 +163,7 @@ type searchPostResult struct {
 }
 
 // toolCombinedSearch implements the search_posts tool.
-func (p *MattermostToolProvider) toolCombinedSearch(mcpContext *MCPToolContext, args CombinedSearchArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCombinedSearch(mcpContext *MCPToolContext, args CombinedSearchArgs) (string, error) {
 	if args.Query == "" {
 		return "", fmt.Errorf("query cannot be empty")
 	}
@@ -246,7 +246,7 @@ func (p *MattermostToolProvider) toolCombinedSearch(mcpContext *MCPToolContext, 
 }
 
 // executeSemanticSearch runs the semantic search and returns enriched results.
-func (p *MattermostToolProvider) executeSemanticSearch(ctx context.Context, client *model.Client4, args CombinedSearchArgs, userID string) ([]searchPostResult, error) {
+func (p *AntimatterToolProvider) executeSemanticSearch(ctx context.Context, client *model.Client4, args CombinedSearchArgs, userID string) ([]searchPostResult, error) {
 	opts := search.Options{
 		Limit:     args.SemanticLimit,
 		Offset:    args.SemanticOffset,
@@ -300,7 +300,7 @@ func (p *MattermostToolProvider) executeSemanticSearch(ctx context.Context, clie
 }
 
 // executeKeywordSearch runs the Mattermost keyword search and returns enriched results.
-func (p *MattermostToolProvider) executeKeywordSearch(ctx context.Context, client *model.Client4, args CombinedSearchArgs) ([]searchPostResult, error) {
+func (p *AntimatterToolProvider) executeKeywordSearch(ctx context.Context, client *model.Client4, args CombinedSearchArgs) ([]searchPostResult, error) {
 	searchTerm := args.Query
 	teamID := args.TeamID
 
@@ -425,7 +425,7 @@ func (p *MattermostToolProvider) executeKeywordSearch(ctx context.Context, clien
 }
 
 // formatCombinedResults formats the combined search results into a readable string.
-func (p *MattermostToolProvider) formatCombinedResults(query string, semanticResults, keywordResults []searchPostResult, semanticEnabled bool, channelIDFilter string) (string, error) {
+func (p *AntimatterToolProvider) formatCombinedResults(query string, semanticResults, keywordResults []searchPostResult, semanticEnabled bool, channelIDFilter string) (string, error) {
 	// Deduplicate: if a post appears in both, keep it in semantic only.
 	seenPostIDs := make(map[string]bool)
 	for _, r := range semanticResults {
@@ -489,7 +489,7 @@ func (p *MattermostToolProvider) formatCombinedResults(query string, semanticRes
 }
 
 // formatSingleResult formats a single search result.
-func (p *MattermostToolProvider) formatSingleResult(result *strings.Builder, index int, r searchPostResult, includeScore bool, channelIDFilter string) {
+func (p *AntimatterToolProvider) formatSingleResult(result *strings.Builder, index int, r searchPostResult, includeScore bool, channelIDFilter string) {
 	var score float32
 	if includeScore {
 		score = r.Score
@@ -510,7 +510,7 @@ func (p *MattermostToolProvider) formatSingleResult(result *strings.Builder, ind
 }
 
 // toolSearchUsers implements the search_users tool.
-func (p *MattermostToolProvider) toolSearchUsers(mcpContext *MCPToolContext, args SearchUsersArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchUsers(mcpContext *MCPToolContext, args SearchUsersArgs) (string, error) {
 	if args.Term == "" {
 		return "", fmt.Errorf("search term cannot be empty")
 	}

@@ -47,7 +47,7 @@ func channelRenderMembers(members model.ChannelMembers) []renderMember {
 // renderMembers resolves each member's user details and formats them as a paged
 // listing. noun labels the listing (e.g. "Channel Members"). Bot accounts are
 // dropped when excludeBots is set, and the count is reported in the footer.
-func (p *MattermostToolProvider) renderMembers(ctx context.Context, client *model.Client4, noun string, page int, members []renderMember, excludeBots bool) string {
+func (p *AntimatterToolProvider) renderMembers(ctx context.Context, client *model.Client4, noun string, page int, members []renderMember, excludeBots bool) string {
 	var result strings.Builder
 	botsExcluded := 0
 	written := 0

@@ -77,7 +77,7 @@ const (
 )
 
 // getChannelTools returns all channel-related tools
-func (p *MattermostToolProvider) getChannelTools() []MCPTool {
+func (p *AntimatterToolProvider) getChannelTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "read_channel", readChannelDescription, p.toolReadChannel),
 		mcpTool(p, "create_channel", createChannelDescription, p.toolCreateChannel),
@@ -101,7 +101,7 @@ func (p *MattermostToolProvider) getChannelTools() []MCPTool {
 // It reads recent posts from a channel and formats them with author usernames.
 // Uses GetUsersByIds to fetch all authors in a single API call.
 // Makes a single GetTeam call for the channel's team context (acceptable for one channel).
-func (p *MattermostToolProvider) toolReadChannel(mcpContext *MCPToolContext, args ReadChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolReadChannel(mcpContext *MCPToolContext, args ReadChannelArgs) (string, error) {
 	// Validate channel ID
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
@@ -273,7 +273,7 @@ func (p *MattermostToolProvider) toolReadChannel(mcpContext *MCPToolContext, arg
 
 // toolCreateChannel implements the create_channel tool.
 // Creates a new public or private channel in a specified team.
-func (p *MattermostToolProvider) toolCreateChannel(mcpContext *MCPToolContext, args CreateChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreateChannel(mcpContext *MCPToolContext, args CreateChannelArgs) (string, error) {
 	// Validate required fields
 	if args.Name == "" {
 		return "", fmt.Errorf("name cannot be empty")
@@ -316,7 +316,7 @@ func (p *MattermostToolProvider) toolCreateChannel(mcpContext *MCPToolContext, a
 }
 
 // toolGetChannelInfo implements the get_channel_info tool.
-func (p *MattermostToolProvider) toolGetChannelInfo(mcpContext *MCPToolContext, args GetChannelInfoArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelInfo(mcpContext *MCPToolContext, args GetChannelInfoArgs) (string, error) {
 	var err error
 
 	// Get client and context
@@ -444,7 +444,7 @@ func (p *MattermostToolProvider) toolGetChannelInfo(mcpContext *MCPToolContext, 
 
 // lookupChannelRole resolves the requesting user's role in a channel for display.
 // Returns "admin", "guest", "member", "not_member", or "" if the role cannot be determined.
-func (p *MattermostToolProvider) lookupChannelRole(ctx context.Context, client *model.Client4, channelID, userID string) string {
+func (p *AntimatterToolProvider) lookupChannelRole(ctx context.Context, client *model.Client4, channelID, userID string) string {
 	if userID == "" {
 		return ""
 	}
@@ -469,7 +469,7 @@ func (p *MattermostToolProvider) lookupChannelRole(ctx context.Context, client *
 
 // formatMultipleChannels formats multiple channel results with team context for disambiguation.
 // It uses a local team cache to avoid redundant GetTeam calls within the same result set.
-func (p *MattermostToolProvider) formatMultipleChannels(ctx context.Context, client *model.Client4, channels []*model.Channel, userID string) (string, error) {
+func (p *AntimatterToolProvider) formatMultipleChannels(ctx context.Context, client *model.Client4, channels []*model.Channel, userID string) (string, error) {
 	var result strings.Builder
 	fmt.Fprintf(&result, "Found %d channels with matching name:\n\n", len(channels))
 
@@ -518,7 +518,7 @@ func (p *MattermostToolProvider) formatMultipleChannels(ctx context.Context, cli
 
 // toolGetChannelMembers implements the get_channel_members tool.
 // Returns paginated member details for a channel, including username, email, and roles.
-func (p *MattermostToolProvider) toolGetChannelMembers(mcpContext *MCPToolContext, args GetChannelMembersArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelMembers(mcpContext *MCPToolContext, args GetChannelMembersArgs) (string, error) {
 	// Validate required fields
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
@@ -556,7 +556,7 @@ func (p *MattermostToolProvider) toolGetChannelMembers(mcpContext *MCPToolContex
 }
 
 // toolAddChannelMember implements the add_channel_member tool using the context client
-func (p *MattermostToolProvider) toolAddChannelMember(mcpContext *MCPToolContext, args AddChannelMemberArgs) (string, error) {
+func (p *AntimatterToolProvider) toolAddChannelMember(mcpContext *MCPToolContext, args AddChannelMemberArgs) (string, error) {
 	// Validate required fields
 	if err := requireID("user_id", args.UserID); err != nil {
 		return "", err
@@ -588,7 +588,7 @@ func (p *MattermostToolProvider) toolAddChannelMember(mcpContext *MCPToolContext
 
 // tryFindChannelByDisplayName attempts to find channels by display name
 // Returns all exact matches when teamID is not provided, or single match when teamID is specified
-func (p *MattermostToolProvider) tryFindChannelByDisplayName(ctx context.Context, client *model.Client4, displayName, teamID string) ([]*model.Channel, error) {
+func (p *AntimatterToolProvider) tryFindChannelByDisplayName(ctx context.Context, client *model.Client4, displayName, teamID string) ([]*model.Channel, error) {
 	if teamID != "" {
 		// Search within specific team - should only return one result
 		user, _, userErr := client.GetMe(ctx, "")
@@ -650,7 +650,7 @@ func (p *MattermostToolProvider) tryFindChannelByDisplayName(ctx context.Context
 
 // tryFindChannelByName attempts to find channels by name
 // Returns all exact matches when teamID is not provided, or single match when teamID is specified
-func (p *MattermostToolProvider) tryFindChannelByName(ctx context.Context, client *model.Client4, name, teamID string) ([]*model.Channel, error) {
+func (p *AntimatterToolProvider) tryFindChannelByName(ctx context.Context, client *model.Client4, name, teamID string) ([]*model.Channel, error) {
 	if teamID != "" {
 		// Search within specific team - should only return one result
 		channel, resp, err := client.GetChannelByName(ctx, name, teamID, "")
@@ -704,7 +704,7 @@ func (p *MattermostToolProvider) tryFindChannelByName(ctx context.Context, clien
 
 // tryFindChannelBySubstring does a case-insensitive substring match on display names
 // within a specific team. Used as a fallback when exact matches fail.
-func (p *MattermostToolProvider) tryFindChannelBySubstring(ctx context.Context, client *model.Client4, term, teamID string) ([]*model.Channel, error) {
+func (p *AntimatterToolProvider) tryFindChannelBySubstring(ctx context.Context, client *model.Client4, term, teamID string) ([]*model.Channel, error) {
 	user, _, userErr := client.GetMe(ctx, "")
 	if userErr != nil {
 		return nil, fmt.Errorf("error getting current user: %w", userErr)
@@ -730,7 +730,7 @@ func (p *MattermostToolProvider) tryFindChannelBySubstring(ctx context.Context, 
 // It returns all channels the current user is a member of, including DMs, GMs, and team channels.
 // Team information is resolved in a single batch call via GetTeamsForUser to avoid N+1 queries.
 // The response is paginated and returned as plain text with team metadata for each channel.
-func (p *MattermostToolProvider) toolGetUserChannels(mcpContext *MCPToolContext, args GetUserChannelsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserChannels(mcpContext *MCPToolContext, args GetUserChannelsArgs) (string, error) {
 	// Validate team ID if provided
 	if err := optionalID("team_id", args.TeamID); err != nil {
 		return "", err
@@ -933,7 +933,7 @@ const (
 )
 
 // toolGetChannelStats implements the get_channel_stats tool.
-func (p *MattermostToolProvider) toolGetChannelStats(mcpContext *MCPToolContext, args GetChannelStatsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelStats(mcpContext *MCPToolContext, args GetChannelStatsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -949,7 +949,7 @@ func (p *MattermostToolProvider) toolGetChannelStats(mcpContext *MCPToolContext,
 }
 
 // toolGetChannelMemberCounts implements the get_channel_member_counts tool.
-func (p *MattermostToolProvider) toolGetChannelMemberCounts(mcpContext *MCPToolContext, args GetChannelMemberCountsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelMemberCounts(mcpContext *MCPToolContext, args GetChannelMemberCountsArgs) (string, error) {
 	if err := requireIDs("channel_ids", args.ChannelIDs); err != nil {
 		return "", err
 	}
@@ -968,7 +968,7 @@ func (p *MattermostToolProvider) toolGetChannelMemberCounts(mcpContext *MCPToolC
 }
 
 // toolSearchChannels implements the search_channels tool.
-func (p *MattermostToolProvider) toolSearchChannels(mcpContext *MCPToolContext, args SearchChannelsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchChannels(mcpContext *MCPToolContext, args SearchChannelsArgs) (string, error) {
 	if args.Term == "" {
 		return "", fmt.Errorf("term cannot be empty")
 	}
@@ -1006,7 +1006,7 @@ func (p *MattermostToolProvider) toolSearchChannels(mcpContext *MCPToolContext, 
 }
 
 // toolListTeamChannels implements the list_team_channels tool.
-func (p *MattermostToolProvider) toolListTeamChannels(mcpContext *MCPToolContext, args ListTeamChannelsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListTeamChannels(mcpContext *MCPToolContext, args ListTeamChannelsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -1032,7 +1032,7 @@ func (p *MattermostToolProvider) toolListTeamChannels(mcpContext *MCPToolContext
 }
 
 // toolListArchivedChannels implements the list_archived_channels tool.
-func (p *MattermostToolProvider) toolListArchivedChannels(mcpContext *MCPToolContext, args ListArchivedChannelsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListArchivedChannels(mcpContext *MCPToolContext, args ListArchivedChannelsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -1047,7 +1047,7 @@ func (p *MattermostToolProvider) toolListArchivedChannels(mcpContext *MCPToolCon
 }
 
 // toolUpdateChannel implements the update_channel tool.
-func (p *MattermostToolProvider) toolUpdateChannel(mcpContext *MCPToolContext, args UpdateChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateChannel(mcpContext *MCPToolContext, args UpdateChannelArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -1070,7 +1070,7 @@ func (p *MattermostToolProvider) toolUpdateChannel(mcpContext *MCPToolContext, a
 }
 
 // toolArchiveChannel implements the archive_channel tool.
-func (p *MattermostToolProvider) toolArchiveChannel(mcpContext *MCPToolContext, args ArchiveChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolArchiveChannel(mcpContext *MCPToolContext, args ArchiveChannelArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -1083,7 +1083,7 @@ func (p *MattermostToolProvider) toolArchiveChannel(mcpContext *MCPToolContext, 
 }
 
 // toolRestoreChannel implements the restore_channel tool.
-func (p *MattermostToolProvider) toolRestoreChannel(mcpContext *MCPToolContext, args RestoreChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolRestoreChannel(mcpContext *MCPToolContext, args RestoreChannelArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -1097,7 +1097,7 @@ func (p *MattermostToolProvider) toolRestoreChannel(mcpContext *MCPToolContext, 
 }
 
 // toolConvertChannelPrivacy implements the convert_channel_privacy tool.
-func (p *MattermostToolProvider) toolConvertChannelPrivacy(mcpContext *MCPToolContext, args ConvertChannelPrivacyArgs) (string, error) {
+func (p *AntimatterToolProvider) toolConvertChannelPrivacy(mcpContext *MCPToolContext, args ConvertChannelPrivacyArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -1115,7 +1115,7 @@ func (p *MattermostToolProvider) toolConvertChannelPrivacy(mcpContext *MCPToolCo
 
 // formatChannelList renders a slice of channels with team context, resolving team
 // display names via a local cache.
-func (p *MattermostToolProvider) formatChannelList(ctx context.Context, client *model.Client4, channels []*model.Channel, noun string) string {
+func (p *AntimatterToolProvider) formatChannelList(ctx context.Context, client *model.Client4, channels []*model.Channel, noun string) string {
 	if len(channels) == 0 {
 		return fmt.Sprintf("no %s found", noun)
 	}

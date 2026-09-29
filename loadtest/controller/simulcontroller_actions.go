@@ -40,7 +40,7 @@ func (c *SimulController) askAgentChannelMention(u simulAPI) ltcontrol.UserActio
 	prompt := GeneratePrompt(c.config.PromptProfile, c.config.TriggerMode, n)
 	message := fmt.Sprintf("@%s %s", target.Username, prompt)
 
-	postID, err := createMattermostPost(u, ch.Id, message)
+	postID, err := createAntimatterPost(u, ch.Id, message)
 	if err != nil {
 		return ltcontrol.UserActionResponse{Err: ltcontrol.NewUserError(err)}
 	}
@@ -73,14 +73,14 @@ func (c *SimulController) askAgentDM(u simulAPI) ltcontrol.UserActionResponse {
 	n := c.store.NextPromptCounter(u.Store().Id())
 	prompt := GeneratePrompt(c.config.PromptProfile, c.config.TriggerMode, n)
 
-	postID, err := createMattermostPost(u, dmChannelID, prompt)
+	postID, err := createAntimatterPost(u, dmChannelID, prompt)
 	if err != nil {
 		return ltcontrol.UserActionResponse{Err: ltcontrol.NewUserError(err)}
 	}
 	return ltcontrol.UserActionResponse{Info: fmt.Sprintf("DM post id=%s channel id=%s", postID, dmChannelID)}
 }
 
-func createMattermostPost(u simulAPI, channelID, message string) (string, error) {
+func createAntimatterPost(u simulAPI, channelID, message string) (string, error) {
 	return u.CreatePost(&model.Post{
 		ChannelId: channelID,
 		Message:   message,

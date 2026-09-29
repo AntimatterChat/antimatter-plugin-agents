@@ -19,7 +19,7 @@ import (
 // This provides in-memory communication between the plugin and MCP server, eliminating
 // the need for OAuth flows and network communication
 type EmbeddedMCPServer struct {
-	server *mcpserver.MattermostInMemoryMCPServer
+	server *mcpserver.AntimatterInMemoryMCPServer
 	logger pluginapi.LogService
 }
 

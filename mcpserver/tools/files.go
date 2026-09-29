@@ -32,7 +32,7 @@ type ReadFileArgs struct {
 const readFileDescription = "Read the text contents of a Mattermost file attachment by its File ID. Large attachments in a conversation are shown to you as metadata (name, type, size, File ID) instead of inline content — call this tool with that File ID to read them. Returns extracted text for documents (PDF, Office) and the raw text for plain-text files. Supports ranged reads via offset and limit to page through large files. Parameters: file_id (required), offset (optional), limit (optional). Example: {\"file_id\": \"8xqzn3pfmtbyfkr9hqbw4hheoa\", \"offset\": 0, \"limit\": 6000}"
 
 // getFileTools returns the file-related tools.
-func (p *MattermostToolProvider) getFileTools() []MCPTool {
+func (p *AntimatterToolProvider) getFileTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "read_file", readFileDescription, p.toolReadFile),
 		mcpReadTool(p, "get_file_info", getFileInfoDescription, p.toolGetFileInfo),
@@ -44,7 +44,7 @@ func (p *MattermostToolProvider) getFileTools() []MCPTool {
 }
 
 // toolReadFile implements the read_file tool.
-func (p *MattermostToolProvider) toolReadFile(mcpContext *MCPToolContext, args ReadFileArgs) (string, error) {
+func (p *AntimatterToolProvider) toolReadFile(mcpContext *MCPToolContext, args ReadFileArgs) (string, error) {
 	if err := requireID("file_id", args.FileID); err != nil {
 		return "", err
 	}
@@ -127,7 +127,7 @@ const (
 )
 
 // toolGetFileInfo implements the get_file_info tool.
-func (p *MattermostToolProvider) toolGetFileInfo(mcpContext *MCPToolContext, args GetFileInfoArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetFileInfo(mcpContext *MCPToolContext, args GetFileInfoArgs) (string, error) {
 	if err := requireID("file_id", args.FileID); err != nil {
 		return "", err
 	}
@@ -141,7 +141,7 @@ func (p *MattermostToolProvider) toolGetFileInfo(mcpContext *MCPToolContext, arg
 }
 
 // toolGetPostFiles implements the get_post_files tool.
-func (p *MattermostToolProvider) toolGetPostFiles(mcpContext *MCPToolContext, args GetPostFilesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetPostFiles(mcpContext *MCPToolContext, args GetPostFilesArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -161,7 +161,7 @@ func (p *MattermostToolProvider) toolGetPostFiles(mcpContext *MCPToolContext, ar
 }
 
 // toolGetFileLink implements the get_file_link tool.
-func (p *MattermostToolProvider) toolGetFileLink(mcpContext *MCPToolContext, args GetFileLinkArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetFileLink(mcpContext *MCPToolContext, args GetFileLinkArgs) (string, error) {
 	if err := requireID("file_id", args.FileID); err != nil {
 		return "", err
 	}
@@ -173,7 +173,7 @@ func (p *MattermostToolProvider) toolGetFileLink(mcpContext *MCPToolContext, arg
 }
 
 // toolSearchFiles implements the search_files tool.
-func (p *MattermostToolProvider) toolSearchFiles(mcpContext *MCPToolContext, args SearchFilesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchFiles(mcpContext *MCPToolContext, args SearchFilesArgs) (string, error) {
 	if args.Terms == "" {
 		return "", fmt.Errorf("terms cannot be empty")
 	}
@@ -203,7 +203,7 @@ func (p *MattermostToolProvider) toolSearchFiles(mcpContext *MCPToolContext, arg
 
 // toolUploadFile implements the upload_file tool. File uploads from a path/URL are
 // only supported in local access mode.
-func (p *MattermostToolProvider) toolUploadFile(mcpContext *MCPToolContext, args UploadFileArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUploadFile(mcpContext *MCPToolContext, args UploadFileArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}

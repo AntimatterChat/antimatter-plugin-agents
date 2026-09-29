@@ -21,7 +21,7 @@ import (
 
 const (
 	AiPluginID         = "mattermost-ai"
-	mattermostServerID = "mattermost-server"
+	antimatterServerID = "mattermost-server"
 )
 
 // PluginAPI is the minimal interface needed from the Mattermost plugin API

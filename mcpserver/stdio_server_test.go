@@ -138,7 +138,7 @@ func TestAuthentication(t *testing.T) {
 	})
 
 	t.Run("TokenValidationAtStartup", func(t *testing.T) {
-		// This tests the startup token validation that happens in NewMattermostMCPServer
+		// This tests the startup token validation that happens in NewAntimatterMCPServer
 		stdioConfig := mcpserver.StdioConfig{
 			BaseConfig: mcpserver.BaseConfig{
 				MMServerURL: suite.serverURL,

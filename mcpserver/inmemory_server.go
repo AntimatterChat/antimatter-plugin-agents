@@ -15,17 +15,17 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// MattermostInMemoryMCPServer wraps MattermostMCPServer for in-memory transport
+// AntimatterInMemoryMCPServer wraps AntimatterMCPServer for in-memory transport
 // This server runs embedded within the plugin process and uses session-based authentication
-type MattermostInMemoryMCPServer struct {
-	*MattermostMCPServer
+type AntimatterInMemoryMCPServer struct {
+	*AntimatterMCPServer
 }
 
 // NewInMemoryServer creates a new in-memory transport MCP server
 // This server is designed to run embedded within the plugin process
 // searchService and fileContentService are optional and can be nil when the
 // corresponding capability is unavailable.
-func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*MattermostInMemoryMCPServer, error) {
+func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*AntimatterInMemoryMCPServer, error) {
 	if config.MMServerURL == "" {
 		return nil, fmt.Errorf("mattermost server URL cannot be empty for in-memory transport")
 	}
@@ -38,22 +38,22 @@ func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchSer
 		}
 	}
 
-	mattermostServer := &MattermostInMemoryMCPServer{
-		MattermostMCPServer: &MattermostMCPServer{
+	antimatterServer := &AntimatterInMemoryMCPServer{
+		AntimatterMCPServer: &AntimatterMCPServer{
 			logger: logger,
 			config: config,
 		},
 	}
 
 	// Create session authentication provider for in-memory transport
-	mattermostServer.authProvider = auth.NewSessionAuthenticationProvider(
+	antimatterServer.authProvider = auth.NewSessionAuthenticationProvider(
 		config.GetMMServerURL(),
 		config.GetMMInternalServerURL(),
 		logger,
 	)
 
 	// Create MCP server instance
-	mattermostServer.mcpServer = mcp.NewServer(
+	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
 			Name:    "mattermost-mcp-server-embedded",
 			Version: "0.1.0",
@@ -62,11 +62,11 @@ func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchSer
 	)
 
 	// Register tools with remote access mode (embedded clients are treated as remote)
-	mattermostServer.registerTools(tools.AccessModeRemote, searchService, fileContentService)
+	antimatterServer.registerTools(tools.AccessModeRemote, searchService, fileContentService)
 
 	logger.Info("Created in-memory MCP server")
 
-	return mattermostServer, nil
+	return antimatterServer, nil
 }
 
 // CreateConnectionForUser creates a new in-memory transport connection for a specific user.
@@ -74,7 +74,7 @@ func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchSer
 // Accepts either:
 // - sessionID + tokenResolver: Creates authenticated connection
 // - empty sessionID + nil tokenResolver: Creates unauthenticated connection (for tool discovery)
-func (s *MattermostInMemoryMCPServer) CreateConnectionForUser(userID, sessionID string, tokenResolver auth.TokenResolver) (*mcp.InMemoryTransport, error) {
+func (s *AntimatterInMemoryMCPServer) CreateConnectionForUser(userID, sessionID string, tokenResolver auth.TokenResolver) (*mcp.InMemoryTransport, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("userID cannot be empty")
 	}
@@ -125,7 +125,7 @@ func (s *MattermostInMemoryMCPServer) CreateConnectionForUser(userID, sessionID 
 	return clientTransport, nil
 }
 
-func (s *MattermostInMemoryMCPServer) validateUserIdentity(ctx context.Context, expectedUserID string) (*model.User, error) {
+func (s *AntimatterInMemoryMCPServer) validateUserIdentity(ctx context.Context, expectedUserID string) (*model.User, error) {
 	identityProvider, ok := s.authProvider.(auth.UserIdentityProvider)
 	if !ok {
 		return nil, fmt.Errorf("authentication provider does not support identity verification")

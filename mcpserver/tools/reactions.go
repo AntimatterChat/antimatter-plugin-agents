@@ -48,7 +48,7 @@ const (
 )
 
 // getReactionTools returns the reaction and custom-emoji tools.
-func (p *MattermostToolProvider) getReactionTools() []MCPTool {
+func (p *AntimatterToolProvider) getReactionTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_post_reactions", getPostReactionsDescription, p.toolGetPostReactions),
 		mcpReadTool(p, "list_custom_emoji", listCustomEmojiDescription, p.toolListCustomEmoji),
@@ -59,7 +59,7 @@ func (p *MattermostToolProvider) getReactionTools() []MCPTool {
 }
 
 // toolGetPostReactions implements the get_post_reactions tool.
-func (p *MattermostToolProvider) toolGetPostReactions(mcpContext *MCPToolContext, args GetPostReactionsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetPostReactions(mcpContext *MCPToolContext, args GetPostReactionsArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -77,7 +77,7 @@ func (p *MattermostToolProvider) toolGetPostReactions(mcpContext *MCPToolContext
 }
 
 // toolListCustomEmoji implements the list_custom_emoji tool.
-func (p *MattermostToolProvider) toolListCustomEmoji(mcpContext *MCPToolContext, args ListCustomEmojiArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListCustomEmoji(mcpContext *MCPToolContext, args ListCustomEmojiArgs) (string, error) {
 	if args.PerPage <= 0 {
 		args.PerPage = 50
 	}
@@ -97,7 +97,7 @@ func (p *MattermostToolProvider) toolListCustomEmoji(mcpContext *MCPToolContext,
 }
 
 // toolSearchCustomEmoji implements the search_custom_emoji tool.
-func (p *MattermostToolProvider) toolSearchCustomEmoji(mcpContext *MCPToolContext, args SearchCustomEmojiArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchCustomEmoji(mcpContext *MCPToolContext, args SearchCustomEmojiArgs) (string, error) {
 	if args.Term == "" {
 		return "", fmt.Errorf("term cannot be empty")
 	}
@@ -111,7 +111,7 @@ func (p *MattermostToolProvider) toolSearchCustomEmoji(mcpContext *MCPToolContex
 }
 
 // toolAddReaction implements the add_reaction tool.
-func (p *MattermostToolProvider) toolAddReaction(mcpContext *MCPToolContext, args AddReactionArgs) (string, error) {
+func (p *AntimatterToolProvider) toolAddReaction(mcpContext *MCPToolContext, args AddReactionArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -137,7 +137,7 @@ func (p *MattermostToolProvider) toolAddReaction(mcpContext *MCPToolContext, arg
 }
 
 // toolRemoveReaction implements the remove_reaction tool.
-func (p *MattermostToolProvider) toolRemoveReaction(mcpContext *MCPToolContext, args RemoveReactionArgs) (string, error) {
+func (p *AntimatterToolProvider) toolRemoveReaction(mcpContext *MCPToolContext, args RemoveReactionArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -163,7 +163,7 @@ func (p *MattermostToolProvider) toolRemoveReaction(mcpContext *MCPToolContext, 
 }
 
 // reactionUsernames resolves the usernames of all users who reacted, in one batch.
-func (p *MattermostToolProvider) reactionUsernames(mcpContext *MCPToolContext, reactions []*model.Reaction) map[string]string {
+func (p *AntimatterToolProvider) reactionUsernames(mcpContext *MCPToolContext, reactions []*model.Reaction) map[string]string {
 	usernames := make(map[string]string)
 	ids := make([]string, 0)
 	for _, r := range reactions {
@@ -187,7 +187,7 @@ func (p *MattermostToolProvider) reactionUsernames(mcpContext *MCPToolContext, r
 }
 
 // formatEmojiList renders custom emoji with their creators.
-func (p *MattermostToolProvider) formatEmojiList(mcpContext *MCPToolContext, emojis []*model.Emoji) string {
+func (p *AntimatterToolProvider) formatEmojiList(mcpContext *MCPToolContext, emojis []*model.Emoji) string {
 	if len(emojis) == 0 {
 		return "no custom emoji found"
 	}

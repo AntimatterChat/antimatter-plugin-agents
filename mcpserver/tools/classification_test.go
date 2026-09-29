@@ -170,7 +170,7 @@ var expectedToolReadOnly = map[string]bool{
 func TestMCPToolClassification(t *testing.T) {
 	seen := map[string]bool{}
 	for _, devMode := range []bool{false, true} {
-		provider := &MattermostToolProvider{
+		provider := &AntimatterToolProvider{
 			logger:     &testLogger{t: t},
 			accessMode: AccessModeRemote,
 			devMode:    devMode,

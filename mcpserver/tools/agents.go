@@ -30,14 +30,14 @@ type AIBotsResponse struct {
 type ListAgentsArgs struct{}
 
 // getAgentTools returns agent discovery tools.
-func (p *MattermostToolProvider) getAgentTools() []MCPTool {
+func (p *AntimatterToolProvider) getAgentTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "list_agents", `List all available AI agents (bots). Returns each agent's ID, display name, and username.`, p.toolListAgents),
 	}
 }
 
 // toolListAgents fetches available agents via the plugin's /ai_bots endpoint.
-func (p *MattermostToolProvider) toolListAgents(mcpContext *MCPToolContext, _ ListAgentsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListAgents(mcpContext *MCPToolContext, _ ListAgentsArgs) (string, error) {
 	bots, err := p.fetchAIBots(mcpContext.Client)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch agents: %w", err)
@@ -61,7 +61,7 @@ func (p *MattermostToolProvider) toolListAgents(mcpContext *MCPToolContext, _ Li
 // fetchAIBots calls the plugin's /ai_bots endpoint using the authenticated Client4.
 // The Mattermost server authenticates the Bearer token and sets Mattermost-User-Id,
 // which satisfies the plugin's MattermostAuthorizationRequired middleware.
-func (p *MattermostToolProvider) fetchAIBots(client *model.Client4) ([]AIBotInfo, error) {
+func (p *AntimatterToolProvider) fetchAIBots(client *model.Client4) ([]AIBotInfo, error) {
 	url := p.mmServerURL + aiBotsAPIPath
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)

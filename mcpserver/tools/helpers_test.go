@@ -23,9 +23,9 @@ func (l *testLogger) Error(msg string, keyValuePairs ...any) {
 func (l *testLogger) Flush() error { return nil }
 
 // newTestProvider builds a provider wired to a test logger and the given server URL.
-func newTestProvider(t *testing.T, serverURL string) *MattermostToolProvider {
+func newTestProvider(t *testing.T, serverURL string) *AntimatterToolProvider {
 	t.Helper()
-	return &MattermostToolProvider{
+	return &AntimatterToolProvider{
 		logger:      &testLogger{t: t},
 		mmServerURL: serverURL,
 	}

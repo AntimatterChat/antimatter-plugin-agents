@@ -106,7 +106,7 @@ const (
 )
 
 // getChannelMemberTools returns the channel membership and per-channel settings tools.
-func (p *MattermostToolProvider) getChannelMemberTools() []MCPTool {
+func (p *AntimatterToolProvider) getChannelMemberTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_channel_member", getChannelMemberDescription, p.toolGetChannelMember),
 		mcpReadTool(p, "get_channel_members_by_ids", getChannelMembersByIDsDescription, p.toolGetChannelMembersByIDs),
@@ -124,7 +124,7 @@ func (p *MattermostToolProvider) getChannelMemberTools() []MCPTool {
 }
 
 // toolGetChannelMember implements the get_channel_member tool.
-func (p *MattermostToolProvider) toolGetChannelMember(mcpContext *MCPToolContext, args GetChannelMemberArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelMember(mcpContext *MCPToolContext, args GetChannelMemberArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -151,7 +151,7 @@ func (p *MattermostToolProvider) toolGetChannelMember(mcpContext *MCPToolContext
 }
 
 // toolGetChannelMembersByIDs implements the get_channel_members_by_ids tool.
-func (p *MattermostToolProvider) toolGetChannelMembersByIDs(mcpContext *MCPToolContext, args GetChannelMembersByIDsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelMembersByIDs(mcpContext *MCPToolContext, args GetChannelMembersByIDsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -171,7 +171,7 @@ func (p *MattermostToolProvider) toolGetChannelMembersByIDs(mcpContext *MCPToolC
 }
 
 // toolGetChannelMembersByStatus implements the get_channel_members_by_status tool.
-func (p *MattermostToolProvider) toolGetChannelMembersByStatus(mcpContext *MCPToolContext, args GetChannelMembersByStatusArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelMembersByStatus(mcpContext *MCPToolContext, args GetChannelMembersByStatusArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -187,7 +187,7 @@ func (p *MattermostToolProvider) toolGetChannelMembersByStatus(mcpContext *MCPTo
 }
 
 // toolGetUserChannelMemberships implements the get_user_channel_memberships tool.
-func (p *MattermostToolProvider) toolGetUserChannelMemberships(mcpContext *MCPToolContext, args GetUserChannelMembershipsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserChannelMemberships(mcpContext *MCPToolContext, args GetUserChannelMembershipsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -220,7 +220,7 @@ func (p *MattermostToolProvider) toolGetUserChannelMemberships(mcpContext *MCPTo
 }
 
 // toolGetUsersNotInChannel implements the get_users_not_in_channel tool.
-func (p *MattermostToolProvider) toolGetUsersNotInChannel(mcpContext *MCPToolContext, args GetUsersNotInChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersNotInChannel(mcpContext *MCPToolContext, args GetUsersNotInChannelArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -238,7 +238,7 @@ func (p *MattermostToolProvider) toolGetUsersNotInChannel(mcpContext *MCPToolCon
 }
 
 // toolSearchUsersInChannel implements the search_users_in_channel tool.
-func (p *MattermostToolProvider) toolSearchUsersInChannel(mcpContext *MCPToolContext, args SearchUsersInChannelArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchUsersInChannel(mcpContext *MCPToolContext, args SearchUsersInChannelArgs) (string, error) {
 	if args.Term == "" {
 		return "", fmt.Errorf("term cannot be empty")
 	}
@@ -269,7 +269,7 @@ func (p *MattermostToolProvider) toolSearchUsersInChannel(mcpContext *MCPToolCon
 }
 
 // toolListSidebarCategories implements the list_sidebar_categories tool.
-func (p *MattermostToolProvider) toolListSidebarCategories(mcpContext *MCPToolContext, args ListSidebarCategoriesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListSidebarCategories(mcpContext *MCPToolContext, args ListSidebarCategoriesArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -299,7 +299,7 @@ func (p *MattermostToolProvider) toolListSidebarCategories(mcpContext *MCPToolCo
 }
 
 // toolAddChannelMembers implements the add_channel_members tool.
-func (p *MattermostToolProvider) toolAddChannelMembers(mcpContext *MCPToolContext, args AddChannelMembersArgs) (string, error) {
+func (p *AntimatterToolProvider) toolAddChannelMembers(mcpContext *MCPToolContext, args AddChannelMembersArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -315,7 +315,7 @@ func (p *MattermostToolProvider) toolAddChannelMembers(mcpContext *MCPToolContex
 }
 
 // toolRemoveChannelMember implements the remove_channel_member tool.
-func (p *MattermostToolProvider) toolRemoveChannelMember(mcpContext *MCPToolContext, args RemoveChannelMemberArgs) (string, error) {
+func (p *AntimatterToolProvider) toolRemoveChannelMember(mcpContext *MCPToolContext, args RemoveChannelMemberArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -332,7 +332,7 @@ func (p *MattermostToolProvider) toolRemoveChannelMember(mcpContext *MCPToolCont
 
 // toolSetChannelMute implements the set_channel_mute tool. There is no mute endpoint;
 // muting toggles the member's mark_unread notify prop.
-func (p *MattermostToolProvider) toolSetChannelMute(mcpContext *MCPToolContext, args SetChannelMuteArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSetChannelMute(mcpContext *MCPToolContext, args SetChannelMuteArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -360,7 +360,7 @@ func (p *MattermostToolProvider) toolSetChannelMute(mcpContext *MCPToolContext, 
 
 // toolSetChannelFavorite implements the set_channel_favorite tool via the
 // favorite_channel preference (no dedicated endpoint).
-func (p *MattermostToolProvider) toolSetChannelFavorite(mcpContext *MCPToolContext, args SetChannelFavoriteArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSetChannelFavorite(mcpContext *MCPToolContext, args SetChannelFavoriteArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -399,7 +399,7 @@ func (p *MattermostToolProvider) toolSetChannelFavorite(mcpContext *MCPToolConte
 }
 
 // toolUpdateChannelNotifyProps implements the update_channel_notify_props tool.
-func (p *MattermostToolProvider) toolUpdateChannelNotifyProps(mcpContext *MCPToolContext, args UpdateChannelNotifyPropsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateChannelNotifyProps(mcpContext *MCPToolContext, args UpdateChannelNotifyPropsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -431,7 +431,7 @@ func (p *MattermostToolProvider) toolUpdateChannelNotifyProps(mcpContext *MCPToo
 }
 
 // formatUserList renders a slice of users, optionally excluding bots.
-func (p *MattermostToolProvider) formatUserList(users []*model.User, noun string, excludeBots bool) string {
+func (p *AntimatterToolProvider) formatUserList(users []*model.User, noun string, excludeBots bool) string {
 	if len(users) == 0 {
 		return fmt.Sprintf("no %s found", noun)
 	}

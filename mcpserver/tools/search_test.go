@@ -65,7 +65,7 @@ func TestGetSearchTools_SchemaReflectsCapabilities(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			provider := &MattermostToolProvider{
+			provider := &AntimatterToolProvider{
 				logger:        &testLogger{t: t},
 				searchService: tc.searchService,
 				accessMode:    AccessModeRemote,
@@ -121,7 +121,7 @@ func TestGetSearchTools_SchemaReflectsCapabilities(t *testing.T) {
 }
 
 func TestFormatCombinedResults_Deduplication(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -170,7 +170,7 @@ func TestFormatCombinedResults_Deduplication(t *testing.T) {
 }
 
 func TestFormatCombinedResults_DeduplicationPrefersSemantic(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -208,7 +208,7 @@ func TestFormatCombinedResults_DeduplicationPrefersSemantic(t *testing.T) {
 }
 
 func TestFormatCombinedResults_ZeroResults(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -237,7 +237,7 @@ func TestFormatCombinedResults_ZeroResults(t *testing.T) {
 }
 
 func TestFormatCombinedResults_EdgeCases(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -344,7 +344,7 @@ func TestFormatCombinedResults_EdgeCases(t *testing.T) {
 }
 
 func TestFormatCombinedResults_OnlySemanticResults(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -368,7 +368,7 @@ func TestFormatCombinedResults_OnlySemanticResults(t *testing.T) {
 }
 
 func TestFormatCombinedResults_OnlyKeywordResults(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -391,7 +391,7 @@ func TestFormatCombinedResults_OnlyKeywordResults(t *testing.T) {
 }
 
 func TestFormatCombinedResults_KeywordOnlyMode(t *testing.T) {
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 

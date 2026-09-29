@@ -461,7 +461,7 @@ func TestGetToolsIncludesSovereignWebSearch(t *testing.T) {
 	)
 	client := mocks.NewMockClient(t)
 
-	provider := NewMMToolProvider(client, NewWebSearchService(cfgGetter, &mockLogger{}, http.DefaultClient))
+	provider := NewAMToolProvider(client, NewWebSearchService(cfgGetter, &mockLogger{}, http.DefaultClient))
 	names := []string{}
 	for _, tool := range provider.GetTools(mockBot, &llm.Context{}) {
 		names = append(names, tool.Name)

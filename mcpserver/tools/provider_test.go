@@ -18,7 +18,7 @@ import (
 // and surfaces the standard "invalid arguments" error for the tool when the
 // argument getter fails, before the underlying resolver runs.
 func TestTypedWrapperDecodeError(t *testing.T) {
-	provider := &MattermostToolProvider{logger: &testLogger{t: t}}
+	provider := &AntimatterToolProvider{logger: &testLogger{t: t}}
 
 	r := typed("delete_post", provider.toolDeletePost)
 	_, err := r(&MCPToolContext{}, func(any) error { return fmt.Errorf("bad json") })
@@ -49,7 +49,7 @@ func TestRegisterDynamicTool_WithSchema(t *testing.T) {
 	}, nil)
 
 	// Create a provider
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 
@@ -81,7 +81,7 @@ func TestRegisterDynamicTool_WithoutSchema(t *testing.T) {
 	}, nil)
 
 	// Create a provider
-	provider := &MattermostToolProvider{
+	provider := &AntimatterToolProvider{
 		logger: &testLogger{t: t},
 	}
 

@@ -51,7 +51,7 @@ func typed[T any](name string, fn func(*MCPToolContext, T) (string, error)) MCPT
 // input schema is derived from the resolver's argument type and the provider's
 // access mode, and the name is wired into the resolver once, so registration
 // sites state each fact a single time.
-func mcpTool[T any](p *MattermostToolProvider, name, description string, handler func(*MCPToolContext, T) (string, error)) MCPTool {
+func mcpTool[T any](p *AntimatterToolProvider, name, description string, handler func(*MCPToolContext, T) (string, error)) MCPTool {
 	return MCPTool{
 		Name:        name,
 		Description: description,
@@ -61,7 +61,7 @@ func mcpTool[T any](p *MattermostToolProvider, name, description string, handler
 }
 
 // mcpReadTool is mcpTool with ReadOnly set, for tools that only retrieve data.
-func mcpReadTool[T any](p *MattermostToolProvider, name, description string, handler func(*MCPToolContext, T) (string, error)) MCPTool {
+func mcpReadTool[T any](p *AntimatterToolProvider, name, description string, handler func(*MCPToolContext, T) (string, error)) MCPTool {
 	tool := mcpTool(p, name, description, handler)
 	tool.ReadOnly = true
 	return tool
@@ -100,8 +100,8 @@ type SemanticSearchService interface {
 	Search(ctx context.Context, query string, opts search.Options) ([]search.RAGResult, error)
 }
 
-// MattermostToolProvider provides Mattermost tools following the amtools pattern
-type MattermostToolProvider struct {
+// AntimatterToolProvider provides Mattermost tools following the amtools pattern
+type AntimatterToolProvider struct {
 	authProvider       auth.AuthenticationProvider
 	logger             logger.Logger
 	mmServerURL        string // Mattermost server URL for API communication (internal URL if set, otherwise external)
@@ -112,16 +112,16 @@ type MattermostToolProvider struct {
 	fileContentService FileContentService    // Optional file content service for read_file, can be nil
 }
 
-// NewMattermostToolProvider creates a new tool provider.
+// NewAntimatterToolProvider creates a new tool provider.
 // searchService is optional and can be nil if semantic search is not available.
-func NewMattermostToolProvider(authProvider auth.AuthenticationProvider, logger logger.Logger, config ServerConfig, accessMode AccessMode, searchService SemanticSearchService, fileContentService FileContentService) *MattermostToolProvider {
+func NewAntimatterToolProvider(authProvider auth.AuthenticationProvider, logger logger.Logger, config ServerConfig, accessMode AccessMode, searchService SemanticSearchService, fileContentService FileContentService) *AntimatterToolProvider {
 	// Use internal URL for API communication if provided, otherwise fallback to external URL
 	serverURL := config.GetMMInternalServerURL()
 	if serverURL == "" {
 		serverURL = config.GetMMServerURL()
 	}
 
-	return &MattermostToolProvider{
+	return &AntimatterToolProvider{
 		authProvider:       authProvider,
 		logger:             logger,
 		mmServerURL:        serverURL,
@@ -133,7 +133,7 @@ func NewMattermostToolProvider(authProvider auth.AuthenticationProvider, logger 
 	}
 }
 
-func (p *MattermostToolProvider) mcpTools() []MCPTool {
+func (p *AntimatterToolProvider) mcpTools() []MCPTool {
 	// Tool groups in registration order.
 	groups := []func() []MCPTool{
 		p.getPostTools,
@@ -167,7 +167,7 @@ func (p *MattermostToolProvider) mcpTools() []MCPTool {
 }
 
 // ToolNames returns the names of the tools this provider will register.
-func (p *MattermostToolProvider) ToolNames() []string {
+func (p *AntimatterToolProvider) ToolNames() []string {
 	mcpTools := p.mcpTools()
 	names := make([]string, 0, len(mcpTools))
 	for _, mcpTool := range mcpTools {
@@ -177,14 +177,14 @@ func (p *MattermostToolProvider) ToolNames() []string {
 }
 
 // ProvideTools registers all available MCP tools with the server.
-func (p *MattermostToolProvider) ProvideTools(mcpServer *mcp.Server) {
+func (p *AntimatterToolProvider) ProvideTools(mcpServer *mcp.Server) {
 	for _, mcpTool := range p.mcpTools() {
 		p.registerDynamicTool(mcpServer, mcpTool)
 	}
 }
 
 // registerDynamicTool registers a single tool with the MCP server.
-func (p *MattermostToolProvider) registerDynamicTool(server *mcp.Server, mcpTool MCPTool) {
+func (p *AntimatterToolProvider) registerDynamicTool(server *mcp.Server, mcpTool MCPTool) {
 	tool := &mcp.Tool{
 		Name:        mcpTool.Name,
 		Description: mcpTool.Description,
@@ -271,7 +271,7 @@ func (p *MattermostToolProvider) registerDynamicTool(server *mcp.Server, mcpTool
 }
 
 // createMCPToolContext creates an MCPToolContext from the Go context, authenticated client, and request metadata
-func (p *MattermostToolProvider) createMCPToolContext(ctx context.Context, metadata mcp.Meta) (*MCPToolContext, error) {
+func (p *AntimatterToolProvider) createMCPToolContext(ctx context.Context, metadata mcp.Meta) (*MCPToolContext, error) {
 	client, err := p.authProvider.GetAuthenticatedAntimatterClient(ctx)
 	if err != nil {
 		return nil, err

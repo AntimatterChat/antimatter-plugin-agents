@@ -77,7 +77,7 @@ func handleOAuthMetadataCommon(w http.ResponseWriter, r *http.Request, resourceU
 }
 
 // handleProtectedResourceMetadata handles OAuth 2.0 Protected Resource Metadata requests (RFC 9728)
-func (s *MattermostHTTPMCPServer) handleProtectedResourceMetadata(w http.ResponseWriter, r *http.Request) {
+func (s *AntimatterHTTPMCPServer) handleProtectedResourceMetadata(w http.ResponseWriter, r *http.Request) {
 	resourceURL := s.config.SiteURL
 	authServerURL := s.config.GetMMServerURL()
 	handleOAuthMetadataCommon(w, r, resourceURL, authServerURL, "Mattermost MCP Server")

@@ -70,7 +70,7 @@ const (
 )
 
 // getPostTools returns all post-related tools
-func (p *MattermostToolProvider) getPostTools() []MCPTool {
+func (p *AntimatterToolProvider) getPostTools() []MCPTool {
 	// Build descriptions conditionally based on access mode
 	attachmentsParam := ""
 	if p.accessMode == AccessModeLocal {
@@ -101,14 +101,14 @@ func (p *MattermostToolProvider) getPostTools() []MCPTool {
 }
 
 // getDevPostTools returns development post-related tools for MCP
-func (p *MattermostToolProvider) getDevPostTools() []MCPTool {
+func (p *AntimatterToolProvider) getDevPostTools() []MCPTool {
 	return []MCPTool{
 		mcpTool(p, "create_post_as_user", "Create a post as a specific user using username/password login. Use this tool in dev mode for creating realistic multi-user scenarios. Simply provide the username and password of created users.", p.toolCreatePostAsUser),
 	}
 }
 
 // toolReadPost implements the read_post tool
-func (p *MattermostToolProvider) toolReadPost(mcpContext *MCPToolContext, args ReadPostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolReadPost(mcpContext *MCPToolContext, args ReadPostArgs) (string, error) {
 	// Validate post ID
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
@@ -219,7 +219,7 @@ func (p *MattermostToolProvider) toolReadPost(mcpContext *MCPToolContext, args R
 }
 
 // toolCreatePost implements the create_post tool
-func (p *MattermostToolProvider) toolCreatePost(mcpContext *MCPToolContext, args CreatePostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreatePost(mcpContext *MCPToolContext, args CreatePostArgs) (string, error) {
 	// Validate required fields
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
@@ -291,7 +291,7 @@ func (p *MattermostToolProvider) toolCreatePost(mcpContext *MCPToolContext, args
 }
 
 // toolCreatePostAsUser implements the create_post_as_user tool with custom authentication
-func (p *MattermostToolProvider) toolCreatePostAsUser(mcpContext *MCPToolContext, args CreatePostAsUserArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreatePostAsUser(mcpContext *MCPToolContext, args CreatePostAsUserArgs) (string, error) {
 	// Validate required fields
 	if args.Username == "" {
 		return "", fmt.Errorf("username cannot be empty")
@@ -347,7 +347,7 @@ func (p *MattermostToolProvider) toolCreatePostAsUser(mcpContext *MCPToolContext
 }
 
 // toolDM implements the dm tool
-func (p *MattermostToolProvider) toolDM(mcpContext *MCPToolContext, args DMArgs) (string, error) {
+func (p *AntimatterToolProvider) toolDM(mcpContext *MCPToolContext, args DMArgs) (string, error) {
 	// Validate required fields
 	if args.Message == "" {
 		return "", fmt.Errorf("message cannot be empty")
@@ -415,7 +415,7 @@ func (p *MattermostToolProvider) toolDM(mcpContext *MCPToolContext, args DMArgs)
 }
 
 // toolGroupMessage implements the group_message tool
-func (p *MattermostToolProvider) toolGroupMessage(mcpContext *MCPToolContext, args GroupMessageArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGroupMessage(mcpContext *MCPToolContext, args GroupMessageArgs) (string, error) {
 	if args.Message == "" {
 		return "", fmt.Errorf("message cannot be empty")
 	}
@@ -550,7 +550,7 @@ const (
 )
 
 // toolGetPostInfo implements the get_post_info tool.
-func (p *MattermostToolProvider) toolGetPostInfo(mcpContext *MCPToolContext, args GetPostInfoArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetPostInfo(mcpContext *MCPToolContext, args GetPostInfoArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -566,7 +566,7 @@ func (p *MattermostToolProvider) toolGetPostInfo(mcpContext *MCPToolContext, arg
 }
 
 // toolListPinnedPosts implements the list_pinned_posts tool.
-func (p *MattermostToolProvider) toolListPinnedPosts(mcpContext *MCPToolContext, args ListPinnedPostsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListPinnedPosts(mcpContext *MCPToolContext, args ListPinnedPostsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -580,7 +580,7 @@ func (p *MattermostToolProvider) toolListPinnedPosts(mcpContext *MCPToolContext,
 }
 
 // toolListSavedPosts implements the list_saved_posts tool.
-func (p *MattermostToolProvider) toolListSavedPosts(mcpContext *MCPToolContext, args ListSavedPostsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListSavedPosts(mcpContext *MCPToolContext, args ListSavedPostsArgs) (string, error) {
 	if err := optionalID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -622,7 +622,7 @@ func (p *MattermostToolProvider) toolListSavedPosts(mcpContext *MCPToolContext, 
 }
 
 // toolUpdatePost implements the update_post tool.
-func (p *MattermostToolProvider) toolUpdatePost(mcpContext *MCPToolContext, args UpdatePostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdatePost(mcpContext *MCPToolContext, args UpdatePostArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -650,7 +650,7 @@ func (p *MattermostToolProvider) toolUpdatePost(mcpContext *MCPToolContext, args
 }
 
 // toolDeletePost implements the delete_post tool.
-func (p *MattermostToolProvider) toolDeletePost(mcpContext *MCPToolContext, args DeletePostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolDeletePost(mcpContext *MCPToolContext, args DeletePostArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -663,7 +663,7 @@ func (p *MattermostToolProvider) toolDeletePost(mcpContext *MCPToolContext, args
 }
 
 // toolPinPost implements the pin_post tool.
-func (p *MattermostToolProvider) toolPinPost(mcpContext *MCPToolContext, args PinPostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolPinPost(mcpContext *MCPToolContext, args PinPostArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -676,7 +676,7 @@ func (p *MattermostToolProvider) toolPinPost(mcpContext *MCPToolContext, args Pi
 }
 
 // toolUnpinPost implements the unpin_post tool.
-func (p *MattermostToolProvider) toolUnpinPost(mcpContext *MCPToolContext, args UnpinPostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUnpinPost(mcpContext *MCPToolContext, args UnpinPostArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -690,7 +690,7 @@ func (p *MattermostToolProvider) toolUnpinPost(mcpContext *MCPToolContext, args 
 
 // toolSavePost implements the save_post tool. There is no dedicated endpoint; a
 // saved (flagged) post is stored as a user preference.
-func (p *MattermostToolProvider) toolSavePost(mcpContext *MCPToolContext, args SavePostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSavePost(mcpContext *MCPToolContext, args SavePostArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -715,7 +715,7 @@ func (p *MattermostToolProvider) toolSavePost(mcpContext *MCPToolContext, args S
 }
 
 // toolAcknowledgePost implements the acknowledge_post tool.
-func (p *MattermostToolProvider) toolAcknowledgePost(mcpContext *MCPToolContext, args AcknowledgePostArgs) (string, error) {
+func (p *AntimatterToolProvider) toolAcknowledgePost(mcpContext *MCPToolContext, args AcknowledgePostArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -734,7 +734,7 @@ func (p *MattermostToolProvider) toolAcknowledgePost(mcpContext *MCPToolContext,
 
 // formatPostListChrono renders a PostList in chronological order with author
 // usernames, reusing the format package. noun labels the listing in the header.
-func (p *MattermostToolProvider) formatPostListChrono(mcpContext *MCPToolContext, postList *model.PostList, noun string) string {
+func (p *AntimatterToolProvider) formatPostListChrono(mcpContext *MCPToolContext, postList *model.PostList, noun string) string {
 	if postList == nil || len(postList.Posts) == 0 {
 		return fmt.Sprintf("no %s found", noun)
 	}
@@ -789,7 +789,7 @@ func (p *MattermostToolProvider) formatPostListChrono(mcpContext *MCPToolContext
 // metadata (embedded servers); otherwise it uses fallbackUserID (the authenticated
 // user the caller already resolved), and as a last resort fetches the current user.
 // It is a no-op when tracking is disabled or no user id can be determined.
-func (p *MattermostToolProvider) stampAIGenerated(post *model.Post, mcpContext *MCPToolContext, fallbackUserID string) {
+func (p *AntimatterToolProvider) stampAIGenerated(post *model.Post, mcpContext *MCPToolContext, fallbackUserID string) {
 	if !p.trackAIGenerated {
 		return
 	}

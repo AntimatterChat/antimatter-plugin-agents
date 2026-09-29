@@ -74,7 +74,7 @@ const (
 )
 
 // getThreadTools returns the threads, mentions, and unread-state tools.
-func (p *MattermostToolProvider) getThreadTools() []MCPTool {
+func (p *AntimatterToolProvider) getThreadTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_threads", getThreadsDescription, p.toolGetThreads),
 		mcpReadTool(p, "get_mentions", getMentionsDescription, p.toolGetMentions),
@@ -89,7 +89,7 @@ func (p *MattermostToolProvider) getThreadTools() []MCPTool {
 }
 
 // toolGetThreads implements the get_threads tool.
-func (p *MattermostToolProvider) toolGetThreads(mcpContext *MCPToolContext, args GetThreadsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetThreads(mcpContext *MCPToolContext, args GetThreadsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -139,7 +139,7 @@ func (p *MattermostToolProvider) toolGetThreads(mcpContext *MCPToolContext, args
 
 // toolGetMentions implements the get_mentions tool. There is no dedicated mentions
 // endpoint, so this searches for posts containing the user's mention keywords.
-func (p *MattermostToolProvider) toolGetMentions(mcpContext *MCPToolContext, args GetMentionsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetMentions(mcpContext *MCPToolContext, args GetMentionsArgs) (string, error) {
 	if err := optionalID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -187,7 +187,7 @@ func mentionKeywords(user *model.User) []string {
 }
 
 // toolGetUnreadCounts implements the get_unread_counts tool.
-func (p *MattermostToolProvider) toolGetUnreadCounts(mcpContext *MCPToolContext, args GetUnreadCountsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUnreadCounts(mcpContext *MCPToolContext, args GetUnreadCountsArgs) (string, error) {
 	if err := optionalID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -225,7 +225,7 @@ func (p *MattermostToolProvider) toolGetUnreadCounts(mcpContext *MCPToolContext,
 }
 
 // toolGetChannelUnread implements the get_channel_unread tool.
-func (p *MattermostToolProvider) toolGetChannelUnread(mcpContext *MCPToolContext, args GetChannelUnreadArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelUnread(mcpContext *MCPToolContext, args GetChannelUnreadArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -246,7 +246,7 @@ func (p *MattermostToolProvider) toolGetChannelUnread(mcpContext *MCPToolContext
 }
 
 // toolGetPostsAroundUnread implements the get_posts_around_unread tool.
-func (p *MattermostToolProvider) toolGetPostsAroundUnread(mcpContext *MCPToolContext, args GetPostsAroundUnreadArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetPostsAroundUnread(mcpContext *MCPToolContext, args GetPostsAroundUnreadArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -271,7 +271,7 @@ func (p *MattermostToolProvider) toolGetPostsAroundUnread(mcpContext *MCPToolCon
 }
 
 // toolMarkChannelRead implements the mark_channel_read tool.
-func (p *MattermostToolProvider) toolMarkChannelRead(mcpContext *MCPToolContext, args MarkChannelReadArgs) (string, error) {
+func (p *AntimatterToolProvider) toolMarkChannelRead(mcpContext *MCPToolContext, args MarkChannelReadArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -289,7 +289,7 @@ func (p *MattermostToolProvider) toolMarkChannelRead(mcpContext *MCPToolContext,
 }
 
 // toolMarkChannelsViewed implements the mark_channels_viewed tool.
-func (p *MattermostToolProvider) toolMarkChannelsViewed(mcpContext *MCPToolContext, args MarkChannelsViewedArgs) (string, error) {
+func (p *AntimatterToolProvider) toolMarkChannelsViewed(mcpContext *MCPToolContext, args MarkChannelsViewedArgs) (string, error) {
 	if err := requireIDs("channel_ids", args.ChannelIDs); err != nil {
 		return "", err
 	}
@@ -309,7 +309,7 @@ func (p *MattermostToolProvider) toolMarkChannelsViewed(mcpContext *MCPToolConte
 }
 
 // toolMarkPostUnread implements the mark_post_unread tool.
-func (p *MattermostToolProvider) toolMarkPostUnread(mcpContext *MCPToolContext, args MarkPostUnreadArgs) (string, error) {
+func (p *AntimatterToolProvider) toolMarkPostUnread(mcpContext *MCPToolContext, args MarkPostUnreadArgs) (string, error) {
 	if err := requireID("post_id", args.PostID); err != nil {
 		return "", err
 	}
@@ -327,7 +327,7 @@ func (p *MattermostToolProvider) toolMarkPostUnread(mcpContext *MCPToolContext, 
 }
 
 // toolSetThreadFollow implements the set_thread_follow tool.
-func (p *MattermostToolProvider) toolSetThreadFollow(mcpContext *MCPToolContext, args SetThreadFollowArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSetThreadFollow(mcpContext *MCPToolContext, args SetThreadFollowArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}

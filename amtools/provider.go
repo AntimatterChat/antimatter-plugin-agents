@@ -16,15 +16,15 @@ type ToolProvider interface {
 	GetTools(bot *bots.Bot, llmContext *llm.Context) []llm.Tool
 }
 
-// MMToolProvider implements ToolProvider with all built-in Mattermost tools
-type MMToolProvider struct {
+// AMToolProvider implements ToolProvider with all built-in Mattermost tools
+type AMToolProvider struct {
 	pluginAPI amapi.Client
 	webSearch WebSearchService
 }
 
-// NewMMToolProvider creates a new tool provider
-func NewMMToolProvider(pluginAPI amapi.Client, webSearch WebSearchService) *MMToolProvider {
-	return &MMToolProvider{
+// NewAMToolProvider creates a new tool provider
+func NewAMToolProvider(pluginAPI amapi.Client, webSearch WebSearchService) *AMToolProvider {
+	return &AMToolProvider{
 		pluginAPI: pluginAPI,
 		webSearch: webSearch,
 	}
@@ -39,7 +39,7 @@ func NewMMToolProvider(pluginAPI amapi.Client, webSearch WebSearchService) *MMTo
 // them where nobody can answer would strand the conversation), and
 // response-file tools are only cataloged when the flow can attach files to
 // the response post.
-func (p *MMToolProvider) GetTools(bot *bots.Bot, llmContext *llm.Context) []llm.Tool {
+func (p *AMToolProvider) GetTools(bot *bots.Bot, llmContext *llm.Context) []llm.Tool {
 	builtInTools := []llm.Tool{}
 
 	if p.pluginAPI != nil && p.webSearch != nil && !hasNativeWebSearch(bot) {

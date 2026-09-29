@@ -74,7 +74,7 @@ const (
 )
 
 // getUserTools returns the user profile read/update tools.
-func (p *MattermostToolProvider) getUserTools() []MCPTool {
+func (p *AntimatterToolProvider) getUserTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_me", getMeDescription, p.toolGetMe),
 		mcpReadTool(p, "get_user", getUserDescription, p.toolGetUser),
@@ -90,7 +90,7 @@ func (p *MattermostToolProvider) getUserTools() []MCPTool {
 }
 
 // toolGetMe implements the get_me tool.
-func (p *MattermostToolProvider) toolGetMe(mcpContext *MCPToolContext, _ GetMeArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetMe(mcpContext *MCPToolContext, _ GetMeArgs) (string, error) {
 	user, _, err := mcpContext.Client.GetMe(mcpContext.Ctx, "")
 	if err != nil {
 		return "", fmt.Errorf("error fetching current user: %w", err)
@@ -99,7 +99,7 @@ func (p *MattermostToolProvider) toolGetMe(mcpContext *MCPToolContext, _ GetMeAr
 }
 
 // toolGetUser implements the get_user tool.
-func (p *MattermostToolProvider) toolGetUser(mcpContext *MCPToolContext, args GetUserArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUser(mcpContext *MCPToolContext, args GetUserArgs) (string, error) {
 	if err := requireID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -111,7 +111,7 @@ func (p *MattermostToolProvider) toolGetUser(mcpContext *MCPToolContext, args Ge
 }
 
 // toolGetUserByUsername implements the get_user_by_username tool.
-func (p *MattermostToolProvider) toolGetUserByUsername(mcpContext *MCPToolContext, args GetUserByUsernameArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserByUsername(mcpContext *MCPToolContext, args GetUserByUsernameArgs) (string, error) {
 	username := strings.TrimPrefix(strings.TrimSpace(args.Username), "@")
 	if username == "" {
 		return "", fmt.Errorf("username cannot be empty")
@@ -124,7 +124,7 @@ func (p *MattermostToolProvider) toolGetUserByUsername(mcpContext *MCPToolContex
 }
 
 // toolGetUserByEmail implements the get_user_by_email tool.
-func (p *MattermostToolProvider) toolGetUserByEmail(mcpContext *MCPToolContext, args GetUserByEmailArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserByEmail(mcpContext *MCPToolContext, args GetUserByEmailArgs) (string, error) {
 	if strings.TrimSpace(args.Email) == "" {
 		return "", fmt.Errorf("email cannot be empty")
 	}
@@ -136,7 +136,7 @@ func (p *MattermostToolProvider) toolGetUserByEmail(mcpContext *MCPToolContext, 
 }
 
 // toolGetUsersByIDs implements the get_users_by_ids tool.
-func (p *MattermostToolProvider) toolGetUsersByIDs(mcpContext *MCPToolContext, args GetUsersByIDsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersByIDs(mcpContext *MCPToolContext, args GetUsersByIDsArgs) (string, error) {
 	if err := requireIDs("user_ids", args.UserIDs); err != nil {
 		return "", err
 	}
@@ -148,7 +148,7 @@ func (p *MattermostToolProvider) toolGetUsersByIDs(mcpContext *MCPToolContext, a
 }
 
 // toolGetUsersByUsernames implements the get_users_by_usernames tool.
-func (p *MattermostToolProvider) toolGetUsersByUsernames(mcpContext *MCPToolContext, args GetUsersByUsernamesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersByUsernames(mcpContext *MCPToolContext, args GetUsersByUsernamesArgs) (string, error) {
 	if len(args.Usernames) == 0 {
 		return "", fmt.Errorf("usernames cannot be empty")
 	}
@@ -164,7 +164,7 @@ func (p *MattermostToolProvider) toolGetUsersByUsernames(mcpContext *MCPToolCont
 }
 
 // toolGetUserStats implements the get_user_stats tool.
-func (p *MattermostToolProvider) toolGetUserStats(mcpContext *MCPToolContext, _ GetUserStatsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserStats(mcpContext *MCPToolContext, _ GetUserStatsArgs) (string, error) {
 	stats, _, err := mcpContext.Client.GetTotalUsersStats(mcpContext.Ctx, "")
 	if err != nil {
 		return "", fmt.Errorf("error fetching user stats: %w", err)
@@ -173,7 +173,7 @@ func (p *MattermostToolProvider) toolGetUserStats(mcpContext *MCPToolContext, _ 
 }
 
 // toolGetUserCPAValues implements the get_user_cpa_values tool.
-func (p *MattermostToolProvider) toolGetUserCPAValues(mcpContext *MCPToolContext, args GetUserCPAValuesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserCPAValues(mcpContext *MCPToolContext, args GetUserCPAValuesArgs) (string, error) {
 	if err := requireID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -199,7 +199,7 @@ func (p *MattermostToolProvider) toolGetUserCPAValues(mcpContext *MCPToolContext
 }
 
 // toolListCPAFields implements the list_cpa_fields tool.
-func (p *MattermostToolProvider) toolListCPAFields(mcpContext *MCPToolContext, _ ListCPAFieldsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListCPAFields(mcpContext *MCPToolContext, _ ListCPAFieldsArgs) (string, error) {
 	fields, _, err := mcpContext.Client.ListCPAFields(mcpContext.Ctx)
 	if err != nil {
 		return "", fmt.Errorf("error fetching custom profile attribute fields: %w", err)
@@ -219,7 +219,7 @@ func (p *MattermostToolProvider) toolListCPAFields(mcpContext *MCPToolContext, _
 }
 
 // toolUpdateUser implements the update_user tool.
-func (p *MattermostToolProvider) toolUpdateUser(mcpContext *MCPToolContext, args UpdateUserArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateUser(mcpContext *MCPToolContext, args UpdateUserArgs) (string, error) {
 	if err := optionalID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -264,14 +264,14 @@ type CreateUserArgs struct {
 }
 
 // getDevUserTools returns development user-related tools for MCP
-func (p *MattermostToolProvider) getDevUserTools() []MCPTool {
+func (p *AntimatterToolProvider) getDevUserTools() []MCPTool {
 	return []MCPTool{
 		mcpTool(p, "create_user", "Create a new user account (dev mode only)", p.toolCreateUser),
 	}
 }
 
 // toolCreateUser implements the create_user tool using the context client
-func (p *MattermostToolProvider) toolCreateUser(mcpContext *MCPToolContext, args CreateUserArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreateUser(mcpContext *MCPToolContext, args CreateUserArgs) (string, error) {
 	// Validate required fields
 	if args.Username == "" {
 		return "", fmt.Errorf("username cannot be empty")

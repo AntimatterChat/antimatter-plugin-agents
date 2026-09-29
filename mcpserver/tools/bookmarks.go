@@ -48,7 +48,7 @@ const (
 )
 
 // getBookmarkTools returns the channel bookmark tools.
-func (p *MattermostToolProvider) getBookmarkTools() []MCPTool {
+func (p *AntimatterToolProvider) getBookmarkTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "list_channel_bookmarks", listChannelBookmarksDescription, p.toolListChannelBookmarks),
 		mcpTool(p, "create_channel_bookmark", createChannelBookmarkDescription, p.toolCreateChannelBookmark),
@@ -58,7 +58,7 @@ func (p *MattermostToolProvider) getBookmarkTools() []MCPTool {
 }
 
 // toolListChannelBookmarks implements the list_channel_bookmarks tool.
-func (p *MattermostToolProvider) toolListChannelBookmarks(mcpContext *MCPToolContext, args ListChannelBookmarksArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListChannelBookmarks(mcpContext *MCPToolContext, args ListChannelBookmarksArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -83,7 +83,7 @@ func (p *MattermostToolProvider) toolListChannelBookmarks(mcpContext *MCPToolCon
 }
 
 // toolCreateChannelBookmark implements the create_channel_bookmark tool.
-func (p *MattermostToolProvider) toolCreateChannelBookmark(mcpContext *MCPToolContext, args CreateChannelBookmarkArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreateChannelBookmark(mcpContext *MCPToolContext, args CreateChannelBookmarkArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -119,7 +119,7 @@ func (p *MattermostToolProvider) toolCreateChannelBookmark(mcpContext *MCPToolCo
 }
 
 // toolUpdateChannelBookmark implements the update_channel_bookmark tool.
-func (p *MattermostToolProvider) toolUpdateChannelBookmark(mcpContext *MCPToolContext, args UpdateChannelBookmarkArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateChannelBookmark(mcpContext *MCPToolContext, args UpdateChannelBookmarkArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -147,7 +147,7 @@ func (p *MattermostToolProvider) toolUpdateChannelBookmark(mcpContext *MCPToolCo
 }
 
 // toolDeleteChannelBookmark implements the delete_channel_bookmark tool.
-func (p *MattermostToolProvider) toolDeleteChannelBookmark(mcpContext *MCPToolContext, args DeleteChannelBookmarkArgs) (string, error) {
+func (p *AntimatterToolProvider) toolDeleteChannelBookmark(mcpContext *MCPToolContext, args DeleteChannelBookmarkArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}

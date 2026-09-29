@@ -14,7 +14,7 @@ import (
 // resolveUserID returns the authenticated user's ID. It prefers the ID already
 // resolved on the context (set by external servers) and falls back to GetMe so
 // "me"-scoped tools work on every auth provider.
-func (p *MattermostToolProvider) resolveUserID(mcpContext *MCPToolContext) (string, error) {
+func (p *AntimatterToolProvider) resolveUserID(mcpContext *MCPToolContext) (string, error) {
 	if mcpContext.UserID != "" {
 		return mcpContext.UserID, nil
 	}
@@ -27,7 +27,7 @@ func (p *MattermostToolProvider) resolveUserID(mcpContext *MCPToolContext) (stri
 
 // resolveUserIDOrDefault returns userID when set, otherwise the authenticated
 // user's ID, for tools whose user_id argument defaults to the caller.
-func (p *MattermostToolProvider) resolveUserIDOrDefault(mcpContext *MCPToolContext, userID string) (string, error) {
+func (p *AntimatterToolProvider) resolveUserIDOrDefault(mcpContext *MCPToolContext, userID string) (string, error) {
 	if userID != "" {
 		return userID, nil
 	}
@@ -45,7 +45,7 @@ func parseTimeMillis(value string) (int64, error) {
 }
 
 // usernameFor returns a user's username, or "Unknown User" when the lookup fails.
-func (p *MattermostToolProvider) usernameFor(ctx context.Context, client *model.Client4, userID string) string {
+func (p *AntimatterToolProvider) usernameFor(ctx context.Context, client *model.Client4, userID string) string {
 	if userID == "" {
 		return "Unknown User"
 	}

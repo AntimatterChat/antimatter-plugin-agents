@@ -57,7 +57,7 @@ const (
 )
 
 // getGroupTools returns the group tools.
-func (p *MattermostToolProvider) getGroupTools() []MCPTool {
+func (p *AntimatterToolProvider) getGroupTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_group_info", getGroupInfoDescription, p.toolGetGroupInfo),
 		mcpReadTool(p, "list_groups", listGroupsDescription, p.toolListGroups),
@@ -69,7 +69,7 @@ func (p *MattermostToolProvider) getGroupTools() []MCPTool {
 }
 
 // toolGetGroupInfo implements the get_group_info tool.
-func (p *MattermostToolProvider) toolGetGroupInfo(mcpContext *MCPToolContext, args GetGroupInfoArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetGroupInfo(mcpContext *MCPToolContext, args GetGroupInfoArgs) (string, error) {
 	if err := requireID("group_id", args.GroupID); err != nil {
 		return "", err
 	}
@@ -83,7 +83,7 @@ func (p *MattermostToolProvider) toolGetGroupInfo(mcpContext *MCPToolContext, ar
 }
 
 // toolListGroups implements the list_groups tool.
-func (p *MattermostToolProvider) toolListGroups(mcpContext *MCPToolContext, args ListGroupsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListGroups(mcpContext *MCPToolContext, args ListGroupsArgs) (string, error) {
 	page, perPage := normalizePage(args.Page, args.PerPage, 60, 200)
 	opts := model.GroupSearchOpts{Q: args.Query, PageOpts: &model.PageOpts{Page: page, PerPage: perPage}}
 	groups, _, err := mcpContext.Client.GetGroups(mcpContext.Ctx, opts)
@@ -94,7 +94,7 @@ func (p *MattermostToolProvider) toolListGroups(mcpContext *MCPToolContext, args
 }
 
 // toolGetUserGroups implements the get_user_groups tool.
-func (p *MattermostToolProvider) toolGetUserGroups(mcpContext *MCPToolContext, args GetUserGroupsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserGroups(mcpContext *MCPToolContext, args GetUserGroupsArgs) (string, error) {
 	if err := optionalID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -110,7 +110,7 @@ func (p *MattermostToolProvider) toolGetUserGroups(mcpContext *MCPToolContext, a
 }
 
 // toolGetChannelGroups implements the get_channel_groups tool.
-func (p *MattermostToolProvider) toolGetChannelGroups(mcpContext *MCPToolContext, args GetChannelGroupsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetChannelGroups(mcpContext *MCPToolContext, args GetChannelGroupsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -123,7 +123,7 @@ func (p *MattermostToolProvider) toolGetChannelGroups(mcpContext *MCPToolContext
 }
 
 // toolGetTeamGroups implements the get_team_groups tool.
-func (p *MattermostToolProvider) toolGetTeamGroups(mcpContext *MCPToolContext, args GetTeamGroupsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetTeamGroups(mcpContext *MCPToolContext, args GetTeamGroupsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -136,7 +136,7 @@ func (p *MattermostToolProvider) toolGetTeamGroups(mcpContext *MCPToolContext, a
 }
 
 // toolGetUsersInGroupChannels implements the get_users_in_group_channels tool.
-func (p *MattermostToolProvider) toolGetUsersInGroupChannels(mcpContext *MCPToolContext, args GetUsersInGroupChannelsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersInGroupChannels(mcpContext *MCPToolContext, args GetUsersInGroupChannelsArgs) (string, error) {
 	if err := requireIDs("channel_ids", args.ChannelIDs); err != nil {
 		return "", err
 	}

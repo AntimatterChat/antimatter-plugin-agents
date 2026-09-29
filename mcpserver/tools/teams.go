@@ -48,7 +48,7 @@ const (
 )
 
 // getTeamTools returns all team-related tools
-func (p *MattermostToolProvider) getTeamTools() []MCPTool {
+func (p *AntimatterToolProvider) getTeamTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_team_info", getTeamInfoDescription, p.toolGetTeamInfo),
 		mcpReadTool(p, "get_team_members", getTeamMembersDescription, p.toolGetTeamMembers),
@@ -71,14 +71,14 @@ func (p *MattermostToolProvider) getTeamTools() []MCPTool {
 }
 
 // getDevTeamTools returns development team-related tools for MCP
-func (p *MattermostToolProvider) getDevTeamTools() []MCPTool {
+func (p *AntimatterToolProvider) getDevTeamTools() []MCPTool {
 	return []MCPTool{
 		mcpTool(p, "create_team", "Create a new team (dev mode only)", p.toolCreateTeam),
 	}
 }
 
 // toolGetTeamInfo implements the get_team_info tool
-func (p *MattermostToolProvider) toolGetTeamInfo(mcpContext *MCPToolContext, args GetTeamInfoArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetTeamInfo(mcpContext *MCPToolContext, args GetTeamInfoArgs) (string, error) {
 	var err error
 
 	// Get client from context
@@ -138,7 +138,7 @@ func (p *MattermostToolProvider) toolGetTeamInfo(mcpContext *MCPToolContext, arg
 // unique match, where message is either a disambiguation list (multiple matches)
 // or recovery guidance (none found) to relay to the model; or (nil, "", error)
 // when a lookup API call fails.
-func (p *MattermostToolProvider) resolveTeamByName(mcpContext *MCPToolContext, name string) (*model.Team, string, error) {
+func (p *AntimatterToolProvider) resolveTeamByName(mcpContext *MCPToolContext, name string) (*model.Team, string, error) {
 	client := mcpContext.Client
 	ctx := mcpContext.Ctx
 
@@ -214,7 +214,7 @@ func formatTeamDisambiguation(searchTerm string, teams []*model.Team) string {
 }
 
 // toolGetTeamMembers implements the get_team_members tool
-func (p *MattermostToolProvider) toolGetTeamMembers(mcpContext *MCPToolContext, args GetTeamMembersArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetTeamMembers(mcpContext *MCPToolContext, args GetTeamMembersArgs) (string, error) {
 	// Validate required fields
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
@@ -252,7 +252,7 @@ func (p *MattermostToolProvider) toolGetTeamMembers(mcpContext *MCPToolContext, 
 }
 
 // toolCreateTeam implements the create_team tool using the context client
-func (p *MattermostToolProvider) toolCreateTeam(mcpContext *MCPToolContext, args CreateTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolCreateTeam(mcpContext *MCPToolContext, args CreateTeamArgs) (string, error) {
 	// Validate required fields
 	if args.Name == "" {
 		return "", fmt.Errorf("name cannot be empty")
@@ -312,7 +312,7 @@ func (p *MattermostToolProvider) toolCreateTeam(mcpContext *MCPToolContext, args
 }
 
 // toolAddTeamMember implements the add_team_member tool using the context client
-func (p *MattermostToolProvider) toolAddTeamMember(mcpContext *MCPToolContext, args AddTeamMemberArgs) (string, error) {
+func (p *AntimatterToolProvider) toolAddTeamMember(mcpContext *MCPToolContext, args AddTeamMemberArgs) (string, error) {
 	// Validate required fields
 	if err := requireID("user_id", args.UserID); err != nil {
 		return "", err
@@ -450,7 +450,7 @@ const (
 )
 
 // toolGetTeamMember implements the get_team_member tool.
-func (p *MattermostToolProvider) toolGetTeamMember(mcpContext *MCPToolContext, args GetTeamMemberArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetTeamMember(mcpContext *MCPToolContext, args GetTeamMemberArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -476,7 +476,7 @@ func (p *MattermostToolProvider) toolGetTeamMember(mcpContext *MCPToolContext, a
 }
 
 // toolGetTeamStats implements the get_team_stats tool.
-func (p *MattermostToolProvider) toolGetTeamStats(mcpContext *MCPToolContext, args GetTeamStatsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetTeamStats(mcpContext *MCPToolContext, args GetTeamStatsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -490,7 +490,7 @@ func (p *MattermostToolProvider) toolGetTeamStats(mcpContext *MCPToolContext, ar
 }
 
 // toolGetUserTeams implements the get_user_teams tool.
-func (p *MattermostToolProvider) toolGetUserTeams(mcpContext *MCPToolContext, args GetUserTeamsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserTeams(mcpContext *MCPToolContext, args GetUserTeamsArgs) (string, error) {
 	if err := optionalID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -507,7 +507,7 @@ func (p *MattermostToolProvider) toolGetUserTeams(mcpContext *MCPToolContext, ar
 }
 
 // toolGetUsersInTeam implements the get_users_in_team tool.
-func (p *MattermostToolProvider) toolGetUsersInTeam(mcpContext *MCPToolContext, args GetUsersInTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersInTeam(mcpContext *MCPToolContext, args GetUsersInTeamArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -520,7 +520,7 @@ func (p *MattermostToolProvider) toolGetUsersInTeam(mcpContext *MCPToolContext, 
 }
 
 // toolGetUsersNotInTeam implements the get_users_not_in_team tool.
-func (p *MattermostToolProvider) toolGetUsersNotInTeam(mcpContext *MCPToolContext, args GetUsersNotInTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersNotInTeam(mcpContext *MCPToolContext, args GetUsersNotInTeamArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -533,7 +533,7 @@ func (p *MattermostToolProvider) toolGetUsersNotInTeam(mcpContext *MCPToolContex
 }
 
 // toolGetNewUsersInTeam implements the get_new_users_in_team tool.
-func (p *MattermostToolProvider) toolGetNewUsersInTeam(mcpContext *MCPToolContext, args GetNewUsersInTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetNewUsersInTeam(mcpContext *MCPToolContext, args GetNewUsersInTeamArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -547,7 +547,7 @@ func (p *MattermostToolProvider) toolGetNewUsersInTeam(mcpContext *MCPToolContex
 
 // toolGetDMCommonTeams implements the get_dm_common_teams tool. There is no direct
 // endpoint; it intersects the team memberships of all channel members.
-func (p *MattermostToolProvider) toolGetDMCommonTeams(mcpContext *MCPToolContext, args GetDMCommonTeamsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetDMCommonTeams(mcpContext *MCPToolContext, args GetDMCommonTeamsArgs) (string, error) {
 	if err := requireID("channel_id", args.ChannelID); err != nil {
 		return "", err
 	}
@@ -597,7 +597,7 @@ func (p *MattermostToolProvider) toolGetDMCommonTeams(mcpContext *MCPToolContext
 }
 
 // toolSearchTeams implements the search_teams tool.
-func (p *MattermostToolProvider) toolSearchTeams(mcpContext *MCPToolContext, args SearchTeamsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchTeams(mcpContext *MCPToolContext, args SearchTeamsArgs) (string, error) {
 	if args.Term == "" {
 		return "", fmt.Errorf("term cannot be empty")
 	}
@@ -609,7 +609,7 @@ func (p *MattermostToolProvider) toolSearchTeams(mcpContext *MCPToolContext, arg
 }
 
 // toolSearchUsersInTeam implements the search_users_in_team tool.
-func (p *MattermostToolProvider) toolSearchUsersInTeam(mcpContext *MCPToolContext, args SearchUsersInTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSearchUsersInTeam(mcpContext *MCPToolContext, args SearchUsersInTeamArgs) (string, error) {
 	if args.Term == "" {
 		return "", fmt.Errorf("term cannot be empty")
 	}
@@ -632,7 +632,7 @@ func (p *MattermostToolProvider) toolSearchUsersInTeam(mcpContext *MCPToolContex
 }
 
 // toolAddTeamMembers implements the add_team_members tool.
-func (p *MattermostToolProvider) toolAddTeamMembers(mcpContext *MCPToolContext, args AddTeamMembersArgs) (string, error) {
+func (p *AntimatterToolProvider) toolAddTeamMembers(mcpContext *MCPToolContext, args AddTeamMembersArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -650,7 +650,7 @@ func (p *MattermostToolProvider) toolAddTeamMembers(mcpContext *MCPToolContext, 
 }
 
 // toolRemoveTeamMember implements the remove_team_member tool.
-func (p *MattermostToolProvider) toolRemoveTeamMember(mcpContext *MCPToolContext, args RemoveTeamMemberArgs) (string, error) {
+func (p *AntimatterToolProvider) toolRemoveTeamMember(mcpContext *MCPToolContext, args RemoveTeamMemberArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -664,7 +664,7 @@ func (p *MattermostToolProvider) toolRemoveTeamMember(mcpContext *MCPToolContext
 }
 
 // toolUpdateTeam implements the update_team tool.
-func (p *MattermostToolProvider) toolUpdateTeam(mcpContext *MCPToolContext, args UpdateTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolUpdateTeam(mcpContext *MCPToolContext, args UpdateTeamArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -685,7 +685,7 @@ func (p *MattermostToolProvider) toolUpdateTeam(mcpContext *MCPToolContext, args
 }
 
 // toolInviteUsersToTeam implements the invite_users_to_team tool.
-func (p *MattermostToolProvider) toolInviteUsersToTeam(mcpContext *MCPToolContext, args InviteUsersToTeamArgs) (string, error) {
+func (p *AntimatterToolProvider) toolInviteUsersToTeam(mcpContext *MCPToolContext, args InviteUsersToTeamArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}
@@ -701,7 +701,7 @@ func (p *MattermostToolProvider) toolInviteUsersToTeam(mcpContext *MCPToolContex
 }
 
 // toolInviteUsersToTeamAndChannels implements the invite_users_to_team_and_channels tool.
-func (p *MattermostToolProvider) toolInviteUsersToTeamAndChannels(mcpContext *MCPToolContext, args InviteUsersToTeamAndChannelsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolInviteUsersToTeamAndChannels(mcpContext *MCPToolContext, args InviteUsersToTeamAndChannelsArgs) (string, error) {
 	if err := requireID("team_id", args.TeamID); err != nil {
 		return "", err
 	}

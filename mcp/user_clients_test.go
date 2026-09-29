@@ -132,7 +132,7 @@ func TestUserClientsGetToolsResolverUsesBareToolName(t *testing.T) {
 	require.Equal(t, "search ok\n", result)
 }
 
-func TestUserClientsGetToolsEmbeddedToolNamesUseMattermostSlug(t *testing.T) {
+func TestUserClientsGetToolsEmbeddedToolNamesUseAntimatterSlug(t *testing.T) {
 	userClients := &UserClients{
 		userID: "user-id",
 		clients: map[string]*Client{

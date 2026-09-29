@@ -29,9 +29,9 @@ import (
 // idle periods.
 const mcpServerSessionTimeout = time.Hour
 
-// MattermostHTTPMCPServer wraps MattermostMCPServer for HTTP transport.
-type MattermostHTTPMCPServer struct {
-	*MattermostMCPServer
+// AntimatterHTTPMCPServer wraps AntimatterMCPServer for HTTP transport.
+type AntimatterHTTPMCPServer struct {
+	*AntimatterMCPServer
 	config            HTTPConfig
 	sseHandler        http.Handler
 	streamableHandler http.Handler
@@ -39,7 +39,7 @@ type MattermostHTTPMCPServer struct {
 }
 
 // NewHTTPServer creates a new HTTP transport MCP server.
-func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPMCPServer, error) {
+func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*AntimatterHTTPMCPServer, error) {
 	if config.MMServerURL == "" {
 		return nil, fmt.Errorf("server URL cannot be empty")
 	}
@@ -64,8 +64,8 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 		}
 	}
 
-	mattermostServer := &MattermostHTTPMCPServer{
-		MattermostMCPServer: &MattermostMCPServer{
+	antimatterServer := &AntimatterHTTPMCPServer{
+		AntimatterMCPServer: &AntimatterMCPServer{
 			logger: logger,
 			config: config,
 		},
@@ -73,14 +73,14 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 	}
 
 	// Create OAuth authentication provider
-	mattermostServer.authProvider = auth.NewOAuthAuthenticationProvider(
+	antimatterServer.authProvider = auth.NewOAuthAuthenticationProvider(
 		config.GetMMServerURL(),
 		config.GetMMInternalServerURL(),
 		config.GetMMServerURL(), // OAuth issuer is the external server URL
 		logger,
 	)
 
-	mattermostServer.mcpServer = mcp.NewServer(
+	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
 			Name:    "mattermost-mcp-server",
 			Version: "0.1.0",
@@ -92,7 +92,7 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 	searchService, fileContentService := newPluginCallbackServices(config.GetMMServerURL())
 
 	// Register tools with remote access mode
-	mattermostServer.registerTools(tools.AccessModeRemote, searchService, fileContentService)
+	antimatterServer.registerTools(tools.AccessModeRemote, searchService, fileContentService)
 
 	// Create HTTP server with OAuth endpoints and MCP routing
 	addr := fmt.Sprintf("%s:%d", config.HTTPBindAddr, config.HTTPPort)
@@ -104,8 +104,8 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 	// --site-url. securityMiddleware enforces the equivalent check with the
 	// configured public hosts allowlisted (see validateHost), so the SDK's
 	// narrower check is disabled.
-	mattermostServer.sseHandler = mcp.NewSSEHandler(func(req *http.Request) *mcp.Server {
-		return mattermostServer.mcpServer
+	antimatterServer.sseHandler = mcp.NewSSEHandler(func(req *http.Request) *mcp.Server {
+		return antimatterServer.mcpServer
 	}, &mcp.SSEOptions{DisableLocalhostProtection: true})
 
 	// Create streamable HTTP handler for modern MCP communication. The
@@ -116,8 +116,8 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 	// handler above: securityMiddleware's validateHost enforces the
 	// equivalent check with the configured public hosts allowlisted, which
 	// the SDK's loopback-only check would reject behind a reverse proxy.
-	mattermostServer.streamableHandler = mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
-		return mattermostServer.mcpServer
+	antimatterServer.streamableHandler = mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
+		return antimatterServer.mcpServer
 	}, &mcp.StreamableHTTPOptions{
 		Stateless:                  config.Stateless,
 		MaxRequestBodyBytes:        mcp.DefaultMaxRequestBodyBytes,
@@ -132,16 +132,16 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 
 	// Create HTTP mux router and setup all routes
 	httpMux := http.NewServeMux()
-	mattermostServer.setupRoutes(httpMux)
+	antimatterServer.setupRoutes(httpMux)
 
 	// Apply recovery, logging, and security middleware to the mux
-	mainHandler := mattermostServer.loggingMiddleware(httpMux)
-	recoveryHandler := mattermostServer.recoveryMiddleware(mainHandler)
-	secureHandler := mattermostServer.securityMiddleware(recoveryHandler)
+	mainHandler := antimatterServer.loggingMiddleware(httpMux)
+	recoveryHandler := antimatterServer.recoveryMiddleware(mainHandler)
+	secureHandler := antimatterServer.securityMiddleware(recoveryHandler)
 
 	// Create HTTP server with security middleware.
 	// Timeouts are kept at 30 seconds to limit resource usage and mitigate slowloris-style attacks.
-	mattermostServer.httpServer = &http.Server{
+	antimatterServer.httpServer = &http.Server{
 		Addr:         addr,
 		Handler:      secureHandler,
 		ReadTimeout:  30 * time.Second,
@@ -149,11 +149,11 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*MattermostHTTPM
 		IdleTimeout:  30 * time.Second,
 	}
 
-	return mattermostServer, nil
+	return antimatterServer, nil
 }
 
 // Serve starts the HTTP MCP server
-func (s *MattermostHTTPMCPServer) Serve() error {
+func (s *AntimatterHTTPMCPServer) Serve() error {
 	s.logger.Info("starting HTTP MCP server with SSE support",
 		"bind_addr", s.config.HTTPBindAddr,
 		"port", s.config.HTTPPort,
@@ -165,12 +165,12 @@ func (s *MattermostHTTPMCPServer) Serve() error {
 }
 
 // GetTestHandler returns the HTTP handler for testing purposes
-func (s *MattermostHTTPMCPServer) GetTestHandler() http.Handler {
+func (s *AntimatterHTTPMCPServer) GetTestHandler() http.Handler {
 	return s.httpServer.Handler
 }
 
 // recoveryMiddleware provides panic recovery for HTTP handlers
-func (s *MattermostHTTPMCPServer) recoveryMiddleware(next http.Handler) http.Handler {
+func (s *AntimatterHTTPMCPServer) recoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -209,7 +209,7 @@ func extractBearerToken(r *http.Request) (string, error) {
 }
 
 // getResourceMetadataURL returns the URL for the protected resource metadata endpoint
-func (s *MattermostHTTPMCPServer) getResourceMetadataURL() string {
+func (s *AntimatterHTTPMCPServer) getResourceMetadataURL() string {
 	baseURL := s.config.GetMMServerURL()
 	if s.config.SiteURL != "" {
 		baseURL = s.config.SiteURL
@@ -219,7 +219,7 @@ func (s *MattermostHTTPMCPServer) getResourceMetadataURL() string {
 
 // getAllowedOrigins returns the list of allowed origins for CORS and DNS rebinding protection
 // Per MCP spec: "Servers MUST validate the Origin header on all incoming connections to prevent DNS rebinding attacks"
-func (s *MattermostHTTPMCPServer) getAllowedOrigins() []string {
+func (s *AntimatterHTTPMCPServer) getAllowedOrigins() []string {
 	// Use a map to avoid duplicates
 	originsMap := make(map[string]struct{})
 
@@ -255,7 +255,7 @@ func (s *MattermostHTTPMCPServer) getAllowedOrigins() []string {
 }
 
 // validateOrigin validates the Origin header to prevent DNS rebinding attacks
-func (s *MattermostHTTPMCPServer) validateOrigin(r *http.Request) bool {
+func (s *AntimatterHTTPMCPServer) validateOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
 	if origin == "" {
 		// No Origin header - allow for direct API calls (non-browser requests)
@@ -339,7 +339,7 @@ func normalizeURL(u *url.URL) string {
 // (MMServerURL / SiteURL), so the documented loopback-bind +
 // reverse-proxy-with-external-site-url deployment keeps working while
 // rebinding attacks against localhost servers are still rejected.
-func (s *MattermostHTTPMCPServer) validateHost(r *http.Request) bool {
+func (s *AntimatterHTTPMCPServer) validateHost(r *http.Request) bool {
 	localAddr, ok := r.Context().Value(http.LocalAddrContextKey).(net.Addr)
 	if !ok || !isLoopbackHost(localAddr.String()) {
 		// Mirroring the SDK: the protection applies only to connections that
@@ -382,7 +382,7 @@ func hostWithoutPort(hostport string) string {
 }
 
 // securityMiddleware applies security headers and validation
-func (s *MattermostHTTPMCPServer) securityMiddleware(next http.Handler) http.Handler {
+func (s *AntimatterHTTPMCPServer) securityMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Validate the Host header on loopback connections to prevent DNS
 		// rebinding attacks (replaces the SDK's narrower SSE-only check).
@@ -436,7 +436,7 @@ func (s *MattermostHTTPMCPServer) securityMiddleware(next http.Handler) http.Han
 }
 
 // loggingMiddleware creates a standard HTTP logging middleware
-func (s *MattermostHTTPMCPServer) loggingMiddleware(next http.Handler) http.Handler {
+func (s *AntimatterHTTPMCPServer) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create a response writer wrapper to capture status code
 		recorder := &responseRecorder{
@@ -494,7 +494,7 @@ func (r *responseRecorder) Write(data []byte) (int, error) {
 }
 
 // requireAuth creates HTTP middleware that requires OAuth authentication
-func (s *MattermostHTTPMCPServer) requireAuth(next http.HandlerFunc) http.HandlerFunc {
+func (s *AntimatterHTTPMCPServer) requireAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract Bearer token from Authorization header
 		token, err := extractBearerToken(r)
@@ -533,7 +533,7 @@ func (s *MattermostHTTPMCPServer) requireAuth(next http.HandlerFunc) http.Handle
 }
 
 // setupRoutes sets up all HTTP routes for the MCP server on the provided mux.
-func (s *MattermostHTTPMCPServer) setupRoutes(httpMux *http.ServeMux) {
+func (s *AntimatterHTTPMCPServer) setupRoutes(httpMux *http.ServeMux) {
 	// OAuth 2.0 Protected Resource Metadata endpoint (RFC 9728) - no auth required
 	httpMux.HandleFunc("/.well-known/oauth-protected-resource", s.handleProtectedResourceMetadata)
 

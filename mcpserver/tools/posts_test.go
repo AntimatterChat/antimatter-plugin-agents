@@ -85,7 +85,7 @@ func TestStampAIGenerated(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &MattermostToolProvider{trackAIGenerated: tt.trackAIGenerated, logger: &testLogger{t: t}}
+			p := &AntimatterToolProvider{trackAIGenerated: tt.trackAIGenerated, logger: &testLogger{t: t}}
 			post := &model.Post{}
 
 			require.NotPanics(t, func() {
@@ -341,9 +341,9 @@ func TestPostToolsCombinedAttachmentCap(t *testing.T) {
 
 	resolvers := []struct {
 		name string
-		call func(p *MattermostToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error)
+		call func(p *AntimatterToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error)
 	}{
-		{"create_post", func(p *MattermostToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error) {
+		{"create_post", func(p *AntimatterToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error) {
 			return p.toolCreatePost(mcpCtx, CreatePostArgs{
 				ChannelID:          channelID,
 				ChannelDisplayName: "Town Square",
@@ -353,10 +353,10 @@ func TestPostToolsCombinedAttachmentCap(t *testing.T) {
 				Files:              files,
 			})
 		}},
-		{"dm", func(p *MattermostToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error) {
+		{"dm", func(p *AntimatterToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error) {
 			return p.toolDM(mcpCtx, DMArgs{Username: "john", Message: "hello", Attachments: attachments, Files: files})
 		}},
-		{"group_message", func(p *MattermostToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error) {
+		{"group_message", func(p *AntimatterToolProvider, mcpCtx *MCPToolContext, attachments []string, files []InlineFile) (string, error) {
 			return p.toolGroupMessage(mcpCtx, GroupMessageArgs{Usernames: []string{"alice", "bob"}, Message: "hello", Attachments: attachments, Files: files})
 		}},
 	}

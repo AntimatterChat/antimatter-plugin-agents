@@ -52,7 +52,7 @@ func (a *appAPIRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 	removeFirstPath(req)
 
 	// Make the inter-plugin request from the server to the AI plugin
-	a.api.ServeInternalPluginRequest(a.userID, recorder, req, mattermostServerID, AiPluginID)
+	a.api.ServeInternalPluginRequest(a.userID, recorder, req, antimatterServerID, AiPluginID)
 
 	// Convert the recorder to an http.Response
 	return recorder.Result(), nil

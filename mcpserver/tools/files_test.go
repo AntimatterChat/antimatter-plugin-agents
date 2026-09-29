@@ -105,7 +105,7 @@ func TestToolReadFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &MattermostToolProvider{fileContentService: tt.service}
+			p := &AntimatterToolProvider{fileContentService: tt.service}
 			ctx := &MCPToolContext{Ctx: context.Background(), UserID: model.NewId()}
 
 			result, err := p.toolReadFile(ctx, ReadFileArgs{FileID: tt.fileID})
@@ -133,7 +133,7 @@ func TestToolReadFile(t *testing.T) {
 // the content service, which is what enforces channel access.
 func TestToolReadFilePassesRequestingUser(t *testing.T) {
 	fake := &fakeFileContentService{content: files.Content{Name: "a.txt", HasText: true, Text: "hi"}}
-	p := &MattermostToolProvider{fileContentService: fake}
+	p := &AntimatterToolProvider{fileContentService: fake}
 
 	userID := model.NewId()
 	fileID := model.NewId()

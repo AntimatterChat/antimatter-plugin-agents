@@ -44,7 +44,7 @@ const (
 )
 
 // getIntegrationTools returns the bot and webhook tools.
-func (p *MattermostToolProvider) getIntegrationTools() []MCPTool {
+func (p *AntimatterToolProvider) getIntegrationTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_bot", getBotDescription, p.toolGetBot),
 		mcpReadTool(p, "list_bots", listBotsDescription, p.toolListBots),
@@ -54,7 +54,7 @@ func (p *MattermostToolProvider) getIntegrationTools() []MCPTool {
 }
 
 // toolGetBot implements the get_bot tool.
-func (p *MattermostToolProvider) toolGetBot(mcpContext *MCPToolContext, args GetBotArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetBot(mcpContext *MCPToolContext, args GetBotArgs) (string, error) {
 	if err := requireID("bot_user_id", args.BotUserID); err != nil {
 		return "", err
 	}
@@ -68,7 +68,7 @@ func (p *MattermostToolProvider) toolGetBot(mcpContext *MCPToolContext, args Get
 }
 
 // toolListBots implements the list_bots tool.
-func (p *MattermostToolProvider) toolListBots(mcpContext *MCPToolContext, args ListBotsArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListBots(mcpContext *MCPToolContext, args ListBotsArgs) (string, error) {
 	page, perPage := normalizePage(args.Page, args.PerPage, 50, 200)
 	bots, _, err := mcpContext.Client.GetBots(mcpContext.Ctx, page, perPage, "")
 	if err != nil {
@@ -86,7 +86,7 @@ func (p *MattermostToolProvider) toolListBots(mcpContext *MCPToolContext, args L
 }
 
 // toolListIncomingWebhooks implements the list_incoming_webhooks tool.
-func (p *MattermostToolProvider) toolListIncomingWebhooks(mcpContext *MCPToolContext, args ListIncomingWebhooksArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListIncomingWebhooks(mcpContext *MCPToolContext, args ListIncomingWebhooksArgs) (string, error) {
 	page, perPage := normalizePage(args.Page, args.PerPage, 50, 200)
 	hooks, _, err := mcpContext.Client.GetIncomingWebhooks(mcpContext.Ctx, page, perPage, "")
 	if err != nil {
@@ -104,7 +104,7 @@ func (p *MattermostToolProvider) toolListIncomingWebhooks(mcpContext *MCPToolCon
 }
 
 // toolListOutgoingWebhooks implements the list_outgoing_webhooks tool.
-func (p *MattermostToolProvider) toolListOutgoingWebhooks(mcpContext *MCPToolContext, args ListOutgoingWebhooksArgs) (string, error) {
+func (p *AntimatterToolProvider) toolListOutgoingWebhooks(mcpContext *MCPToolContext, args ListOutgoingWebhooksArgs) (string, error) {
 	if err := optionalID("team_id", args.TeamID); err != nil {
 		return "", err
 	}

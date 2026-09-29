@@ -45,7 +45,7 @@ const (
 )
 
 // getStatusTools returns the presence and custom-status tools.
-func (p *MattermostToolProvider) getStatusTools() []MCPTool {
+func (p *AntimatterToolProvider) getStatusTools() []MCPTool {
 	return []MCPTool{
 		mcpReadTool(p, "get_user_status", getUserStatusDescription, p.toolGetUserStatus),
 		mcpReadTool(p, "get_users_statuses", getUsersStatusesDescription, p.toolGetUsersStatuses),
@@ -56,7 +56,7 @@ func (p *MattermostToolProvider) getStatusTools() []MCPTool {
 }
 
 // toolGetUserStatus implements the get_user_status tool.
-func (p *MattermostToolProvider) toolGetUserStatus(mcpContext *MCPToolContext, args GetUserStatusArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserStatus(mcpContext *MCPToolContext, args GetUserStatusArgs) (string, error) {
 	if err := requireID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -73,7 +73,7 @@ func (p *MattermostToolProvider) toolGetUserStatus(mcpContext *MCPToolContext, a
 }
 
 // toolGetUsersStatuses implements the get_users_statuses tool.
-func (p *MattermostToolProvider) toolGetUsersStatuses(mcpContext *MCPToolContext, args GetUsersStatusesArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUsersStatuses(mcpContext *MCPToolContext, args GetUsersStatusesArgs) (string, error) {
 	if err := requireIDs("user_ids", args.UserIDs); err != nil {
 		return "", err
 	}
@@ -97,7 +97,7 @@ func (p *MattermostToolProvider) toolGetUsersStatuses(mcpContext *MCPToolContext
 
 // toolGetUserCustomStatus implements the get_user_custom_status tool. There is no
 // getter endpoint; the custom status is read from the user profile props.
-func (p *MattermostToolProvider) toolGetUserCustomStatus(mcpContext *MCPToolContext, args GetUserCustomStatusArgs) (string, error) {
+func (p *AntimatterToolProvider) toolGetUserCustomStatus(mcpContext *MCPToolContext, args GetUserCustomStatusArgs) (string, error) {
 	if err := requireID("user_id", args.UserID); err != nil {
 		return "", err
 	}
@@ -111,7 +111,7 @@ func (p *MattermostToolProvider) toolGetUserCustomStatus(mcpContext *MCPToolCont
 }
 
 // toolSetStatus implements the set_status tool.
-func (p *MattermostToolProvider) toolSetStatus(mcpContext *MCPToolContext, args SetStatusArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSetStatus(mcpContext *MCPToolContext, args SetStatusArgs) (string, error) {
 	switch args.Status {
 	case model.StatusOnline, model.StatusAway, model.StatusOffline, model.StatusDnd:
 	default:
@@ -130,7 +130,7 @@ func (p *MattermostToolProvider) toolSetStatus(mcpContext *MCPToolContext, args 
 }
 
 // toolSetDnd implements the set_dnd tool.
-func (p *MattermostToolProvider) toolSetDnd(mcpContext *MCPToolContext, args SetDndArgs) (string, error) {
+func (p *AntimatterToolProvider) toolSetDnd(mcpContext *MCPToolContext, args SetDndArgs) (string, error) {
 	userID, err := p.resolveUserID(mcpContext)
 	if err != nil {
 		return "", err

@@ -17,7 +17,7 @@ import (
 // enabled=true until an admin explicitly configures them.
 func SeedVettedToolConfigs(baseURL string) []ToolConfig {
 	if baseURL == EmbeddedClientKey {
-		return cloneToolConfigs(mattermostVettedToolConfigs)
+		return cloneToolConfigs(antimatterVettedToolConfigs)
 	}
 
 	host, ok := vettedHostFromBaseURL(baseURL)
@@ -239,7 +239,7 @@ var figmaVettedToolConfigs = autoRunInDMToolConfigs([]string{
 //     tokens that are effectively posting credentials.
 //
 // These mirror the credential-exposing GitHub reads in githubSecurityAskTools.
-var mattermostVettedToolConfigs = autoRunInDMToolConfigs([]string{
+var antimatterVettedToolConfigs = autoRunInDMToolConfigs([]string{
 	// Posts & scheduled posts
 	"read_post",
 	"get_post_info",

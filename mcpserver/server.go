@@ -12,9 +12,9 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// MattermostMCPServer provides a high-level interface for creating an MCP server
+// AntimatterMCPServer provides a high-level interface for creating an MCP server
 // with Mattermost-specific tools and authentication
-type MattermostMCPServer struct {
+type AntimatterMCPServer struct {
 	mcpServer    *mcp.Server
 	authProvider auth.AuthenticationProvider
 	logger       loggerlib.Logger
@@ -32,12 +32,12 @@ func newPluginCallbackServices(mmServerURL string) (*tools.HTTPSemanticSearchSer
 // registerTools registers all tools using the tool provider.
 // searchService and fileContentService are optional and can be nil when the
 // corresponding capability is unavailable.
-func (s *MattermostMCPServer) registerTools(accessMode tools.AccessMode, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) {
-	toolProvider := tools.NewMattermostToolProvider(s.authProvider, s.logger, s.config, accessMode, searchService, fileContentService)
+func (s *AntimatterMCPServer) registerTools(accessMode tools.AccessMode, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) {
+	toolProvider := tools.NewAntimatterToolProvider(s.authProvider, s.logger, s.config, accessMode, searchService, fileContentService)
 	toolProvider.ProvideTools(s.mcpServer)
 }
 
 // GetMCPServer returns the underlying MCP server for testing purposes
-func (s *MattermostMCPServer) GetMCPServer() *mcp.Server {
+func (s *AntimatterMCPServer) GetMCPServer() *mcp.Server {
 	return s.mcpServer
 }
