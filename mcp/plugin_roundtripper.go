@@ -82,7 +82,7 @@ func PluginServerHTTPClient(base http.RoundTripper, userID string) *http.Client 
 	if userID != "" {
 		transport = &headerTransport{
 			base:    base,
-			headers: map[string]string{MMUserIDHeader: userID},
+			headers: map[string]string{UserIDHeader: userID},
 		}
 	}
 	return &http.Client{Transport: transport}

@@ -86,8 +86,8 @@ type ToolProvider interface {
 // ServerConfig defines the common configuration methods every MCP server type
 // provides to the tool provider.
 type ServerConfig interface {
-	GetMMServerURL() string
-	GetMMInternalServerURL() string
+	GetAMServerURL() string
+	GetAMInternalServerURL() string
 	GetDevMode() bool
 	GetTrackAIGenerated() bool
 }
@@ -104,7 +104,7 @@ type SemanticSearchService interface {
 type AntimatterToolProvider struct {
 	authProvider       auth.AuthenticationProvider
 	logger             logger.Logger
-	mmServerURL        string // Mattermost server URL for API communication (internal URL if set, otherwise external)
+	amServerURL        string // Mattermost server URL for API communication (internal URL if set, otherwise external)
 	devMode            bool
 	accessMode         AccessMode
 	trackAIGenerated   bool                  // Whether to add ai_generated_by props to posts
@@ -116,15 +116,15 @@ type AntimatterToolProvider struct {
 // searchService is optional and can be nil if semantic search is not available.
 func NewAntimatterToolProvider(authProvider auth.AuthenticationProvider, logger logger.Logger, config ServerConfig, accessMode AccessMode, searchService SemanticSearchService, fileContentService FileContentService) *AntimatterToolProvider {
 	// Use internal URL for API communication if provided, otherwise fallback to external URL
-	serverURL := config.GetMMInternalServerURL()
+	serverURL := config.GetAMInternalServerURL()
 	if serverURL == "" {
-		serverURL = config.GetMMServerURL()
+		serverURL = config.GetAMServerURL()
 	}
 
 	return &AntimatterToolProvider{
 		authProvider:       authProvider,
 		logger:             logger,
-		mmServerURL:        serverURL,
+		amServerURL:        serverURL,
 		devMode:            config.GetDevMode(),
 		accessMode:         accessMode,
 		trackAIGenerated:   config.GetTrackAIGenerated(),

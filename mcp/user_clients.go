@@ -464,7 +464,7 @@ func remoteOriginIdentityForMode(server ServerConfig, conflicting, serviceAccoun
 	}
 
 	headers := remoteConnectionHeaders("", server, true)
-	delete(headers, MMUserIDHeader)
+	delete(headers, UserIDHeader)
 	identity.credentials = credentialDigest("", "", headers)
 	identity.usable = identity.usable && server.HasServiceAccountAuth()
 	return identity

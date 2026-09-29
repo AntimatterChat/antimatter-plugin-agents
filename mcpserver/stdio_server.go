@@ -22,7 +22,7 @@ type AntimatterStdioMCPServer struct {
 // searchService and fileContentService are optional — if nil, default HTTP-based
 // services are created that call back to the plugin's /api/v1 endpoints.
 func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*AntimatterStdioMCPServer, error) {
-	if config.MMServerURL == "" {
+	if config.AMServerURL == "" {
 		return nil, fmt.Errorf("server URL cannot be empty")
 	}
 	if config.PersonalAccessToken == "" {
@@ -45,7 +45,7 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 	}
 
 	// Create authentication provider
-	antimatterServer.authProvider = auth.NewTokenAuthenticationProvider(config.GetMMServerURL(), config.GetMMInternalServerURL(), config.PersonalAccessToken, logger)
+	antimatterServer.authProvider = auth.NewTokenAuthenticationProvider(config.GetAMServerURL(), config.GetAMInternalServerURL(), config.PersonalAccessToken, logger)
 
 	antimatterServer.mcpServer = mcp.NewServer(
 		&mcp.Implementation{
@@ -61,7 +61,7 @@ func NewStdioServer(config StdioConfig, logger loggerlib.Logger, searchService t
 	}
 
 	// Use provided services or create default HTTP callback services
-	defaultSearchService, defaultFileContentService := newPluginCallbackServices(config.GetMMServerURL())
+	defaultSearchService, defaultFileContentService := newPluginCallbackServices(config.GetAMServerURL())
 	if searchService == nil {
 		searchService = defaultSearchService
 	}

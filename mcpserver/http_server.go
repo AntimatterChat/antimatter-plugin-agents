@@ -40,7 +40,7 @@ type AntimatterHTTPMCPServer struct {
 
 // NewHTTPServer creates a new HTTP transport MCP server.
 func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*AntimatterHTTPMCPServer, error) {
-	if config.MMServerURL == "" {
+	if config.AMServerURL == "" {
 		return nil, fmt.Errorf("server URL cannot be empty")
 	}
 	if config.HTTPPort <= 0 {
@@ -74,9 +74,9 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*AntimatterHTTPM
 
 	// Create OAuth authentication provider
 	antimatterServer.authProvider = auth.NewOAuthAuthenticationProvider(
-		config.GetMMServerURL(),
-		config.GetMMInternalServerURL(),
-		config.GetMMServerURL(), // OAuth issuer is the external server URL
+		config.GetAMServerURL(),
+		config.GetAMInternalServerURL(),
+		config.GetAMServerURL(), // OAuth issuer is the external server URL
 		logger,
 	)
 
@@ -89,7 +89,7 @@ func NewHTTPServer(config HTTPConfig, logger loggerlib.Logger) (*AntimatterHTTPM
 	)
 
 	// Create HTTP search and file content services for callback to plugin API
-	searchService, fileContentService := newPluginCallbackServices(config.GetMMServerURL())
+	searchService, fileContentService := newPluginCallbackServices(config.GetAMServerURL())
 
 	// Register tools with remote access mode
 	antimatterServer.registerTools(tools.AccessModeRemote, searchService, fileContentService)
@@ -157,7 +157,7 @@ func (s *AntimatterHTTPMCPServer) Serve() error {
 	s.logger.Info("starting HTTP MCP server with SSE support",
 		"bind_addr", s.config.HTTPBindAddr,
 		"port", s.config.HTTPPort,
-		"server_url", s.config.GetMMServerURL(),
+		"server_url", s.config.GetAMServerURL(),
 	)
 
 	// Start the custom HTTP server with OAuth endpoints
@@ -210,7 +210,7 @@ func extractBearerToken(r *http.Request) (string, error) {
 
 // getResourceMetadataURL returns the URL for the protected resource metadata endpoint
 func (s *AntimatterHTTPMCPServer) getResourceMetadataURL() string {
-	baseURL := s.config.GetMMServerURL()
+	baseURL := s.config.GetAMServerURL()
 	if s.config.SiteURL != "" {
 		baseURL = s.config.SiteURL
 	}
@@ -224,7 +224,7 @@ func (s *AntimatterHTTPMCPServer) getAllowedOrigins() []string {
 	originsMap := make(map[string]struct{})
 
 	// Add Mattermost server URL as allowed origin
-	if amURL := s.config.GetMMServerURL(); amURL != "" {
+	if amURL := s.config.GetAMServerURL(); amURL != "" {
 		originsMap[amURL] = struct{}{}
 	}
 
@@ -336,7 +336,7 @@ func normalizeURL(u *url.URL) string {
 // the go-sdk's SSE localhost protection (which is disabled in favor of this
 // check, see NewHTTPServer): requests arriving on a loopback local address
 // must carry either a loopback Host or one of the configured public hosts
-// (MMServerURL / SiteURL), so the documented loopback-bind +
+// (AMServerURL / SiteURL), so the documented loopback-bind +
 // reverse-proxy-with-external-site-url deployment keeps working while
 // rebinding attacks against localhost servers are still rejected.
 func (s *AntimatterHTTPMCPServer) validateHost(r *http.Request) bool {

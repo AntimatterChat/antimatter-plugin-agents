@@ -44,7 +44,7 @@ func (p *OAuthAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx conte
 	// For now, we're skipping validation and creating the client with the token
 
 	// Create client and set OAuth token
-	client := model.NewAPIv4Client(p.mmServerURL)
+	client := model.NewAPIv4Client(p.amServerURL)
 	client.SetOAuthToken(token)
 
 	return client, nil

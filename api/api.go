@@ -332,7 +332,7 @@ func (a *API) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Reques
 		})
 	}
 
-	router.Use(a.MattermostAuthorizationRequired)
+	router.Use(a.AntimatterAuthorizationRequired)
 
 	router.GET("/conversations/:conversationid", a.handleGetConversation)
 	router.GET("/conversations/:conversationid/context", a.handleGetConversationContext)
@@ -415,7 +415,7 @@ func (a *API) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Reques
 	autoReplyRouter.PUT("/autoreply", a.handlePutChannelAutoReply)
 
 	adminRouter := router.Group("/admin")
-	adminRouter.Use(a.mattermostAdminAuthorizationRequired)
+	adminRouter.Use(a.antimatterAdminAuthorizationRequired)
 	adminRouter.POST("/reindex", a.handleReindexPosts)
 	adminRouter.GET("/reindex/status", a.handleGetJobStatus)
 	adminRouter.POST("/reindex/cancel", a.handleCancelJob)
@@ -505,7 +505,7 @@ func (a *API) ginlogger(c *gin.Context) {
 	}
 }
 
-func (a *API) MattermostAuthorizationRequired(c *gin.Context) {
+func (a *API) AntimatterAuthorizationRequired(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
 	if userID == "" {
 		c.AbortWithStatus(http.StatusUnauthorized)

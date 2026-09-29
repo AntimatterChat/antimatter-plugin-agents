@@ -75,7 +75,7 @@ func (p *SessionAuthenticationProvider) authenticatedClientAndUser(ctx context.C
 
 	// Create client and set session token
 	// Session tokens can be used directly as Bearer tokens in Mattermost API
-	client := model.NewAPIv4Client(p.mmServerURL)
+	client := model.NewAPIv4Client(p.amServerURL)
 	client.SetToken(token)
 
 	// Validate the token by attempting to get current user information
@@ -93,7 +93,7 @@ func (p *SessionAuthenticationProvider) fetchAuthenticatedUser(ctx context.Conte
 	if err != nil {
 		p.logger.Error("failed to validate session token",
 			"error", err,
-			"server_url", p.mmServerURL)
+			"server_url", p.amServerURL)
 		return nil, fmt.Errorf("invalid session token: %w", err)
 	}
 

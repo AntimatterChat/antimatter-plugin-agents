@@ -71,7 +71,7 @@ func TestHandleRegenerateDeniedByFilePolicy(t *testing.T) {
 	tests := []struct {
 		name      string
 		setupPost func(post *model.Post, fileID string)
-		setup     func(t *testing.T, mm *mocks.MockClient, c *Conversations, fileID string)
+		setup     func(t *testing.T, am *mocks.MockClient, c *Conversations, fileID string)
 	}{
 		{
 			name: "recording file policy denial does not read file metadata",
@@ -84,9 +84,9 @@ func TestHandleRegenerateDeniedByFilePolicy(t *testing.T) {
 			setupPost: func(post *model.Post, _ string) {
 				post.AddProp(ReferencedTranscriptPostID, "transcript-post-id")
 			},
-			setup: func(t *testing.T, mm *mocks.MockClient, c *Conversations, fileID string) {
+			setup: func(t *testing.T, am *mocks.MockClient, c *Conversations, fileID string) {
 				t.Helper()
-				mm.On("GetPost", "transcript-post-id").Return(&model.Post{Id: "transcript-post-id"}, nil)
+				am.On("GetPost", "transcript-post-id").Return(&model.Post{Id: "transcript-post-id"}, nil)
 				c.meetingsService = regenMeetingsStub{captionsFileID: fileID}
 			},
 		},

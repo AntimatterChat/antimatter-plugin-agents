@@ -35,7 +35,7 @@ func TestHTTPServerCreation(t *testing.T) {
 			name: "ValidConfiguration",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: suite.serverURL,
+					AMServerURL: suite.serverURL,
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -47,7 +47,7 @@ func TestHTTPServerCreation(t *testing.T) {
 			name: "ValidConfigurationWithSiteURL",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: suite.serverURL,
+					AMServerURL: suite.serverURL,
 					DevMode:     false,
 				},
 				HTTPPort:     8081,
@@ -60,7 +60,7 @@ func TestHTTPServerCreation(t *testing.T) {
 			name: "EmptyServerURL",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "",
+					AMServerURL: "",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -73,7 +73,7 @@ func TestHTTPServerCreation(t *testing.T) {
 			name: "InvalidPort",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: suite.serverURL,
+					AMServerURL: suite.serverURL,
 					DevMode:     false,
 				},
 				HTTPPort:     0,
@@ -86,7 +86,7 @@ func TestHTTPServerCreation(t *testing.T) {
 			name: "EmptyBindAddress",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: suite.serverURL,
+					AMServerURL: suite.serverURL,
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -99,7 +99,7 @@ func TestHTTPServerCreation(t *testing.T) {
 			name: "BindToAllWithoutSiteURL",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: suite.serverURL,
+					AMServerURL: suite.serverURL,
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -134,7 +134,7 @@ func TestHTTPServerSecurity(t *testing.T) {
 
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: suite.serverURL,
+			AMServerURL: suite.serverURL,
 			DevMode:     false,
 		},
 		HTTPPort:     8080,
@@ -236,7 +236,7 @@ func TestOAuthMetadataEndpoints(t *testing.T) {
 
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: suite.serverURL,
+			AMServerURL: suite.serverURL,
 			DevMode:     false,
 		},
 		HTTPPort:     8080,
@@ -295,7 +295,7 @@ func TestMCPEndpoints(t *testing.T) {
 
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: suite.serverURL,
+			AMServerURL: suite.serverURL,
 			DevMode:     false,
 		},
 		HTTPPort:     8080,
@@ -382,10 +382,10 @@ func TestOriginValidation(t *testing.T) {
 		expectedResult bool
 	}{
 		{
-			name: "ValidMattermostOrigin",
+			name: "ValidAntimatterOrigin",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -398,7 +398,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "ValidSiteURLOrigin",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -412,7 +412,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "LocalhostOriginWithLocalhostBinding",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -425,7 +425,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "InvalidOrigin",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -438,7 +438,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "EmptyOrigin",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -448,10 +448,10 @@ func TestOriginValidation(t *testing.T) {
 			expectedResult: true, // No Origin header is allowed for non-browser requests
 		},
 		{
-			name: "IPv6MattermostOriginWithDefaultPort",
+			name: "IPv6AntimatterOriginWithDefaultPort",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://[::1]:80",
+					AMServerURL: "http://[::1]:80",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -461,10 +461,10 @@ func TestOriginValidation(t *testing.T) {
 			expectedResult: true,
 		},
 		{
-			name: "IPv6MattermostOriginWithoutPort",
+			name: "IPv6AntimatterOriginWithoutPort",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://[::1]",
+					AMServerURL: "http://[::1]",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -477,7 +477,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "IPv6SiteURLOrigin",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -491,7 +491,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "IPv6SiteURLOriginWithDefaultPort",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -505,7 +505,7 @@ func TestOriginValidation(t *testing.T) {
 			name: "IPv6LocalhostBindingOrigin",
 			config: mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: "http://localhost:8065",
+					AMServerURL: "http://localhost:8065",
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -551,7 +551,7 @@ func TestSSEServerIntegration(t *testing.T) {
 
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: suite.serverURL,
+			AMServerURL: suite.serverURL,
 			DevMode:     false,
 		},
 		HTTPPort:     8080,
@@ -583,7 +583,7 @@ func TestStreamableHTTPServerIntegration(t *testing.T) {
 
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: suite.serverURL,
+			AMServerURL: suite.serverURL,
 			DevMode:     false,
 		},
 		HTTPPort:     8080,
@@ -649,7 +649,7 @@ func TestHTTPServerProtocolVersionNegotiation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			config := mcpserver.HTTPConfig{
 				BaseConfig: mcpserver.BaseConfig{
-					MMServerURL: suite.serverURL,
+					AMServerURL: suite.serverURL,
 					DevMode:     false,
 				},
 				HTTPPort:     8080,
@@ -689,12 +689,12 @@ func TestHTTPServerProtocolVersionNegotiation(t *testing.T) {
 
 // TestHTTPServerHostValidation verifies the DNS-rebinding host check that
 // replaces the SDK's SSE-only localhost protection: on loopback connections,
-// loopback Hosts and the configured public hosts (SiteURL / MMServerURL) are
+// loopback Hosts and the configured public hosts (SiteURL / AMServerURL) are
 // accepted, while unknown Hosts are rejected with 403 before authentication.
 func TestHTTPServerHostValidation(t *testing.T) {
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: "http://mattermost.internal:8065",
+			AMServerURL: "http://mattermost.internal:8065",
 		},
 		HTTPPort:     8080,
 		HTTPBindAddr: "127.0.0.1",
@@ -756,7 +756,7 @@ func TestHTTPServerHostValidation(t *testing.T) {
 func TestConfigurationMethods(t *testing.T) {
 	config := mcpserver.HTTPConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: "http://localhost:8065",
+			AMServerURL: "http://localhost:8065",
 			DevMode:     true,
 		},
 		HTTPPort:     8080,
@@ -765,8 +765,8 @@ func TestConfigurationMethods(t *testing.T) {
 	}
 
 	// Test configuration getter methods
-	assert.Equal(t, "http://localhost:8065", config.GetMMServerURL())
-	assert.Equal(t, "http://localhost:8065", config.GetMMInternalServerURL()) // Should fallback to MMServerURL
+	assert.Equal(t, "http://localhost:8065", config.GetAMServerURL())
+	assert.Equal(t, "http://localhost:8065", config.GetAMInternalServerURL()) // Should fallback to AMServerURL
 	assert.True(t, config.GetDevMode())
 	assert.Equal(t, "https://example.com", config.SiteURL)
 }

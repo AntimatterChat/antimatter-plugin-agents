@@ -255,7 +255,7 @@ func (a *API) notConfiguredHealthCheck() indexer.HealthCheckResult {
 	return result
 }
 
-func (a *API) mattermostAdminAuthorizationRequired(c *gin.Context) {
+func (a *API) antimatterAdminAuthorizationRequired(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
 
 	if !a.pluginAPI.User.HasPermissionTo(userID, model.PermissionManageSystem) {

@@ -128,9 +128,9 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 	case referenceRecordingFileIDProp != nil:
 		post.Message = ""
 		referencedRecordingFileID := referenceRecordingFileIDProp.(string)
-		mm := amapi.WithFilePolicy(c.amClient, auth.SessionIDFromContext(ctx))
+		am := amapi.WithFilePolicy(c.amClient, auth.SessionIDFromContext(ctx))
 
-		fileInfo, getErr := mm.GetFileInfo(referencedRecordingFileID)
+		fileInfo, getErr := am.GetFileInfo(referencedRecordingFileID)
 		if getErr != nil {
 			return fmt.Errorf("could not get transcription file on regen: %w", getErr)
 		}
@@ -138,7 +138,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		if len(post.FileIds) == 0 {
 			return errors.New("no transcription file on regen post")
 		}
-		reader, getErr := mm.GetFile(post.FileIds[0])
+		reader, getErr := am.GetFile(post.FileIds[0])
 		if getErr != nil {
 			return fmt.Errorf("could not get transcription file on regen: %w", getErr)
 		}
@@ -179,8 +179,8 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		if fileIDErr != nil {
 			return fmt.Errorf("unable to get transcription file id: %w", fileIDErr)
 		}
-		mm := amapi.WithFilePolicy(c.amClient, auth.SessionIDFromContext(ctx))
-		transcriptionFileReader, fileErr := mm.GetFile(transcriptionFileID)
+		am := amapi.WithFilePolicy(c.amClient, auth.SessionIDFromContext(ctx))
+		transcriptionFileReader, fileErr := am.GetFile(transcriptionFileID)
 		if fileErr != nil {
 			return fmt.Errorf("unable to read calls file: %w", fileErr)
 		}

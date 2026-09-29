@@ -111,7 +111,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -150,7 +150,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -195,7 +195,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -275,7 +275,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -302,7 +302,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -332,7 +332,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -371,7 +371,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -420,7 +420,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -487,7 +487,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -516,7 +516,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -546,7 +546,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -578,7 +578,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -616,7 +616,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -654,7 +654,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		// No SetTurnStore call — turnStore is nil.
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -679,7 +679,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -704,7 +704,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -739,7 +739,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -791,7 +791,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeOpen},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -841,7 +841,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeGroup, Name: "group-channel"},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -884,7 +884,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -907,7 +907,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -967,7 +967,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1022,7 +1022,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1058,7 +1058,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1147,7 +1147,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID, Message: "Let me search for that."}
@@ -1283,7 +1283,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 						channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 					},
 				}
-				service := NewMMPostStreamService(client, i18n.Init())
+				service := NewAMPostStreamService(client, i18n.Init())
 				service.SetTurnStore(ts)
 
 				post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1317,7 +1317,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1348,7 +1348,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1418,7 +1418,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		postBPost := &model.Post{Id: postB, ChannelId: channelID, UserId: botID}
@@ -1474,7 +1474,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}
@@ -1516,7 +1516,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 				channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 			},
 		}
-		service := NewMMPostStreamService(client, i18n.Init())
+		service := NewAMPostStreamService(client, i18n.Init())
 		service.SetTurnStore(ts)
 
 		post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID}

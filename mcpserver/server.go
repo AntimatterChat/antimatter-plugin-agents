@@ -24,8 +24,8 @@ type AntimatterMCPServer struct {
 // newPluginCallbackServices builds the HTTP search and file-content services
 // that call back to the Agents plugin's /api/v1 endpoints on the given
 // Mattermost server URL.
-func newPluginCallbackServices(mmServerURL string) (*tools.HTTPSemanticSearchService, *tools.HTTPFileContentService) {
-	pluginURL := strings.TrimRight(mmServerURL, "/") + "/plugins/mattermost-ai"
+func newPluginCallbackServices(amServerURL string) (*tools.HTTPSemanticSearchService, *tools.HTTPFileContentService) {
+	pluginURL := strings.TrimRight(amServerURL, "/") + "/plugins/mattermost-ai"
 	return tools.NewHTTPSemanticSearchService(pluginURL), tools.NewHTTPFileContentService(pluginURL)
 }
 

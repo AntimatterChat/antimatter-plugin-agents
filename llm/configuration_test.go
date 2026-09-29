@@ -630,7 +630,7 @@ func TestIsValidService(t *testing.T) {
 			name: "Service with unsupported Type",
 			service: ServiceConfig{
 				ID:     "service-8",
-				Type:   "mattermostllm", // bad - unsupported
+				Type:   "antimatterllm", // bad - unsupported
 				APIKey: "sk-xyz",
 			},
 			want: false,

@@ -17,7 +17,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 	plugintest "github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
-	mmcontainer "github.com/mattermost/testcontainers-mattermost-go"
+	amcontainer "github.com/mattermost/testcontainers-mattermost-go"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -110,9 +110,9 @@ func setupSharedSuiteAttempt(t *testing.T) (*EmbeddedTestSuite, error) {
 	cfg.TeamSettings.EnableUserCreation = model.NewPointer(true)
 
 	// Start Mattermost container with config at creation time
-	container, err := mmcontainer.RunContainer(ctx,
-		mmcontainer.WithLicense(""),
-		mmcontainer.WithConfig(cfg),
+	container, err := amcontainer.RunContainer(ctx,
+		amcontainer.WithLicense(""),
+		amcontainer.WithConfig(cfg),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start shared Mattermost container: %w", err)
@@ -143,7 +143,7 @@ func setupSharedSuiteAttempt(t *testing.T) (*EmbeddedTestSuite, error) {
 // EmbeddedTestSuite provides infrastructure for testing the embedded MCP server
 type EmbeddedTestSuite struct {
 	t              *testing.T
-	container      *mmcontainer.MattermostContainer
+	container      *amcontainer.MattermostContainer
 	serverURL      string
 	adminClient    *model.Client4
 	embeddedServer *mcpserver.AntimatterInMemoryMCPServer
@@ -164,9 +164,9 @@ func SetupEmbeddedTestSuite(t *testing.T) *EmbeddedTestSuite {
 	cfg.TeamSettings.EnableUserCreation = model.NewPointer(true)
 
 	// Start Mattermost container with config at creation time
-	container, err := mmcontainer.RunContainer(ctx,
-		mmcontainer.WithLicense(""),
-		mmcontainer.WithConfig(cfg),
+	container, err := amcontainer.RunContainer(ctx,
+		amcontainer.WithLicense(""),
+		amcontainer.WithConfig(cfg),
 	)
 	require.NoError(t, err, "Failed to start Mattermost container")
 
@@ -196,8 +196,8 @@ func (s *EmbeddedTestSuite) SetupEmbeddedServer() {
 	// Create embedded server configuration
 	config := mcpserver.InMemoryConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL:         s.serverURL,
-			MMInternalServerURL: s.serverURL,
+			AMServerURL:         s.serverURL,
+			AMInternalServerURL: s.serverURL,
 			DevMode:             false,
 		},
 	}

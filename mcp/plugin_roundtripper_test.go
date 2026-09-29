@@ -116,7 +116,7 @@ func TestPluginHTTPRoundTripper_PreservesHeaders(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: &headerTransport{
 			base:    rt,
-			headers: map[string]string{MMUserIDHeader: "alice"},
+			headers: map[string]string{UserIDHeader: "alice"},
 		},
 	}
 
@@ -126,7 +126,7 @@ func TestPluginHTTPRoundTripper_PreservesHeaders(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotNil(t, captured)
-	assert.Equal(t, "alice", captured.Header.Get(MMUserIDHeader))
+	assert.Equal(t, "alice", captured.Header.Get(UserIDHeader))
 	assert.Equal(t, "/com.mattermost.plugin-mcp-demo/mcp", captured.URL.Path)
 }
 

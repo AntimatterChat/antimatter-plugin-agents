@@ -6,11 +6,11 @@ package mcpserver
 // BaseConfig represents common configuration for all MCP server types
 type BaseConfig struct {
 	// Mattermost server URL (e.g., "https://mattermost.company.com")
-	MMServerURL string `json:"mm_server_url"`
+	AMServerURL string `json:"mm_server_url"`
 
 	// Internal Mattermost server URL for API communication (e.g., "http://localhost:8065")
-	// If empty, MMServerURL will be used for internal communication
-	MMInternalServerURL string `json:"mm_internal_server_url"`
+	// If empty, AMServerURL will be used for internal communication
+	AMInternalServerURL string `json:"mm_internal_server_url"`
 
 	// Development mode enables additional tools for setting up test data
 	DevMode bool `json:"dev_mode"`
@@ -22,18 +22,18 @@ type BaseConfig struct {
 	TrackAIGenerated *bool `json:"track_ai_generated,omitempty"`
 }
 
-// GetMMServerURL returns the Mattermost server URL
-func (c BaseConfig) GetMMServerURL() string {
-	return c.MMServerURL
+// GetAMServerURL returns the Mattermost server URL
+func (c BaseConfig) GetAMServerURL() string {
+	return c.AMServerURL
 }
 
-// GetMMInternalServerURL returns the internal Mattermost server URL for API communication
+// GetAMInternalServerURL returns the internal Mattermost server URL for API communication
 // If not set, falls back to the external server URL for backward compatibility
-func (c BaseConfig) GetMMInternalServerURL() string {
-	if c.MMInternalServerURL != "" {
-		return c.MMInternalServerURL
+func (c BaseConfig) GetAMInternalServerURL() string {
+	if c.AMInternalServerURL != "" {
+		return c.AMInternalServerURL
 	}
-	return c.MMServerURL
+	return c.AMServerURL
 }
 
 // GetDevMode returns the development mode setting

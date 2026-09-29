@@ -38,7 +38,7 @@ func (p *TokenAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx conte
 	}
 
 	// Create client with configured token
-	client := model.NewAPIv4Client(p.mmServerURL)
+	client := model.NewAPIv4Client(p.amServerURL)
 	client.SetToken(p.token)
 
 	// Validate token by getting current user (single validation call)

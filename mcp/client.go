@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	MMUserIDHeader     = "X-Mattermost-UserID"
+	UserIDHeader       = "X-Mattermost-UserID"
 	EmbeddedServerName = "Mattermost"
 	EmbeddedClientKey  = config.MCPEmbeddedServerOrigin
 
@@ -133,7 +133,7 @@ func (c *Client) useSharedToolsCache() bool {
 // Later layers win on key conflicts: X-Mattermost-UserID < admin Headers < ServiceAccountHeaders.
 func remoteConnectionHeaders(userID string, serverConfig ServerConfig, serviceAccount bool) map[string]string {
 	headers := make(map[string]string)
-	headers[MMUserIDHeader] = userID
+	headers[UserIDHeader] = userID
 	maps.Copy(headers, serverConfig.Headers)
 	if serviceAccount {
 		maps.Copy(headers, serverConfig.EffectiveServiceAccountHeaders())

@@ -96,7 +96,7 @@ func TestNewClientServiceAccountSendsStaticHeaders(t *testing.T) {
 	for _, headers := range recorded {
 		require.Equal(t, testSAHeaderValue, headers.Get(testSAHeaderName))
 		require.Equal(t, "admin-value", headers.Get(testAdminHeader))
-		require.Equal(t, "bot-1", headers.Get(MMUserIDHeader), "X-Mattermost-UserID must be the acting bot user ID")
+		require.Equal(t, "bot-1", headers.Get(UserIDHeader), "X-Mattermost-UserID must be the acting bot user ID")
 		require.Empty(t, headers.Get("Authorization"), "service account mode must not attach an OAuth token")
 	}
 }
@@ -230,11 +230,11 @@ func TestClientManagerModeIsolationPooling(t *testing.T) {
 	for _, headers := range recorder.snapshot() {
 		if headers.Get(testSAHeaderName) == testSAHeaderValue {
 			sawSA = true
-			require.Equal(t, "bot-1", headers.Get(MMUserIDHeader))
+			require.Equal(t, "bot-1", headers.Get(UserIDHeader))
 			require.Empty(t, headers.Get("Authorization"))
 			continue
 		}
-		if headers.Get(MMUserIDHeader) == "bot-1" {
+		if headers.Get(UserIDHeader) == "bot-1" {
 			sawUser = true
 			require.Empty(t, headers.Get(testSAHeaderName))
 		}
@@ -281,7 +281,7 @@ func TestClientManagerServiceAccountPluginServerGetsInvokerUserIDHeader(t *testi
 	mockAPI := &fakePluginHTTPClient{
 		pluginHTTP: func(req *http.Request) *http.Response {
 			mu.Lock()
-			recordedUserIDs = append(recordedUserIDs, req.Header.Get(MMUserIDHeader))
+			recordedUserIDs = append(recordedUserIDs, req.Header.Get(UserIDHeader))
 			mu.Unlock()
 
 			rec := httptest.NewRecorder()

@@ -61,19 +61,19 @@ type UserIdentityProvider interface {
 // providerBase holds what every authentication provider needs: the Mattermost
 // server URL for API communication and a logger.
 type providerBase struct {
-	mmServerURL string
+	amServerURL string
 	logger      logger.Logger
 }
 
 // newProviderBase uses internalURL for API communication if provided,
 // otherwise falls back to externalURL.
 func newProviderBase(externalURL, internalURL string, logger logger.Logger) providerBase {
-	mmServerURL := internalURL
-	if mmServerURL == "" {
-		mmServerURL = externalURL
+	amServerURL := internalURL
+	if amServerURL == "" {
+		amServerURL = externalURL
 	}
 	return providerBase{
-		mmServerURL: mmServerURL,
+		amServerURL: amServerURL,
 		logger:      logger,
 	}
 }

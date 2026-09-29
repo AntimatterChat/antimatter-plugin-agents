@@ -25,8 +25,8 @@ func TestPostUpdateEventsUseReliableClusterSend(t *testing.T) {
 		requesterID = "requester-id"
 	)
 
-	newService := func(client *fakeStreamingClient) *MMPostStreamService {
-		return NewMMPostStreamService(client, i18n.Init())
+	newService := func(client *fakeStreamingClient) *AMPostStreamService {
+		return NewAMPostStreamService(client, i18n.Init())
 	}
 
 	newClient := func() *fakeStreamingClient {
@@ -57,12 +57,12 @@ func TestPostUpdateEventsUseReliableClusterSend(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		act    func(service *MMPostStreamService)
+		act    func(service *AMPostStreamService)
 		assert func(t *testing.T, events []publishedEvent)
 	}{
 		{
 			name: "text, control, reasoning and annotation events are reliable",
-			act: func(service *MMPostStreamService) {
+			act: func(service *AMPostStreamService) {
 				streamChannel := make(chan llm.TextStreamEvent, 5)
 				streamChannel <- llm.TextStreamEvent{Type: llm.EventTypeReasoning, Value: "thinking"}
 				streamChannel <- llm.TextStreamEvent{Type: llm.EventTypeReasoningEnd, Value: llm.ReasoningData{Text: "thinking"}}
@@ -81,7 +81,7 @@ func TestPostUpdateEventsUseReliableClusterSend(t *testing.T) {
 		},
 		{
 			name: "tool call events are reliable for requester and channel broadcasts",
-			act: func(service *MMPostStreamService) {
+			act: func(service *AMPostStreamService) {
 				service.broadcastToolCalls(post, []llm.ToolCall{
 					{ID: "tc1", Name: "search", Status: llm.ToolCallStatusSuccess},
 				}, requesterID)

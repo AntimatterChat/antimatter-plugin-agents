@@ -15,8 +15,8 @@ import (
 const version = "0.1.0"
 
 var (
-	mmServerURL         string
-	mmInternalServerURL string
+	amServerURL         string
+	amInternalServerURL string
 	token               string
 	debug               bool
 	logFile             string
@@ -41,8 +41,8 @@ Authentication is handled via Personal Access Tokens (PAT).`,
 	}
 
 	// Define flags
-	rootCmd.Flags().StringVarP(&mmServerURL, "server-url", "s", "", "Mattermost server URL (required, or set MM_SERVER_URL env var)")
-	rootCmd.Flags().StringVar(&mmInternalServerURL, "internal-server-url", "", "Internal Mattermost server URL for API communication (optional, or set MM_INTERNAL_SERVER_URL env var)")
+	rootCmd.Flags().StringVarP(&amServerURL, "server-url", "s", "", "Mattermost server URL (required, or set MM_SERVER_URL env var)")
+	rootCmd.Flags().StringVar(&amInternalServerURL, "internal-server-url", "", "Internal Mattermost server URL for API communication (optional, or set MM_INTERNAL_SERVER_URL env var)")
 	rootCmd.Flags().StringVarP(&token, "token", "t", "", "Personal Access Token (required, or set MM_ACCESS_TOKEN env var)")
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Enable debug logging")
 	rootCmd.Flags().StringVarP(&logFile, "logfile", "l", "", "Path to log file (logs to file in addition to stderr)")
@@ -80,17 +80,17 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check for environment variables if flags not provided
-	if mmServerURL == "" {
-		mmServerURL = os.Getenv("MM_SERVER_URL")
-		if mmServerURL == "" {
+	if amServerURL == "" {
+		amServerURL = os.Getenv("MM_SERVER_URL")
+		if amServerURL == "" {
 			logger.Error("server URL is required (use --server-url or MM_SERVER_URL environment variable)")
 			logger.Flush()
 			return fmt.Errorf("server URL is required")
 		}
 	}
 
-	if mmInternalServerURL == "" {
-		mmInternalServerURL = os.Getenv("MM_INTERNAL_SERVER_URL")
+	if amInternalServerURL == "" {
+		amInternalServerURL = os.Getenv("MM_INTERNAL_SERVER_URL")
 	}
 
 	if token == "" && transport == "stdio" {
@@ -110,7 +110,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Debug("starting mattermost mcp server",
-		"server_url", mmServerURL,
+		"server_url", amServerURL,
 		"transport", transport,
 	)
 
@@ -126,8 +126,8 @@ func runServer(cmd *cobra.Command, args []string) error {
 		// Create STDIO transport configuration
 		stdioConfig := mcpserver.StdioConfig{
 			BaseConfig: mcpserver.BaseConfig{
-				MMServerURL:         mmServerURL,
-				MMInternalServerURL: mmInternalServerURL,
+				AMServerURL:         amServerURL,
+				AMInternalServerURL: amInternalServerURL,
 				DevMode:             devMode,
 				TrackAIGenerated:    trackAIGenerated,
 			},
@@ -140,8 +140,8 @@ func runServer(cmd *cobra.Command, args []string) error {
 		stateless, _ := cmd.Flags().GetBool("stateless")
 		httpConfig := mcpserver.HTTPConfig{
 			BaseConfig: mcpserver.BaseConfig{
-				MMServerURL:         mmServerURL,
-				MMInternalServerURL: mmInternalServerURL,
+				AMServerURL:         amServerURL,
+				AMInternalServerURL: amInternalServerURL,
 				DevMode:             devMode,
 				TrackAIGenerated:    trackAIGenerated,
 			},

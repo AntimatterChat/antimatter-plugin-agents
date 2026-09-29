@@ -163,8 +163,8 @@ func (h *PluginMCPHandlers) buildServer() *mcp.Server {
 
 	trackAIGenerated := true
 	config := BaseConfig{
-		MMServerURL:         h.siteURL,
-		MMInternalServerURL: h.internalURL,
+		AMServerURL:         h.siteURL,
+		AMInternalServerURL: h.internalURL,
 		DevMode:             false,
 		TrackAIGenerated:    &trackAIGenerated,
 	}

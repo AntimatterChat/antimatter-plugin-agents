@@ -151,7 +151,7 @@ func (a *turnAccumulator) buildContentBlocks() []conversation.ContentBlock {
 
 var ErrAlreadyStreamingToPost = fmt.Errorf("already streaming to post")
 
-type MMPostStreamService struct {
+type AMPostStreamService struct {
 	contexts      map[string]postStreamContext
 	contextsMutex sync.Mutex
 	amClient      Client
@@ -159,8 +159,8 @@ type MMPostStreamService struct {
 	turnStore     TurnStore
 }
 
-func NewMMPostStreamService(amClient Client, i18n *i18n.Bundle) *MMPostStreamService {
-	return &MMPostStreamService{
+func NewAMPostStreamService(amClient Client, i18n *i18n.Bundle) *AMPostStreamService {
+	return &AMPostStreamService{
 		contexts: make(map[string]postStreamContext),
 		amClient: amClient,
 		i18n:     i18n,
@@ -169,11 +169,11 @@ func NewMMPostStreamService(amClient Client, i18n *i18n.Bundle) *MMPostStreamSer
 
 // SetTurnStore sets the store used for persisting assistant turns.
 // When nil (the default), turn persistence is silently skipped.
-func (p *MMPostStreamService) SetTurnStore(ts TurnStore) {
+func (p *AMPostStreamService) SetTurnStore(ts TurnStore) {
 	p.turnStore = ts
 }
 
-func (p *MMPostStreamService) StreamToNewPost(ctx context.Context, botID string, requesterUserID string, stream *llm.TextStreamResult, post *model.Post, respondingToPostID string) error {
+func (p *AMPostStreamService) StreamToNewPost(ctx context.Context, botID string, requesterUserID string, stream *llm.TextStreamResult, post *model.Post, respondingToPostID string) error {
 	return p.streamToCreatedPost(ctx, botID, requesterUserID, stream, post, respondingToPostID, func() error {
 		if err := p.amClient.CreatePost(post); err != nil {
 			return fmt.Errorf("unable to create post: %w", err)
@@ -182,7 +182,7 @@ func (p *MMPostStreamService) StreamToNewPost(ctx context.Context, botID string,
 	})
 }
 
-func (p *MMPostStreamService) StreamToNewDM(ctx context.Context, botID string, stream *llm.TextStreamResult, userID string, post *model.Post, respondingToPostID string) error {
+func (p *AMPostStreamService) StreamToNewDM(ctx context.Context, botID string, stream *llm.TextStreamResult, userID string, post *model.Post, respondingToPostID string) error {
 	return p.streamToCreatedPost(ctx, botID, userID, stream, post, respondingToPostID, func() error {
 		if err := p.amClient.DM(botID, userID, post); err != nil {
 			return fmt.Errorf("failed to post DM: %w", err)
@@ -194,7 +194,7 @@ func (p *MMPostStreamService) StreamToNewDM(ctx context.Context, botID string, s
 // streamToCreatedPost creates the post via createPost and streams into it,
 // using the user's locale only for a 1-1 DM between the user and the bot;
 // everything else gets the server default locale.
-func (p *MMPostStreamService) streamToCreatedPost(ctx context.Context, botID string, userID string, stream *llm.TextStreamResult, post *model.Post, respondingToPostID string, createPost func() error) error {
+func (p *AMPostStreamService) streamToCreatedPost(ctx context.Context, botID string, userID string, stream *llm.TextStreamResult, post *model.Post, respondingToPostID string, createPost func() error) error {
 	// We use ModifyPostForBot directly here to add the responding to post ID
 	ModifyPostForBot(botID, userID, post, respondingToPostID)
 
@@ -236,18 +236,18 @@ func (p *MMPostStreamService) streamToCreatedPost(ctx context.Context, botID str
 
 // sendPostStreamingEvent publishes a "postupdate" WebSocket event carrying the
 // post ID plus the given payload fields.
-func (p *MMPostStreamService) sendPostStreamingEvent(post *model.Post, broadcast *model.WebsocketBroadcast, fields map[string]any) {
+func (p *AMPostStreamService) sendPostStreamingEvent(post *model.Post, broadcast *model.WebsocketBroadcast, fields map[string]any) {
 	payload := map[string]any{"post_id": post.Id}
 	maps.Copy(payload, fields)
 	p.amClient.PublishWebSocketEvent("postupdate", payload, broadcast)
 }
 
 // StopStreaming cancels any in-flight stream to the given post.
-func (p *MMPostStreamService) StopStreaming(postID string) {
+func (p *AMPostStreamService) StopStreaming(postID string) {
 	p.FinishStreaming(postID)
 }
 
-func (p *MMPostStreamService) GetStreamingContext(inCtx context.Context, postID string) (context.Context, error) {
+func (p *AMPostStreamService) GetStreamingContext(inCtx context.Context, postID string) (context.Context, error) {
 	p.contextsMutex.Lock()
 	defer p.contextsMutex.Unlock()
 
@@ -268,7 +268,7 @@ func (p *MMPostStreamService) GetStreamingContext(inCtx context.Context, postID 
 
 // FinishStreaming should be called when a post streaming operation is finished on success or failure.
 // It is safe to call multiple times, must be called at least once.
-func (p *MMPostStreamService) FinishStreaming(postID string) {
+func (p *AMPostStreamService) FinishStreaming(postID string) {
 	p.contextsMutex.Lock()
 	defer p.contextsMutex.Unlock()
 	if streamContext, ok := p.contexts[postID]; ok {
@@ -291,7 +291,7 @@ func newTurnAccumulator(conversationID, postID, existingAnchorID string, isConti
 
 // finalizeTurn writes the accumulated content as a new assistant turn. For
 // continuation streams it first demotes the prior anchor.
-func (p *MMPostStreamService) finalizeTurn(acc *turnAccumulator) {
+func (p *AMPostStreamService) finalizeTurn(acc *turnAccumulator) {
 	blocks := acc.buildContentBlocks()
 
 	contentJSON, err := json.Marshal(blocks)
@@ -327,7 +327,7 @@ func (p *MMPostStreamService) finalizeTurn(acc *turnAccumulator) {
 // broadcastToolCalls sends tool call WebSocket events with privacy scoping.
 // The requester receives full tool call data (arguments, results).
 // Other channel members receive redacted tool calls (names and status only).
-func (p *MMPostStreamService) broadcastToolCalls(post *model.Post, toolCalls []llm.ToolCall, requesterUserID string) {
+func (p *AMPostStreamService) broadcastToolCalls(post *model.Post, toolCalls []llm.ToolCall, requesterUserID string) {
 	// Full data to the requester only.
 	fullJSON, err := json.Marshal(toolCalls)
 	if err != nil {
@@ -379,15 +379,15 @@ func redactToolCalls(toolCalls []llm.ToolCall) []llm.ToolCall {
 // StreamToPost streams a fresh response onto a post (first stream or regen,
 // where the caller has already scrubbed prior turns). For tool-approval resume
 // use StreamContinuationToPost.
-func (p *MMPostStreamService) StreamToPost(ctx context.Context, stream *llm.TextStreamResult, post *model.Post, userLocale string, requesterUserID string) {
+func (p *AMPostStreamService) StreamToPost(ctx context.Context, stream *llm.TextStreamResult, post *model.Post, userLocale string, requesterUserID string) {
 	p.streamToPostImpl(ctx, stream, post, userLocale, requesterUserID, false)
 }
 
-func (p *MMPostStreamService) StreamContinuationToPost(ctx context.Context, stream *llm.TextStreamResult, post *model.Post, userLocale string, requesterUserID string) {
+func (p *AMPostStreamService) StreamContinuationToPost(ctx context.Context, stream *llm.TextStreamResult, post *model.Post, userLocale string, requesterUserID string) {
 	p.streamToPostImpl(ctx, stream, post, userLocale, requesterUserID, true)
 }
 
-func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.TextStreamResult, post *model.Post, userLocale string, requesterUserID string, isContinuation bool) {
+func (p *AMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.TextStreamResult, post *model.Post, userLocale string, requesterUserID string, isContinuation bool) {
 	// Top-level posts are their own thread root, so falling back to post.Id
 	// keeps the attribute populated and makes "all spans for this thread"
 	// queries work uniformly for both replies and root posts.

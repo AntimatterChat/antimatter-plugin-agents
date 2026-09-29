@@ -60,9 +60,9 @@ func (p *AntimatterToolProvider) toolListAgents(mcpContext *MCPToolContext, _ Li
 
 // fetchAIBots calls the plugin's /ai_bots endpoint using the authenticated Client4.
 // The Mattermost server authenticates the Bearer token and sets Mattermost-User-Id,
-// which satisfies the plugin's MattermostAuthorizationRequired middleware.
+// which satisfies the plugin's AntimatterAuthorizationRequired middleware.
 func (p *AntimatterToolProvider) fetchAIBots(client *model.Client4) ([]AIBotInfo, error) {
-	url := p.mmServerURL + aiBotsAPIPath
+	url := p.amServerURL + aiBotsAPIPath
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

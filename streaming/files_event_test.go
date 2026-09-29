@@ -93,7 +93,7 @@ func TestStreamToPostFilesEvent(t *testing.T) {
 					channelID: {Id: channelID, Type: model.ChannelTypeDirect, Name: botID + "__" + requesterID},
 				},
 			}
-			service := NewMMPostStreamService(client, i18n.Init())
+			service := NewAMPostStreamService(client, i18n.Init())
 			service.SetTurnStore(ts)
 
 			post := &model.Post{Id: postID, ChannelId: channelID, UserId: botID, FileIds: tt.initialFileIDs}

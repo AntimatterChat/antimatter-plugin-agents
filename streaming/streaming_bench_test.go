@@ -20,7 +20,7 @@ func BenchmarkStreamToPost(b *testing.B) {
 
 	for _, sc := range scenarios {
 		b.Run(sc.Name, func(b *testing.B) {
-			service := NewMMPostStreamService(client, bundle)
+			service := NewAMPostStreamService(client, bundle)
 			ctx := context.Background()
 
 			for b.Loop() {

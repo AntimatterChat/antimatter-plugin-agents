@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
-	mmcontainer "github.com/mattermost/testcontainers-mattermost-go"
+	amcontainer "github.com/mattermost/testcontainers-mattermost-go"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/require"
 
@@ -72,7 +72,7 @@ var _ loggerlib.Logger = (*testLogger)(nil)
 // TestSuite represents the integration test suite
 type TestSuite struct {
 	t          *testing.T
-	container  *mmcontainer.MattermostContainer
+	container  *amcontainer.MattermostContainer
 	serverURL  string
 	adminToken string
 	logger     loggerlib.Logger
@@ -95,12 +95,12 @@ func SetupTestSuite(t *testing.T) *TestSuite {
 	cfg.ServiceSettings.EnableUserAccessTokens = model.NewPointer(true)
 
 	// Retry once — the container init (team/user creation via mmctl) can hit transient races.
-	var container *mmcontainer.MattermostContainer
+	var container *amcontainer.MattermostContainer
 	var err error
 	for attempt := range 2 {
-		container, err = mmcontainer.RunContainer(ctx,
-			mmcontainer.WithLicense(""),
-			mmcontainer.WithConfig(cfg),
+		container, err = amcontainer.RunContainer(ctx,
+			amcontainer.WithLicense(""),
+			amcontainer.WithConfig(cfg),
 		)
 		if err == nil {
 			break
@@ -179,7 +179,7 @@ func (suite *TestSuite) createMCPServerWithConfig(devMode bool, searchService to
 
 	stdioConfig := mcpserver.StdioConfig{
 		BaseConfig: mcpserver.BaseConfig{
-			MMServerURL: suite.serverURL,
+			AMServerURL: suite.serverURL,
 			DevMode:     devMode,
 		},
 		PersonalAccessToken: suite.adminToken,

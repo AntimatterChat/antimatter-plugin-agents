@@ -27,7 +27,7 @@ func newTestProvider(t *testing.T, serverURL string) *AntimatterToolProvider {
 	t.Helper()
 	return &AntimatterToolProvider{
 		logger:      &testLogger{t: t},
-		mmServerURL: serverURL,
+		amServerURL: serverURL,
 	}
 }
 

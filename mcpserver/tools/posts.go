@@ -312,7 +312,7 @@ func (p *AntimatterToolProvider) toolCreatePostAsUser(mcpContext *MCPToolContext
 
 	// Create a new client and login as the specified user
 	ctx := mcpContext.Ctx
-	userClient := model.NewAPIv4Client(p.mmServerURL)
+	userClient := model.NewAPIv4Client(p.amServerURL)
 
 	// Login as the specified user
 	user, _, err := userClient.Login(ctx, args.Username, args.Password)

@@ -311,7 +311,7 @@ func (p *Plugin) OnActivate() error {
 		return promptManagerErr
 	}
 
-	streamingService := streaming.NewMMPostStreamService(amClient, i18nBundle)
+	streamingService := streaming.NewAMPostStreamService(amClient, i18nBundle)
 
 	// Availability is the single source of truth for the embedding search.
 	// Indexing stays available whenever search is initialized so a reindex can

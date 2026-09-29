@@ -621,7 +621,7 @@ func TestRemoteConnectionHeaders(t *testing.T) {
 			name:            "user mode ignores service account headers",
 			userID:          "user-1",
 			serverConfig:    ServerConfig{Name: "srv", Headers: adminHeaders, ServiceAccountHeaders: saHeaders},
-			expectedHeaders: map[string]string{MMUserIDHeader: "user-1", "X-Admin": "admin-value"},
+			expectedHeaders: map[string]string{UserIDHeader: "user-1", "X-Admin": "admin-value"},
 		},
 		{
 			name:   "service account headers layer on top of the bot ID and admin headers",
@@ -633,7 +633,7 @@ func TestRemoteConnectionHeaders(t *testing.T) {
 			},
 			serviceAccount: true,
 			expectedHeaders: map[string]string{
-				MMUserIDHeader:  "bot-1",
+				UserIDHeader:    "bot-1",
 				"X-Admin":       "admin-value",
 				"Authorization": "Bearer service-account-pat",
 			},
@@ -653,7 +653,7 @@ func TestRemoteConnectionHeaders(t *testing.T) {
 			},
 			serviceAccount: true,
 			expectedHeaders: map[string]string{
-				MMUserIDHeader:  "bot-1",
+				UserIDHeader:    "bot-1",
 				"X-Admin":       "admin-value",
 				"Authorization": "Bearer service-account-pat",
 			},

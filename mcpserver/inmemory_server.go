@@ -26,7 +26,7 @@ type AntimatterInMemoryMCPServer struct {
 // searchService and fileContentService are optional and can be nil when the
 // corresponding capability is unavailable.
 func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*AntimatterInMemoryMCPServer, error) {
-	if config.MMServerURL == "" {
+	if config.AMServerURL == "" {
 		return nil, fmt.Errorf("mattermost server URL cannot be empty for in-memory transport")
 	}
 
@@ -47,8 +47,8 @@ func NewInMemoryServer(config InMemoryConfig, logger loggerlib.Logger, searchSer
 
 	// Create session authentication provider for in-memory transport
 	antimatterServer.authProvider = auth.NewSessionAuthenticationProvider(
-		config.GetMMServerURL(),
-		config.GetMMInternalServerURL(),
+		config.GetAMServerURL(),
+		config.GetAMInternalServerURL(),
 		logger,
 	)
 
