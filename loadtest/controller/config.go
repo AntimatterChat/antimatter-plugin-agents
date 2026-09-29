@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	configEnvVar      = "MM_AGENTS_LOADTEST_CONFIG"
-	defaultConfigPath = "./config/mattermost-ai-loadtest.json"
+	configEnvVar       = "AM_AGENTS_LOADTEST_CONFIG"
+	legacyConfigEnvVar = "MM_AGENTS_LOADTEST_CONFIG"
+	defaultConfigPath  = "./config/mattermost-ai-loadtest.json"
 )
 
 // TriggerMode selects which simulated actions are logically enabled by configuration.
@@ -60,11 +61,15 @@ func ReadConfig(path string) (Config, error) {
 	return c, c.Validate()
 }
 
-// ReadConfigFromEnv loads config from MM_AGENTS_LOADTEST_CONFIG when set, otherwise
+// ReadConfigFromEnv loads config from AM_AGENTS_LOADTEST_CONFIG (or the legacy
+// MM_AGENTS_LOADTEST_CONFIG) when set, otherwise
 // merges ./config/mattermost-ai-loadtest.json when that file exists, then validates.
 func ReadConfigFromEnv() (Config, error) {
 	var c Config
 	path := os.Getenv(configEnvVar)
+	if path == "" {
+		path = os.Getenv(legacyConfigEnvVar)
+	}
 	if err := defaults.ReadFrom(path, defaultConfigPath, &c); err != nil {
 		return c, err
 	}

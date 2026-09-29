@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-// Generates src/types/host_editor_contract.snapshot.d.ts from a mattermost
+// Generates src/types/host_editor_contract.snapshot.d.ts from an antimatter
 // webapp checkout: resolves the host's exported editor contract types via the
 // TypeScript compiler API and prints each as a flattened structural type, so
 // the snapshot is self-contained and CI needs no host checkout. Used by
@@ -211,7 +211,7 @@ export function parseCompilerOptions(tsconfigPath) {
 // stripProvenance) before comparing the committed snapshot with a fresh
 // generation, so probing against a different host commit that exports the
 // same types does not report staleness.
-const PROVENANCE_PREFIX = ' * Generated from mattermost commit ';
+const PROVENANCE_PREFIX = ' * Generated from antimatter commit ';
 
 export function stripProvenance(snapshotText) {
     return snapshotText.split('\n').filter((line) => !line.startsWith(PROVENANCE_PREFIX)).join('\n');
@@ -270,18 +270,18 @@ export function generateSnapshot(host, compilerOptions) {
 /**
  * GENERATED FILE — DO NOT EDIT BY HAND.
  *
- * Pinned snapshot of the mattermost webapp's exported editor contract types,
+ * Pinned snapshot of the antimatter webapp's exported editor contract types,
  * flattened to be self-contained. CI type-checks the plugin's mirrors
  * (src/types/access_control_editors.ts, src/types/access_control.ts) against
  * this snapshot via \`npm run check-editor-contract\`, so contract drift fails
  * the build without needing a host checkout.
  *
- * Source of truth (in the mattermost repo):
+ * Source of truth (in the antimatter repo):
 ${sourceList}
  *
-${provenance} * Regenerate against a mattermost webapp checkout (and re-verify) with:
- *   MM_WEBAPP_PATH=/path/to/mattermost/webapp npm run update-editor-contract-snapshot
- * (MM_WEBAPP_PATH is optional when the checkout is a sibling of this repo.)
+${provenance} * Regenerate against an antimatter webapp checkout (and re-verify) with:
+ *   AM_WEBAPP_PATH=/path/to/mattermost/webapp npm run update-editor-contract-snapshot
+ * (AM_WEBAPP_PATH is optional when the checkout is a sibling of this repo.)
  */
 
 /* eslint-disable */

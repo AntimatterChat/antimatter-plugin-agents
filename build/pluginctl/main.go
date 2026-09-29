@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
+
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amenv"
 )
 
 const commandTimeout = 120 * time.Second
@@ -72,7 +74,7 @@ func pluginctl() error {
 }
 
 func getClient(ctx context.Context) (*model.Client4, error) {
-	socketPath := os.Getenv("MM_LOCALSOCKETPATH")
+	socketPath := amenv.Get("AM_LOCALSOCKETPATH")
 	if socketPath == "" {
 		socketPath = model.LocalModeSocketPath
 	}
@@ -83,17 +85,17 @@ func getClient(ctx context.Context) (*model.Client4, error) {
 		return client, nil
 	}
 
-	if os.Getenv("MM_LOCALSOCKETPATH") != "" {
+	if amenv.Get("AM_LOCALSOCKETPATH") != "" {
 		log.Printf("No socket found at %s for local mode deployment. Attempting to authenticate with credentials.", socketPath)
 	}
 
-	siteURL := os.Getenv("MM_SERVICESETTINGS_SITEURL")
-	adminToken := os.Getenv("MM_ADMIN_TOKEN")
-	adminUsername := os.Getenv("MM_ADMIN_USERNAME")
-	adminPassword := os.Getenv("MM_ADMIN_PASSWORD")
+	siteURL := amenv.Get("AM_SERVICESETTINGS_SITEURL")
+	adminToken := amenv.Get("AM_ADMIN_TOKEN")
+	adminUsername := amenv.Get("AM_ADMIN_USERNAME")
+	adminPassword := amenv.Get("AM_ADMIN_PASSWORD")
 
 	if siteURL == "" {
-		return nil, errors.New("MM_SERVICESETTINGS_SITEURL is not set")
+		return nil, errors.New("AM_SERVICESETTINGS_SITEURL (or MM_SERVICESETTINGS_SITEURL) is not set")
 	}
 
 	client = model.NewAPIv4Client(siteURL)
@@ -114,7 +116,7 @@ func getClient(ctx context.Context) (*model.Client4, error) {
 		return client, nil
 	}
 
-	return nil, errors.New("one of MM_ADMIN_TOKEN or MM_ADMIN_USERNAME/MM_ADMIN_PASSWORD must be defined")
+	return nil, errors.New("one of AM_ADMIN_TOKEN or AM_ADMIN_USERNAME/AM_ADMIN_PASSWORD (or their MM_ equivalents) must be defined")
 }
 
 func getUnixClient(socketPath string) (*model.Client4, bool) {

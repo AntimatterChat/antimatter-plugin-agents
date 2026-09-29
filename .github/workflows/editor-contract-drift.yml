@@ -48,8 +48,8 @@ jobs:
         # --include=dev mirrors the host's own CI (webapp/Makefile node_modules).
         run: cd mattermost/webapp && npm ci --include=dev
       - name: Check editor contract against the live host checkout
-        # MM_WEBAPP_PATH makes the script strict: it exits 1 if the checkout
+        # AM_WEBAPP_PATH makes the script strict: it exits 1 if the checkout
         # is unusable, so the live probe cannot be silently skipped.
         env:
-          MM_WEBAPP_PATH: ${{ github.workspace }}/mattermost/webapp
+          AM_WEBAPP_PATH: ${{ github.workspace }}/mattermost/webapp
         run: cd webapp && npm run check-editor-contract

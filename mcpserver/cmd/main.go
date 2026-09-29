@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amenv"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver"
 	loggerlib "github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
 	"github.com/spf13/cobra"
@@ -41,9 +42,9 @@ Authentication is handled via Personal Access Tokens (PAT).`,
 	}
 
 	// Define flags
-	rootCmd.Flags().StringVarP(&amServerURL, "server-url", "s", "", "Mattermost server URL (required, or set MM_SERVER_URL env var)")
-	rootCmd.Flags().StringVar(&amInternalServerURL, "internal-server-url", "", "Internal Mattermost server URL for API communication (optional, or set MM_INTERNAL_SERVER_URL env var)")
-	rootCmd.Flags().StringVarP(&token, "token", "t", "", "Personal Access Token (required, or set MM_ACCESS_TOKEN env var)")
+	rootCmd.Flags().StringVarP(&amServerURL, "server-url", "s", "", "Antimatter server URL (required, or set AM_SERVER_URL env var; MM_SERVER_URL is also accepted)")
+	rootCmd.Flags().StringVar(&amInternalServerURL, "internal-server-url", "", "Internal Antimatter server URL for API communication (optional, or set AM_INTERNAL_SERVER_URL env var; MM_INTERNAL_SERVER_URL is also accepted)")
+	rootCmd.Flags().StringVarP(&token, "token", "t", "", "Personal Access Token (required, or set AM_ACCESS_TOKEN env var; MM_ACCESS_TOKEN is also accepted)")
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Enable debug logging")
 	rootCmd.Flags().StringVarP(&logFile, "logfile", "l", "", "Path to log file (logs to file in addition to stderr)")
 	rootCmd.Flags().BoolVar(&devMode, "dev", false, "Enable development mode with additional tools for setting up test data")
@@ -81,22 +82,22 @@ func runServer(cmd *cobra.Command, args []string) error {
 
 	// Check for environment variables if flags not provided
 	if amServerURL == "" {
-		amServerURL = os.Getenv("MM_SERVER_URL")
+		amServerURL = amenv.Get("AM_SERVER_URL")
 		if amServerURL == "" {
-			logger.Error("server URL is required (use --server-url or MM_SERVER_URL environment variable)")
+			logger.Error("server URL is required (use --server-url or AM_SERVER_URL environment variable)")
 			logger.Flush()
 			return fmt.Errorf("server URL is required")
 		}
 	}
 
 	if amInternalServerURL == "" {
-		amInternalServerURL = os.Getenv("MM_INTERNAL_SERVER_URL")
+		amInternalServerURL = amenv.Get("AM_INTERNAL_SERVER_URL")
 	}
 
 	if token == "" && transport == "stdio" {
-		token = os.Getenv("MM_ACCESS_TOKEN")
+		token = amenv.Get("AM_ACCESS_TOKEN")
 		if token == "" {
-			logger.Error("personal access token is required (use --token or MM_ACCESS_TOKEN environment variable)")
+			logger.Error("personal access token is required (use --token or AM_ACCESS_TOKEN environment variable)")
 			logger.Flush()
 			return fmt.Errorf("personal access token is required")
 		}

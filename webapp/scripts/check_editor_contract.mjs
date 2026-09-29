@@ -5,7 +5,7 @@
 // Drift tripwire for the window.Components editor contract, in two layers:
 // 1. ALWAYS (CI): type-checks probe_snapshot.ts, asserting assignability
 //    between the plugin mirrors (src/types/access_control_editors.ts) and the
-//    committed host-type snapshot; no mattermost checkout needed.
+//    committed host-type snapshot; no antimatter checkout needed.
 // 2. WHEN A HOST CHECKOUT IS PRESENT (dev): additionally type-checks probe.ts
 //    against the live host source and verifies the committed snapshot is
 //    still what the host source generates.
@@ -14,10 +14,10 @@
 // regenerate the snapshot.
 //
 // Host checkout lookup:
-// - $MM_WEBAPP_PATH, when set, is STRICT: it must contain the marker file and
+// - $AM_WEBAPP_PATH (or the legacy $MM_WEBAPP_PATH), when set, is STRICT: it must contain the marker file and
 //   have node_modules installed, otherwise the script exits 1. Sibling
 //   detection is never attempted when it is set (CI relies on this being
-//   fatal). A relative MM_WEBAPP_PATH resolves against the current working
+//   fatal). A relative AM_WEBAPP_PATH resolves against the current working
 //   directory (webapp/ when run via npm), so an absolute path is recommended.
 // - Otherwise the sibling checkouts ../mattermost-wsw/webapp and
 //   ../mattermost/webapp are tried best-effort: a sibling without
@@ -87,18 +87,20 @@ function hasNodeModules(candidate) {
 }
 
 // findHostWebapp returns the host webapp directory to probe, or null when no
-// usable host is available. An explicit MM_WEBAPP_PATH is strict: any problem
+// usable host is available. An explicit AM_WEBAPP_PATH is strict: any problem
 // with it is fatal and sibling auto-detection is never attempted.
 function findHostWebapp() {
-    if (process.env.MM_WEBAPP_PATH) {
-        const explicit = path.resolve(process.env.MM_WEBAPP_PATH);
+    // AM_WEBAPP_PATH is authoritative; the legacy MM_WEBAPP_PATH is still accepted.
+    const webappPathEnv = process.env.AM_WEBAPP_PATH || process.env.MM_WEBAPP_PATH;
+    if (webappPathEnv) {
+        const explicit = path.resolve(webappPathEnv);
         if (!hasMarker(explicit)) {
-            console.error(`check-editor-contract: MM_WEBAPP_PATH=${explicit} is not a mattermost webapp checkout.`);
+            console.error(`check-editor-contract: AM_WEBAPP_PATH=${explicit} is not an antimatter webapp checkout.`);
             console.error(`Expected to find ${path.join(explicit, marker)}`);
             process.exit(1);
         }
         if (!hasNodeModules(explicit)) {
-            console.error(`check-editor-contract: MM_WEBAPP_PATH=${explicit} is a mattermost webapp checkout but its node_modules are not installed.`);
+            console.error(`check-editor-contract: AM_WEBAPP_PATH=${explicit} is an antimatter webapp checkout but its node_modules are not installed.`);
             console.error(`Install them first: cd ${explicit} && npm ci`);
             process.exit(1);
         }
@@ -114,8 +116,8 @@ function findHostWebapp() {
             continue;
         }
         if (!hasNodeModules(candidate)) {
-            console.warn(`check-editor-contract: WARNING: found mattermost webapp checkout ${candidate} but its node_modules are not installed; SKIPPING the live-host checks.`);
-            console.warn(`To enable them: cd ${candidate} && npm ci (or set MM_WEBAPP_PATH to a checkout with node_modules installed).`);
+            console.warn(`check-editor-contract: WARNING: found antimatter webapp checkout ${candidate} but its node_modules are not installed; SKIPPING the live-host checks.`);
+            console.warn(`To enable them: cd ${candidate} && npm ci (or set AM_WEBAPP_PATH to a checkout with node_modules installed).`);
             continue;
         }
         return candidate;
@@ -153,7 +155,7 @@ function hostTsconfig(host) {
 
 if (!fs.existsSync(snapshotPath) && !updateSnapshot) {
     console.error(`check-editor-contract: missing committed snapshot ${path.relative(webappDir, snapshotPath)}.`);
-    console.error('Regenerate it against a mattermost webapp checkout: npm run update-editor-contract-snapshot');
+    console.error('Regenerate it against an antimatter webapp checkout: npm run update-editor-contract-snapshot');
     process.exit(1);
 }
 
@@ -187,11 +189,11 @@ if (fs.existsSync(snapshotPath) && !updateSnapshot) {
 const host = findHostWebapp();
 if (!host) {
     if (updateSnapshot) {
-        console.error('check-editor-contract: --update-snapshot needs a mattermost webapp checkout with node_modules installed, but none was found.');
-        console.error('Provide one by setting MM_WEBAPP_PATH, or by cloning mattermost as a sibling of this repo (../mattermost/webapp or ../mattermost-wsw/webapp) and running npm ci in it.');
+        console.error('check-editor-contract: --update-snapshot needs an antimatter webapp checkout with node_modules installed, but none was found.');
+        console.error('Provide one by setting AM_WEBAPP_PATH, or by cloning antimatter as a sibling of this repo (../mattermost/webapp or ../mattermost-wsw/webapp) and running npm ci in it.');
         process.exit(1);
     }
-    console.log('check-editor-contract: no usable mattermost webapp checkout found (set MM_WEBAPP_PATH, or clone one as ../mattermost/webapp or ../mattermost-wsw/webapp with node_modules installed); skipping the live-host checks.');
+    console.log('check-editor-contract: no usable antimatter webapp checkout found (set AM_WEBAPP_PATH, or clone one as ../mattermost/webapp or ../mattermost-wsw/webapp with node_modules installed); skipping the live-host checks.');
     process.exit(0);
 }
 
@@ -210,7 +212,7 @@ if (live.status !== 0 && !(/\(\d+,\d+\): error TS\d+/).test(live.output)) {
 }
 if (live.probeDiagnostics.length > 0) {
     console.error(live.probeDiagnostics.join('\n'));
-    console.error('check-editor-contract: FAILED — the plugin\'s editor prop mirrors have drifted from the mattermost webapp\'s exported types.');
+    console.error('check-editor-contract: FAILED — the plugin\'s editor prop mirrors have drifted from the antimatter webapp\'s exported types.');
     console.error('Reconcile webapp/src/types/access_control_editors.ts with the host files named in its header comment.');
     process.exit(1);
 }
@@ -218,7 +220,7 @@ console.log('check-editor-contract: live probe OK — mirrors match the host che
 
 // Snapshot freshness: the committed snapshot must match what the live host
 // source generates, otherwise CI is enforcing a stale contract. The
-// "Generated from mattermost commit" header line is provenance only and is
+// "Generated from antimatter commit" header line is provenance only and is
 // ignored, so a host checkout at a different commit with identical exported
 // types is still fresh.
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'editor-contract-gen-'));

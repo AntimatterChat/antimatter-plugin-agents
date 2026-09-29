@@ -4,23 +4,23 @@
 /**
  * GENERATED FILE — DO NOT EDIT BY HAND.
  *
- * Pinned snapshot of the mattermost webapp's exported editor contract types,
+ * Pinned snapshot of the antimatter webapp's exported editor contract types,
  * flattened to be self-contained. CI type-checks the plugin's mirrors
  * (src/types/access_control_editors.ts, src/types/access_control.ts) against
  * this snapshot via `npm run check-editor-contract`, so contract drift fails
  * the build without needing a host checkout.
  *
- * Source of truth (in the mattermost repo):
+ * Source of truth (in the antimatter repo):
  *   - webapp/channels/src/components/admin_console/access_control/editors/table_editor/table_editor.tsx
  *   - webapp/channels/src/components/admin_console/access_control/editors/cel_editor/editor.tsx
  *   - webapp/platform/types/src/access_control.ts
  *   - webapp/platform/types/src/properties_user.ts
  *
- * Generated from mattermost commit cfab036615ea572067701083eb64c170a77099e9
+ * Generated from antimatter commit cfab036615ea572067701083eb64c170a77099e9
  *
- * Regenerate against a mattermost webapp checkout (and re-verify) with:
- *   MM_WEBAPP_PATH=/path/to/mattermost/webapp npm run update-editor-contract-snapshot
- * (MM_WEBAPP_PATH is optional when the checkout is a sibling of this repo.)
+ * Regenerate against an antimatter webapp checkout (and re-verify) with:
+ *   AM_WEBAPP_PATH=/path/to/mattermost/webapp npm run update-editor-contract-snapshot
+ * (AM_WEBAPP_PATH is optional when the checkout is a sibling of this repo.)
  */
 
 /* eslint-disable */

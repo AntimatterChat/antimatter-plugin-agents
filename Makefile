@@ -1,11 +1,15 @@
 GO ?= $(shell command -v go 2> /dev/null)
 NPM ?= $(shell command -v npm 2> /dev/null)
 CURL ?= $(shell command -v curl 2> /dev/null)
+# AM_DEBUG enables debug builds; the legacy MM_DEBUG name is still accepted.
 MM_DEBUG ?=
+AM_DEBUG ?= $(MM_DEBUG)
 GOPATH ?= $(shell go env GOPATH)
 GO_TEST_FLAGS ?= -race
 GO_BUILD_FLAGS ?=
+# AM_UTILITIES_DIR points at a mattermost-utilities checkout; MM_UTILITIES_DIR is still accepted.
 MM_UTILITIES_DIR ?= ../mattermost-utilities
+AM_UTILITIES_DIR ?= $(MM_UTILITIES_DIR)
 DLV_DEBUG_PORT := 2346
 DEFAULT_GOOS := $(shell go env GOOS)
 DEFAULT_GOARCH := $(shell go env GOARCH)
@@ -52,7 +56,7 @@ ifneq ($(wildcard build/fips.mk),)
 	include build/fips.mk
 endif
 
-ifneq ($(MM_DEBUG),)
+ifneq ($(AM_DEBUG),)
 	GO_BUILD_GCFLAGS = -gcflags "all=-N -l"
 	GO_BUILD_LDFLAGS =
 else
@@ -330,8 +334,8 @@ generate:
 .PHONY: server
 server: generate
 ifneq ($(HAS_SERVER),)
-ifneq ($(MM_DEBUG),)
-	$(info DEBUG mode is on; to disable, unset MM_DEBUG)
+ifneq ($(AM_DEBUG),)
+	$(info DEBUG mode is on; to disable, unset AM_DEBUG (and MM_DEBUG))
 endif
 	mkdir -p server/dist;
 ifneq ($(MM_SERVICESETTINGS_ENABLEDEVELOPER),)
@@ -357,7 +361,7 @@ endif
 .PHONY: webapp
 webapp: webapp/node_modules
 ifneq ($(HAS_WEBAPP),)
-ifeq ($(MM_DEBUG),)
+ifeq ($(AM_DEBUG),)
 	cd webapp && $(NPM) run build;
 else
 	cd webapp && $(NPM) run debug;
@@ -402,8 +406,8 @@ endif
 .PHONY: server-ci
 server-ci: generate
 ifneq ($(HAS_SERVER),)
-ifneq ($(MM_DEBUG),)
-	$(info DEBUG mode is on; to disable, unset MM_DEBUG)
+ifneq ($(AM_DEBUG),)
+	$(info DEBUG mode is on; to disable, unset AM_DEBUG (and MM_DEBUG))
 endif
 	mkdir -p server/dist;
 	@echo Building plugin only for linux-amd64 for CI
@@ -476,7 +480,7 @@ mcp-evals:
 ## Builds and installs the plugin to a server, updating the webapp automatically when changed.
 .PHONY: watch
 watch: apply server bundle
-ifeq ($(MM_DEBUG),)
+ifeq ($(AM_DEBUG),)
 	cd webapp && $(NPM) run build:watch
 else
 	cd webapp && $(NPM) run debug:watch
@@ -657,7 +661,7 @@ e2e/node_modules: e2e/package.json
 ## Run e2e tests
 .PHONY: e2e
 e2e: e2e/node_modules
-	@MM_DEBUG= $(MAKE) dist
+	@AM_DEBUG= MM_DEBUG= $(MAKE) dist
 	cd e2e && npx playwright test
 
 ## Check and fix copyright/license headers in all files
