@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	plugintest "github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -26,10 +26,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// fakePluginHTTPClient stubs mmapi.Client; only PluginHTTP is exercised in
+// fakePluginHTTPClient stubs amapi.Client; only PluginHTTP is exercised in
 // these tests, so the embedded interface is left nil.
 type fakePluginHTTPClient struct {
-	mmapi.Client
+	amapi.Client
 	pluginHTTP func(*http.Request) *http.Response
 }
 
@@ -52,7 +52,7 @@ func (f *fakePluginHTTPClient) PluginHTTP(req *http.Request) *http.Response {
 }
 
 type recordKVSetWithExpiryClient struct {
-	mmapi.Client
+	amapi.Client
 	key    string
 	value  any
 	ttl    time.Duration

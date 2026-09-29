@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	mocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	mocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
@@ -59,7 +59,7 @@ func (kv *statefulKV) mockClient(t *testing.T) *mocks.MockClient {
 			defer kv.mu.Unlock()
 			raw, ok := kv.data[key]
 			if !ok {
-				return mmapi.ErrKVNotFound
+				return amapi.ErrKVNotFound
 			}
 			if bytesOut, ok := value.(*[]byte); ok {
 				*bytesOut = append([]byte(nil), raw...)

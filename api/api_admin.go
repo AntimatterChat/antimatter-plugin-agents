@@ -11,11 +11,11 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/indexer"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -80,7 +80,7 @@ func (a *API) handleGetJobStatus(c *gin.Context) {
 
 	jobStatus, err := a.indexerService.GetJobStatus()
 	if err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"status": "no_job",
 			})
@@ -110,7 +110,7 @@ func (a *API) handleCancelJob(c *gin.Context) {
 
 	jobStatus, err := a.indexerService.CancelJob()
 	if err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			audit.AddParam(auditRec(c), "job_status", "no_job")
 			c.JSON(http.StatusNotFound, gin.H{
 				"status": "no_job",

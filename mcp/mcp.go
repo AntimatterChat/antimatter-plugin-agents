@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
 
@@ -77,7 +77,7 @@ func DiscoverPluginServerTools(
 	ctx context.Context,
 	userID string,
 	cfg PluginServerConfig,
-	sourcePluginAPI mmapi.Client,
+	sourcePluginAPI amapi.Client,
 	log pluginapi.LogService,
 ) ([]ToolInfo, error) {
 	if sourcePluginAPI == nil {

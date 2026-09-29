@@ -12,12 +12,12 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/gin-gonic/gin"
@@ -161,7 +161,7 @@ func (m *mockConvServiceStore) GetMaxSequenceForConversation(conversationID stri
 	return len(m.turns[conversationID]), nil
 }
 
-func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, mmClient *mmapimocks.MockClient) (*TestEnvironment, *noToolsStreamingService, *mockConvServiceStore) {
+func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, mmClient *amapimocks.MockClient) (*TestEnvironment, *noToolsStreamingService, *mockConvServiceStore) {
 	t.Helper()
 
 	e := SetupTestEnvironment(t)
@@ -210,7 +210,7 @@ func TestHandleThreadAnalysisDoesNotLoadToolsWhenToolsAreDisabled(t *testing.T) 
 	gin.DefaultWriter = io.Discard
 
 	mcpProvider := &noToolsTestMCPProvider{}
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, mmClient)
 	defer e.Cleanup(t)
 
@@ -250,7 +250,7 @@ func TestHandleIntervalDoesNotLoadToolsWhenToolsAreDisabled(t *testing.T) {
 	gin.DefaultWriter = io.Discard
 
 	mcpProvider := &noToolsTestMCPProvider{}
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, mmClient)
 	defer e.Cleanup(t)
 
@@ -291,7 +291,7 @@ func TestHandleChannelAnalysisAcceptsNamespacedEmbeddedTools(t *testing.T) {
 			{Name: "mattermost__get_channel_info", ServerOrigin: mcp.EmbeddedClientKey},
 		},
 	}
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, mmClient)
 	defer e.Cleanup(t)
 
@@ -324,7 +324,7 @@ func TestHandleIntervalSetsConversationRootPostID(t *testing.T) {
 	gin.DefaultWriter = io.Discard
 
 	mcpProvider := &noToolsTestMCPProvider{}
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	e, streamingService, convStore := setupNoToolsAPI(t, mcpProvider, mmClient)
 	defer e.Cleanup(t)
 

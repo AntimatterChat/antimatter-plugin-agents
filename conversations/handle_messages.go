@@ -9,14 +9,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
@@ -358,7 +358,7 @@ func (c *Conversations) handleMentionViaConversation(
 	ctx, runSpan := c.startAgentRunSpan(ctx, convResult.Conversation.ID, convResult.UserTurnID)
 	defer runSpan.End()
 
-	threadData, threadErr := mmapi.GetThreadData(c.mmClient, responsePost.RootId)
+	threadData, threadErr := amapi.GetThreadData(c.mmClient, responsePost.RootId)
 	if threadErr != nil {
 		return fmt.Errorf("failed to get thread data: %w", threadErr)
 	}
@@ -512,11 +512,11 @@ func ensureDMWebSearchTracking(llmContext *llm.Context) {
 	if llmContext.Parameters == nil {
 		llmContext.Parameters = make(map[string]any)
 	}
-	if _, hasCount := llmContext.Parameters[mmtools.WebSearchCountKey]; !hasCount {
-		llmContext.Parameters[mmtools.WebSearchCountKey] = 0
+	if _, hasCount := llmContext.Parameters[amtools.WebSearchCountKey]; !hasCount {
+		llmContext.Parameters[amtools.WebSearchCountKey] = 0
 	}
-	if _, hasQueries := llmContext.Parameters[mmtools.WebSearchExecutedQueriesKey]; !hasQueries {
-		llmContext.Parameters[mmtools.WebSearchExecutedQueriesKey] = []string{}
+	if _, hasQueries := llmContext.Parameters[amtools.WebSearchExecutedQueriesKey]; !hasQueries {
+		llmContext.Parameters[amtools.WebSearchExecutedQueriesKey] = []string{}
 	}
 }
 

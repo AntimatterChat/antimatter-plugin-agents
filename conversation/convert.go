@@ -10,9 +10,9 @@ import (
 	"io"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 )
 
 const DefaultMaxFileSize = int64(5 * 1024 * 1024)
@@ -36,7 +36,7 @@ var unsharedToolUseArgumentsRedaction = json.RawMessage("{}")
 // PostConversionOptions configures how BlocksToPost converts content blocks.
 type PostConversionOptions struct {
 	RedactUnshared bool
-	MMClient       mmapi.Client
+	MMClient       amapi.Client
 	EnableVision   bool
 	MaxFileSize    int64
 	ToolStore      *llm.ToolStore
@@ -147,7 +147,7 @@ func BlocksToPost(
 			}
 			fileInfo, err := opts.MMClient.GetFileInfo(block.FileID)
 			if err != nil {
-				if !errors.Is(err, mmapi.ErrFileActionForbidden) {
+				if !errors.Is(err, amapi.ErrFileActionForbidden) {
 					opts.MMClient.LogError("failed to get file info for image attachment", "error", err)
 				}
 				continue
@@ -185,7 +185,7 @@ func BlocksToPost(
 			}
 			fileInfo, err := opts.MMClient.GetFileInfo(block.FileID)
 			if err != nil {
-				if !errors.Is(err, mmapi.ErrFileActionForbidden) {
+				if !errors.Is(err, amapi.ErrFileActionForbidden) {
 					opts.MMClient.LogError("failed to get file info for file attachment", "error", err)
 				}
 				continue

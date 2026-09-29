@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversations"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/evals"
@@ -19,7 +20,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm/llmtest"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"

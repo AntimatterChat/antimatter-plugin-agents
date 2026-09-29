@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 )
 
@@ -82,7 +82,7 @@ func (s *exclusiveJobSession) Unlock() {
 func (s *Indexer) beginExclusiveJob() (*exclusiveJobSession, error) {
 	var jobStatus JobStatus
 	err := s.pluginAPI.KVGet(ReindexJobKey, &jobStatus)
-	if err != nil && !mmapi.IsKVNotFound(err) {
+	if err != nil && !amapi.IsKVNotFound(err) {
 		return nil, fmt.Errorf("failed to check job status: %w", err)
 	}
 	if isActiveJob(&jobStatus) && !s.isJobStale(&jobStatus) {
@@ -96,7 +96,7 @@ func (s *Indexer) beginExclusiveJob() (*exclusiveJobSession, error) {
 	mtx.Lock()
 
 	err = s.pluginAPI.KVGet(ReindexJobKey, &jobStatus)
-	if err != nil && !mmapi.IsKVNotFound(err) {
+	if err != nil && !amapi.IsKVNotFound(err) {
 		mtx.Unlock()
 		return nil, fmt.Errorf("failed to check job status: %w", err)
 	}

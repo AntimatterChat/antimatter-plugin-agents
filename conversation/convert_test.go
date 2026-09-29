@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -321,7 +321,7 @@ func TestStatusToStringDefault(t *testing.T) {
 }
 
 // fakeReadCloser wraps a strings.Reader as io.ReadCloser so the mock GetFile
-// return type matches mmapi.Client.GetFile.
+// return type matches amapi.Client.GetFile.
 type fakeReadCloser struct {
 	io.Reader
 }
@@ -345,14 +345,14 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		role         string // defaults to "user"
 		enableVision bool
 		nilClient    bool
-		setup        func(m *mmapimocks.MockClient)
+		setup        func(m *amapimocks.MockClient)
 		blocks       []ContentBlock
-		assert       func(t *testing.T, m *mmapimocks.MockClient, post llm.Post)
+		assert       func(t *testing.T, m *amapimocks.MockClient, post llm.Post)
 	}{
 		{
 			name:         "image block with EnableVision=true populates Files",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "img1").Return(&model.FileInfo{
 					Id: "img1", Name: "shot.png", MimeType: "image/png", Size: 1234,
 				}, nil)
@@ -361,7 +361,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeImage, FileID: "img1", Filename: "shot.png", MimeType: "image/png"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				require.Len(t, post.Files, 1, "an image block with vision enabled must produce exactly one entry in Post.Files")
 				assert.Equal(t, "image/png", post.Files[0].MimeType)
 				assert.Equal(t, int64(1234), post.Files[0].Size)
@@ -385,14 +385,14 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeImage, FileID: "img1", Filename: "shot.png", MimeType: "image/png"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				assert.Empty(t, post.Files, "image block must be silently dropped when vision is disabled")
 			},
 		},
 		{
 			name:         "unsupported image MIME is passed through without reading blob",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "img1").Return(&model.FileInfo{
 					Id: "img1", Name: "vector.svg", MimeType: "image/svg+xml", Size: 1234,
 				}, nil)
@@ -400,7 +400,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeImage, FileID: "img1", Filename: "vector.svg", MimeType: "image/svg+xml"},
 			},
-			assert: func(t *testing.T, m *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, m *amapimocks.MockClient, post llm.Post) {
 				require.Len(t, post.Files, 1)
 				m.AssertNotCalled(t, "GetFile", "img1")
 				assert.Equal(t, "image/svg+xml", post.Files[0].MimeType)
@@ -411,7 +411,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "text/plain file block reads content via GetFile and appends Attached File Contents",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "foo.txt", MimeType: "text/plain", Size: 11,
 				}, nil)
@@ -421,7 +421,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeText, Text: "look at this"},
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "foo.txt", MimeType: "text/plain"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				assert.Empty(t, post.Files, "non-image text file must NOT go through Post.Files")
 				assert.Contains(t, post.Message, "look at this")
 				assert.Contains(t, post.Message, "\nAttached File Contents:\nFile Name: foo.txt\nContent: hello world")
@@ -430,7 +430,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "file block uses pre-extracted FileInfo.Content without GetFile",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "doc.pdf", MimeType: "application/pdf", Content: "pre-extracted content",
 				}, nil)
@@ -439,7 +439,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "doc.pdf", MimeType: "application/pdf"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				assert.Contains(t, post.Message, "File Name: doc.pdf")
 				assert.Contains(t, post.Message, "Content: pre-extracted content")
 			},
@@ -447,7 +447,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "large text file is surfaced as a descriptor without reading it",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "bigdoc.txt", MimeType: "text/plain", Size: InlineFileMaxBytes + 1,
 				}, nil)
@@ -458,7 +458,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeText, Text: "see attached"},
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "bigdoc.txt", MimeType: "text/plain"},
 			},
-			assert: func(t *testing.T, m *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, m *amapimocks.MockClient, post llm.Post) {
 				// Pin the full assembled suffix: the header sentence the read_file
 				// tool relies on, the per-entry header, and every descriptor field.
 				expected := "see attached\n" +
@@ -471,7 +471,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "large pre-extracted content is surfaced as a descriptor",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "huge.pdf", MimeType: "application/pdf", Content: bigContent,
 				}, nil)
@@ -480,7 +480,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "huge.pdf", MimeType: "application/pdf"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				assert.Contains(t, post.Message, "File ID: doc1")
 				assert.NotContains(t, post.Message, bigContent,
 					"the descriptor must not inline the extracted content")
@@ -491,7 +491,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "binary file with no extractable text is surfaced as a descriptor without GetFile",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "archive.zip", MimeType: "application/zip",
 				}, nil)
@@ -502,7 +502,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeText, Text: "see attached"},
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "archive.zip", MimeType: "application/zip"},
 			},
-			assert: func(t *testing.T, m *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, m *amapimocks.MockClient, post llm.Post) {
 				assert.Contains(t, post.Message, "see attached")
 				assert.Contains(t, post.Message, "Name: archive.zip")
 				assert.Contains(t, post.Message, "File ID: doc1")
@@ -512,7 +512,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "multiple mixed blocks: text + image + text/plain file",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "img1").Return(&model.FileInfo{
 					Id: "img1", Name: "shot.png", MimeType: "image/png", Size: 500,
 				}, nil)
@@ -527,7 +527,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeImage, FileID: "img1", Filename: "shot.png", MimeType: "image/png"},
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "foo.txt", MimeType: "text/plain"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				require.Len(t, post.Files, 1, "exactly the image attachment should populate Post.Files")
 				assert.Equal(t, "image/png", post.Files[0].MimeType)
 				assert.Contains(t, post.Message, "the text")
@@ -550,7 +550,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "multiple text/plain files appear in input order in the message",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc-a").Return(&model.FileInfo{
 					Id: "doc-a", Name: "a.txt", MimeType: "text/plain", Size: 5,
 				}, nil)
@@ -565,7 +565,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeFile, FileID: "doc-a", Filename: "a.txt", MimeType: "text/plain"},
 				{Type: BlockTypeFile, FileID: "doc-b", Filename: "b.txt", MimeType: "text/plain"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				idxA := strings.Index(post.Message, "File Name: a.txt")
 				idxB := strings.Index(post.Message, "File Name: b.txt")
 				require.NotEqual(t, -1, idxA, "a.txt must appear in the message")
@@ -577,7 +577,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "GetFile error on image is logged and skipped, conversation continues",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "img1").Return(&model.FileInfo{
 					Id: "img1", Name: "broken.png", MimeType: "image/png",
 				}, nil)
@@ -590,7 +590,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeText, Text: "still here"},
 				{Type: BlockTypeImage, FileID: "img1", Filename: "broken.png", MimeType: "image/png"},
 			},
-			assert: func(t *testing.T, m *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, m *amapimocks.MockClient, post llm.Post) {
 				// Pin that GetFile was actually attempted — production simply
 				// dropping the image without trying to fetch it would still leave
 				// post.Files empty, so the previous broken behavior would pass
@@ -607,7 +607,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			// becomes a descriptor (covered by the large-text-file case above).
 			name:         "text file at exactly InlineFileMaxBytes is inlined",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "boundary.txt", MimeType: "text/plain", Size: int64(len(boundaryBody)),
 				}, nil)
@@ -616,7 +616,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "boundary.txt", MimeType: "text/plain"},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				assert.Contains(t, post.Message, "Attached File Contents:")
 				assert.Contains(t, post.Message, "File Name: boundary.txt")
 				assert.NotContains(t, post.Message, "read_file",
@@ -634,7 +634,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeThinking, Text: "reason", Signature: "sig"},
 				{Type: BlockTypeToolUse, ID: "tc1", Name: "search", Input: json.RawMessage(`{}`), Status: StatusSuccess, Shared: new(true)},
 			},
-			assert: func(t *testing.T, _ *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, _ *amapimocks.MockClient, post llm.Post) {
 				assert.Equal(t, "hello", post.Message)
 				assert.Equal(t, "reason", post.Reasoning)
 				require.Len(t, post.ToolUse, 1)
@@ -649,7 +649,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			// metadata descriptor and GetFile must NOT be called.
 			name:         "BlockTypeFile with image/* MIME goes through file path, not image path",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "weird.png", MimeType: "image/png",
 				}, nil)
@@ -661,7 +661,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				{Type: BlockTypeText, Text: "see attached"},
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "weird.png", MimeType: "image/png"},
 			},
-			assert: func(t *testing.T, m *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, m *amapimocks.MockClient, post llm.Post) {
 				m.AssertNotCalled(t, "GetFile", "doc1")
 				assert.Empty(t, post.Files,
 					"a BlockTypeFile must never populate Post.Files even when its MimeType says image/*")
@@ -673,7 +673,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		{
 			name:         "FileInfo.Content non-empty wins over GetFile (explicit AssertNotCalled)",
 			enableVision: true,
-			setup: func(m *mmapimocks.MockClient) {
+			setup: func(m *amapimocks.MockClient) {
 				m.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 					Id: "doc1", Name: "extracted.pdf", MimeType: "application/pdf",
 					Content: "server-extracted text",
@@ -684,7 +684,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 			blocks: []ContentBlock{
 				{Type: BlockTypeFile, FileID: "doc1", Filename: "extracted.pdf", MimeType: "application/pdf"},
 			},
-			assert: func(t *testing.T, m *mmapimocks.MockClient, post llm.Post) {
+			assert: func(t *testing.T, m *amapimocks.MockClient, post llm.Post) {
 				m.AssertNotCalled(t, "GetFile", "doc1",
 					"pre-extracted FileInfo.Content must short-circuit GetFile to avoid a redundant blob read")
 				assert.Contains(t, post.Message, "Content: server-extracted text")
@@ -705,7 +705,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				return
 			}
 
-			mmClient := mmapimocks.NewMockClient(t)
+			mmClient := amapimocks.NewMockClient(t)
 			if tt.setup != nil {
 				tt.setup(mmClient)
 			}

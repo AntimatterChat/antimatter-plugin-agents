@@ -8,9 +8,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,9 +30,9 @@ func drainTextStreamEvents(t *testing.T, stream *llm.TextStreamResult) []llm.Tex
 func testWebSearchApprovalContext() *llm.Context {
 	return &llm.Context{
 		Parameters: map[string]any{
-			mmtools.WebSearchContextKey: []mmtools.WebSearchContextValue{{
+			amtools.WebSearchContextKey: []amtools.WebSearchContextValue{{
 				Query: "typescript tutorial",
-				Results: []mmtools.WebSearchResult{{
+				Results: []amtools.WebSearchResult{{
 					Index:   1,
 					Title:   "TypeScript Handbook",
 					URL:     "https://www.typescriptlang.org/docs/",

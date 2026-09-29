@@ -8,12 +8,12 @@ import (
 	"regexp"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	embeddingmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/evals"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,7 +23,7 @@ import (
 // TestSearchCitationFormat verifies that the full search pipeline produces
 // properly formatted permalink citations. It uses real code for enrichment,
 // prompt building, and LLM completion — only the embedding search and
-// mmapi.Client are mocked.
+// amapi.Client are mocked.
 func TestSearchCitationFormat(t *testing.T) {
 	const (
 		siteURL   = "https://mattermost.example.com"
@@ -78,8 +78,8 @@ func TestSearchCitationFormat(t *testing.T) {
 			mockEmbedding.On("Search", mock.Anything, config.query, mock.Anything).
 				Return(searchResults, nil)
 
-			// Mock mmapi.Client for enrichment and prompt context
-			mockClient := mmapimocks.NewMockClient(t.T)
+			// Mock amapi.Client for enrichment and prompt context
+			mockClient := amapimocks.NewMockClient(t.T)
 			allowVectorIndexStateRead(mockClient)
 			mockClient.On("GetChannel", channelID).Return(&model.Channel{
 				Id:          channelID,

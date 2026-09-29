@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -552,7 +552,7 @@ func (s *Indexer) persistModelInfoAfterJob(jobStatus *JobStatus, spec indexJobSp
 
 func (s *Indexer) persistProvenIndexRetentionDays(days int) {
 	stored, err := s.GetModelInfo()
-	if err != nil && !mmapi.IsKVNotFound(err) {
+	if err != nil && !amapi.IsKVNotFound(err) {
 		s.pluginAPI.LogError("Failed to read model info after catch-up", "error", err)
 		return
 	}
@@ -567,7 +567,7 @@ func (s *Indexer) persistProvenIndexRetentionDays(days int) {
 
 func (s *Indexer) saveHNSWMAfterRebuild(jobStatus *JobStatus) {
 	stored, err := s.GetModelInfo()
-	if err != nil && !mmapi.IsKVNotFound(err) {
+	if err != nil && !amapi.IsKVNotFound(err) {
 		s.pluginAPI.LogError("Failed to read model info after vector index rebuild", "error", err)
 		return
 	}
@@ -642,7 +642,7 @@ func (s *Indexer) saveJobStatus(status *JobStatus) {
 
 	var current JobStatus
 	err := s.pluginAPI.KVGet(ReindexJobKey, &current)
-	if err != nil && !mmapi.IsKVNotFound(err) {
+	if err != nil && !amapi.IsKVNotFound(err) {
 		s.pluginAPI.LogError("Failed to read job status before save", "error", err)
 		return
 	}
@@ -695,7 +695,7 @@ func (s *Indexer) finishJob(jobStatus *JobStatus) bool {
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		var current JobStatus
 		err := s.pluginAPI.KVGet(ReindexJobKey, &current)
-		if err != nil && !mmapi.IsKVNotFound(err) {
+		if err != nil && !amapi.IsKVNotFound(err) {
 			s.pluginAPI.LogError("Failed to read job status before completion", "error", err)
 			return false
 		}

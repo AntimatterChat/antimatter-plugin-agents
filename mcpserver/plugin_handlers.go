@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	mcppkg "github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
 	loggerlib "github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/tools"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 
 	"github.com/modelcontextprotocol/go-sdk/jsonrpc"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -49,7 +49,7 @@ type PluginMCPHandlers struct {
 	internalURL     string
 	logger          loggerlib.Logger
 	registry        PluginServerRegistry
-	sourcePluginAPI mmapi.Client
+	sourcePluginAPI amapi.Client
 
 	accessChecker    mcppkg.ServerAccessChecker
 	embeddedServerID func() string
@@ -75,7 +75,7 @@ func NewPluginMCPHandlers(
 	siteURL, internalURL string,
 	logger loggerlib.Logger,
 	registry PluginServerRegistry,
-	sourcePluginAPI mmapi.Client,
+	sourcePluginAPI amapi.Client,
 	runtimeServices ...any,
 ) (*PluginMCPHandlers, error) {
 	if siteURL == "" {

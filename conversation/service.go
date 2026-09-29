@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/toolrunner"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -62,7 +62,7 @@ type BotLookup interface {
 type Service struct {
 	store    Store
 	prompts  *llm.Prompts
-	mmClient mmapi.Client
+	mmClient amapi.Client
 	bots     BotLookup
 }
 
@@ -70,7 +70,7 @@ type Service struct {
 func NewService(
 	s Store,
 	prompts *llm.Prompts,
-	mmClient mmapi.Client,
+	mmClient amapi.Client,
 	bots BotLookup,
 ) *Service {
 	return &Service{
@@ -125,7 +125,7 @@ func (s *Service) CreateConversation(params CreateConversationParams) (*CreateCo
 	}
 
 	turnID := model.NewId()
-	content, err := marshalBlocks(userBlocksWithAttachments(params.UserMessage, params.FileIDs, mmapi.WithFilePolicy(s.mmClient, params.SessionID)))
+	content, err := marshalBlocks(userBlocksWithAttachments(params.UserMessage, params.FileIDs, amapi.WithFilePolicy(s.mmClient, params.SessionID)))
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal user message: %w", err)
 	}
@@ -334,7 +334,7 @@ func (s *Service) GetOrCreateConversation(params GetOrCreateParams) (*GetOrCreat
 
 // appendUserTurn creates a new user turn at the next available sequence number.
 func (s *Service) appendUserTurn(conversationID, message string, postID *string, fileIDs []string, sessionID string) (string, error) {
-	content, err := marshalBlocks(userBlocksWithAttachments(message, fileIDs, mmapi.WithFilePolicy(s.mmClient, sessionID)))
+	content, err := marshalBlocks(userBlocksWithAttachments(message, fileIDs, amapi.WithFilePolicy(s.mmClient, sessionID)))
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal user message: %w", err)
 	}
@@ -403,7 +403,7 @@ func AssembleRequest(
 	conv *store.Conversation,
 	turns []store.Turn,
 	context *llm.Context,
-	mmClient mmapi.Client,
+	mmClient amapi.Client,
 	enableVision bool,
 	maxFileSize int64,
 	opts ...BuildOptions,
@@ -443,7 +443,7 @@ func AssembleRequest(
 		RestoreLoadedMCPToolsFromTurns(context.Tools, turns)
 	}
 
-	mmClient = mmapi.WithFilePolicy(mmClient, firstBuildOptions(opts).SessionID)
+	mmClient = amapi.WithFilePolicy(mmClient, firstBuildOptions(opts).SessionID)
 
 	posts := make([]llm.Post, 0, len(turns)+1)
 
@@ -687,7 +687,7 @@ func (s *Service) GenerateTitle(
 func (s *Service) BuildChannelMentionRequest(
 	conv *store.Conversation,
 	context *llm.Context,
-	threadData *mmapi.ThreadData,
+	threadData *amapi.ThreadData,
 	opts ...BuildOptions,
 ) (*llm.CompletionRequest, error) {
 	// Default redacts (safe); AllowUnsharedToolContent opts out.
@@ -711,7 +711,7 @@ func (s *Service) BuildChannelMentionRequest(
 	}
 
 	enableVision, maxFileSize := s.attachmentConfigForBot(conv.BotID)
-	mmClient := mmapi.WithFilePolicy(s.mmClient, firstBuildOptions(opts).SessionID)
+	mmClient := amapi.WithFilePolicy(s.mmClient, firstBuildOptions(opts).SessionID)
 
 	// Build a set of post IDs that belong to the bot's turns.
 	turnPostIDs := make(map[string]bool)

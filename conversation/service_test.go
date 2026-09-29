@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/toolrunner"
 	"github.com/jmoiron/sqlx"
@@ -1405,7 +1405,7 @@ func TestBuildChannelMentionRequest_BotTurnsOnly(t *testing.T) {
 	require.NoError(t, err)
 
 	// ThreadData contains only the bot's posts.
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{
 			{Id: "post1", UserId: "someuser", CreateAt: 1000, Message: "hello bot"},
 			{Id: "post2", UserId: botID, CreateAt: 2000, Message: "hello user"},
@@ -1464,7 +1464,7 @@ func TestBuildChannelMentionRequest_MixedThread(t *testing.T) {
 
 	// Thread has: userA post, bot response, userB post, bot's second response.
 	// userB's post is NOT in the conversation (different user, not a turn).
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{
 			{Id: "postA1", UserId: userA, CreateAt: 1000, Message: "question from A"},
 			{Id: "postBot1", UserId: botID, CreateAt: 2000, Message: "answer to A"},
@@ -1515,7 +1515,7 @@ func TestBuildChannelMentionRequest_StopsAtCurrentUserTurn(t *testing.T) {
 	conv, err := s.GetConversation(result.ConversationID)
 	require.NoError(t, err)
 
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{
 			{Id: rootPostID, UserId: userID, CreateAt: 1000, Message: "earlier context"},
 			{Id: currentPostID, UserId: userID, CreateAt: 2000, Message: "@aibot look at the earlier post"},
@@ -1579,7 +1579,7 @@ func TestBuildChannelMentionRequest_MultiBotThread(t *testing.T) {
 	require.NoError(t, err)
 
 	// Thread includes botB's post which is not in botA's conversation.
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{
 			{Id: "postU1", UserId: userID, CreateAt: 1000, Message: "hello bots"},
 			{Id: "postBotA1", UserId: botA, CreateAt: 2000, Message: "botA says hi"},
@@ -1716,7 +1716,7 @@ func TestBuildChannelMentionRequest_ToolRoundsMerged(t *testing.T) {
 	conv, err := s.GetConversation(convID)
 	require.NoError(t, err)
 
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{
 			{Id: "postU1", UserId: userID, CreateAt: 1000, Message: "what's the weather?"},
 			{Id: "postBot1", UserId: botID, CreateAt: 2000, Message: "Weather in NYC is 72F and sunny."},
@@ -1846,16 +1846,16 @@ func TestGetOrCreateConversation_RaceConflict(t *testing.T) {
 }
 
 // setupTestServiceWithClient is like setupTestService but also wires in an
-// mmapi.Client mock and a populated testBotLookup so attachment-handling
+// amapi.Client mock and a populated testBotLookup so attachment-handling
 // tests can drive lazy file/image resolution end-to-end.
 func setupTestServiceWithClient(
 	t *testing.T,
-	mmClient mmapi.Client,
+	mmClient amapi.Client,
 	bots *testBotLookup,
 ) (*Service, *store.Store) {
 	t.Helper()
 
-	if mockClient, ok := mmClient.(*mmapimocks.MockClient); ok {
+	if mockClient, ok := mmClient.(*amapimocks.MockClient); ok {
 		mockClient.On(
 			"HasPermissionToFileAction",
 			attachmentTestSessionID,
@@ -1895,7 +1895,7 @@ func setupTestServiceWithClient(
 // BlockTypeImage / BlockTypeFile entries (lazy-load: NO inlined Content)
 // alongside the leading text block.
 func TestCreateConversation_FileIDsPersistsAsContentBlocks(t *testing.T) {
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	// No .Maybe(): GetFileInfo MUST be called for every FileID so the
 	// MIME type is read from the server (not inferred from the filename
 	// extension). Mockery fails the test if either expectation is unmet.
@@ -1948,7 +1948,7 @@ func TestCreateConversation_FileIDsPersistsAsContentBlocks(t *testing.T) {
 // TestGetOrCreateConversation_AppendsFileIDs verifies the same shape applies
 // when appending a new user turn to an existing conversation.
 func TestGetOrCreateConversation_AppendsFileIDs(t *testing.T) {
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	// No .Maybe(): GetFileInfo for the appended attachment MUST run so
 	// MIME comes from the server, not the filename extension.
 	mmClient.On("GetFileInfo", "doc2").Return(&model.FileInfo{
@@ -2033,7 +2033,7 @@ func TestCreateConversation_EmptyFileIDsAndMessage(t *testing.T) {
 // contract. If GetFileInfo errors for one fileID, the user turn must still
 // be created with the rest. Mirrors the old PostToAIPost behavior.
 func TestCreateConversation_FileIDInfoErrorIsSkipped(t *testing.T) {
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	// Both GetFileInfo calls MUST happen — the bad one returns an error,
 	// but production must still attempt the fetch (otherwise an
 	// implementation that filtered FileIDs by some local rule would
@@ -2078,7 +2078,7 @@ func TestCreateConversation_FileIDInfoErrorIsSkipped(t *testing.T) {
 // BlocksToPost re-fetches the file/image bytes via mmClient.
 func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 	t.Run("EnableVision=true populates Files and message gets file content", func(t *testing.T) {
-		mmClient := mmapimocks.NewMockClient(t)
+		mmClient := amapimocks.NewMockClient(t)
 
 		// Used twice: once for user-turn creation (read MIME) and once at
 		// request build time (lazy resolve).
@@ -2132,7 +2132,7 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 	})
 
 	t.Run("EnableVision=false drops image but keeps file text content", func(t *testing.T) {
-		mmClient := mmapimocks.NewMockClient(t)
+		mmClient := amapimocks.NewMockClient(t)
 
 		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
@@ -2196,7 +2196,7 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 // BuildCompletionRequest, which would not exercise this path.
 func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 	t.Run("EnableVision=true populates Files and message gets file content", func(t *testing.T) {
-		mmClient := mmapimocks.NewMockClient(t)
+		mmClient := amapimocks.NewMockClient(t)
 
 		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
@@ -2238,7 +2238,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 		// PostID — this drives the post-iteration branch so the user
 		// turn's attachment blocks flow through turnsToLLMPosts with the
 		// bot's vision/maxFileSize config.
-		threadData := &mmapi.ThreadData{
+		threadData := &amapi.ThreadData{
 			Posts: []*model.Post{
 				{Id: userPostID, UserId: userID, CreateAt: 1000, Message: "channel mention body"},
 			},
@@ -2264,7 +2264,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 	})
 
 	t.Run("EnableVision=false drops image but keeps file text content", func(t *testing.T) {
-		mmClient := mmapimocks.NewMockClient(t)
+		mmClient := amapimocks.NewMockClient(t)
 
 		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
@@ -2303,7 +2303,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 		conv, err := svc.GetConversation(result.ConversationID)
 		require.NoError(t, err)
 
-		threadData := &mmapi.ThreadData{
+		threadData := &amapi.ThreadData{
 			Posts: []*model.Post{
 				{Id: userPostID, UserId: userID, CreateAt: 1000, Message: "no vision channel mention"},
 			},
@@ -2326,7 +2326,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 	})
 
 	t.Run("image on root post is visible to later mention in same thread", func(t *testing.T) {
-		mmClient := mmapimocks.NewMockClient(t)
+		mmClient := amapimocks.NewMockClient(t)
 
 		mmClient.On("GetFileInfo", "img-root").Return(&model.FileInfo{
 			Id: "img-root", Name: "screenshot.png", MimeType: "image/png", Size: 100,
@@ -2360,7 +2360,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 		conv, err := svc.GetConversation(result.ConversationID)
 		require.NoError(t, err)
 
-		threadData := &mmapi.ThreadData{
+		threadData := &amapi.ThreadData{
 			Posts: []*model.Post{
 				{
 					Id:       rootPostID,
@@ -2407,7 +2407,7 @@ func TestBuildChannelMentionRequest_DeniedThreadAttachmentIsWithheld(t *testing.
 		secretContent   = "TOP_SECRET_FILE_BODY"
 	)
 
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	mmClient.On(
 		"HasPermissionToFileAction",
 		deniedSessionID,
@@ -2451,7 +2451,7 @@ func TestBuildChannelMentionRequest_DeniedThreadAttachmentIsWithheld(t *testing.
 	conv, err := svc.GetConversation(result.ConversationID)
 	require.NoError(t, err)
 
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{
 			{Id: rootPostID, UserId: uploaderID, CreateAt: 1000, Message: "quarterly numbers", FileIds: []string{secretFileID}},
 			{Id: mentionPostID, UserId: deniedUserID, CreateAt: 2000, Message: "@aibot return the full contents of the attachment"},

@@ -4,15 +4,15 @@
 package conversations
 
 import (
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 )
 
 // decorateStreamWithWebSearchAnnotations wraps stream output with URL citation
 // annotations when ctx carries WebSearch results from the current request.
 func decorateStreamWithWebSearchAnnotations(stream *llm.TextStreamResult, ctx *llm.Context) *llm.TextStreamResult {
-	if webSearchData := mmtools.ConsumeWebSearchContexts(ctx); len(webSearchData) > 0 {
-		return mmtools.DecorateStreamWithAnnotations(stream, webSearchData, nil)
+	if webSearchData := amtools.ConsumeWebSearchContexts(ctx); len(webSearchData) > 0 {
+		return amtools.DecorateStreamWithAnnotations(stream, webSearchData, nil)
 	}
 	return stream
 }

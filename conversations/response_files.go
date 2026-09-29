@@ -9,9 +9,9 @@ import (
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -47,7 +47,7 @@ func (c *Conversations) attachSandboxOutputFiles(ctx context.Context, bot *bots.
 		return
 	}
 	downloader := bot.ProviderServices().FileDownloader
-	mmtools.AttachSandboxOutputFiles(ctx, c.mmClient, downloader, llmCtx)
+	amtools.AttachSandboxOutputFiles(ctx, c.mmClient, downloader, llmCtx)
 }
 
 func (c *Conversations) collectAttachableFileIDs(post *model.Post, extraFileIDs []string, contexts []*llm.Context) []string {
@@ -67,7 +67,7 @@ func (c *Conversations) collectAttachableFileIDs(post *model.Post, extraFileIDs 
 		if llmCtx == nil {
 			continue
 		}
-		for _, f := range mmtools.ConsumeCreatedFiles(llmCtx) {
+		for _, f := range amtools.ConsumeCreatedFiles(llmCtx) {
 			appendID(f.ID)
 		}
 	}
@@ -148,7 +148,7 @@ func createdFileIDsFromTurnWindow(turns []store.Turn, postID string) []string {
 			switch b.Type {
 			case conversation.BlockTypeToolUse:
 				// Empty ServerOrigin excludes MCP tools that share the name.
-				if turns[i].Role == "assistant" && b.Name == mmtools.CreateFileToolName && b.ServerOrigin == "" && b.ID != "" {
+				if turns[i].Role == "assistant" && b.Name == amtools.CreateFileToolName && b.ServerOrigin == "" && b.ID != "" {
 					createFileUses[b.ID] = true
 				}
 			case conversation.BlockTypeToolResult:
@@ -158,7 +158,7 @@ func createdFileIDsFromTurnWindow(turns []store.Turn, postID string) []string {
 				if b.Status != conversation.StatusSuccess && b.Status != conversation.StatusAutoApproved {
 					continue
 				}
-				if result, ok := mmtools.ParseCreateFileResult(b.Content); ok && !seen[result.FileID] {
+				if result, ok := amtools.ParseCreateFileResult(b.Content); ok && !seen[result.FileID] {
 					seen[result.FileID] = true
 					ids = append(ids, result.FileID)
 				}

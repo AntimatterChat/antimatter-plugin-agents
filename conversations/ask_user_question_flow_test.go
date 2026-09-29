@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -43,7 +43,7 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 		name          string
 		channel       *model.Channel
 		acceptedIDs   []string
-		answers       map[string]mmtools.UserInteractionAnswer
+		answers       map[string]amtools.UserInteractionAnswer
 		wantErr       error
 		wantStatus    string
 		wantResult    string
@@ -55,7 +55,7 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 			name:         "answered in DM streams follow-up",
 			channel:      dmChannel,
 			acceptedIDs:  []string{"q-1"},
-			answers:      map[string]mmtools.UserInteractionAnswer{"q-1": {Selected: []string{"UX Design"}}},
+			answers:      map[string]amtools.UserInteractionAnswer{"q-1": {Selected: []string{"UX Design"}}},
 			wantStatus:   conversation.StatusSuccess,
 			wantResult:   `{"selected":["UX Design"]}`,
 			wantShared:   true,
@@ -65,7 +65,7 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 			name:         "answered in channel is terminal and streams follow-up immediately",
 			channel:      openChannel,
 			acceptedIDs:  []string{"q-1"},
-			answers:      map[string]mmtools.UserInteractionAnswer{"q-1": {Selected: []string{"Design team"}}},
+			answers:      map[string]amtools.UserInteractionAnswer{"q-1": {Selected: []string{"Design team"}}},
 			wantStatus:   conversation.StatusSuccess,
 			wantResult:   `{"selected":["Design team"]}`,
 			wantShared:   true,
@@ -75,7 +75,7 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 			name:         "custom free-form answer round-trips into the result",
 			channel:      dmChannel,
 			acceptedIDs:  []string{"q-1"},
-			answers:      map[string]mmtools.UserInteractionAnswer{"q-1": {Custom: "Post it in #random instead"}},
+			answers:      map[string]amtools.UserInteractionAnswer{"q-1": {Custom: "Post it in #random instead"}},
 			wantStatus:   conversation.StatusSuccess,
 			wantResult:   `{"selected":null,"custom":"Post it in #random instead"}`,
 			wantShared:   true,
@@ -95,7 +95,7 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 			name:        "invalid answer leaves the question pending",
 			channel:     openChannel,
 			acceptedIDs: []string{"q-1"},
-			answers:     map[string]mmtools.UserInteractionAnswer{"q-1": {Selected: []string{"Engineering"}}},
+			answers:     map[string]amtools.UserInteractionAnswer{"q-1": {Selected: []string{"Engineering"}}},
 			wantErr:     ErrInvalidToolAnswer,
 		},
 	}
@@ -273,7 +273,7 @@ func TestHandleToolCallMixedBatchInChannelAwaitsShareDecision(t *testing.T) {
 	approvalPost.AddProp(streaming.ConversationIDProp, conv.ID)
 	channel := &model.Channel{Id: "channel-id", TeamId: "team-id", Type: model.ChannelTypeOpen}
 
-	answers := map[string]mmtools.UserInteractionAnswer{"q-1": {Selected: []string{"UX Design"}}}
+	answers := map[string]amtools.UserInteractionAnswer{"q-1": {Selected: []string{"UX Design"}}}
 	require.NoError(t, c.HandleToolCall(context.Background(), "user-id", approvalPost, channel, []string{"tool-use-1", "q-1"}, answers))
 
 	turns, err := convStore.GetTurnsForConversation(conv.ID)
@@ -547,12 +547,12 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 			channel := &model.Channel{Id: "channel-id", TeamId: "team-id", Type: model.ChannelTypeOpen}
 
 			acceptedIDs := []string{}
-			var answers map[string]mmtools.UserInteractionAnswer
+			var answers map[string]amtools.UserInteractionAnswer
 			if tc.includeQuestion {
 				// Only the question is accepted: the marked tool must be
 				// resolved by policy, not by the user's selection.
 				acceptedIDs = []string{"q-1"}
-				answers = map[string]mmtools.UserInteractionAnswer{"q-1": {Selected: []string{"UX Design"}}}
+				answers = map[string]amtools.UserInteractionAnswer{"q-1": {Selected: []string{"UX Design"}}}
 			}
 			require.NoError(t, c.HandleToolCall(context.Background(), "user-id", approvalPost, channel, acceptedIDs, answers))
 			streamingService.waitForStreaming()

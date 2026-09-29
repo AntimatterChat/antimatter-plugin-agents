@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
@@ -22,8 +24,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/metrics"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -338,7 +338,7 @@ func createMockIndexer(t *testing.T, mockService *mockIndexerService) *indexer.I
 
 	if mockService.jobStatus == nil {
 		mockClient.On("KVGet", indexer.ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound).Maybe()
+			Return(amapi.ErrKVNotFound).Maybe()
 	} else {
 		mockClient.On("KVGet", indexer.ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
 			Run(func(args mock.Arguments) {
@@ -356,7 +356,7 @@ func createMockIndexer(t *testing.T, mockService *mockIndexerService) *indexer.I
 			Return(nil).Maybe()
 	} else {
 		mockClient.On("KVGet", indexer.IndexerLastIndexedKey, mock.AnythingOfType("*int64")).
-			Return(mmapi.ErrKVNotFound).Maybe()
+			Return(amapi.ErrKVNotFound).Maybe()
 	}
 
 	mockClient.On("KVCompareAndSet", indexer.ReindexJobKey, mock.Anything, mock.Anything).

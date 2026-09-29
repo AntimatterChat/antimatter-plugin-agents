@@ -100,7 +100,7 @@ type SemanticSearchService interface {
 	Search(ctx context.Context, query string, opts search.Options) ([]search.RAGResult, error)
 }
 
-// MattermostToolProvider provides Mattermost tools following the mmtools pattern
+// MattermostToolProvider provides Mattermost tools following the amtools pattern
 type MattermostToolProvider struct {
 	authProvider       auth.AuthenticationProvider
 	logger             logger.Logger

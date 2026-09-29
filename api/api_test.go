@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/autoreply"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversations"
@@ -26,7 +27,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/metrics"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	prompttemplates "github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/public/bridgeclient"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
@@ -183,7 +183,7 @@ type mockMCPClientManager struct {
 
 func newTestMCPClientManager(t *testing.T) *mockMCPClientManager {
 	t.Helper()
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	mockClient.EXPECT().KVGet(mock.Anything, mock.Anything).Return(nil).Maybe()
 	return &mockMCPClientManager{
 		oauthManager: mcp.NewOAuthManager(mockClient, "", &http.Client{}, nil),

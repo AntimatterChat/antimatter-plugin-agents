@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/toolrunner"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -29,16 +29,16 @@ type AnalysisResult struct {
 type Channels struct {
 	llm      llm.LanguageModel
 	prompts  *llm.Prompts
-	client   mmapi.Client
-	dbClient *mmapi.DBClient
+	client   amapi.Client
+	dbClient *amapi.DBClient
 	convSvc  *conversation.Service
 }
 
 func New(
 	llm llm.LanguageModel,
 	prompts *llm.Prompts,
-	client mmapi.Client,
-	dbClient *mmapi.DBClient,
+	client amapi.Client,
+	dbClient *amapi.DBClient,
 	convSvc *conversation.Service,
 ) *Channels {
 	return &Channels{
@@ -213,7 +213,7 @@ func (c *Channels) Interval(
 		return nil, err
 	}
 
-	threadData, err := mmapi.GetMetadataForPosts(c.client, posts)
+	threadData, err := amapi.GetMetadataForPosts(c.client, posts)
 	if err != nil {
 		return nil, err
 	}

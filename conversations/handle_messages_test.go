@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi"

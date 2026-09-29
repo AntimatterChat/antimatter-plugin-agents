@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -48,7 +48,7 @@ func (n *recordingNotifier) publishedIDs() []string {
 
 // newTestService builds a Service backed by a real store and a real MMBots
 // instance holding botList.
-func newTestService(t *testing.T, dbClient *mmapi.DBClient, notifier ClusterNotifier, mmClient mmapi.Client, botList []*bots.Bot) *Service {
+func newTestService(t *testing.T, dbClient *amapi.DBClient, notifier ClusterNotifier, mmClient amapi.Client, botList []*bots.Bot) *Service {
 	t.Helper()
 
 	mockAPI := &plugintest.API{}

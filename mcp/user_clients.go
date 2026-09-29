@@ -16,9 +16,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
 
@@ -222,7 +222,7 @@ func (c *UserClients) ConnectToEmbeddedServerIfAvailable(ctx context.Context, se
 
 // ConnectToPluginServer connects a local bag through PluginHTTP using the
 // invoking user's identity.
-func (c *UserClients) ConnectToPluginServer(ctx context.Context, cfg PluginServerConfig, sourcePluginAPI mmapi.Client) error {
+func (c *UserClients) ConnectToPluginServer(ctx context.Context, cfg PluginServerConfig, sourcePluginAPI amapi.Client) error {
 	if !c.allowsLocal() {
 		return fmt.Errorf("plugin connect is only valid on local client bags")
 	}
@@ -502,7 +502,7 @@ func (c *UserClients) embeddedConnectTask(ctx context.Context, sessionID string,
 // pluginConnectTask builds the task for a plugin-registered MCP server.
 // Failures stay retryable: a source plugin that is briefly unreachable must
 // come back on the next request without waiting for cache invalidation.
-func (c *UserClients) pluginConnectTask(ctx context.Context, cfg PluginServerConfig, budget time.Duration, sourcePluginAPI mmapi.Client) connectTask {
+func (c *UserClients) pluginConnectTask(ctx context.Context, cfg PluginServerConfig, budget time.Duration, sourcePluginAPI amapi.Client) connectTask {
 	origin := pluginServerOriginKey(cfg.PluginID)
 	return connectTask{
 		origin:     origin,

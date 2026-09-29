@@ -12,12 +12,12 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -119,7 +119,7 @@ func setupChannelAnalysisAPI(t *testing.T, dynamicLoading bool) (*TestEnvironmen
 		&noToolsTestContextConfigProvider{},
 	)
 
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	e.api.mmClient = mmClient
 	streamingService := &noToolsStreamingService{}
 	e.api.streamingService = streamingService

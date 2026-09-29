@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -143,7 +143,7 @@ func TestAuditUpdateMCPUserPreferences(t *testing.T) {
 				{Name: "server-b", Enabled: true, BaseURL: "https://b.example"},
 			}}
 
-			mmClient := mmapimocks.NewMockClient(t)
+			mmClient := amapimocks.NewMockClient(t)
 			mmClient.On("KVSet", mock.AnythingOfType("string"), mock.Anything).Return(tt.kvSetErr).Maybe()
 			e.api.mmClient = mmClient
 

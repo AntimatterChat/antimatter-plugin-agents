@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/api"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/autoreply"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
@@ -30,8 +32,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/meetings"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/metrics"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
@@ -106,8 +106,8 @@ func (l *pluginLogger) Error(message string, keyValuePairs ...any) {
 func (p *Plugin) OnActivate() error {
 	pluginAPI := pluginapi.NewClient(p.API, p.Driver)
 	p.pluginAPI = pluginAPI
-	mmClient := mmapi.NewClient(pluginAPI, p.API)
-	dbClient := mmapi.NewDBClient(pluginAPI)
+	mmClient := amapi.NewClient(pluginAPI, p.API)
+	dbClient := amapi.NewDBClient(pluginAPI)
 
 	// Initialize store and run database migrations
 	p.store = store.New(dbClient.DB)
@@ -416,11 +416,11 @@ func (p *Plugin) OnActivate() error {
 	}
 	p.configuration.RegisterUpdateListener(func() { reinitEmbeddingSearch("config_change") })
 
-	webSearchService := mmtools.NewWebSearchService(func() *config.Config {
+	webSearchService := amtools.NewWebSearchService(func() *config.Config {
 		return p.configuration.Config()
 	}, &pluginLogger{service: &pluginAPI.Log}, untrustedHTTPClient)
 
-	toolProvider := mmtools.NewMMToolProvider(
+	toolProvider := amtools.NewMMToolProvider(
 		mmClient,
 		webSearchService,
 	)

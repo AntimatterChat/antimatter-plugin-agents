@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 )
 
 // VectorIndexStateKey tracks ANN index lifecycle during a deferred reindex.
@@ -65,13 +65,13 @@ func deferredIndexGated(phase string) bool {
 // dropped or rebuilding. Fail-closed on KV errors (wrong skip is repaired;
 // wrong CREATE can rebuild a huge intentionally-dropped index). Best-effort
 // across nodes — DDL fencing is CAS, not this read.
-func DeferredIndexRebuildActive(client mmapi.Client) bool {
+func DeferredIndexRebuildActive(client amapi.Client) bool {
 	if client == nil {
 		return false
 	}
 	var state VectorIndexState
 	if err := client.KVGet(VectorIndexStateKey, &state); err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return false
 		}
 		client.LogError("Failed to read vector index state; treating a deferred rebuild as active", "error", err)
@@ -90,7 +90,7 @@ func (s *Indexer) deferredBuildWriteGated() bool {
 	}
 	var state VectorIndexState
 	if err := s.pluginAPI.KVGet(VectorIndexStateKey, &state); err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return false
 		}
 		s.pluginAPI.LogError("Failed to read vector index state; skipping embeddings write", "error", err)
@@ -118,7 +118,7 @@ func (s *Indexer) loadVectorIndexState() (*VectorIndexState, error) {
 	var state VectorIndexState
 	err := s.pluginAPI.KVGet(VectorIndexStateKey, &state)
 	if err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return nil, nil
 		}
 		return nil, err

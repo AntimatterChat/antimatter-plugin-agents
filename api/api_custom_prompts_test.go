@@ -14,9 +14,9 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/customprompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -65,7 +65,7 @@ func setupCustomPromptsTestEnvironment(t *testing.T) (*TestEnvironment, *customp
 	err = s.RunMigrations()
 	require.NoError(t, err)
 
-	dbClient := mmapi.NewTestDBClient(db)
+	dbClient := amapi.NewTestDBClient(db)
 	cpStore := customprompts.NewStore(dbClient)
 
 	env := SetupTestEnvironment(t)

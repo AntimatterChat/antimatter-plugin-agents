@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -18,7 +18,7 @@ import (
 
 var rootDSN = "postgres://mmuser:mostest@localhost:5432/postgres?sslmode=disable"
 
-func testDB(t *testing.T) *mmapi.DBClient {
+func testDB(t *testing.T) *amapi.DBClient {
 	t.Helper()
 
 	if dsn := os.Getenv("PG_ROOT_DSN"); dsn != "" {
@@ -63,7 +63,7 @@ func testDB(t *testing.T) *mmapi.DBClient {
 	err = s.RunMigrations()
 	require.NoError(t, err, "Failed to run migrations")
 
-	return mmapi.NewTestDBClient(db)
+	return amapi.NewTestDBClient(db)
 }
 
 func TestCreateAndGet(t *testing.T) {

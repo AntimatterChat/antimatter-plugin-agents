@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/chunking"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
@@ -17,8 +19,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/indexer"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	llmmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/llm/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/mock"
@@ -29,15 +29,15 @@ import (
 )
 
 // allowVectorIndexStateRead: availability check sees no deferred reindex.
-func allowVectorIndexStateRead(m *mmapimocks.MockClient) {
-	m.On("KVGet", indexer.VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+func allowVectorIndexStateRead(m *amapimocks.MockClient) {
+	m.On("KVGet", indexer.VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 }
 
 func TestEnrichResults(t *testing.T) {
 	tests := []struct {
 		name          string
 		searchResults []embeddings.SearchResult
-		setupMock     func(*mmapimocks.MockClient)
+		setupMock     func(*amapimocks.MockClient)
 		expectedLen   int
 		validate      func(t *testing.T, results []RAGResult)
 	}{
@@ -60,7 +60,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.95,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "channel1").Return(&model.Channel{
 					Id:          "channel1",
 					DisplayName: "General",
@@ -95,7 +95,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.9,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "dm1").Return(&model.Channel{
 					Id:   "dm1",
 					Type: model.ChannelTypeDirect,
@@ -123,7 +123,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.85,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "group1").Return(&model.Channel{
 					Id:   "group1",
 					Type: model.ChannelTypeGroup,
@@ -156,7 +156,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.8,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "channel1").Return(&model.Channel{
 					Id:          "channel1",
 					DisplayName: "General",
@@ -185,7 +185,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.9,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "channel1").Return(nil, errors.New("channel not found"))
 				m.On("LogWarn", mock.Anything, mock.Anything).Return()
 				m.On("GetUser", "user1").Return(&model.User{
@@ -212,7 +212,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.9,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "channel1").Return(&model.Channel{
 					Id:          "channel1",
 					DisplayName: "General",
@@ -251,7 +251,7 @@ func TestEnrichResults(t *testing.T) {
 					Score: 0.85,
 				},
 			},
-			setupMock: func(m *mmapimocks.MockClient) {
+			setupMock: func(m *amapimocks.MockClient) {
 				m.On("GetChannel", "channel1").Return(&model.Channel{
 					Id:          "channel1",
 					DisplayName: "Channel One",
@@ -287,7 +287,7 @@ func TestEnrichResults(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			mockClient := mmapimocks.NewMockClient(t)
+			mockClient := amapimocks.NewMockClient(t)
 			allowVectorIndexStateRead(mockClient)
 			if tc.setupMock != nil {
 				tc.setupMock(mockClient)
@@ -309,7 +309,7 @@ func TestExecuteSearch(t *testing.T) {
 		name        string
 		query       string
 		opts        Options
-		setupMocks  func(*mocks.MockEmbeddingSearch, *mmapimocks.MockClient)
+		setupMocks  func(*mocks.MockEmbeddingSearch, *amapimocks.MockClient)
 		expectError string
 		validate    func(t *testing.T, results []RAGResult)
 	}{
@@ -324,7 +324,7 @@ func TestExecuteSearch(t *testing.T) {
 			name:  "search error is propagated",
 			query: "test query",
 			opts:  Options{Limit: 5},
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient) {
 				me.On("Search", mock.Anything, "test query", mock.Anything).
 					Return(nil, errors.New("search service unavailable"))
 			},
@@ -334,7 +334,7 @@ func TestExecuteSearch(t *testing.T) {
 			name:  "no results returns empty slice",
 			query: "obscure query",
 			opts:  Options{Limit: 5},
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient) {
 				me.On("Search", mock.Anything, "obscure query", mock.Anything).
 					Return([]embeddings.SearchResult{}, nil)
 			},
@@ -352,7 +352,7 @@ func TestExecuteSearch(t *testing.T) {
 				ChannelID: "channel1",
 				UserID:    "user1",
 			},
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient) {
 				me.On("Search", mock.Anything, "test query", embeddings.SearchOptions{
 					Limit:     5,
 					TeamID:    "team1",
@@ -392,7 +392,7 @@ func TestExecuteSearch(t *testing.T) {
 			name:  "default limit is 5 when 0 is passed",
 			query: "test query",
 			opts:  Options{Limit: 0}, // Should default to 5
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient) {
 				me.On("Search", mock.Anything, "test query", embeddings.SearchOptions{
 					Limit: 5, // Should be 5, not 0
 				}).Return([]embeddings.SearchResult{}, nil)
@@ -407,7 +407,7 @@ func TestExecuteSearch(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-			mockClient := mmapimocks.NewMockClient(t)
+			mockClient := amapimocks.NewMockClient(t)
 			allowVectorIndexStateRead(mockClient)
 
 			if tc.setupMocks != nil {
@@ -468,7 +468,7 @@ func TestExecuteSearchReturnsIndexedRowsOutsideWriteWindow(t *testing.T) {
 		Content:   "new",
 	}
 
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 	mockClient.On("GetChannel", "channel1").Return(&model.Channel{
 		Id:          "channel1",
@@ -602,14 +602,14 @@ func TestSearchQuery(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		setupMocks  func(*mocks.MockEmbeddingSearch, *mmapimocks.MockClient, *llmmocks.MockLanguageModel)
+		setupMocks  func(*mocks.MockEmbeddingSearch, *amapimocks.MockClient, *llmmocks.MockLanguageModel)
 		query       string
 		expectError string
 		validate    func(t *testing.T, resp Response)
 	}{
 		{
 			name: "zero results returns empty response with message",
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
 				me.On("Search", mock.Anything, "no results query", mock.Anything).
 					Return([]embeddings.SearchResult{}, nil)
 			},
@@ -622,7 +622,7 @@ func TestSearchQuery(t *testing.T) {
 		},
 		{
 			name: "LLM failure returns error",
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
 				me.On("Search", mock.Anything, "test query", mock.Anything).
 					Return([]embeddings.SearchResult{
 						{
@@ -656,7 +656,7 @@ func TestSearchQuery(t *testing.T) {
 		},
 		{
 			name: "successful search with LLM response",
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
 				me.On("Search", mock.Anything, "test query", mock.Anything).
 					Return([]embeddings.SearchResult{
 						{
@@ -695,7 +695,7 @@ func TestSearchQuery(t *testing.T) {
 		},
 		{
 			name: "search failure propagates error",
-			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *mmapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
+			setupMocks: func(me *mocks.MockEmbeddingSearch, mc *amapimocks.MockClient, ml *llmmocks.MockLanguageModel) {
 				me.On("Search", mock.Anything, "test query", mock.Anything).
 					Return(nil, errors.New("search service unavailable"))
 			},
@@ -707,7 +707,7 @@ func TestSearchQuery(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-			mockClient := mmapimocks.NewMockClient(t)
+			mockClient := amapimocks.NewMockClient(t)
 			allowVectorIndexStateRead(mockClient)
 			mockLLM := llmmocks.NewMockLanguageModel(t)
 
@@ -742,7 +742,7 @@ func TestSearchQuery(t *testing.T) {
 }
 
 // mockDeferredReindexActive gates search via deferred reindex state.
-func mockDeferredReindexActive(m *mmapimocks.MockClient) {
+func mockDeferredReindexActive(m *amapimocks.MockClient) {
 	m.On("KVGet", indexer.VectorIndexStateKey, mock.AnythingOfType("*indexer.VectorIndexState")).
 		Run(func(args mock.Arguments) {
 			state := args.Get(1).(*indexer.VectorIndexState)
@@ -756,7 +756,7 @@ func TestSearchUnavailableDuringDeferredReindex(t *testing.T) {
 	t.Run("Search returns ErrSearchUnavailable without querying the store", func(t *testing.T) {
 		// Strict mock: any Search call on the store fails the test.
 		mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-		mockClient := mmapimocks.NewMockClient(t)
+		mockClient := amapimocks.NewMockClient(t)
 		mockDeferredReindexActive(mockClient)
 
 		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
@@ -769,7 +769,7 @@ func TestSearchUnavailableDuringDeferredReindex(t *testing.T) {
 	t.Run("RunSearch fails fast before creating any posts", func(t *testing.T) {
 		// Strict mock: any DM call fails the test.
 		mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-		mockClient := mmapimocks.NewMockClient(t)
+		mockClient := amapimocks.NewMockClient(t)
 		mockDeferredReindexActive(mockClient)
 
 		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
@@ -783,7 +783,7 @@ func TestSearchUnavailableDuringDeferredReindex(t *testing.T) {
 
 func TestRunSearch(t *testing.T) {
 	t.Run("search not enabled returns error", func(t *testing.T) {
-		mockClient := mmapimocks.NewMockClient(t)
+		mockClient := amapimocks.NewMockClient(t)
 		allowVectorIndexStateRead(mockClient)
 		s := New(func() embeddings.EmbeddingSearch { return nil }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
@@ -796,7 +796,7 @@ func TestRunSearch(t *testing.T) {
 
 	t.Run("empty query returns error", func(t *testing.T) {
 		mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-		mockClient := mmapimocks.NewMockClient(t)
+		mockClient := amapimocks.NewMockClient(t)
 		allowVectorIndexStateRead(mockClient)
 		s := New(func() embeddings.EmbeddingSearch { return mockEmbedding }, mockClient, nil, nil, nil)
 		bot := bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: "bot1"}, nil)
@@ -809,7 +809,7 @@ func TestRunSearch(t *testing.T) {
 
 	t.Run("DM creation failure returns error", func(t *testing.T) {
 		mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-		mockClient := mmapimocks.NewMockClient(t)
+		mockClient := amapimocks.NewMockClient(t)
 		allowVectorIndexStateRead(mockClient)
 		mockClient.On("DM", "user1", "bot1", mock.Anything).
 			Return(errors.New("failed to create DM"))
@@ -825,7 +825,7 @@ func TestRunSearch(t *testing.T) {
 
 	t.Run("successful RunSearch returns post info", func(t *testing.T) {
 		mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-		mockClient := mmapimocks.NewMockClient(t)
+		mockClient := amapimocks.NewMockClient(t)
 		allowVectorIndexStateRead(mockClient)
 		searchDone := make(chan struct{})
 
@@ -890,7 +890,7 @@ func TestRunSearch_SpanCoversAsyncWork(t *testing.T) {
 	})
 
 	mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 
 	mockClient.On("DM", "user1", "bot1", mock.Anything).
@@ -949,7 +949,7 @@ func TestRunSearch_SpanCoversAsyncWork(t *testing.T) {
 func TestEnrichResultsSameChannelMultipleTimes(t *testing.T) {
 	// Test that enrichResults correctly populates channel/user info
 	// when the same channel appears in multiple results
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 
 	mockClient.On("GetChannel", "channel1").Return(&model.Channel{
@@ -997,7 +997,7 @@ func TestEnrichResultsSameChannelMultipleTimes(t *testing.T) {
 func TestEnrichResultsSameUserMultipleTimes(t *testing.T) {
 	// Test that enrichResults correctly populates user info
 	// when the same user appears in results across different channels
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 
 	mockClient.On("GetChannel", "channel1").Return(&model.Channel{
@@ -1103,7 +1103,7 @@ func TestSearchQueryWithEmptyQuery(t *testing.T) {
 	require.NoError(t, err, "Failed to load prompts")
 
 	mockEmbedding := mocks.NewMockEmbeddingSearch(t)
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 
 	s := New(

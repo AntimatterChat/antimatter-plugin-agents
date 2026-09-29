@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	embeddingsmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -66,7 +66,7 @@ func batchedFetch(batches [][]PostRecord) fetchFunc {
 
 func newPassTestIndexer(t *testing.T) (*Indexer, *mocks.MockClient) {
 	mockClient := mocks.NewMockClient(t)
-	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 	mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 	mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 	mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -444,7 +444,7 @@ func TestRunIndexPassWatermark(t *testing.T) {
 				}
 			}).
 			Return(nil)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		// JobID-scoped status saves go through CAS; count them as heartbeats.
 		mockClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.Anything).
 			Run(func(args mock.Arguments) { heartbeats.Add(1) }).
@@ -536,7 +536,7 @@ func TestRunIndexPassWatermark(t *testing.T) {
 
 	t.Run("checkpoint saved after 500 contiguous posts", func(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		var savedCursors []Cursor
 		mockClient.On("KVSet", IndexerCursorKey, mock.AnythingOfType("indexer.Cursor")).
 			Run(func(args mock.Arguments) {

@@ -6,8 +6,8 @@ package conversations
 import (
 	"testing"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -67,8 +67,8 @@ func TestUnmarshalWebSearchContext(t *testing.T) {
 
 			require.NotNil(t, params)
 			if tc.wantResetKeys {
-				require.Equal(t, 0, params[mmtools.WebSearchCountKey])
-				require.Equal(t, []string{}, params[mmtools.WebSearchExecutedQueriesKey])
+				require.Equal(t, 0, params[amtools.WebSearchCountKey])
+				require.Equal(t, []string{}, params[amtools.WebSearchExecutedQueriesKey])
 			}
 		})
 	}

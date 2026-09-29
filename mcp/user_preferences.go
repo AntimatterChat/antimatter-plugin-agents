@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 )
 
 // ErrUserPreferencesInvalid indicates normalized preferences violate size or count limits.
@@ -35,10 +35,10 @@ func userPreferencesKVKey(userID string) string {
 
 // LoadUserPreferences loads the user's tool provider preferences from KV.
 // Returns a default (empty disabled list) when no entry exists.
-func LoadUserPreferences(pluginAPI mmapi.Client, userID string) (*UserToolProviderPreferences, error) {
+func LoadUserPreferences(pluginAPI amapi.Client, userID string) (*UserToolProviderPreferences, error) {
 	var prefs UserToolProviderPreferences
 	if err := pluginAPI.KVGet(userPreferencesKVKey(userID), &prefs); err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return &UserToolProviderPreferences{DisabledServers: []string{}}, nil
 		}
 		return nil, fmt.Errorf("failed to load user preferences: %w", err)
@@ -50,7 +50,7 @@ func LoadUserPreferences(pluginAPI mmapi.Client, userID string) (*UserToolProvid
 }
 
 // SaveUserPreferences normalizes and persists the user's tool provider preferences.
-func SaveUserPreferences(pluginAPI mmapi.Client, userID string, prefs *UserToolProviderPreferences) (*UserToolProviderPreferences, error) {
+func SaveUserPreferences(pluginAPI amapi.Client, userID string, prefs *UserToolProviderPreferences) (*UserToolProviderPreferences, error) {
 	normalizePreferences(prefs)
 	if err := ValidateUserPreferencesNormalized(prefs); err != nil {
 		return nil, err

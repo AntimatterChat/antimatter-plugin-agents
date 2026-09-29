@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package mmtools
+package amtools
 
 import (
 	"bytes"
@@ -12,8 +12,8 @@ import (
 	otelcodes "go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 )
 
@@ -24,7 +24,7 @@ const sandboxOutputFileAttachmentOperation = "attach_sandbox_output_file"
 // only for files left in $OUTPUT_DIR, which is the model's share gesture, and
 // those ids are never shown to the model. Failures are skipped so a bad file
 // cannot fail the reply. ConsumeSandboxFiles makes a repeat call a no-op.
-func AttachSandboxOutputFiles(ctx context.Context, client mmapi.Client, downloader llm.ProviderFileDownloader, llmCtx *llm.Context) {
+func AttachSandboxOutputFiles(ctx context.Context, client amapi.Client, downloader llm.ProviderFileDownloader, llmCtx *llm.Context) {
 	files := llmCtx.ConsumeSandboxFiles()
 	if len(files) == 0 {
 		return
@@ -55,7 +55,7 @@ func AttachSandboxOutputFiles(ctx context.Context, client mmapi.Client, download
 
 func attachOneSandboxFile(
 	ctx context.Context,
-	client mmapi.Client,
+	client amapi.Client,
 	downloader llm.ProviderFileDownloader,
 	llmCtx *llm.Context,
 	fileRef llm.ProviderFileReference,

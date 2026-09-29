@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -40,7 +40,7 @@ func AgentList(agents []AgentInfo, currentBotUserID string) string {
 	return b.String()
 }
 
-func ThreadData(data *mmapi.ThreadData) string {
+func ThreadData(data *amapi.ThreadData) string {
 	var result strings.Builder
 	for _, post := range data.Posts {
 		username := "unknown"

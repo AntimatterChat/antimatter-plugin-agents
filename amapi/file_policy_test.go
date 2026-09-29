@@ -1,15 +1,15 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package mmapi_test
+package amapi_test
 
 import (
 	"io"
 	"strings"
 	"testing"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -27,13 +27,13 @@ func TestWithFilePolicyDeniesAdminReads(t *testing.T) {
 		model.AccessControlPolicyActionDownloadFileAttachment,
 	).Return(false)
 
-	mm := mmapi.WithFilePolicy(inner, sessionID)
+	mm := amapi.WithFilePolicy(inner, sessionID)
 
 	_, err := mm.GetFileInfo(fileID)
-	require.ErrorIs(t, err, mmapi.ErrFileActionForbidden)
+	require.ErrorIs(t, err, amapi.ErrFileActionForbidden)
 
 	_, err = mm.GetFile(fileID)
-	require.ErrorIs(t, err, mmapi.ErrFileActionForbidden)
+	require.ErrorIs(t, err, amapi.ErrFileActionForbidden)
 }
 
 func TestWithFilePolicyAllowsAdminReads(t *testing.T) {
@@ -51,7 +51,7 @@ func TestWithFilePolicyAllowsAdminReads(t *testing.T) {
 	inner.On("GetFileInfo", fileID).Return(info, nil)
 	inner.On("GetFile", fileID).Return(io.NopCloser(strings.NewReader("hello")), nil)
 
-	mm := mmapi.WithFilePolicy(inner, sessionID)
+	mm := amapi.WithFilePolicy(inner, sessionID)
 
 	got, err := mm.GetFileInfo(fileID)
 	require.NoError(t, err)
@@ -74,8 +74,8 @@ func TestWithFilePolicyFailsClosedWithoutSession(t *testing.T) {
 		model.AccessControlPolicyActionDownloadFileAttachment,
 	).Return(true).Maybe()
 
-	mm := mmapi.WithFilePolicy(inner, "")
+	mm := amapi.WithFilePolicy(inner, "")
 
 	_, err := mm.GetFileInfo(fileID)
-	require.ErrorIs(t, err, mmapi.ErrFileActionForbidden)
+	require.ErrorIs(t, err, amapi.ErrFileActionForbidden)
 }

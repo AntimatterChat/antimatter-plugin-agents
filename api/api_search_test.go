@@ -13,12 +13,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/indexer"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -26,7 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newSearchService(getSearch func() embeddings.EmbeddingSearch, client mmapi.Client) *search.Search {
+func newSearchService(getSearch func() embeddings.EmbeddingSearch, client amapi.Client) *search.Search {
 	return search.New(getSearch, client, nil, nil, nil)
 }
 
@@ -44,8 +44,8 @@ func TestHandleRunSearch(t *testing.T) {
 		{
 			name: "search fails - DM error, service enabled",
 			setupMock: func(t *testing.T) *search.Search {
-				mockClient := mmapimocks.NewMockClient(t)
-				mockClient.On("KVGet", indexer.VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound)
+				mockClient := amapimocks.NewMockClient(t)
+				mockClient.On("KVGet", indexer.VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound)
 				mockClient.On("DM", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("DM failed"))
 				me := mocks.NewMockEmbeddingSearch(t)
 				return newSearchService(func() embeddings.EmbeddingSearch { return me }, mockClient)
@@ -61,7 +61,7 @@ func TestHandleRunSearch(t *testing.T) {
 		{
 			name: "search unavailable during deferred reindex returns 503",
 			setupMock: func(t *testing.T) *search.Search {
-				mockClient := mmapimocks.NewMockClient(t)
+				mockClient := amapimocks.NewMockClient(t)
 				mockClient.On("KVGet", indexer.VectorIndexStateKey, mock.AnythingOfType("*indexer.VectorIndexState")).
 					Run(func(args mock.Arguments) {
 						state := args.Get(1).(*indexer.VectorIndexState)

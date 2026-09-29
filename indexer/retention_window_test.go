@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	embeddingsmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
@@ -329,7 +329,7 @@ func TestCheckIndexHealthUsesInWindowCounts(t *testing.T) {
 
 	mockClient := mocks.NewMockClient(t)
 	mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-	mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+	mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 
 	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig {
 		return embeddings.EmbeddingSearchConfig{IndexRetentionDays: 365}
@@ -841,7 +841,7 @@ func TestStartCatchUpJobRejectsIncompatibleIdentity(t *testing.T) {
 				}).
 				Return(nil)
 			mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-				Return(mmapi.ErrKVNotFound)
+				Return(amapi.ErrKVNotFound)
 			mockClient.On("KVGet", IndexerModelKey, mock.AnythingOfType("*indexer.ModelInfo")).
 				Run(func(args mock.Arguments) {
 					*args.Get(1).(*ModelInfo) = tt.stored

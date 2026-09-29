@@ -9,13 +9,13 @@ import (
 	"errors"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	embeddingmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	llmmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/llm/mocks"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -176,7 +176,7 @@ func makeSearchResult(postID, channelID, userID, content string, score float32) 
 
 // setupMockClientForSearch sets up the standard mock expectations for a search test
 // (GetChannel, GetUser, GetConfig) so that buildPrompt can succeed.
-func setupMockClientForSearch(mc *mmapimocks.MockClient) {
+func setupMockClientForSearch(mc *amapimocks.MockClient) {
 	mc.On("GetChannel", mock.Anything).Return(&model.Channel{
 		Id:          "channel1",
 		DisplayName: "General",
@@ -278,7 +278,7 @@ func TestSearchQueryCreatesConversation(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			mockEmbedding := embeddingmocks.NewMockEmbeddingSearch(t)
-			mockClient := mmapimocks.NewMockClient(t)
+			mockClient := amapimocks.NewMockClient(t)
 			allowVectorIndexStateRead(mockClient)
 			mockLLM := llmmocks.NewMockLanguageModel(t)
 			fakeStore := newFakeConversationStore()
@@ -327,7 +327,7 @@ func TestSearchQueryToolsAlwaysDisabled(t *testing.T) {
 	require.NoError(t, err)
 
 	mockEmbedding := embeddingmocks.NewMockEmbeddingSearch(t)
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 	mockLLM := llmmocks.NewMockLanguageModel(t)
 	fakeStore := newFakeConversationStore()
@@ -377,7 +377,7 @@ func TestSearchQueryUsesConversationCompletionRequest(t *testing.T) {
 	require.NoError(t, err)
 
 	mockEmbedding := embeddingmocks.NewMockEmbeddingSearch(t)
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 	mockLLM := llmmocks.NewMockLanguageModel(t)
 	fakeStore := newFakeConversationStore()
@@ -426,7 +426,7 @@ func TestSearchQueryNilConversationServiceFallsBack(t *testing.T) {
 	require.NoError(t, err)
 
 	mockEmbedding := embeddingmocks.NewMockEmbeddingSearch(t)
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	allowVectorIndexStateRead(mockClient)
 	mockLLM := llmmocks.NewMockLanguageModel(t)
 

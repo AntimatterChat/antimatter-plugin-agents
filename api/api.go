@@ -16,6 +16,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/autoreply"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bifrost"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
@@ -34,7 +35,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/meetings"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/metrics"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
@@ -165,8 +165,8 @@ type API struct {
 	contextBuilder        *llmcontext.Builder
 	prompts               *llm.Prompts
 	config                Config
-	mmClient              mmapi.Client
-	dbClient              *mmapi.DBClient
+	mmClient              amapi.Client
+	dbClient              *amapi.DBClient
 	streamingService      streaming.Service
 	i18nBundle            *i18n.Bundle
 	mcpClientManager      MCPClientManager
@@ -213,8 +213,8 @@ func New(
 	llmContextBuilder *llmcontext.Builder,
 	config Config,
 	prompts *llm.Prompts,
-	mmClient mmapi.Client,
-	dbClient *mmapi.DBClient,
+	mmClient amapi.Client,
+	dbClient *amapi.DBClient,
 	streamingService streaming.Service,
 	i18nBundle *i18n.Bundle,
 	mcpClientManager MCPClientManager,

@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/mock"

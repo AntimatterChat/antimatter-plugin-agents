@@ -12,9 +12,9 @@ packages:
       filename: language_model_mock.go
     interfaces:
       LanguageModel:
-  github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi:
+  github.com/antimatterchat/antimatter-plugin-agents/v2/amapi:
     config:
-      dir: mmapi/mocks
+      dir: amapi/mocks
       filename: client_mock.go
     interfaces:
       Client:

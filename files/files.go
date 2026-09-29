@@ -17,8 +17,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -55,11 +55,11 @@ type Content struct {
 // Service is the shared plugin-side file reader behind both the embedded
 // read_file tool and the /files/content HTTP endpoint.
 type Service struct {
-	mm mmapi.Client
+	mm amapi.Client
 }
 
 // New creates a file content service backed by the given Mattermost client.
-func New(mm mmapi.Client) *Service {
+func New(mm amapi.Client) *Service {
 	return &Service{mm: mm}
 }
 
@@ -72,10 +72,10 @@ func (s *Service) GetContent(ctx context.Context, userID, fileID string, offset,
 		return Content{}, fmt.Errorf("invalid file id")
 	}
 
-	mm := mmapi.WithFilePolicy(s.mm, auth.SessionIDFromContext(ctx))
+	mm := amapi.WithFilePolicy(s.mm, auth.SessionIDFromContext(ctx))
 	fileInfo, err := mm.GetFileInfo(fileID)
 	if err != nil {
-		if errors.Is(err, mmapi.ErrFileActionForbidden) {
+		if errors.Is(err, amapi.ErrFileActionForbidden) {
 			return Content{}, ErrForbidden
 		}
 		return Content{}, fmt.Errorf("failed to get file info: %w", err)
@@ -88,7 +88,7 @@ func (s *Service) GetContent(ctx context.Context, userID, fileID string, offset,
 
 	text, err := s.extractText(mm, fileInfo)
 	if err != nil {
-		if errors.Is(err, mmapi.ErrFileActionForbidden) {
+		if errors.Is(err, amapi.ErrFileActionForbidden) {
 			return Content{}, ErrForbidden
 		}
 		return Content{}, err
@@ -138,7 +138,7 @@ func Slice(name, mimeType, text string, offset, limit int) Content {
 // Policy denials from GetFile are returned so GetContent can map them to
 // ErrForbidden instead of treating the file as empty. Other download errors
 // still yield empty text (best-effort).
-func (s *Service) extractText(mm mmapi.Client, fileInfo *model.FileInfo) (string, error) {
+func (s *Service) extractText(mm amapi.Client, fileInfo *model.FileInfo) (string, error) {
 	if trimmed := strings.TrimSpace(fileInfo.Content); trimmed != "" {
 		return trimmed, nil
 	}
@@ -149,7 +149,7 @@ func (s *Service) extractText(mm mmapi.Client, fileInfo *model.FileInfo) (string
 
 	reader, err := mm.GetFile(fileInfo.Id)
 	if err != nil {
-		if errors.Is(err, mmapi.ErrFileActionForbidden) {
+		if errors.Is(err, amapi.ErrFileActionForbidden) {
 			return "", err
 		}
 		mm.LogError("failed to get file for read_file", "error", err, "file_id", fileInfo.Id)

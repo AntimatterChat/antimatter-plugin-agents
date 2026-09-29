@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
@@ -207,7 +207,7 @@ func TestDecorateStreamAttachesSandboxFilesOnlyFromActiveContext(t *testing.T) {
 
 func createFileResultJSON(t *testing.T, fileID string) string {
 	t.Helper()
-	content, err := json.Marshal(mmtools.CreateFileResult{FileID: fileID, FileName: "report.md"})
+	content, err := json.Marshal(amtools.CreateFileResult{FileID: fileID, FileName: "report.md"})
 	require.NoError(t, err)
 	return string(content)
 }
@@ -229,7 +229,7 @@ func createFileUseBlock(id, serverOrigin string) conversation.ContentBlock {
 	return conversation.ContentBlock{
 		Type:         conversation.BlockTypeToolUse,
 		ID:           id,
-		Name:         mmtools.CreateFileToolName,
+		Name:         amtools.CreateFileToolName,
 		ServerOrigin: serverOrigin,
 		Status:       conversation.StatusAutoApproved,
 	}

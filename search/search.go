@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/indexer"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -68,7 +68,7 @@ const SearchResultsProp = "search_results"
 
 type Search struct {
 	getSearch           func() embeddings.EmbeddingSearch
-	mmclient            mmapi.Client
+	mmclient            amapi.Client
 	prompts             *llm.Prompts
 	streamingService    streaming.Service
 	conversationService *conversation.Service
@@ -76,7 +76,7 @@ type Search struct {
 
 func New(
 	getSearch func() embeddings.EmbeddingSearch,
-	mmclient mmapi.Client,
+	mmclient amapi.Client,
 	prompts *llm.Prompts,
 	streamingService streaming.Service,
 	conversationService *conversation.Service,

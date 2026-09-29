@@ -14,12 +14,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/assets"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bifrost"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/loadtest"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -750,7 +750,7 @@ func (b *MMBots) GetBotConfigByID(botID string) (bool, int64, bool) {
 // GetBotForDMChannel returns the bot for the given DM channel.
 func (b *MMBots) GetBotForDMChannel(channel *model.Channel) *Bot {
 	return b.findBot(func(bot *Bot) bool {
-		return mmapi.IsDMWith(bot.mmBot.UserId, channel)
+		return amapi.IsDMWith(bot.mmBot.UserId, channel)
 	})
 }
 

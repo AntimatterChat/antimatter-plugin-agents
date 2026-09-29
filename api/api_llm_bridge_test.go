@@ -13,11 +13,11 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/public/bridgeclient"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -68,7 +68,7 @@ func (m *mockEmbeddedMCPServer) CreateClientTransport(userID, sessionID string, 
 // Full-stack integration tests using bridge client → real API → fake LLM
 
 func TestConvertBridgePostsToInternalUnsupportedImageDoesNotReadFile(t *testing.T) {
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	mmClient.On("GetFileInfo", "svg1").Return(&model.FileInfo{
 		Id:       "svg1",
 		Name:     "vector.svg",

@@ -8,11 +8,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
@@ -128,7 +128,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 	case referenceRecordingFileIDProp != nil:
 		post.Message = ""
 		referencedRecordingFileID := referenceRecordingFileIDProp.(string)
-		mm := mmapi.WithFilePolicy(c.mmClient, auth.SessionIDFromContext(ctx))
+		mm := amapi.WithFilePolicy(c.mmClient, auth.SessionIDFromContext(ctx))
 
 		fileInfo, getErr := mm.GetFileInfo(referencedRecordingFileID)
 		if getErr != nil {
@@ -179,7 +179,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		if fileIDErr != nil {
 			return fmt.Errorf("unable to get transcription file id: %w", fileIDErr)
 		}
-		mm := mmapi.WithFilePolicy(c.mmClient, auth.SessionIDFromContext(ctx))
+		mm := amapi.WithFilePolicy(c.mmClient, auth.SessionIDFromContext(ctx))
 		transcriptionFileReader, fileErr := mm.GetFile(transcriptionFileID)
 		if fileErr != nil {
 			return fmt.Errorf("unable to read calls file: %w", fileErr)
@@ -222,7 +222,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		}
 	}
 
-	if mmapi.IsDMWith(bot.GetMMBot().UserId, channel) {
+	if amapi.IsDMWith(bot.GetMMBot().UserId, channel) {
 		if channel.Name == bot.GetMMBot().UserId+"__"+user.Id || channel.Name == user.Id+"__"+bot.GetMMBot().UserId {
 			c.streamingService.StreamToPost(ctx, result, post, user.Locale, user.Id)
 			return nil
@@ -264,7 +264,7 @@ func (c *Conversations) regenerateViaConversation(
 		c.contextBuilder.WithLLMContextResponseFiles(),
 	)
 
-	isDM := mmapi.IsDMWith(bot.GetMMBot().UserId, channel)
+	isDM := amapi.IsDMWith(bot.GetMMBot().UserId, channel)
 	toolsDisabled := applyToolAvailability(llmContext, isDM, c.channelMentionToolCallingEnabled())
 
 	// Build the request BEFORE scrubbing — ExcludeAfterPostID needs the anchor.

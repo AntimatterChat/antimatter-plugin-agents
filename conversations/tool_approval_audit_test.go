@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/mattermost/mattermost/server/public/model"

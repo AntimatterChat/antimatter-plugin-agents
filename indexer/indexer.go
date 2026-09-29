@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/jmoiron/sqlx"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
@@ -22,7 +22,7 @@ import (
 type Indexer struct {
 	getSearch    func() embeddings.EmbeddingSearch
 	configGetter func() embeddings.EmbeddingSearchConfig
-	pluginAPI    mmapi.Client
+	pluginAPI    amapi.Client
 	bots         *bots.MMBots
 	db           *sqlx.DB
 	clusterMutex cluster.MutexPluginAPI
@@ -42,7 +42,7 @@ type Indexer struct {
 func New(
 	getSearch func() embeddings.EmbeddingSearch,
 	configGetter func() embeddings.EmbeddingSearchConfig,
-	pluginAPI mmapi.Client,
+	pluginAPI amapi.Client,
 	bots *bots.MMBots,
 	db *sqlx.DB,
 	clusterMutex cluster.MutexPluginAPI,
@@ -637,7 +637,7 @@ func (s *Indexer) MarkOrphanedJobAsFailed() error {
 	var jobStatus JobStatus
 	err := s.pluginAPI.KVGet(ReindexJobKey, &jobStatus)
 	if err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return nil
 		}
 		return err

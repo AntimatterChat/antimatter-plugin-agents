@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/modelcontextprotocol/go-sdk/oauthex"
 	"github.com/stretchr/testify/mock"
@@ -469,7 +469,7 @@ func TestDeleteUserTokenCleanup(t *testing.T) {
 			// No stored grant to revoke: revocation is skipped and the delete
 			// proceeds. (Revocation behavior itself is covered separately.)
 			mockClient.On("KVGet", buildTokenKey(userID, serverID), mock.AnythingOfType("*[]uint8")).
-				Return(mmapi.ErrKVNotFound).
+				Return(amapi.ErrKVNotFound).
 				Once()
 			mockClient.On("KVDelete", buildTokenKey(userID, serverID)).
 				Return(tc.tokenDeleteErr).
@@ -504,14 +504,14 @@ func TestProcessCallback_InvalidSession(t *testing.T) {
 	// session.State below. Asserting ErrorIs against the sentinel pins
 	// that the wrap chain survives ProcessCallback's fmt.Errorf and is
 	// not hostage to the user-facing wording.
-	mockClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession")).Return(mmapi.ErrKVNotFound)
+	mockClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession")).Return(amapi.ErrKVNotFound)
 
 	ctx := context.Background()
 	session, err := manager.ProcessCallback(ctx, userID, state, code, "")
 
 	require.Error(t, err)
 	require.Nil(t, session)
-	require.ErrorIs(t, err, mmapi.ErrKVNotFound)
+	require.ErrorIs(t, err, amapi.ErrKVNotFound)
 	require.Contains(t, err.Error(), "invalid or expired session")
 }
 

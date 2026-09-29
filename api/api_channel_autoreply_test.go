@@ -13,11 +13,11 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/autoreply"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -204,7 +204,7 @@ func TestPutChannelAutoReplyPermissionMatrix(t *testing.T) {
 				// A rejected PUT must not publish a websocket event: the
 				// strict mock has no expectations, so any
 				// PublishWebSocketEvent call fails the test.
-				e.api.mmClient = mmapimocks.NewMockClient(t)
+				e.api.mmClient = amapimocks.NewMockClient(t)
 			}
 
 			resp := e.doChannelAutoReplyRequest(t, http.MethodPut, validBody)
@@ -295,7 +295,7 @@ func TestPutChannelAutoReplyValidation(t *testing.T) {
 			// A rejected PUT must not publish a websocket event: the strict
 			// mock has no expectations, so any PublishWebSocketEvent call
 			// fails the test.
-			e.api.mmClient = mmapimocks.NewMockClient(t)
+			e.api.mmClient = amapimocks.NewMockClient(t)
 
 			resp := e.doChannelAutoReplyRequest(t, http.MethodPut, tc.body)
 			require.Equal(t, tc.expectedStatus, resp.StatusCode)
@@ -416,7 +416,7 @@ func TestPutChannelAutoReplyPersistsAndPublishes(t *testing.T) {
 		broadcast *model.WebsocketBroadcast
 	}
 	var events []wsEvent
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 	mmClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
 		Run(func(args mock.Arguments) {
 			payload, _ := args.Get(1).(map[string]any)

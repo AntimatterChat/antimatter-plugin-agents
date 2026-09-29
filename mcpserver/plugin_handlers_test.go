@@ -14,10 +14,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	mcppkg "github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
 	loggerlib "github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 
 	gosdkmcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/require"
@@ -47,7 +47,7 @@ var _ PluginServerRegistry = (*stubRegistry)(nil)
 
 // stubPluginAPI only overrides PluginHTTP for these tests.
 type stubPluginAPI struct {
-	mmapi.Client
+	amapi.Client
 	pluginHTTP func(req *http.Request) *http.Response
 }
 

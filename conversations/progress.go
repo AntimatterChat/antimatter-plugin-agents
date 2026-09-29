@@ -6,7 +6,7 @@ package conversations
 import (
 	"context"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/model"
 	"go.opentelemetry.io/otel/trace"
@@ -29,13 +29,13 @@ var responseProgressSequence = map[responseProgressPhase]int{
 }
 
 type responseProgressReporter struct {
-	client   mmapi.Client
+	client   amapi.Client
 	post     *model.Post
 	span     trace.Span
 	sequence int
 }
 
-func newResponseProgressReporter(ctx context.Context, client mmapi.Client, post *model.Post) *responseProgressReporter {
+func newResponseProgressReporter(ctx context.Context, client amapi.Client, post *model.Post) *responseProgressReporter {
 	return &responseProgressReporter{
 		client: client,
 		post:   post,

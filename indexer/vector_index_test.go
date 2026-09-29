@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	embeddingsmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -188,7 +188,7 @@ func mockVectorStateOps(mockClient *mocks.MockClient, tracker *vectorStateTracke
 			tracker.mu.Lock()
 			defer tracker.mu.Unlock()
 			if tracker.current == nil {
-				return mmapi.ErrKVNotFound
+				return amapi.ErrKVNotFound
 			}
 			*value.(*VectorIndexState) = *tracker.current
 			return nil
@@ -267,7 +267,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("KVSet", IndexerCursorKey, mock.Anything).
 			Run(func(args mock.Arguments) { cursorWrites++ }).
 			Return(nil).Maybe()
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -340,7 +340,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun := seedClaim(tracker, "job-finalize-fail")
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -383,7 +383,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun := seedClaim(tracker, "job-mainpass-fail")
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -435,7 +435,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			}).
 			Return(nil)
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 		mockClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.Anything).Return(true, nil)
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -467,7 +467,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun := seedClaim(tracker, "job-defer-panic")
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -505,7 +505,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		search := &fakeDeferSearch{rec: rec, bulk: bulk, mainCutoff: now}
 
 		mockClient := mocks.NewMockClient(t)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -539,7 +539,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun := seedClaim(tracker, "job-no-bulk")
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -581,7 +581,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		tracker.seed(VectorIndexState{JobID: "successor-job", Phase: VectorIndexPhaseDropped})
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -623,7 +623,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun.adopted = true // the index may genuinely be dropped already
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -678,7 +678,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			tracker.seed(VectorIndexState{JobID: "old-job", Phase: VectorIndexPhaseRepairing, BuildStartedAt: 12345})
 			mockClient := mocks.NewMockClient(t)
 			mockVectorStateOps(mockClient, tracker)
-			mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+			mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 			mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 			mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 			mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -710,7 +710,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			tracker.seed(VectorIndexState{JobID: "old-job", Phase: VectorIndexPhaseRepairing, BuildStartedAt: 12345})
 			mockClient := mocks.NewMockClient(t)
 			mockVectorStateOps(mockClient, tracker)
-			mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+			mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 			mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 			mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 			mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -753,7 +753,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		tracker.seed(VectorIndexState{JobID: "successor-job", Phase: VectorIndexPhaseDropped})
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -809,7 +809,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("KVSet", IndexerCursorKey, mock.Anything).
 			Run(func(args mock.Arguments) { cursorWrites++ }).
 			Return(nil).Maybe()
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -875,7 +875,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun := seedClaim(tracker, "job-emptied-post")
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -917,7 +917,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		deferRun.adopted = true
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -968,7 +968,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			}).
 			Return(nil)
 		cancelClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 		cancelClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.Anything).Return(true, nil)
 		cancelClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		cancelClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -996,7 +996,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 
 		resumeClient := mocks.NewMockClient(t)
 		mockVectorStateOps(resumeClient, tracker)
-		resumeClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		resumeClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		resumeClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		resumeClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		resumeClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -1044,7 +1044,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			}).
 			Return(nil).Maybe()
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound).Maybe()
+			Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.AnythingOfType("indexer.JobStatus")).
 			Run(func(args mock.Arguments) {
 				status := args.Get(2).(JobStatus)
@@ -1121,7 +1121,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			}).
 			Return(nil)
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 		var terminal JobStatus
 		mockClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.AnythingOfType("indexer.JobStatus")).
 			Run(func(args mock.Arguments) {
@@ -1178,7 +1178,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockVectorStateOps(mockClient, tracker)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -1394,7 +1394,7 @@ func TestResolveDeferredRebuild(t *testing.T) {
 					Return(nil).Maybe()
 			default:
 				mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).
-					Return(mmapi.ErrKVNotFound).Maybe()
+					Return(amapi.ErrKVNotFound).Maybe()
 			}
 
 			var saved *VectorIndexState
@@ -1466,7 +1466,7 @@ func TestFinalizeDeferredIndexHeartbeat(t *testing.T) {
 			mu.Unlock()
 		}).
 		Return(nil).Maybe()
-	mockClient.On("KVGet", ReindexJobKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+	mockClient.On("KVGet", ReindexJobKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 	mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 	mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
@@ -1607,7 +1607,7 @@ func TestIndexPostDeferGating(t *testing.T) {
 					Return(nil)
 			default:
 				mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).
-					Return(mmapi.ErrKVNotFound)
+					Return(amapi.ErrKVNotFound)
 			}
 			mockClient.On("LogDebug", mock.Anything, mock.Anything).Return().Maybe()
 			mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
@@ -1675,7 +1675,7 @@ func TestDeleteWritesDeferGating(t *testing.T) {
 				Return(nil)
 		default:
 			mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).
-				Return(mmapi.ErrKVNotFound)
+				Return(amapi.ErrKVNotFound)
 		}
 		mockClient.On("LogDebug", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
@@ -1721,7 +1721,7 @@ func TestDeferredIndexRebuildActive(t *testing.T) {
 
 	t.Run("absent state reports inactive", func(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound)
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound)
 		assert.False(t, DeferredIndexRebuildActive(mockClient))
 	})
 
@@ -1852,7 +1852,7 @@ func TestReconcileVectorIndexState(t *testing.T) {
 					Return(nil)
 			} else {
 				mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).
-					Return(mmapi.ErrKVNotFound)
+					Return(amapi.ErrKVNotFound)
 			}
 			if tt.jobRow != nil {
 				mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
@@ -1862,7 +1862,7 @@ func TestReconcileVectorIndexState(t *testing.T) {
 					Return(nil).Maybe()
 			} else {
 				mockClient.On("KVGet", ReindexJobKey, mock.Anything).
-					Return(mmapi.ErrKVNotFound).Maybe()
+					Return(amapi.ErrKVNotFound).Maybe()
 			}
 
 			deleted := false

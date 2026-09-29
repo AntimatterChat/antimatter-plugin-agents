@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
@@ -101,7 +101,7 @@ func TestProcessCallbackUsesSessionBoundEndpoints(t *testing.T) {
 	mockClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
 	// Trust-on-first-use issuer pin for the static credentials.
 	mockClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).
-		Return(mmapi.ErrKVNotFound)
+		Return(amapi.ErrKVNotFound)
 	mockClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).
 		Return(true, nil)
 

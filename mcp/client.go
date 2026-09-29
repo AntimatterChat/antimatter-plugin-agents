@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -458,7 +458,7 @@ func (c *Client) connectAndDiscover(ctx context.Context, serverConfig ServerConf
 
 // NewPluginClient creates a per-user MCP client for a plugin-registered server.
 // Plugin clients list tools at connect time and do not use the shared tools cache.
-func NewPluginClient(ctx context.Context, userID string, cfg PluginServerConfig, sourcePluginAPI mmapi.Client, log pluginapi.LogService) (*Client, error) {
+func NewPluginClient(ctx context.Context, userID string, cfg PluginServerConfig, sourcePluginAPI amapi.Client, log pluginapi.LogService) (*Client, error) {
 	if sourcePluginAPI == nil {
 		return nil, fmt.Errorf("sourcePluginAPI is nil; plugin MCP server %s cannot be reached", cfg.PluginID)
 	}

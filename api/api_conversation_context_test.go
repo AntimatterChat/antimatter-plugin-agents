@@ -12,10 +12,10 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -359,7 +359,7 @@ func TestHandleGetConversationContextPassesSessionToFilePolicy(t *testing.T) {
 			bot := bots.NewBot(llm.BotConfig{Name: "ai", DisplayName: "AI"}, llm.ServiceConfig{}, mmBot, fake)
 			e.bots.SetBotsForTesting([]*bots.Bot{bot})
 
-			mmClient := mmapimocks.NewMockClient(t)
+			mmClient := amapimocks.NewMockClient(t)
 			mmClient.On(
 				"HasPermissionToFileAction",
 				sessionID,

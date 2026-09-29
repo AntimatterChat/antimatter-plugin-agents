@@ -12,10 +12,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -429,12 +429,12 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 	var acc *turnAccumulator
 	if p.turnStore != nil {
 		if convID, ok := post.GetProp(ConversationIDProp).(string); ok && convID != "" {
-			// Match mmapi.IsDMWith across the codebase: only true 1-1 DMs between
+			// Match amapi.IsDMWith across the codebase: only true 1-1 DMs between
 			// the requester and the bot count as DMs here. Group DMs follow the
 			// channel share-flow, so their tool_use blocks default to unshared.
 			isDM := false
 			if ch, chErr := p.mmClient.GetChannel(post.ChannelId); chErr == nil {
-				isDM = mmapi.IsDMWith(requesterUserID, ch)
+				isDM = amapi.IsDMWith(requesterUserID, ch)
 			}
 			acc = newTurnAccumulator(convID, post.Id, existingAnchorID, isContinuation, isDM)
 		}

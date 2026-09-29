@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -48,7 +48,7 @@ type ClusterNotifier interface {
 type Service struct {
 	store    *Store
 	bots     *bots.MMBots
-	mmClient mmapi.Client
+	mmClient amapi.Client
 	notifier ClusterNotifier
 
 	writeMu sync.Mutex
@@ -59,7 +59,7 @@ type Service struct {
 
 // NewService creates the auto-reply service. Call LoadCache before serving
 // reads.
-func NewService(store *Store, botsService *bots.MMBots, mmClient mmapi.Client, notifier ClusterNotifier) *Service {
+func NewService(store *Store, botsService *bots.MMBots, mmClient amapi.Client, notifier ClusterNotifier) *Service {
 	return &Service{
 		store:    store,
 		bots:     botsService,

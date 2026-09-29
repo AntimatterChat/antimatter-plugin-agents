@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"golang.org/x/oauth2"
 )
 
@@ -93,7 +93,7 @@ func (m *OAuthManager) loadTokenEnvelope(userID, serverID string) (*storedTokenE
 
 	var raw []byte
 	if err := m.pluginAPI.KVGet(tokenKey, &raw); err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return nil, nil, nil
 		}
 		return nil, nil, fmt.Errorf("failed to retrieve token from KV store: %w", err)
@@ -219,7 +219,7 @@ func (m *OAuthManager) LoadAuthNeededState(userID, serverID string) (*OAuthNeede
 	var state OAuthNeededState
 	err := m.pluginAPI.KVGet(authNeededKey, &state)
 	if err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to retrieve OAuth-needed state from KV store: %w", err)
@@ -304,7 +304,7 @@ func (m *OAuthManager) loadClientCredentials(serverURL string) (*ClientCredentia
 	var creds ClientCredentials
 	err := m.pluginAPI.KVGet(credKey, &creds)
 	if err != nil {
-		if mmapi.IsKVNotFound(err) {
+		if amapi.IsKVNotFound(err) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to retrieve client credentials from KV store: %w", err)

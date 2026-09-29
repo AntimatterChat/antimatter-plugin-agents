@@ -10,14 +10,14 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
@@ -161,7 +161,7 @@ func (c *Conversations) beginToolDecision(ctx context.Context, spanName, logMsg,
 // toolAnswers carries the user's answers for accepted user-interaction tool
 // calls (e.g. AskUserQuestion), keyed by tool_use block ID. Those blocks are
 // not executed; the validated answer becomes the tool result.
-func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post *model.Post, channel *model.Channel, acceptedToolIDs []string, toolAnswers map[string]mmtools.UserInteractionAnswer) error {
+func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post *model.Post, channel *model.Channel, acceptedToolIDs []string, toolAnswers map[string]amtools.UserInteractionAnswer) error {
 	d, err := c.beginToolDecision(ctx, "handle tool call", "HandleToolCall", userID, post, len(acceptedToolIDs))
 	if err != nil {
 		return err
@@ -180,7 +180,7 @@ func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post 
 		return fmt.Errorf("unable to get user: %w", err)
 	}
 
-	isDM := mmapi.IsDMWith(bot.GetMMBot().UserId, channel)
+	isDM := amapi.IsDMWith(bot.GetMMBot().UserId, channel)
 
 	// Build the execution context bound to this conversation. A tool-approval
 	// click is by definition an interactive user action. ResponseFiles keeps
@@ -416,7 +416,7 @@ func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post 
 // pending user-interaction block and returns the tool result content keyed by
 // block ID. Any invalid or missing answer fails the whole request with
 // ErrInvalidToolAnswer before any state is mutated.
-func resolveInteractionAnswers(blocks []conversation.ContentBlock, acceptedToolIDs []string, toolAnswers map[string]mmtools.UserInteractionAnswer) (map[string]string, error) {
+func resolveInteractionAnswers(blocks []conversation.ContentBlock, acceptedToolIDs []string, toolAnswers map[string]amtools.UserInteractionAnswer) (map[string]string, error) {
 	results := make(map[string]string)
 	for _, b := range blocks {
 		if b.Type != conversation.BlockTypeToolUse || b.UserInteraction == "" {
@@ -428,7 +428,7 @@ func resolveInteractionAnswers(blocks []conversation.ContentBlock, acceptedToolI
 		if !slices.Contains(acceptedToolIDs, b.ID) {
 			continue
 		}
-		result, err := mmtools.ResolveUserInteractionAnswer(b.UserInteraction, b.Input, toolAnswers[b.ID])
+		result, err := amtools.ResolveUserInteractionAnswer(b.UserInteraction, b.Input, toolAnswers[b.ID])
 		if err != nil {
 			return nil, fmt.Errorf("%w: %s", ErrInvalidToolAnswer, err.Error())
 		}
@@ -568,7 +568,7 @@ func (c *Conversations) HandleToolResult(ctx context.Context, userID string, pos
 	}
 
 	// DMs stream the follow-up from HandleToolCall.
-	isDM := mmapi.IsDMWith(bot.GetMMBot().UserId, channel)
+	isDM := amapi.IsDMWith(bot.GetMMBot().UserId, channel)
 	if isDM {
 		return nil
 	}
@@ -685,7 +685,7 @@ func (c *Conversations) buildToolFollowUpRequest(conv *store.Conversation, llmCo
 		// permissions, API blip), degrade to turns-only context rather than
 		// failing the resume. BuildChannelMentionRequest does the same on
 		// empty thread data.
-		threadData, err := mmapi.GetThreadData(c.mmClient, *conv.RootPostID)
+		threadData, err := amapi.GetThreadData(c.mmClient, *conv.RootPostID)
 		if err != nil {
 			c.mmClient.LogWarn("Failed to get thread data for tool follow-up, falling back to turns-only context", "error", err)
 			return c.convService.BuildCompletionRequest(conv, llmContext, buildOpts)

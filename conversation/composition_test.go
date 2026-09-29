@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -24,7 +24,7 @@ import (
 // ComputeComposition can then attribute the provider's authoritative token
 // total back to those sources.
 func TestBuildCompletionRequestComposition(t *testing.T) {
-	mmClient := mmapimocks.NewMockClient(t)
+	mmClient := amapimocks.NewMockClient(t)
 
 	mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 		Id: "img1", Name: "diagram.png", MimeType: "image/png", Size: 100,

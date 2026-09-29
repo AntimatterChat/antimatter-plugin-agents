@@ -14,12 +14,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	embeddingsmocks "github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -349,7 +349,7 @@ func TestCheckModelCompatibility(t *testing.T) {
 		{
 			name:          "fresh install with no stored info returns compatible",
 			storedInfo:    ModelInfo{},
-			storedInfoErr: mmapi.ErrKVNotFound,
+			storedInfoErr: amapi.ErrKVNotFound,
 			current: ModelInfo{
 				ProviderType: "openai",
 				Dimensions:   1536,
@@ -588,7 +588,7 @@ func TestCursorOperations(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		indexer := New(nil, nil, mockClient, nil, nil, nil)
 		loaded := indexer.loadCursor()
@@ -635,7 +635,7 @@ func TestLastIndexedTimestamp(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 
 		mockClient.On("KVGet", IndexerLastIndexedKey, mock.AnythingOfType("*int64")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		indexer := New(nil, nil, mockClient, nil, nil, nil)
 		loaded := indexer.getLastIndexedTimestamp()
@@ -706,7 +706,7 @@ func (k *jobKVStore) getJob() (JobStatus, error) {
 	k.mu.Lock()
 	defer k.mu.Unlock()
 	if k.jobJSON == nil {
-		return JobStatus{}, mmapi.ErrKVNotFound
+		return JobStatus{}, amapi.ErrKVNotFound
 	}
 	var status JobStatus
 	if err := json.Unmarshal(k.jobJSON, &status); err != nil {
@@ -759,7 +759,7 @@ func (k *jobKVStore) wire(mockClient *mocks.MockClient) {
 			k.mu.Lock()
 			defer k.mu.Unlock()
 			if k.model == nil {
-				return mmapi.ErrKVNotFound
+				return amapi.ErrKVNotFound
 			}
 			*value.(*ModelInfo) = *k.model
 			return nil
@@ -777,7 +777,7 @@ func (k *jobKVStore) wire(mockClient *mocks.MockClient) {
 			k.mu.Lock()
 			defer k.mu.Unlock()
 			if k.cursor == nil {
-				return mmapi.ErrKVNotFound
+				return amapi.ErrKVNotFound
 			}
 			*value.(*Cursor) = *k.cursor
 			return nil
@@ -802,7 +802,7 @@ func (k *jobKVStore) wire(mockClient *mocks.MockClient) {
 			k.mu.Lock()
 			defer k.mu.Unlock()
 			if k.lastIdx == nil {
-				return mmapi.ErrKVNotFound
+				return amapi.ErrKVNotFound
 			}
 			*value.(*int64) = *k.lastIdx
 			return nil
@@ -815,7 +815,7 @@ func (k *jobKVStore) wire(mockClient *mocks.MockClient) {
 			k.lastIdx = &ts
 			return nil
 		}).Maybe()
-	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 	mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 	mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 	mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -1035,7 +1035,7 @@ func TestStartCatchUpJob(t *testing.T) {
 
 		// No previous timestamp stored
 		mockClient.On("KVGet", IndexerLastIndexedKey, mock.AnythingOfType("*int64")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, nil, nil)
 		_, err := indexer.StartCatchUpJob()
@@ -1218,7 +1218,7 @@ func TestCheckIndexHealth(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -1253,7 +1253,7 @@ func TestCheckIndexHealth(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -1288,7 +1288,7 @@ func TestCheckIndexHealth(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -1332,7 +1332,7 @@ func TestCheckIndexHealth(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -1375,7 +1375,7 @@ func TestCheckIndexHealth(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -1454,7 +1454,7 @@ func TestGetJobStatusIncludesStale(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		indexer := New(nil, nil, mockClient, nil, nil, nil)
 		_, err := indexer.GetJobStatus()
@@ -1755,7 +1755,7 @@ func TestIndexPost_WithSearchError(t *testing.T) {
 		}
 
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(errors.New("storage error"))
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound)
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound)
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, mockBots, nil, nil)
 		err := indexer.IndexPost(ctx, post, channel)
@@ -1850,11 +1850,11 @@ func TestStartReindexJob(t *testing.T) {
 
 		// First KVGet (optimistic check) - no job running
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound).Once()
+			Return(amapi.ErrKVNotFound).Once()
 
 		// Second KVGet (after mutex acquired) - still no job running
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound).Once()
+			Return(amapi.ErrKVNotFound).Once()
 
 		// Guarded because the mock matcher re-runs on the background job's
 		// own CAS calls, concurrently with the test goroutine's asserts.
@@ -1880,7 +1880,7 @@ func TestStartReindexJob(t *testing.T) {
 
 		// For the background job - we need to handle various operations
 		// The job will fail because we don't have full DB setup, but the start should succeed
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -1916,11 +1916,11 @@ func TestStartReindexJob(t *testing.T) {
 
 		// First KVGet (optimistic check)
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound).Once()
+			Return(amapi.ErrKVNotFound).Once()
 
 		// Second KVGet (after mutex)
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound).Once()
+			Return(amapi.ErrKVNotFound).Once()
 
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 
@@ -2057,7 +2057,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 
 		// Check if job is running
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		mockClient.On("KVCompareAndSet", ReindexJobKey, nil, mock.MatchedBy(func(v any) bool {
 			status, ok := v.(JobStatus)
@@ -2074,7 +2074,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 		})).Return(nil).Once()
 
 		// Background job operations
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
@@ -2150,7 +2150,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 
 		// Check if job is running
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		// Capture the saved job status to verify CutoffAt. Guarded because
 		// the matcher re-runs on the background job's own CAS calls.
@@ -2171,7 +2171,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 		mockClient.On("KVSet", IndexerCursorKey, mock.Anything).Return(nil).Once()
 
 		// Background job operations
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
@@ -2254,7 +2254,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 			Return(nil)
 
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
 			Run(func(args mock.Arguments) {
@@ -2264,7 +2264,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 			}).
 			Return(nil).Maybe()
 
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 
 		var storedPostIDs []string
 		var storedMu sync.Mutex
@@ -2330,7 +2330,7 @@ func TestRunReindexJob(t *testing.T) {
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 
 		// KV operations - use Maybe() for flexible matching
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -2422,7 +2422,7 @@ func TestRunReindexJob(t *testing.T) {
 			}).
 			Return(nil)
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 		mockClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.Anything).Return(true, nil)
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return()
 
@@ -2487,7 +2487,7 @@ func TestJobProgressAndHeartbeat(t *testing.T) {
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 
 		// Use Maybe() for all mocks to make them flexible
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 
 		// Track job status saves
 		saveCount := 0
@@ -2553,7 +2553,7 @@ func TestBatchProcessing(t *testing.T) {
 			}).
 			Return(nil).Maybe()
 
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -2613,7 +2613,7 @@ func TestCutoffTimestampHandling(t *testing.T) {
 		mockSearch.On("Clear", mock.Anything).Return(nil)
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -2736,7 +2736,7 @@ func TestCheckIndexHealth_ExcludesBotDMChannels(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, mockBots, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -2796,7 +2796,7 @@ func TestCheckIndexHealth_ExcludesBotPosts(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, mockBots, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -2832,7 +2832,7 @@ func TestCheckIndexHealth_ExcludesBotPosts(t *testing.T) {
 
 		// nil bots
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, nil, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -2869,7 +2869,7 @@ func TestCheckIndexHealth_ExcludesBotPosts(t *testing.T) {
 		}
 
 		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, mockBots, db, nil)
-		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", VectorIndexStateKey, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		result, err := indexer.CheckIndexHealth(context.Background())
 
 		require.NoError(t, err)
@@ -2924,14 +2924,14 @@ func TestResumeFromCheckpoint(t *testing.T) {
 
 		// KV operations
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound).Maybe()
+			Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
 			Run(func(args mock.Arguments) {
 				cursor := args.Get(1).(*Cursor)
 				*cursor = savedCursor
 			}).
 			Return(nil).Once()
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -2999,8 +2999,8 @@ func TestResumeFromCheckpoint(t *testing.T) {
 
 		// No cursor exists
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+			Return(amapi.ErrKVNotFound)
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -3056,7 +3056,7 @@ func TestResumeFromCheckpoint(t *testing.T) {
 
 		// Track cursor saves
 		var savedCursor *Cursor
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", IndexerCursorKey, mock.AnythingOfType("indexer.Cursor")).
 			Run(func(args mock.Arguments) {
 				c := args.Get(1).(Cursor)
@@ -3242,7 +3242,7 @@ func TestMarkOrphanedJobAsFailed(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		indexer := New(nil, nil, mockClient, nil, nil, nil)
 		err := indexer.MarkOrphanedJobAsFailed()
@@ -3351,7 +3351,7 @@ func TestCatchUpPassHeartbeat(t *testing.T) {
 		mockSearch.On("Clear", mock.Anything).Return(nil)
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -3400,7 +3400,7 @@ func TestCatchUpPassHeartbeat(t *testing.T) {
 		mockSearch.On("Clear", mock.Anything).Return(nil)
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 
 		// Track job status saves during catch-up
 		catchUpSaveCount := 0
@@ -3462,7 +3462,7 @@ func TestCatchUpFailureHandling(t *testing.T) {
 		// Track whether we're in catch-up phase (no posts before cutoff means first Store is catch-up)
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(errors.New("simulated catch-up failure"))
 
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
@@ -3527,7 +3527,7 @@ func TestResumePreservation(t *testing.T) {
 			Return(true, nil).Once()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
@@ -3572,7 +3572,7 @@ func TestResumePreservation(t *testing.T) {
 		mockSearch.On("Clear", mock.Anything).Return(nil).Maybe()
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 
 		// Capture the new job status
 		var savedJobStatus *JobStatus
@@ -3586,7 +3586,7 @@ func TestResumePreservation(t *testing.T) {
 			Return(true, nil).Once()
 		mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 		mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 		mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
@@ -3799,8 +3799,8 @@ func TestReindexJobCancelReplicaLagRace(t *testing.T) {
 			Return(nil)
 
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
-		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+			Return(amapi.ErrKVNotFound)
+		mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 
 		var storedPostIDs []string
 		var storedMu sync.Mutex
@@ -3870,7 +3870,7 @@ func TestReindexJobCancelReplicaLagRace(t *testing.T) {
 			}).
 			Return(nil)
 		mockClient.On("KVGet", IndexerCursorKey, mock.AnythingOfType("*indexer.Cursor")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 		mockSearch.On("Clear", mock.Anything).Return(nil).Maybe()
 
 		var sawCancelCAS bool
@@ -3927,8 +3927,8 @@ func TestStartReindexJobAssignsFreshJobID(t *testing.T) {
 	mockMutexAPI.On("KVDelete", mock.AnythingOfType("string")).Return(nil).Maybe()
 
 	mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-		Return(mmapi.ErrKVNotFound).Maybe()
-	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+		Return(amapi.ErrKVNotFound).Maybe()
+	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 
 	var captured string
 	mockClient.On("KVCompareAndSet", ReindexJobKey, mock.Anything, mock.AnythingOfType("indexer.JobStatus")).
@@ -4188,7 +4188,7 @@ func TestCatchUpPassSkipsAlreadyIndexedPosts(t *testing.T) {
 			// No Store expectation when expectedStoredIDs is empty — an
 			// unexpected Store call will then fail the test.
 
-			mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+			mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 			mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 			mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
 			mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
@@ -4211,7 +4211,7 @@ func TestCatchUpPassSkipsAlreadyIndexedPosts(t *testing.T) {
 	}
 }
 
-// Exercises the real mmapi.Client wrapper against upstream's authentic
+// Exercises the real amapi.Client wrapper against upstream's authentic
 // "(nil, nil) on missing" reply, the contract previous test sites mocked
 // over. Reproduces the fresh-install 409.
 func TestStartReindexJob_FreshInstall_AuthenticUpstreamContract(t *testing.T) {
@@ -4259,7 +4259,7 @@ func TestStartReindexJob_FreshInstall_AuthenticUpstreamContract(t *testing.T) {
 	pluginTestAPI.On("LogDebug", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
 
 	pluginAPIClient := pluginapi.NewClient(pluginTestAPI, nil)
-	realClient := mmapi.NewClient(pluginAPIClient)
+	realClient := amapi.NewClient(pluginAPIClient)
 
 	mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
 	mockSearch.On("Clear", mock.Anything).Return(nil).Maybe()

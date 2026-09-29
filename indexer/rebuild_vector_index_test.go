@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -54,7 +54,7 @@ func TestStartRebuildVectorIndexRejects(t *testing.T) {
 		mockMutexAPI := &plugintest.API{}
 		search := &fakeDeferSearch{rec: &callRecorder{}} // bulk is nil
 		mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-			Return(mmapi.ErrKVNotFound)
+			Return(amapi.ErrKVNotFound)
 		mockMutexAPI.On("KVSetWithOptions", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 		mockMutexAPI.On("KVDelete", mock.AnythingOfType("string")).Return(nil).Maybe()
 
@@ -186,7 +186,7 @@ func TestRunRebuildVectorIndexJobPrepareFinalizeNoClear(t *testing.T) {
 	mockClient := mocks.NewMockClient(t)
 	mockVectorStateOps(mockClient, tracker)
 	store.wire(mockClient)
-	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(mmapi.ErrKVNotFound).Maybe()
+	mockClient.On("KVGet", mock.Anything, mock.Anything).Return(amapi.ErrKVNotFound).Maybe()
 	mockClient.On("KVSet", mock.Anything, mock.Anything).Return(nil).Maybe()
 	mockClient.On("KVDelete", mock.Anything).Return(nil).Maybe()
 	mockClient.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
@@ -278,7 +278,7 @@ func TestStartRebuildVectorIndexRejectsIncompatibleIdentity(t *testing.T) {
 			mockMutexAPI := &plugintest.API{}
 			search := &fakeDeferSearch{rec: &callRecorder{}, bulk: &fakeBulkIndexer{rec: &callRecorder{}}}
 			mockClient.On("KVGet", ReindexJobKey, mock.AnythingOfType("*indexer.JobStatus")).
-				Return(mmapi.ErrKVNotFound)
+				Return(amapi.ErrKVNotFound)
 			mockClient.On("KVGet", IndexerModelKey, mock.AnythingOfType("*indexer.ModelInfo")).
 				Run(func(args mock.Arguments) {
 					*args.Get(1).(*ModelInfo) = tt.stored

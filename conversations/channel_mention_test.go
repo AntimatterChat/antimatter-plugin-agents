@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/toolrunner"
 	"github.com/jmoiron/sqlx"
@@ -388,7 +388,7 @@ func TestChannelMentionContextMerge(t *testing.T) {
 		CreateAt:  600,
 	}
 
-	threadData := &mmapi.ThreadData{
+	threadData := &amapi.ThreadData{
 		Posts: []*model.Post{userPost, botResponsePost, otherUserPost},
 		UsersByID: map[string]*model.User{
 			userID:      {Id: userID, Username: "alice"},

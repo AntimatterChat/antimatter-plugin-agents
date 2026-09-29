@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversations"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/meetings"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/react"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
@@ -205,7 +205,7 @@ func (a *API) handleTranscribeFile(c *gin.Context) {
 
 	result, err := a.meetingsService.HandleTranscribeFile(userID, bot, post, channel, fileID, auth.SessionIDFromContext(c.Request.Context()))
 	if err != nil {
-		if errors.Is(err, mmapi.ErrFileActionForbidden) {
+		if errors.Is(err, amapi.ErrFileActionForbidden) {
 			c.AbortWithError(http.StatusForbidden, err)
 			return
 		}
@@ -294,7 +294,7 @@ func (a *API) handleRegenerate(c *gin.Context) {
 
 	err := a.conversationsService.HandleRegenerate(c.Request.Context(), userID, post, channel)
 	if err != nil {
-		if errors.Is(err, mmapi.ErrFileActionForbidden) {
+		if errors.Is(err, amapi.ErrFileActionForbidden) {
 			c.AbortWithError(http.StatusForbidden, err)
 			return
 		}
@@ -316,7 +316,7 @@ func (a *API) handleToolCall(c *gin.Context) {
 	audit.AddParam(rec, audit.KeyPostID, post.Id)
 	audit.AddParam(rec, audit.KeyChannelID, channel.Id)
 
-	isDM := mmapi.IsDMWith(post.UserId, channel)
+	isDM := amapi.IsDMWith(post.UserId, channel)
 	if !isDM && !a.config.EnableChannelMentionToolCalling() {
 		c.AbortWithError(http.StatusForbidden, errors.New("channel tool calling is disabled"))
 		return
@@ -332,7 +332,7 @@ func (a *API) handleToolCall(c *gin.Context) {
 
 		// ToolAnswers carries the user's answers for accepted
 		// user-interaction tool calls, keyed by tool_use block ID.
-		ToolAnswers map[string]mmtools.UserInteractionAnswer `json:"tool_answers"`
+		ToolAnswers map[string]amtools.UserInteractionAnswer `json:"tool_answers"`
 	}
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -379,7 +379,7 @@ func (a *API) handleToolResult(c *gin.Context) {
 	audit.AddParam(rec, audit.KeyPostID, post.Id)
 	audit.AddParam(rec, audit.KeyChannelID, channel.Id)
 
-	isDM := mmapi.IsDMWith(post.UserId, channel)
+	isDM := amapi.IsDMWith(post.UserId, channel)
 	if !isDM && !a.config.EnableChannelMentionToolCalling() {
 		c.AbortWithError(http.StatusForbidden, errors.New("channel tool calling is disabled"))
 		return

@@ -12,12 +12,12 @@ import (
 	"testing"
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -140,7 +140,7 @@ func TestHandleRegenerateDeniedByFilePolicy(t *testing.T) {
 			tt.setupPost(post, fileID)
 
 			err := c.HandleRegenerate(auth.WithSessionID(t.Context(), sessionID), userID, post, &model.Channel{Id: "channel-id"})
-			require.ErrorIs(t, err, mmapi.ErrFileActionForbidden)
+			require.ErrorIs(t, err, amapi.ErrFileActionForbidden)
 			require.False(t, adminReadCalled, "admin GetFileInfo/GetFile must not run after the caller's file policy denies access")
 		})
 	}

@@ -11,11 +11,11 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/chunking"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
@@ -53,7 +53,7 @@ func (s *Service) GetCaptionsFileIDFromProps(post *model.Post) (fileID string, e
 	return GetCaptionsFileIDFromProps(post)
 }
 
-func (s *Service) createTranscription(mm mmapi.Client, recordingFileID string) (*subtitles.Subtitles, error) {
+func (s *Service) createTranscription(mm amapi.Client, recordingFileID string) (*subtitles.Subtitles, error) {
 	if s.ffmpegPath == "" {
 		return nil, errors.New("ffmpeg not installed")
 	}
@@ -111,7 +111,7 @@ func (s *Service) createTranscription(mm mmapi.Client, recordingFileID string) (
 	return transcription, nil
 }
 
-func (s *Service) newCallRecordingThread(bot *bots.Bot, requestingUser *model.User, recordingPost *model.Post, channel *model.Channel, fileID string, mm mmapi.Client) (*model.Post, error) {
+func (s *Service) newCallRecordingThread(bot *bots.Bot, requestingUser *model.User, recordingPost *model.Post, channel *model.Channel, fileID string, mm amapi.Client) (*model.Post, error) {
 	siteURL := s.pluginAPI.Configuration.GetConfig().ServiceSettings.SiteURL
 	T := i18n.LocalizerFunc(s.i18n, requestingUser.Locale)
 	surePost := &model.Post{
@@ -129,7 +129,7 @@ func (s *Service) newCallRecordingThread(bot *bots.Bot, requestingUser *model.Us
 	return surePost, nil
 }
 
-func (s *Service) newCallTranscriptionSummaryThread(bot *bots.Bot, requestingUser *model.User, transcriptionPost *model.Post, channel *model.Channel, mm mmapi.Client) (*model.Post, error) {
+func (s *Service) newCallTranscriptionSummaryThread(bot *bots.Bot, requestingUser *model.User, transcriptionPost *model.Post, channel *model.Channel, mm amapi.Client) (*model.Post, error) {
 	if len(transcriptionPost.FileIds) != 1 {
 		return nil, errors.New("unexpected number of files in calls post")
 	}
@@ -222,7 +222,7 @@ func (s *Service) newCallTranscriptionSummaryThread(bot *bots.Bot, requestingUse
 	return surePost, nil
 }
 
-func (s *Service) summarizeCallRecording(bot *bots.Bot, rootID string, requestingUser *model.User, recordingFileID string, channel *model.Channel, mm mmapi.Client) error {
+func (s *Service) summarizeCallRecording(bot *bots.Bot, rootID string, requestingUser *model.User, recordingFileID string, channel *model.Channel, mm amapi.Client) error {
 	T := i18n.LocalizerFunc(s.i18n, requestingUser.Locale)
 
 	transcriptPost := &model.Post{

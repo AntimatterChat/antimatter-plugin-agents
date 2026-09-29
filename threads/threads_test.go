@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/evals"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/threads"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -165,9 +165,9 @@ func TestThreadsOpenQuestionsFromExportedData(t *testing.T) {
 	}
 }
 
-func mockThread(t *evals.EvalT, threadData *evals.ThreadExport) *mmapimocks.MockClient {
+func mockThread(t *evals.EvalT, threadData *evals.ThreadExport) *amapimocks.MockClient {
 	// Mock pluginapi returning thread
-	mockClient := mmapimocks.NewMockClient(t.T)
+	mockClient := amapimocks.NewMockClient(t.T)
 	mockClient.EXPECT().GetPostThread(threadData.RootPost.Id).Return(threadData.PostList, nil)
 
 	// Mock users

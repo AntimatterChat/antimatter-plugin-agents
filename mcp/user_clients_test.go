@@ -13,8 +13,8 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 	plugintest "github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -73,7 +73,7 @@ func newFakePluginMCPServerWithPrefix(t *testing.T, prefix string, toolCount int
 	return httptest.NewServer(h)
 }
 
-// newPluginHTTPForwarder returns an mmapi.Client whose PluginHTTP forwards
+// newPluginHTTPForwarder returns an amapi.Client whose PluginHTTP forwards
 // to target.Config.Handler. The PluginHTTPRoundTripper URL rewrite is ignored;
 // every call dispatches to the test server's root handler.
 func newPluginHTTPForwarder(t *testing.T, target *httptest.Server) *fakePluginHTTPClient {
@@ -271,7 +271,7 @@ func TestUserClientsGetToolsUsesCachedCatalog(t *testing.T) {
 
 // connectPluginServer is the single-server shorthand the plugin-connect tests
 // need; production always goes through a batch of tasks.
-func connectPluginServer(uc *UserClients, cfg PluginServerConfig, sourcePluginAPI mmapi.Client) *Errors {
+func connectPluginServer(uc *UserClients, cfg PluginServerConfig, sourcePluginAPI amapi.Client) *Errors {
 	ctx := context.Background()
 	return uc.ensureConnections(ctx, []connectTask{uc.pluginConnectTask(ctx, cfg, pluginConnectTimeout, sourcePluginAPI)})
 }

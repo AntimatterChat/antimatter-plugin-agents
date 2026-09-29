@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -17,13 +17,13 @@ import (
 type PluginHTTPRoundTripper struct {
 	pluginID string
 	basePath string
-	// pluginAPI is the Agents plugin's mmapi client used to reach the source plugin.
-	pluginAPI mmapi.Client
+	// pluginAPI is the Agents plugin's amapi client used to reach the source plugin.
+	pluginAPI amapi.Client
 }
 
 // NewPluginHTTPRoundTripper constructs a PluginHTTP-based transport for a
 // source plugin MCP endpoint.
-func NewPluginHTTPRoundTripper(pluginID, basePath string, pluginAPI mmapi.Client) *PluginHTTPRoundTripper {
+func NewPluginHTTPRoundTripper(pluginID, basePath string, pluginAPI amapi.Client) *PluginHTTPRoundTripper {
 	return &PluginHTTPRoundTripper{
 		pluginID:  pluginID,
 		basePath:  basePath,

@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"slices"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -22,7 +22,7 @@ func (c *Conversations) extractWebSearchContext(currentPost *model.Post) map[str
 	}
 
 	// Get thread to search for web search context in previous posts
-	threadData, err := mmapi.GetThreadData(c.mmClient, rootID)
+	threadData, err := amapi.GetThreadData(c.mmClient, rootID)
 	if err != nil {
 		c.mmClient.LogDebug("Unable to get thread data for web search context extraction", "error", err)
 		return nil
@@ -68,7 +68,7 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 	}
 
 	// Reconstruct proper types for web search context values
-	if raw, ok := params[mmtools.WebSearchContextKey]; ok {
+	if raw, ok := params[amtools.WebSearchContextKey]; ok {
 		// Re-marshal and unmarshal to get proper types
 		contextBytes, marshalErr := json.Marshal(raw)
 		if marshalErr != nil {
@@ -76,13 +76,13 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 			return nil
 		}
 
-		var searchContexts []mmtools.WebSearchContextValue
+		var searchContexts []amtools.WebSearchContextValue
 		if unmarshalErr := json.Unmarshal(contextBytes, &searchContexts); unmarshalErr != nil {
 			c.mmClient.LogError("Failed to unmarshal web search context values", "error", unmarshalErr, "post_id", postID)
 			return nil
 		}
 
-		params[mmtools.WebSearchContextKey] = searchContexts
+		params[amtools.WebSearchContextKey] = searchContexts
 
 		c.mmClient.LogDebug("Reconstructed web search context",
 			"post_id", postID,
@@ -90,12 +90,12 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 	}
 
 	// Reconstruct allowed URLs
-	if raw, ok := params[mmtools.WebSearchAllowedURLsKey]; ok {
+	if raw, ok := params[amtools.WebSearchAllowedURLsKey]; ok {
 		urlBytes, marshalErr := json.Marshal(raw)
 		if marshalErr == nil {
 			var allowedURLs []string
 			if unmarshalErr := json.Unmarshal(urlBytes, &allowedURLs); unmarshalErr == nil {
-				params[mmtools.WebSearchAllowedURLsKey] = allowedURLs
+				params[amtools.WebSearchAllowedURLsKey] = allowedURLs
 				c.mmClient.LogDebug("Reconstructed allowed URLs", "post_id", postID, "num_urls", len(allowedURLs))
 			}
 		}
@@ -104,8 +104,8 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 	// Reset search tracking for the new user request cycle
 	// The count and executed queries should start fresh for each user question,
 	// but we keep the search results and allowed URLs for context/citations
-	params[mmtools.WebSearchCountKey] = 0
-	params[mmtools.WebSearchExecutedQueriesKey] = []string{}
+	params[amtools.WebSearchCountKey] = 0
+	params[amtools.WebSearchExecutedQueriesKey] = []string{}
 	c.mmClient.LogDebug("Reset web search tracking for new request cycle", "post_id", postID)
 
 	return params

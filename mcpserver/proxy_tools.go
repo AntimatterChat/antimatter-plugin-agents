@@ -9,14 +9,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	mcppkg "github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 
 	gosdkmcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-func newProxyHTTPClient(ctx context.Context, cfg mcppkg.PluginServerConfig, sourcePluginAPI mmapi.Client, callerUserID string) *http.Client {
+func newProxyHTTPClient(ctx context.Context, cfg mcppkg.PluginServerConfig, sourcePluginAPI amapi.Client, callerUserID string) *http.Client {
 	client := mcppkg.PluginServerHTTPClient(
 		mcppkg.NewPluginHTTPRoundTripper(cfg.PluginID, cfg.Path, sourcePluginAPI),
 		callerUserID,
@@ -27,7 +27,7 @@ func newProxyHTTPClient(ctx context.Context, cfg mcppkg.PluginServerConfig, sour
 	return client
 }
 
-func connectProxySession(ctx context.Context, cfg mcppkg.PluginServerConfig, sourcePluginAPI mmapi.Client, callerUserID string) (*gosdkmcp.ClientSession, error) {
+func connectProxySession(ctx context.Context, cfg mcppkg.PluginServerConfig, sourcePluginAPI amapi.Client, callerUserID string) (*gosdkmcp.ClientSession, error) {
 	return mcppkg.ConnectPluginServer(ctx, "mattermost-agents-plugin-aggregator", cfg.Path,
 		newProxyHTTPClient(ctx, cfg, sourcePluginAPI, callerUserID))
 }
@@ -36,7 +36,7 @@ func connectProxySession(ctx context.Context, cfg mcppkg.PluginServerConfig, sou
 func BuildProxyTools(
 	ctx context.Context,
 	cfg mcppkg.PluginServerConfig,
-	sourcePluginAPI mmapi.Client,
+	sourcePluginAPI amapi.Client,
 ) ([]*gosdkmcp.Tool, []gosdkmcp.ToolHandler, error) {
 	if sourcePluginAPI == nil {
 		return nil, nil, fmt.Errorf("sourcePluginAPI is nil; plugin MCP server %s cannot be reached", cfg.PluginID)

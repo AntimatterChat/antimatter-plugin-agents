@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,12 +15,12 @@ import (
 func TestThreadData(t *testing.T) {
 	testCases := []struct {
 		name     string
-		data     *mmapi.ThreadData
+		data     *amapi.ThreadData
 		expected string
 	}{
 		{
 			name: "single post thread",
-			data: &mmapi.ThreadData{
+			data: &amapi.ThreadData{
 				Posts: []*model.Post{
 					{
 						UserId:  "user1",
@@ -37,7 +37,7 @@ func TestThreadData(t *testing.T) {
 		},
 		{
 			name: "multiple posts thread",
-			data: &mmapi.ThreadData{
+			data: &amapi.ThreadData{
 				Posts: []*model.Post{
 					{
 						UserId:  "user1",
@@ -65,7 +65,7 @@ func TestThreadData(t *testing.T) {
 		},
 		{
 			name: "posts with timestamps",
-			data: &mmapi.ThreadData{
+			data: &amapi.ThreadData{
 				Posts: []*model.Post{
 					{
 						UserId:   "user1",
@@ -87,7 +87,7 @@ func TestThreadData(t *testing.T) {
 		},
 		{
 			name: "post with user not in UsersByID map",
-			data: &mmapi.ThreadData{
+			data: &amapi.ThreadData{
 				Posts: []*model.Post{
 					{
 						UserId:  "missing-user",
@@ -100,7 +100,7 @@ func TestThreadData(t *testing.T) {
 		},
 		{
 			name: "thread with attachments",
-			data: &mmapi.ThreadData{
+			data: &amapi.ThreadData{
 				Posts: []*model.Post{
 					{
 						UserId:  "user1",

@@ -12,10 +12,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/meetings"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/gin-gonic/gin"
@@ -400,7 +400,7 @@ func TestToolApprovalAuditRecords(t *testing.T) {
 
 // TestHandleTranscribeFileDeniedByFilePolicy proves a session-scoped file
 // policy denial is returned as HTTP 403 rather than a generic 500. The
-// meetings service surfaces mmapi.ErrFileActionForbidden unchanged from the
+// meetings service surfaces amapi.ErrFileActionForbidden unchanged from the
 // policy-gated GetFileInfo; collapsing that sentinel into 500 would hide an
 // authorization failure as a server error. Unrelated lookup failures must
 // still be 500 so a blanket 403 mapping cannot hide real backend problems.

@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
@@ -79,9 +79,9 @@ type ClientManager struct {
 	// pluginRegistered marks entries backed by a source-plugin registration;
 	// config-only orphan entries are absent.
 	pluginRegistered map[string]bool
-	// sourcePluginAPI is the agents-plugin mmapi.Client; used by
+	// sourcePluginAPI is the agents-plugin amapi.Client; used by
 	// PluginHTTPRoundTripper to dispatch to source plugins.
-	sourcePluginAPI mmapi.Client
+	sourcePluginAPI amapi.Client
 
 	// admission caps overlapping remote/plugin connection sequences on this
 	// manager instance. It outlives ReInit and is closed only by Close.
@@ -94,7 +94,7 @@ type ClientManager struct {
 
 // NewClientManager creates a new MCP client manager. embeddedServer may be nil.
 // sourcePluginAPI routes PluginHTTP to source plugins; may be nil.
-func NewClientManager(config Config, log pluginapi.LogService, pluginAPI *pluginapi.Client, oauthManager *OAuthManager, embeddedServer EmbeddedMCPServer, httpClient *http.Client, sourcePluginAPI mmapi.Client, accessCheckers ...ServerAccessChecker) *ClientManager {
+func NewClientManager(config Config, log pluginapi.LogService, pluginAPI *pluginapi.Client, oauthManager *OAuthManager, embeddedServer EmbeddedMCPServer, httpClient *http.Client, sourcePluginAPI amapi.Client, accessCheckers ...ServerAccessChecker) *ClientManager {
 	var accessChecker ServerAccessChecker
 	if len(accessCheckers) > 0 {
 		accessChecker = accessCheckers[0]

@@ -8,8 +8,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/toolrunner"
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -25,7 +25,7 @@ func textBlocks(message string) []ContentBlock {
 // userBlocksWithAttachments emits a text block followed by image/file blocks
 // for each fileID. A failed GetFileInfo is logged and the bad ID is skipped
 // so one deleted or unreadable attachment does not poison the whole turn.
-func userBlocksWithAttachments(message string, fileIDs []string, mmClient mmapi.Client) []ContentBlock {
+func userBlocksWithAttachments(message string, fileIDs []string, mmClient amapi.Client) []ContentBlock {
 	blocks := textBlocks(message)
 	if mmClient == nil {
 		return blocks
@@ -33,7 +33,7 @@ func userBlocksWithAttachments(message string, fileIDs []string, mmClient mmapi.
 	for _, fileID := range fileIDs {
 		fileInfo, err := mmClient.GetFileInfo(fileID)
 		if err != nil {
-			if !errors.Is(err, mmapi.ErrFileActionForbidden) {
+			if !errors.Is(err, amapi.ErrFileActionForbidden) {
 				mmClient.LogError("failed to get file info for user attachment", "error", err, "file_id", fileID)
 			}
 			continue

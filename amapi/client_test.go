@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package mmapi
+package amapi
 
 import (
 	"encoding/json"
@@ -168,7 +168,7 @@ func TestIsKVNotFound(t *testing.T) {
 }
 
 // Pins upstream pluginapi.KV.Get's missing-key contract directly (skipping
-// the mmapi wrapper). If upstream ever stops returning (nil, nil) for a
+// the amapi wrapper). If upstream ever stops returning (nil, nil) for a
 // missing key, this test breaks immediately — independent of our wrapper.
 func TestUpstreamPluginAPIMissingKeyContract(t *testing.T) {
 	mockAPI := &plugintest.API{}

@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -42,11 +42,11 @@ func (p *CustomPrompt) Validate() error {
 
 // Store provides access to the custom prompts database tables
 type Store struct {
-	db *mmapi.DBClient
+	db *amapi.DBClient
 }
 
 // NewStore creates a new custom prompts store
-func NewStore(db *mmapi.DBClient) *Store {
+func NewStore(db *amapi.DBClient) *Store {
 	return &Store{db: db}
 }
 

@@ -7,10 +7,10 @@ import (
 	stdcontext "context"
 	"fmt"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 )
 
@@ -23,14 +23,14 @@ type AnalyzeResult struct {
 type Threads struct {
 	llm         llm.LanguageModel
 	prompts     *llm.Prompts
-	client      mmapi.Client
+	client      amapi.Client
 	convService *conversation.Service
 }
 
 func New(
 	llm llm.LanguageModel,
 	prompts *llm.Prompts,
-	client mmapi.Client,
+	client amapi.Client,
 	convService *conversation.Service,
 ) *Threads {
 	return &Threads{
@@ -57,7 +57,7 @@ func (t *Threads) FindOpenQuestions(ctx stdcontext.Context, threadRootID string,
 // CompletionRequest from its turns, and calling the LLM with tools disabled.
 func (t *Threads) Analyze(ctx stdcontext.Context, postIDToAnalyze string, context *llm.Context, promptName string, botID string, userID string) (*AnalyzeResult, error) {
 	// Fetch and format thread data.
-	threadData, err := mmapi.GetThreadData(t.client, postIDToAnalyze)
+	threadData, err := amapi.GetThreadData(t.client, postIDToAnalyze)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get thread data: %w", err)
 	}

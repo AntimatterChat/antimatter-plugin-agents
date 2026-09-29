@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -22,7 +22,7 @@ var rootDSN = "postgres://mmuser:mostest@localhost:5432/postgres?sslmode=disable
 // testDB creates a scratch database from PG_ROOT_DSN (skipping when postgres
 // is unreachable), runs the real morph migrations against it, and returns a
 // DBClient connected to it. The scratch database is dropped on cleanup.
-func testDB(t *testing.T) *mmapi.DBClient {
+func testDB(t *testing.T) *amapi.DBClient {
 	t.Helper()
 
 	if dsn := os.Getenv("PG_ROOT_DSN"); dsn != "" {
@@ -73,7 +73,7 @@ func testDB(t *testing.T) *mmapi.DBClient {
 	err = s.RunMigrations()
 	require.NoError(t, err, "Failed to run migrations")
 
-	return mmapi.NewTestDBClient(db)
+	return amapi.NewTestDBClient(db)
 }
 
 func TestStoreSetAndGet(t *testing.T) {

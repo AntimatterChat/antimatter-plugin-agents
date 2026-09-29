@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
+	amapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/amapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm/mocks"
-	mmapimocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/threads"
@@ -115,10 +115,10 @@ func setupTest(t *testing.T) testSetup {
 }
 
 // setupMockThread sets up a mock client that returns thread data for a given post ID.
-func setupMockThread(t *testing.T, postID string, threadPosts []*model.Post, users map[string]*model.User) *mmapimocks.MockClient {
+func setupMockThread(t *testing.T, postID string, threadPosts []*model.Post, users map[string]*model.User) *amapimocks.MockClient {
 	t.Helper()
 
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 
 	postList := &model.PostList{
 		Order: make([]string, 0, len(threadPosts)),
@@ -250,7 +250,7 @@ func TestAnalyzeCreatesConversation(t *testing.T) {
 
 func TestAnalyzeThreadDataError(t *testing.T) {
 	ts := setupTest(t)
-	mockClient := mmapimocks.NewMockClient(t)
+	mockClient := amapimocks.NewMockClient(t)
 	mockLLM := mocks.NewMockLanguageModel(t)
 
 	// GetPostThread returns an error

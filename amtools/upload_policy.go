@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package mmtools
+package amtools
 
 import (
 	"errors"
@@ -10,8 +10,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -34,7 +34,7 @@ var (
 // first. A nil EnableFileAttachments means enabled (server default). A nil
 // RequestingUser is a bug in the calling flow, so fail closed rather than
 // skip the permission check.
-func uploadPolicyAllowed(client mmapi.Client, llmCtx *llm.Context) error {
+func uploadPolicyAllowed(client amapi.Client, llmCtx *llm.Context) error {
 	if llmCtx == nil || llmCtx.Channel == nil || llmCtx.Channel.Id == "" {
 		return errUploadNoChannel
 	}

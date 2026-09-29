@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package mmtools
+package amtools
 
 import (
 	"context"
@@ -12,8 +12,8 @@ import (
 
 	otelcodes "go.opentelemetry.io/otel/codes"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -58,7 +58,7 @@ type CreateFileResult struct {
 // content to the conversation channel so the response flow can attach it to
 // the bot's reply post. AutoExecute is set because the tool's only side
 // effect is scoped to the assistant's own response.
-func NewCreateFileTool(client mmapi.Client) llm.Tool {
+func NewCreateFileTool(client amapi.Client) llm.Tool {
 	return llm.Tool{
 		Name:        CreateFileToolName,
 		Description: createFileDescription,
@@ -70,7 +70,7 @@ func NewCreateFileTool(client mmapi.Client) llm.Tool {
 	}
 }
 
-func resolveCreateFile(ctx context.Context, client mmapi.Client, llmCtx *llm.Context, argsGetter llm.ToolArgumentGetter) (string, error) {
+func resolveCreateFile(ctx context.Context, client amapi.Client, llmCtx *llm.Context, argsGetter llm.ToolArgumentGetter) (string, error) {
 	var args CreateFileArgs
 	if err := argsGetter(&args); err != nil {
 		return "invalid parameters to function", fmt.Errorf("failed to get arguments for CreateFile tool: %w", err)

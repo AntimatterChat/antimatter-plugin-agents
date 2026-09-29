@@ -4,13 +4,13 @@
 package meetings
 
 import (
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversations"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/metrics"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
@@ -23,7 +23,7 @@ var MeetingBotUsernames = []string{"calls", "zoom", "google-meet"}
 // Service handles meeting summarization and transcription functionality
 type Service struct {
 	pluginAPI        *pluginapi.Client
-	mmClient         mmapi.Client
+	mmClient         amapi.Client
 	streamingService streaming.Service
 	prompts          *llm.Prompts
 	bots             *bots.MMBots
@@ -38,7 +38,7 @@ type Service struct {
 // NewService creates a new meetings service
 func NewService(
 	pluginAPI *pluginapi.Client,
-	mmClient mmapi.Client,
+	mmClient amapi.Client,
 	streamingService streaming.Service,
 	prompts *llm.Prompts,
 	bots *bots.MMBots,

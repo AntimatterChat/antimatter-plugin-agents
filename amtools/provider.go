@@ -1,12 +1,12 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-package mmtools
+package amtools
 
 import (
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 )
 
 // ToolProvider provides built-in tools for the AI assistant. The context is
@@ -18,12 +18,12 @@ type ToolProvider interface {
 
 // MMToolProvider implements ToolProvider with all built-in Mattermost tools
 type MMToolProvider struct {
-	pluginAPI mmapi.Client
+	pluginAPI amapi.Client
 	webSearch WebSearchService
 }
 
 // NewMMToolProvider creates a new tool provider
-func NewMMToolProvider(pluginAPI mmapi.Client, webSearch WebSearchService) *MMToolProvider {
+func NewMMToolProvider(pluginAPI amapi.Client, webSearch WebSearchService) *MMToolProvider {
 	return &MMToolProvider{
 		pluginAPI: pluginAPI,
 		webSearch: webSearch,

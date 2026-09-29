@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 )
 
 // Mode is the per-channel auto-reply mode. The zero value is not valid.
@@ -42,11 +42,11 @@ type Setting struct {
 // Store provides access to the Agents_ChannelAutoReply table. It persists
 // settings exactly as given; validation and timestamps are the Service's job.
 type Store struct {
-	db *mmapi.DBClient
+	db *amapi.DBClient
 }
 
 // NewStore creates a new channel auto-reply store.
-func NewStore(db *mmapi.DBClient) *Store {
+func NewStore(db *amapi.DBClient) *Store {
 	return &Store{db: db}
 }
 

@@ -17,7 +17,7 @@ type Store struct {
 }
 
 // New creates a new Store from an existing sqlx.DB connection.
-// Reuses the same connection that mmapi.NewDBClient provides.
+// Reuses the same connection that amapi.NewDBClient provides.
 func New(db *sqlx.DB) *Store {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 

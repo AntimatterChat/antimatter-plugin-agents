@@ -7,6 +7,8 @@ import (
 	stdcontext "context"
 	"fmt"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
@@ -14,8 +16,6 @@ import (
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llmcontext"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
@@ -36,11 +36,11 @@ type ConfigProvider interface {
 
 type Conversations struct {
 	prompts           *llm.Prompts
-	mmClient          mmapi.Client
+	mmClient          amapi.Client
 	streamingService  streaming.Service
 	contextBuilder    *llmcontext.Builder
 	bots              *bots.MMBots
-	db                *mmapi.DBClient
+	db                *amapi.DBClient
 	i18n              *i18n.Bundle
 	meetingsService   MeetingsService
 	configProvider    ConfigProvider
@@ -57,11 +57,11 @@ type MeetingsService interface {
 
 func New(
 	prompts *llm.Prompts,
-	mmClient mmapi.Client,
+	mmClient amapi.Client,
 	streamingService streaming.Service,
 	contextBuilder *llmcontext.Builder,
 	botsService *bots.MMBots,
-	db *mmapi.DBClient,
+	db *amapi.DBClient,
 	i18nBundle *i18n.Bundle,
 	meetingsService MeetingsService,
 	configProvider ConfigProvider,
@@ -258,8 +258,8 @@ func (c *Conversations) processDMRequest(
 	}
 
 	stream := runResult.Stream
-	if webSearchData := mmtools.ConsumeWebSearchContexts(llmCtx); len(webSearchData) > 0 {
-		stream = mmtools.DecorateStreamWithAnnotations(stream, webSearchData, nil)
+	if webSearchData := amtools.ConsumeWebSearchContexts(llmCtx); len(webSearchData) > 0 {
+		stream = amtools.DecorateStreamWithAnnotations(stream, webSearchData, nil)
 	}
 
 	return &DMStreamResult{Stream: stream}, nil

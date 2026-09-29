@@ -830,7 +830,7 @@ func TestStreamToPostTurnPersistence(t *testing.T) {
 	})
 
 	// Regression: group DMs follow the channel share-flow (the rest of the
-	// codebase treats them as non-DM via mmapi.IsDMWith). The final assistant
+	// codebase treats them as non-DM via amapi.IsDMWith). The final assistant
 	// turn's tool_use blocks must not be marked shared=true in a group DM,
 	// otherwise their inputs become visible to other members without the
 	// requester approving a Share.

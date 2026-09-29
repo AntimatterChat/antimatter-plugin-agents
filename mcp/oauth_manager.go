@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
 	"github.com/modelcontextprotocol/go-sdk/oauthex"
 	"golang.org/x/oauth2"
 )
@@ -67,13 +67,13 @@ func generateState() (string, error) {
 type ServerConfigLookup func(serverID string) (ServerConfig, bool)
 
 type OAuthManager struct {
-	pluginAPI          mmapi.Client
+	pluginAPI          amapi.Client
 	callbackURL        string
 	httpClient         *http.Client
 	serverConfigLookup ServerConfigLookup
 }
 
-func NewOAuthManager(pluginAPI mmapi.Client, callbackURL string, httpClient *http.Client, serverConfigLookup ServerConfigLookup) *OAuthManager {
+func NewOAuthManager(pluginAPI amapi.Client, callbackURL string, httpClient *http.Client, serverConfigLookup ServerConfigLookup) *OAuthManager {
 	return &OAuthManager{
 		pluginAPI:          pluginAPI,
 		callbackURL:        callbackURL,
@@ -446,7 +446,7 @@ func (m *OAuthManager) checkStaticCredsIssuerPin(serverID, serverURL string, sta
 
 	var pin staticIssuerPin
 	err := m.pluginAPI.KVGet(pinKey, &pin)
-	if err != nil && !mmapi.IsKVNotFound(err) {
+	if err != nil && !amapi.IsKVNotFound(err) {
 		return fmt.Errorf("failed to load issuer pin: %w", err)
 	}
 	if pin.Issuer == "" {
