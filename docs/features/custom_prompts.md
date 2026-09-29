@@ -11,7 +11,7 @@ Each prompt has a title, an optional description, a system prompt template (the 
 
 ## What replaced the old prompt buttons
 
-In Mattermost Agents v1, the **Agents** pane shipped with a fixed set of starter buttons such as **Brainstorm ideas**, **Meeting agenda**, **To-do list**, and **Pros and Cons**. Selecting one of those buttons inserted a hard-coded phrase into the composer. Those buttons were removed earlier in the v2 development cycle and Custom Prompts replaced that pattern with a more durable system: instead of a fixed list, you and your teammates create your own prompts, share them across the workspace, and pin the ones you use most.
+In Antimatter Agents v1, the **Agents** pane shipped with a fixed set of starter buttons such as **Brainstorm ideas**, **Meeting agenda**, **To-do list**, and **Pros and Cons**. Selecting one of those buttons inserted a hard-coded phrase into the composer. Those buttons were removed earlier in the v2 development cycle and Custom Prompts replaced that pattern with a more durable system: instead of a fixed list, you and your teammates create your own prompts, share them across the workspace, and pin the ones you use most.
 
 If you used the v1 starter buttons, recreate the ones you relied on as Custom Prompts and pin them. The pinned prompts appear in the same area of the **Agents** pane where the old buttons used to live.
 
@@ -63,7 +63,7 @@ There are two ways to run a saved prompt.
 3. If multiple agents are configured for your workspace, choose the agent you want to use from the agent selector at the top of the menu.
 4. Select the prompt you want to run.
 
-Mattermost renders the template with your current context (channel, team, user, time, selected agent) and inserts the result into your draft. If you're not in a direct message with a bot, Mattermost also prepends the selected agent's `@mention` so the agent will respond in-thread when you post.
+Antimatter renders the template with your current context (channel, team, user, time, selected agent) and inserts the result into your draft. If you're not in a direct message with a bot, Antimatter also prepends the selected agent's `@mention` so the agent will respond in-thread when you post.
 
 You can review and edit the rendered draft before sending it like any other message.
 
@@ -85,7 +85,7 @@ Custom Prompt templates support the variables below. Variables use Go `text/temp
 
 | Variable | Inserts |
 |----------|---------|
-| `{{.Username}}` | Your Mattermost username |
+| `{{.Username}}` | Your Antimatter username |
 | `{{.FirstName}}` | Your first name |
 | `{{.LastName}}` | Your last name |
 | `{{.Channel}}` | The current channel display name |
@@ -95,7 +95,7 @@ Custom Prompt templates support the variables below. Variables use Go `text/temp
 | `{{.Time}}` | The current UTC time |
 | `{{.BotName}}` | The selected agent's display name, when available |
 
-If a value isn't available in the current context — for example, `{{.Team}}` when you're in a direct message that isn't tied to a team — Mattermost renders the variable as empty text. The rest of the template still runs normally.
+If a value isn't available in the current context — for example, `{{.Team}}` when you're in a direct message that isn't tied to a team — Antimatter renders the variable as empty text. The rest of the template still runs normally.
 
 `{{.BotName}}` is populated in the composer flow (where an agent is selected in the **Custom prompts** menu) but is empty when a prompt is run from a pinned button in the **Agents** pane.
 
@@ -176,12 +176,12 @@ You can save these as **Public** prompts so the rest of your team can pin and re
 - **Pinned-button posts are immediate.** Selecting a pinned prompt in the **Agents** pane sends the rendered message right away. Use the composer flow if you want to edit before sending.
 - **Editing other people's prompts.** Public prompts you didn't create open read-only. Ask the prompt's creator to make changes, or copy the template into a new prompt of your own.
 - **Deletion is soft.** Deleting a prompt removes it from listings and unpins it for everyone, but only the creator can delete a prompt they own.
-- **System Prompt length.** No explicit character limit is enforced by Agents. The practical ceiling is the HTTP request body limit configured for your Mattermost server (typically several megabytes). Note that very long prompts may reduce the context window available for the agent's response.
+- **System Prompt length.** No explicit character limit is enforced by Agents. The practical ceiling is the HTTP request body limit configured for your Antimatter server (typically several megabytes). Note that very long prompts may reduce the context window available for the agent's response.
 - **Render uses the agent selected when you click.** After the prompt is rendered and inserted into the draft, the @mention is already in the text. If you want to target a different agent, edit the @mention manually before posting.
 
 ## Related docs
 
-- [Mattermost Agents User Guide](../user_guide.md) — overall feature overview, including the **AI Actions** menu, agent selection, and tool approval.
+- [Antimatter Agents User Guide](../user_guide.md) — overall feature overview, including the **AI Actions** menu, agent selection, and tool approval.
 - [Channel Summaries](channel_summaries.md) — the dedicated entry point for analyzing channel activity.
 - [Multiplayer Tool Calling](multiplayer_tool_calling.md) — how tool approval works when an agent responds to a prompt in a channel.
 - [Managing Agents](managing_agents.md) — creating, configuring, and sharing the agents that custom prompts run against.

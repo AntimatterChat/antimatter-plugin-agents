@@ -2,13 +2,13 @@
 
 ## Overview
 
-Sovereign AI is an approach to artificial intelligence implementation that prioritizes organizational control over data, processing, and infrastructure. In the context of Mattermost, this is realized through the Agents plugin, which enables organizations to leverage advanced AI capabilities through LLMs while maintaining complete control of their sensitive communications and information.
+Sovereign AI is an approach to artificial intelligence implementation that prioritizes organizational control over data, processing, and infrastructure. In the context of Antimatter, this is realized through the Agents plugin, which enables organizations to leverage advanced AI capabilities through LLMs while maintaining complete control of their sensitive communications and information.
 
-Sovereign AI has become increasingly critical as organizations seek to balance AI-enhanced productivity with stringent data sovereignty requirements. Mattermost's implementation through the Agents plugin enables organizations to maintain control over their data location, processing methods, and access controls throughout the AI interaction lifecycle.
+Sovereign AI has become increasingly critical as organizations seek to balance AI-enhanced productivity with stringent data sovereignty requirements. Antimatter's implementation through the Agents plugin enables organizations to maintain control over their data location, processing methods, and access controls throughout the AI interaction lifecycle.
 
-## Understanding Sovereign AI in Mattermost
+## Understanding Sovereign AI in Antimatter
 
-Sovereign AI in Mattermost encompasses several key principles:
+Sovereign AI in Antimatter encompasses several key principles:
 
 ### Data Sovereignty
 
@@ -22,11 +22,11 @@ Through the Agents plugin, organizations can choose their preferred LLM backend 
 
 The plugin ecosystem supports integration with various data sources and services through MCP (Model Context Protocol), allowing organizations to incorporate their existing tools and data repositories into the AI workflow.
 
-## Mattermost Agents Plugin Architecture
+## Antimatter Agents Plugin Architecture
 
 ### Core Components
 
-The Mattermost Agents plugin serves as the foundation for Sovereign AI implementation, offering:
+The Antimatter Agents plugin serves as the foundation for Sovereign AI implementation, offering:
 
 #### LLM Backend Flexibility
 - Self-hosted LLM deployment options
@@ -65,7 +65,7 @@ The Mattermost Agents plugin serves as the foundation for Sovereign AI implement
 
 #### Data Privacy Controls
 - Optional user ID transmission to LLM providers
-- Conversation data stays within Mattermost infrastructure
+- Conversation data stays within Antimatter infrastructure
 - Audit trails for AI interactions
 - Configurable data retention policies
 

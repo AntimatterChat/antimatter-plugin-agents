@@ -1,14 +1,14 @@
-# Configure Mattermost Agents with AWS Bedrock
+# Configure Antimatter Agents with AWS Bedrock
 
-This guide walks you through setting up the Mattermost Agents plugin with [Amazon Bedrock](https://aws.amazon.com/bedrock/) as the LLM provider. When running Mattermost on AWS EC2 infrastructure, you can use IAM instance profiles for seamless, credential-free authentication.
+This guide walks you through setting up the Antimatter Agents plugin with [Amazon Bedrock](https://aws.amazon.com/bedrock/) as the LLM provider. When running Antimatter on AWS EC2 infrastructure, you can use IAM instance profiles for seamless, credential-free authentication.
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
-- A Mattermost server (v10.11 or later) running on an AWS EC2 instance
+- An Antimatter server (v10.11 or later) running on an AWS EC2 instance
 - AWS CLI configured with permissions to create IAM resources
-- Access to the Mattermost System Console as a system administrator
+- Access to the Antimatter System Console as a system administrator
 
 ## Enabling model access
 
@@ -47,7 +47,7 @@ throughput isn't supported. Retry your request with the ID or ARN of an inferenc
 that contains this model.
 ```
 
-Use the **inference** profile prefix in the **Default Model** field in Mattermost:
+Use the **inference** profile prefix in the **Default Model** field in Antimatter:
 
 | Model | Inference Profile ID |
 |-------|---------------------|
@@ -66,7 +66,7 @@ Most non-Anthropic models do not require an FTU form.
 
 ## Step 1: Create IAM resources for Bedrock access
 
-Create an IAM policy, role, and instance profile that grants your Mattermost EC2 instances permission to call Amazon Bedrock.
+Create an IAM policy, role, and instance profile that grants your Antimatter EC2 instances permission to call Amazon Bedrock.
 
 ### Create the IAM policy
 
@@ -74,7 +74,7 @@ Create a policy that allows the required Bedrock API actions:
 
 ```bash
 aws iam create-policy \
-  --policy-name MattermostBedrockAccess \
+  --policy-name AntimatterBedrockAccess \
   --policy-document '{
     "Version": "2012-10-17",
     "Statement": [{
@@ -93,7 +93,7 @@ aws iam create-policy \
 
 Replace `<YOUR_ACCOUNT_ID>` with your 12-digit AWS account ID.
 
-> **Note:** Although the Mattermost Agents plugin uses the Bedrock Converse API internally, the correct IAM action names are `bedrock:InvokeModel` and `bedrock:InvokeModelWithResponseStream` — `bedrock:Converse` and `bedrock:ConverseStream` are not valid IAM policy actions. The `inference-profile/*` resource ARN is required for Anthropic Claude models, which use Cross-Region Inference Profiles.
+> **Note:** Although the Antimatter Agents plugin uses the Bedrock Converse API internally, the correct IAM action names are `bedrock:InvokeModel` and `bedrock:InvokeModelWithResponseStream` — `bedrock:Converse` and `bedrock:ConverseStream` are not valid IAM policy actions. The `inference-profile/*` resource ARN is required for Anthropic Claude models, which use Cross-Region Inference Profiles.
 > **Tip:** To restrict access to specific models, replace the wildcard ARNs with model-specific ARNs. For Anthropic Claude models, you need entries in both the `foundation-model` and `inference-profile` resources. For example: `arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-6` and `arn:aws:bedrock:us-east-1:<YOUR_ACCOUNT_ID>:inference-profile/us.anthropic.claude-sonnet-4-6`.
 
 ### Create the IAM role and instance profile
@@ -103,7 +103,7 @@ Create an IAM role that EC2 instances can assume, then attach the Bedrock policy
 ```bash
 # Create the role with an EC2 trust policy
 aws iam create-role \
-  --role-name MattermostBedrockRole \
+  --role-name AntimatterBedrockRole \
   --assume-role-policy-document '{
     "Version": "2012-10-17",
     "Statement": [{
@@ -115,42 +115,42 @@ aws iam create-role \
 
 # Attach the Bedrock policy
 aws iam attach-role-policy \
-  --role-name MattermostBedrockRole \
-  --policy-arn arn:aws:iam::<YOUR_ACCOUNT_ID>:policy/MattermostBedrockAccess
+  --role-name AntimatterBedrockRole \
+  --policy-arn arn:aws:iam::<YOUR_ACCOUNT_ID>:policy/AntimatterBedrockAccess
 
 # Create an instance profile and add the role
 aws iam create-instance-profile \
-  --instance-profile-name MattermostBedrockProfile
+  --instance-profile-name AntimatterBedrockProfile
 
 aws iam add-role-to-instance-profile \
-  --instance-profile-name MattermostBedrockProfile \
-  --role-name MattermostBedrockRole
+  --instance-profile-name AntimatterBedrockProfile \
+  --role-name AntimatterBedrockRole
 ```
 
 Replace `<YOUR_ACCOUNT_ID>` with your AWS account ID.
 
 ### Attach the instance profile to your EC2 instances
 
-If your Mattermost server is already running, attach the instance profile to the running instance:
+If your Antimatter server is already running, attach the instance profile to the running instance:
 
 ```bash
 aws ec2 associate-iam-instance-profile \
-  --iam-instance-profile Name=MattermostBedrockProfile \
+  --iam-instance-profile Name=AntimatterBedrockProfile \
   --instance-id <YOUR_INSTANCE_ID>
 ```
 
 For new deployments, specify the instance profile when launching the EC2 instance or configure it in your infrastructure-as-code (Terraform, CloudFormation, etc.).
 
-> **Note:** If you have multiple Mattermost app server instances, attach the instance profile to all of them.
+> **Note:** If you have multiple Antimatter app server instances, attach the instance profile to all of them.
 
 ## Step 2: Install the Agents plugin
 
-The Mattermost Agents plugin may be pre-packaged with your Mattermost installation. Check your current version and upgrade if needed.
+The Antimatter Agents plugin may be pre-packaged with your Antimatter installation. Check your current version and upgrade if needed.
 
 1. Go to **System Console > Plugins > Plugin Management**.
 2. If the **Agents** plugin is listed, check its version. Version **1.9.0 or later** is required for native AWS Bedrock support with IAM instance profiles.
 3. If the plugin is not installed or needs upgrading:
-   a. Download the latest release from the [Mattermost Agents plugin releases page](https://github.com/mattermost/mattermost-plugin-agents/releases).
+   a. Download the latest release from the [Antimatter Agents plugin releases page](https://github.com/antimatterchat/antimatter-plugin-agents/releases).
    b. Upload the `.tar.gz` file under **Upload Plugin** in Plugin Management.
    c. Once uploaded, select **Enable** to activate the plugin.
 
@@ -158,7 +158,7 @@ Alternatively, install via `mmctl` on the server:
 
 ```bash
 /opt/mattermost/bin/mmctl plugin install-url \
-  https://github.com/mattermost/mattermost-plugin-agents/releases/download/v1.9.0/mattermost-plugin-agents-v1.9.0-linux-amd64.tar.gz
+  https://github.com/antimatterchat/antimatter-plugin-agents/releases/download/v1.9.0/antimatter-plugin-agents-v1.9.0-linux-amd64.tar.gz
 
 /opt/mattermost/bin/mmctl plugin enable mattermost-ai
 ```
@@ -200,7 +200,7 @@ Check [Amazon Bedrock model availability](https://docs.aws.amazon.com/bedrock/la
 
 ## Step 4: Create an AI agent
 
-1. Open the top-level **Agents** product page in Mattermost.
+1. Open the top-level **Agents** product page in Antimatter.
 2. Select **Add an Agent**.
 3. Configure the following fields:
 
@@ -216,17 +216,17 @@ Check [Amazon Bedrock model availability](https://docs.aws.amazon.com/bedrock/la
 
 ## Step 5: Verify the setup
 
-1. **Verify IAM credentials**: SSH into your Mattermost EC2 instance and run:
+1. **Verify IAM credentials**: SSH into your Antimatter EC2 instance and run:
 
    ```bash
    curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
    ```
 
-   This should return `MattermostBedrockRole` (or your role name).
+   This should return `AntimatterBedrockRole` (or your role name).
 
-2. **Test the agent**: In Mattermost, start a direct message with the AI agent bot (e.g., `@ai`) and send a test message. The agent should respond using the configured Bedrock model.
+2. **Test the agent**: In Antimatter, start a direct message with the AI agent bot (e.g., `@ai`) and send a test message. The agent should respond using the configured Bedrock model.
 
-3. **Check logs**: If the agent doesn't respond, review the Mattermost server logs for errors:
+3. **Check logs**: If the agent doesn't respond, review the Antimatter server logs for errors:
 
    ```bash
    tail -f /opt/mattermost/logs/mattermost.log | grep -i "bedrock\|mattermost-ai"

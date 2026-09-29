@@ -1,6 +1,6 @@
 # Agents Usage Tips and Best Practices
 
-This guide provides practical tips and best practices for getting the most out of your interactions with Mattermost Agents.
+This guide provides practical tips and best practices for getting the most out of your interactions with Antimatter Agents.
 
 ## Voice dictation integration
 
@@ -8,10 +8,10 @@ Enable your operating system's voice dictation or speech recognition tools for h
 
 ### Windows
 
-1. Start a direct message chat with Agents, and ensure your cursor is in the Mattermost message text box.
+1. Start a direct message chat with Agents, and ensure your cursor is in the Antimatter message text box.
 2. Ensure your microphone is connected and working.
 3. Activate Microsoft Voice Typing by pressing the **Windows key + H** to open the voice typing tool.
-4. Start talking! Windows transforms your voice into text within Mattermost.
+4. Start talking! Windows transforms your voice into text within Antimatter.
 
 ### macOS
 
@@ -19,8 +19,8 @@ Enable your operating system's voice dictation or speech recognition tools for h
    
    - Ensure the Microphone source is set correctly.
    - Specify the shortcut key you want to use to turn dictation on and off.
-3. Start a direct message chat with Agents, and ensure your cursor is in the Mattermost message text box.
-4. Turn dictation on with the shortcut key you configured, and then start talking! macOS transforms your voice into text within Mattermost.
+3. Start a direct message chat with Agents, and ensure your cursor is in the Antimatter message text box.
+4. Turn dictation on with the shortcut key you configured, and then start talking! macOS transforms your voice into text within Antimatter.
 
 ### Linux
 

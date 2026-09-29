@@ -1,10 +1,10 @@
 # LLM Provider Configuration Guide
 
-This guide covers configuring different Large Language Model (LLM) providers with the Mattermost Agents plugin. Each provider has specific configuration requirements and capabilities.
+This guide covers configuring different Large Language Model (LLM) providers with the Antimatter Agents plugin. Each provider has specific configuration requirements and capabilities.
 
 ## Supported Providers
 
-The Mattermost Agents plugin currently supports these LLM providers:
+The Antimatter Agents plugin currently supports these LLM providers:
 
 - Local models via OpenAI-compatible APIs (Ollama, vLLM, etc.)
 - OpenAI
@@ -30,7 +30,7 @@ The OpenAI Compatible option allows integration with any OpenAI-compatible LLM p
 
 1. Deploy your model, for example, on [Ollama](https://ollama.com/)
 2. Select **OpenAI Compatible** in the **AI Service** dropdown
-3. Enter the URL to your AI service from your Mattermost deployment in the **API URL** field. Be sure to include the port, and append `/v1` to the end of the URL if using Ollama. (e.g., `http://localhost:11434/v1` for Ollama, otherwise `http://localhost:11434/`)
+3. Enter the URL to your AI service from your Antimatter deployment in the **API URL** field. Be sure to include the port, and append `/v1` to the end of the URL if using Ollama. (e.g., `http://localhost:11434/v1` for Ollama, otherwise `http://localhost:11434/`)
 4. If using Ollama, leave the **API Key** field blank
 5. Specify your model name in the **Default Model** field
 
@@ -46,7 +46,7 @@ The OpenAI Compatible option allows integration with any OpenAI-compatible LLM p
 
 ### Special Considerations
 
-Ensure your self-hosted solution has sufficient compute resources and test for compatibility with the Mattermost plugin. Some advanced features may not be available with all compatible providers, so adjust token limits based on your deployment's capabilities. If you need OpenAI-compatible behavior without the Responses API, use **OpenAI Compatible** with **Use Responses API** disabled instead of the **OpenAI** service type.
+Ensure your self-hosted solution has sufficient compute resources and test for compatibility with the Antimatter plugin. Some advanced features may not be available with all compatible providers, so adjust token limits based on your deployment's capabilities. If you need OpenAI-compatible behavior without the Responses API, use **OpenAI Compatible** with **Use Responses API** disabled instead of the **OpenAI** service type.
 
 ## OpenAI
 
@@ -83,7 +83,7 @@ AWS Bedrock provides access to foundation models from Anthropic (Claude), Amazon
 
 ### Authentication
 
-The plugin uses the [AWS SDK default credential chain](https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html). For Mattermost servers running on EC2, attach an IAM instance profile to your instance and leave all credential fields blank — the SDK discovers credentials automatically. For non-EC2 deployments, enter an `AWS Access Key ID` and `AWS Secret Access Key`, or a short-term Bedrock console API key.
+The plugin uses the [AWS SDK default credential chain](https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html). For Antimatter servers running on EC2, attach an IAM instance profile to your instance and leave all credential fields blank — the SDK discovers credentials automatically. For non-EC2 deployments, enter an `AWS Access Key ID` and `AWS Secret Access Key`, or a short-term Bedrock console API key.
 
 ### Configuration Options
 
@@ -111,11 +111,11 @@ Obtain a [Cohere API key](https://dashboard.cohere.com/api-keys), then select **
 
 ## Cohere North
 
-Cohere North is Cohere's enterprise agent platform. This integration uses North's OpenAI Responses-compatible endpoint so existing Mattermost agents can use a North-hosted model as their backend. It does not yet bind to North-side Agents, knowledge libraries, or citations.
+Cohere North is Cohere's enterprise agent platform. This integration uses North's OpenAI Responses-compatible endpoint so existing Antimatter agents can use a North-hosted model as their backend. It does not yet bind to North-side Agents, knowledge libraries, or citations.
 
 ### Authentication
 
-1. In Mattermost, select **Cohere North** in the **Service** dropdown (type id `north`).
+1. In Antimatter, select **Cohere North** in the **Service** dropdown (type id `north`).
 2. Enter your North instance URL in the **North instance URL** field (for example, `https://north.example.com`). The plugin appends `/api` automatically. Entering a URL that already ends with `/api` or `/api/v1` also works.
 3. Enter a **Service token**. Obtain it from the North web UI by appending `/developer` to the instance URL (for example, `https://north.example.com/developer`) and using **Retrieve your token**. Tokens are user-bound and expire; use a dedicated service account and rotate the token before expiry. This version supports a single admin-configured token; per-user tokens are not supported.
 4. Enter a model identifier in the **Default Model** field. The model name must be entered explicitly (for example, `command-a-03-2025`). Use `command-a-vision-07-2025` when the agent needs image input.
@@ -139,7 +139,7 @@ Cohere North is Cohere's enterprise agent platform. This integration uses North'
 Supported:
 
 - Streaming
-- Tool calling (Mattermost and MCP tools)
+- Tool calling (Antimatter and MCP tools)
 - Image input (enable **Vision** on the agent; use a vision-capable model such as `command-a-vision-07-2025`)
 - Reasoning via effort level
 
@@ -206,10 +206,10 @@ For more details about integrating with Microsoft Azure's OpenAI services, see t
 5. Select **Deploy model** then **Deploy base model**
 6. Select your desired model and select **Confirm**
 7. Select **Deploy** to start your model
-8. In Mattermost, select **Azure** in the **Service** dropdown
-9. In the **Endpoint** panel for your new model deployment, copy the base URI of the **Target URI** (everything up to and including `.com`) and paste it in the **API URL** field in Mattermost
-10. In the **Endpoint** panel for your new model deployment, copy the **Key** and paste it in the **API Key** field in Mattermost
-11. In the **Deployment** panel for your new model deployment, copy the **Model name** and paste it in the **Default Model** field in Mattermost
+8. In Antimatter, select **Azure** in the **Service** dropdown
+9. In the **Endpoint** panel for your new model deployment, copy the base URI of the **Target URI** (everything up to and including `.com`) and paste it in the **API URL** field in Antimatter
+10. In the **Endpoint** panel for your new model deployment, copy the **Key** and paste it in the **API Key** field in Antimatter
+11. In the **Deployment** panel for your new model deployment, copy the **Model name** and paste it in the **Default Model** field in Antimatter
 
 ### Configuration Options
 
@@ -236,7 +236,7 @@ Google Gemini uses the Generative Language API (AI Studio), which authenticates 
 ### Setup
 
 1. Sign in to [Google AI Studio](https://aistudio.google.com/) and create an API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
-2. In Mattermost, open **System Console > Agents > LLM Services** and add a new service (or open an existing Gemini service).
+2. In Antimatter, open **System Console > Agents > LLM Services** and add a new service (or open an existing Gemini service).
 3. Select **Google Gemini** in the **Service** dropdown.
 4. Paste your AI Studio key into the **API Key** field.
 5. Enter a model identifier in the **Default Model** field (for example, `gemini-2.5-pro` or `gemini-2.5-flash`). Use [Google's model catalog](https://ai.google.dev/gemini-api/docs/models) to confirm the exact ID.
@@ -307,7 +307,7 @@ Vertex AI provides access to Gemini and other Google models through Google Cloud
 
 ### Prerequisites
 
-Before configuring the service in Mattermost, complete this in GCP:
+Before configuring the service in Antimatter, complete this in GCP:
 
 1. **Have or create a Google Cloud project.** Note the **Project ID** (slug, e.g., `my-project-123`) and the **Project Number** (numeric, e.g., `123456789012`).
 2. **Enable the Vertex AI API** for that project: `gcloud services enable aiplatform.googleapis.com --project <PROJECT_ID>` or the equivalent in the GCP Console.
@@ -326,14 +326,14 @@ To create a service-account key for the JSON path:
 1. In the GCP Console, go to **IAM & Admin > Service Accounts** and create a service account (or pick an existing one).
 2. Grant the account `roles/aiplatform.user` on the project.
 3. Open the service account, go to **Keys > Add Key > Create new key**, choose **JSON**, and download the file.
-4. Open the downloaded file, copy its full contents (including braces), and paste into the **Service Account JSON** field in Mattermost. Treat this file as a secret — anyone with it can call Vertex against your project.
+4. Open the downloaded file, copy its full contents (including braces), and paste into the **Service Account JSON** field in Antimatter. Treat this file as a secret — anyone with it can call Vertex against your project.
 
 > Bifrost stores the JSON as a credential. When **Service Account JSON** is empty, Bifrost falls back to ADC at request time — no key material is held in plugin config.
 
 ### Setup
 
 1. Complete the prerequisites above.
-2. In Mattermost, open **System Console > Agents > LLM Services** and add a new service.
+2. In Antimatter, open **System Console > Agents > LLM Services** and add a new service.
 3. Select **Google Vertex AI** in the **Service** dropdown.
 4. Fill in **GCP Project ID**, **GCP Region**, and (optionally) **GCP Project Number**.
 5. For ADC: leave **Service Account JSON** blank. For key-based auth: paste the full JSON.

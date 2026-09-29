@@ -5,7 +5,7 @@ See LICENSE.txt for license information.
 
 # Managing Agents
 
-Mattermost Agents V2 turns agent management into a first-class product surface. Each agent is a database-backed identity with its own bot user account, instructions, model, access rules, and MCP tool grants. This guide explains where agents live in the product, who can manage them, and how to create, edit, and delete them.
+Antimatter Agents V2 turns agent management into a first-class product surface. Each agent is a database-backed identity with its own bot user account, instructions, model, access rules, and MCP tool grants. This guide explains where agents live in the product, who can manage them, and how to create, edit, and delete them.
 
 For broader plugin configuration (services, web search, embedding search, MCP servers, per-tool policies), see the [Admin Guide](../admin_guide.md). For chat usage and tool approval flows, see the [User Guide](../user_guide.md).
 
@@ -14,16 +14,16 @@ For broader plugin configuration (services, web search, embedding search, MCP se
 In v2, an agent is more than a JSON entry in plugin config. Each agent has:
 
 - A persistent record in the `Agents_UserAgents` database table. Migrations `000005` and `000006` create the table and add the model, native-tool, reasoning, and structured-output columns.
-- A linked Mattermost bot account. Display name and avatar updates on the agent flow through to that bot account; deleting an agent deactivates the bot.
+- A linked Antimatter bot account. Display name and avatar updates on the agent flow through to that bot account; deleting an agent deactivates the bot.
 - A creator (`CreatorID`) and an optional list of agent admins (`AdminUserIDs`). The creator is always an admin and can't be removed from that role.
 - Channel and user access rules and an MCP tool allowlist (or "all MCP tools" auto-grant) stored on the same record.
 - Cluster-aware change propagation: when an agent is created, edited, or deleted, the originating node refreshes its bot cache, publishes a `agent_update` cluster event, and broadcasts a `bots_invalidate` websocket event so every node and connected client picks up the change.
 
-This means agent identity, instructions, scoping, and tool grants are part of your Mattermost data — they live in the same database as your channels and users, are covered by your normal Mattermost backups, and survive plugin restarts and upgrades.
+This means agent identity, instructions, scoping, and tool grants are part of your Antimatter data — they live in the same database as your channels and users, are covered by your normal Antimatter backups, and survive plugin restarts and upgrades.
 
 ## Where Agents live in the product
 
-Agents is a top-level Mattermost product entry, not a plugin panel. It registers itself with the Mattermost product switcher (the grid icon) so the Agents page renders inside the Mattermost shell with full theming.
+Agents is a top-level Antimatter product entry, not a plugin panel. It registers itself with the Antimatter product switcher (the grid icon) so the Agents page renders inside the Antimatter shell with full theming.
 
 You can reach the Agents page in three ways:
 
@@ -43,7 +43,7 @@ The Agents page itself shows:
 
 ## Permissions
 
-Agent management uses three Mattermost system permissions.
+Agent management uses three Antimatter system permissions.
 
 | Permission | Capability |
 |---|---|
@@ -61,7 +61,7 @@ The Agents page applies these rules consistently between the UI and the API:
   - System administrators, when the agent has no creator (a migrated legacy bot — see [Legacy bot migration](#legacy-bot-migration)).
 - The same checks gate the underlying `POST /agents`, `PUT /agents/:id`, and `DELETE /agents/:id` API routes, so direct API calls cannot bypass the UI rules.
 
-By default, regular users do not have `manage_own_agent`. Grant it through your existing Mattermost role/permission model to delegate agent creation — typically under **System Console > User Management > Permissions** (exact path varies by Mattermost server version).
+By default, regular users do not have `manage_own_agent`. Grant it through your existing Antimatter role/permission model to delegate agent creation — typically under **System Console > User Management > Permissions** (exact path varies by Antimatter server version).
 
 ### Who can see which agents
 
@@ -77,7 +77,7 @@ If a non–system-admin agent admin loses access to an agent's service under ABA
 1. Open the **Agents** page.
 2. Select **Create agent**. A full-page editor opens with three tabs: **Configuration**, **Access**, and **MCPs**.
 3. Fill in the tabs (see below). Required fields are validated when you save.
-4. Select **Save**. The plugin creates a Mattermost bot user, persists the agent record, propagates the change to other cluster nodes, and returns you to the Agents list.
+4. Select **Save**. The plugin creates an Antimatter bot user, persists the agent record, propagates the change to other cluster nodes, and returns you to the Agents list.
 
 ![Agents page showing the All agents tab and Create agent button.](../img/managing-agents-overview.png)
 
@@ -87,7 +87,7 @@ The Configuration tab covers identity, model selection, custom instructions, and
 
 | Field | Description |
 |---|---|
-| **Display name** | Required. The user-facing name shown in posts, the agent list, and the RHS picker. Updating the display name also updates the linked Mattermost bot's display name. |
+| **Display name** | Required. The user-facing name shown in posts, the agent list, and the RHS picker. Updating the display name also updates the linked Antimatter bot's display name. |
 | **Agent username** | Required. The `@mention` handle for the agent. Must start with a letter and contain only lowercase letters, numbers, periods, hyphens, and underscores. Maximum 22 characters in the UI. The server-side validator does not enforce a length limit; direct API callers are constrained only by the database schema (`VARCHAR(64)`). **The username is set when the agent is created and cannot be changed afterward.** |
 | **Agent avatar** | Optional. Upload a custom image. Avatar upload is a second step after the agent record is created or updated; if the avatar upload fails the rest of the save still succeeds. |
 | **AI Service** | Required. Pick a configured service from the dropdown. Services are managed in **System Console > Plugins > Agents** and shared across agents. If the agent references a service that has been deleted, an "Unknown service (deleted)" entry appears in the dropdown until you pick a new one. |
@@ -95,7 +95,7 @@ The Configuration tab covers identity, model selection, custom instructions, and
 | **Max tool turns** | Maximum number of consecutive tool-call/execute rounds the agent performs in a single response before stopping. Defaults to **30** (allowed range **1–250**). Lower this for smaller models that tend to loop on tool calls; raise it for agents that chain many tools per turn (for example dynamic MCP discovery: search → load → execute). Clearing the field saves the default. |
 | **Custom instructions** | Free-text. Prepended to every request as the agent's system prompt. Use it for tone, role, vocabulary, or workflow guidance. |
 | **Enable Vision** | Available for service types that support image input. Lets the agent process attached images. Requires a vision-capable model. |
-| **Enable Tools** | Available for service types that support tool calling. When off, the agent runs without tools and the **MCPs** tab is disabled. Some Mattermost Agents features will not work without tools. |
+| **Enable Tools** | Available for service types that support tool calling. When off, the agent runs without tools and the **MCPs** tab is disabled. Some Antimatter Agents features will not work without tools. |
 | **Native provider tools** | Available when the selected provider exposes native tools (Anthropic, OpenAI on Responses API, Gemini, Vertex AI, and OpenAI Compatible/Azure when **Use Responses API** is on). Pick which native tools (such as web search) the agent may use. |
 | **Reasoning** | Available for Anthropic, OpenAI (Responses API), Gemini, and Vertex AI services. Lets you enable extended thinking and pick a reasoning effort or thinking budget. |
 
@@ -131,7 +131,7 @@ The MCPs tab is available only when **Enable Tools** is on (Configuration tab). 
 - **Automatically enable all MCP tools**: the agent has access to every MCP tool available in the server right now and to any MCP tools added later. This is the default for new agents and the setting used by all migrated legacy bots.
 - When the auto-grant is off, pick the specific MCP tools to enable. Tools that are no longer present on the server are dropped from the agent's allowlist when you save.
 - For OAuth-backed MCP servers, you can also start the per-user **Connect** flow directly from this tab. Enabling a server that is currently disconnected stores a wildcard grant — once you finish the OAuth flow, the agent gets every tool that server exposes. The tab refreshes automatically when you connect or disconnect (`mcp_connection_updated` websocket event). **Connect** is not shown while **Use service accounts for authentication** is on; the tab lists that agent's service-account catalog instead of your personal connections.
-- **Use service accounts for authentication** switches the agent from per-user credentials to admin-configured service account credentials for **external** MCP servers. External MCP servers without service account headers configured in the System Console are excluded from the agent (fail closed). Mattermost (embedded) and plugin tools run with each requesting user's own permissions, and users are never asked to connect accounts. The MCPs tab then shows **Connected** for servers whose service account credentials work, and **No service account credentials** for servers that have none. Turning it on shows a warning because it flattens permissions on those external servers — anyone who can use the agent acts with the agent's shared access there — so restrict usage on the **Access** tab. Only system administrators can turn this setting on. While it is enabled, some fields are system-admin-only; see [What's editable vs locked](#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent. See [Service account authentication](../admin_guide.md#service-account-authentication) in the Admin Guide.
+- **Use service accounts for authentication** switches the agent from per-user credentials to admin-configured service account credentials for **external** MCP servers. External MCP servers without service account headers configured in the System Console are excluded from the agent (fail closed). Antimatter (embedded) and plugin tools run with each requesting user's own permissions, and users are never asked to connect accounts. The MCPs tab then shows **Connected** for servers whose service account credentials work, and **No service account credentials** for servers that have none. Turning it on shows a warning because it flattens permissions on those external servers — anyone who can use the agent acts with the agent's shared access there — so restrict usage on the **Access** tab. Only system administrators can turn this setting on. While it is enabled, some fields are system-admin-only; see [What's editable vs locked](#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent. See [Service account authentication](../admin_guide.md#service-account-authentication) in the Admin Guide.
 
 Dynamic tool loading and the auto-grant are separate controls: dynamic loading decides when schemas are shown to the model, while the auto-grant decides which MCP tools the agent is allowed to use.
 
@@ -160,17 +160,17 @@ While **Use service accounts for authentication** is enabled:
 - **System-admin-only (sensitive):** channel access, user access, and agent admins; MCP tool grants and **Automatically enable all MCP tools**; and enabling service account authentication itself.
 - Anyone who can manage the agent may still turn service account authentication **off** or delete the agent.
 
-- **Agent username is permanent.** Once the agent is created, the username field is disabled in the editor. The Mattermost bot account is keyed off this username, and changing it would orphan existing `@mentions` and conversation history. To use a different username, create a new agent.
+- **Agent username is permanent.** Once the agent is created, the username field is disabled in the editor. The Antimatter bot account is keyed off this username, and changing it would orphan existing `@mentions` and conversation history. To use a different username, create a new agent.
 
 ### Unsaved-changes warning
 
-If you have unsaved changes and try to leave the editor — by selecting **Cancel**, pressing **Escape**, or selecting the back arrow — Mattermost shows a **Discard changes?** confirmation with **Discard** and **Keep editing** buttons. **Discard** abandons your edits and returns to the Agents list. **Keep editing** dismisses the prompt and leaves you in the editor.
+If you have unsaved changes and try to leave the editor — by selecting **Cancel**, pressing **Escape**, or selecting the back arrow — Antimatter shows a **Discard changes?** confirmation with **Discard** and **Keep editing** buttons. **Discard** abandons your edits and returns to the Agents list. **Keep editing** dismisses the prompt and leaves you in the editor.
 
 The dirty-state check considers both form fields and a queued avatar upload, so swapping the avatar but making no other change will still trigger the warning.
 
 ### Effect of edits on running conversations
 
-- Updating the agent's display name flows through to the linked Mattermost bot's display name immediately.
+- Updating the agent's display name flows through to the linked Antimatter bot's display name immediately.
 - Updating the AI service, model, or instructions takes effect on the next agent turn — in-flight responses already streaming to a user are not interrupted.
 - Updating channel/user access rules takes effect immediately for new mentions; the next time a user `@mentions` the agent in a channel that is now blocked, the agent will refuse the request.
 
@@ -185,33 +185,33 @@ To delete an agent:
 Deleting an agent:
 
 - Soft-deletes the row in `Agents_UserAgents` (sets `DeleteAt`).
-- Deactivates the linked Mattermost bot account, so `@mentions` no longer route to it.
-- Publishes a cluster event so every Mattermost node refreshes its bot cache, and broadcasts a `bots_invalidate` websocket event so connected webapp clients drop the agent from their pickers.
+- Deactivates the linked Antimatter bot account, so `@mentions` no longer route to it.
+- Publishes a cluster event so every Antimatter node refreshes its bot cache, and broadcasts a `bots_invalidate` websocket event so connected webapp clients drop the agent from their pickers.
 
 Existing posts that mention or were authored by the agent remain in channels with their original content; only the agent's ability to reply to new requests is removed. Custom prompts that referenced the agent by username may no longer resolve that agent after deletion.
 
 ## Legacy bot migration
 
-Mattermost Agents V1 stored bot definitions inline in the plugin's `config.bots` array in `config.json`. V2 moves agents into the database. To make this transition automatic, the plugin runs a one-time migration on startup.
+Antimatter Agents V1 stored bot definitions inline in the plugin's `config.bots` array in `config.json`. V2 moves agents into the database. To make this transition automatic, the plugin runs a one-time migration on startup.
 
 ### What happens on upgrade
 
 When the v2 plugin first activates against a server that previously used v1:
 
 1. The plugin acquires a cluster mutex (`ai_legacy_bots_migration`) so only one node performs the migration.
-2. It reads the stored config and, for each entry in `config.bots` that is not already represented in `Agents_UserAgents`, creates a new agent record. The existing Mattermost bot user account is reused; only the agent record is new.
+2. It reads the stored config and, for each entry in `config.bots` that is not already represented in `Agents_UserAgents`, creates a new agent record. The existing Antimatter bot user account is reused; only the agent record is new.
 3. Each migrated agent is created with `AutoEnableNewMCPTools = true` so it preserves the legacy "all tools allowed" behavior. The MCP tool allowlist is not carried over from any prior gate because v1 bots had access to every MCP tool by default.
 4. Each migrated agent has an **empty `CreatorID`** and an **empty admin list**. This is what marks them as legacy. Any system administrator (`manage_system`) can edit or delete migrated agents from the Agents page.
 5. The plugin clears `config.bots` from the stored configuration to prevent duplicate bot registration on the next run, and writes `legacy_config_bots_migrated = true` to the system table so the migration does not run again.
 
 ### Soft-deferred migration
 
-If a config bot exists but its corresponding Mattermost bot account isn't yet registered (which can happen during a fresh plugin enable that occurs before the bot owner runs `EnsureBots`), the migration **defers** instead of creating partial records:
+If a config bot exists but its corresponding Antimatter bot account isn't yet registered (which can happen during a fresh plugin enable that occurs before the bot owner runs `EnsureBots`), the migration **defers** instead of creating partial records:
 
 - No agents are created.
 - `config.bots` is **not** cleared.
 - The migration flag is **not** set.
-- A warning is logged: *Deferring legacy bot migration: Mattermost bot not found*.
+- A warning is logged: *Deferring legacy bot migration: Antimatter bot not found*.
 
 The migration retries on the next config update or plugin reload. This is the expected behavior for e2e and fresh-install scenarios — no operator action is needed.
 
@@ -237,11 +237,11 @@ If migration was not performed (because no `config.bots` entries existed) the fl
 
 ### Backups
 
-`Agents_UserAgents` is a plugin-owned table and is included in standard Mattermost database backups. Plain `mattermost-config.json` snapshots are no longer sufficient to restore agents — they contain only services and the default-bot setting, not agent definitions. See [Backup and restore](../admin_guide.md#backup-and-restore) for details.
+`Agents_UserAgents` is a plugin-owned table and is included in standard Antimatter database backups. Plain `antimatter-config.json` snapshots are no longer sufficient to restore agents — they contain only services and the default-bot setting, not agent definitions. See [Backup and restore](../admin_guide.md#backup-and-restore) for details.
 
 ## HA cluster behavior
 
-Agent changes propagate across Mattermost cluster nodes through two channels: a plugin cluster event and a webapp websocket broadcast.
+Agent changes propagate across Antimatter cluster nodes through two channels: a plugin cluster event and a webapp websocket broadcast.
 
 When an agent is created, edited, or deleted on any node:
 
@@ -284,7 +284,7 @@ Another agent (active or recently deleted) already uses the username. Pick a dif
 
 ### Avatar didn't update after save
 
-Avatar upload runs as a second request after the agent record is saved. If the avatar upload fails (network blip, image too large, unsupported format), the agent record is still saved successfully but the avatar is unchanged. Re-open the editor, re-select the file, and save again. Avatar upload enforces a 10 MB maximum size. There is no content-type pre-validation in the plugin; the Mattermost server's profile image processing handles format checks.
+Avatar upload runs as a second request after the agent record is saved. If the avatar upload fails (network blip, image too large, unsupported format), the agent record is still saved successfully but the avatar is unchanged. Re-open the editor, re-select the file, and save again. Avatar upload enforces a 10 MB maximum size. There is no content-type pre-validation in the plugin; the Antimatter server's profile image processing handles format checks.
 
 ### Editor shows the previous agent's avatar after switching agents
 

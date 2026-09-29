@@ -1,6 +1,6 @@
-# Mattermost Agents Admin Guide
+# Antimatter Agents Admin Guide
 
-This guide covers installing, configuring, and managing the Mattermost Agents plugin. You'll learn how to set up AI capabilities for your Mattermost instance and configure them for your organization's needs.
+This guide covers installing, configuring, and managing the Antimatter Agents plugin. You'll learn how to set up AI capabilities for your Antimatter instance and configure them for your organization's needs.
 
 ## Installation
 
@@ -8,22 +8,22 @@ This guide covers installing, configuring, and managing the Mattermost Agents pl
 
 Before installing the Agents plugin, ensure your environment meets these requirements:
 
-- Mattermost Server v12.0.0+
+- Antimatter Server v12.0.0+
 - PostgreSQL database
 - For semantic search: PostgreSQL with pgvector extension
 - Network access to your chosen LLM provider
-- If outbound LLM traffic must use an HTTP proxy, set `HTTP_PROXY` and `HTTPS_PROXY` on the Mattermost server process or container environment.
+- If outbound LLM traffic must use an HTTP proxy, set `HTTP_PROXY` and `HTTPS_PROXY` on the Antimatter server process or container environment.
 - API keys if using a cloud LLM service
 
 ### Installation Steps
 
 #### Use pre-installed plugin
 
-From Mattermost v10.3, Agents comes installed automatically and ready for you to configure a large language model (LLM). When no LLMs are configured, the Agents panel prompts users to configure one.
+From Antimatter v10.3, Agents comes installed automatically and ready for you to configure a large language model (LLM). When no LLMs are configured, the Agents panel prompts users to configure one.
 
 #### Install latest version
 
-For the most recent features and improvements, you can download and install the latest plugin version from the [GitHub releases page](https://github.com/mattermost/mattermost-plugin-agents/releases). 
+For the most recent features and improvements, you can download and install the latest plugin version from the [GitHub releases page](https://github.com/antimatterchat/antimatter-plugin-agents/releases). 
 
 Install the plugin through the System Console by navigating to **System Console > Plugin Management**, clicking **Upload Plugin**, selecting the downloaded plugin file (.tar.gz), and clicking **Upload**. Enable the plugin after upload completes, then configure plugin settings as detailed in the Configuration section below.
 
@@ -41,11 +41,11 @@ Agents is enabled automatically when using the pre-installed version. If you've 
 
 ### Basic configuration
 
-For general settings, you can toggle to enable or disable the plugin system-wide, enable debug logging for troubleshooting (use only when needed), enable token usage logging for tracking LLM interactions, and configure the hostname allowlist for API calls. Outbound LLM provider traffic respects `HTTP_PROXY` and `HTTPS_PROXY` when they are set on the Mattermost server process.
+For general settings, you can toggle to enable or disable the plugin system-wide, enable debug logging for troubleshooting (use only when needed), enable token usage logging for tracking LLM interactions, and configure the hostname allowlist for API calls. Outbound LLM provider traffic respects `HTTP_PROXY` and `HTTPS_PROXY` when they are set on the Antimatter server process.
 
 ### AI response link rendering
 
-Mattermost Agents includes a setting that controls whether AI-generated Markdown links are rendered as clickable links in responses:
+Antimatter Agents includes a setting that controls whether AI-generated Markdown links are rendered as clickable links in responses:
 
 - **System Console label**: **Render AI-generated links**
 - **Configuration key**: `allowUnsafeLinks`
@@ -70,8 +70,8 @@ Navigate to **System Console > Plugins > Agents** and select **Add a Service**.
 | **API Key** | Your provider's API key (requirements vary by provider) |
 | **Default Model** | Default model to use for this service |
 | **Fallback Service** | Optional service to use when this service is unavailable. Defaults to **No fallback**. |
-| **Input Token Limit** | Maximum tokens allowed in input. When provider metadata includes an input limit for the selected model, Mattermost auto-populates this field, disables it, and shows **Auto-detected from provider**. If the selected model is unknown or the provider does not report an input limit, the field stays editable and Mattermost uses the saved manual value. Set this manually for models without provider metadata if you want Mattermost to enforce a request-size limit before sending upstream. A value of `0` means Mattermost does not apply client-side truncation. |
-| **Output Token Limit** | Maximum tokens allowed in output. When provider metadata includes an output limit for the selected model, Mattermost auto-populates this field, disables it, and shows **Auto-detected from provider**. If the selected model is unknown or the provider does not report an output limit, the field stays editable and Mattermost uses the saved manual value. |
+| **Input Token Limit** | Maximum tokens allowed in input. When provider metadata includes an input limit for the selected model, Antimatter auto-populates this field, disables it, and shows **Auto-detected from provider**. If the selected model is unknown or the provider does not report an input limit, the field stays editable and Antimatter uses the saved manual value. Set this manually for models without provider metadata if you want Antimatter to enforce a request-size limit before sending upstream. A value of `0` means Antimatter does not apply client-side truncation. |
+| **Output Token Limit** | Maximum tokens allowed in output. When provider metadata includes an output limit for the selected model, Antimatter auto-populates this field, disables it, and shows **Auto-detected from provider**. If the selected model is unknown or the provider does not report an output limit, the field stays editable and Antimatter uses the saved manual value. |
 | **Streaming Timeout Seconds** | Timeout in seconds for streaming responses |
 | **Use Responses API** | (OpenAI Compatible and Azure OpenAI only) Use OpenAI's Responses API for native provider tools, reasoning controls, and structured output on those endpoints. OpenAI (direct) and Cohere North always use the Responses API, so this control isn't shown for those service types. |
 | **Structured output** | How this service handles requests that ask for JSON matching a schema. Defaults to **Auto (recommended)**. See [Structured output](#structured-output). |
@@ -80,7 +80,7 @@ Fallback services are tried per request after the primary service fails, and the
 
 Fallback selects which configured service handles an LLM request. It doesn't change user permissions, channel scoping, or tool execution. One exception affects prompt construction: for requests that ask for structured output, the complete fallback chain determines up front whether the request uses native schema support or the prompt fallback (see [Structured output](#structured-output)). OpenAI-compatible services can be used as local or on-prem keyless fallbacks, including chat-only endpoints when the primary uses the Responses API.
 
-Input and output token limits are detected independently, so one field can be auto-detected while the other remains editable. If you switch back from an auto-detected model to an unknown or custom model, Mattermost restores the previously saved manual values.
+Input and output token limits are detected independently, so one field can be auto-detected while the other remains editable. If you switch back from an auto-detected model to an unknown or custom model, Antimatter restores the previously saved manual values.
 
 #### Structured output
 
@@ -89,12 +89,12 @@ Some requests ask the LLM for JSON matching a schema — agent features that nee
 | Option | Stored value | Behavior |
 |--------|--------------|----------|
 | **Auto (recommended)** | `auto`, or empty | Sends the schema natively only when this service's provider, model, and API path are positively known to support native structured output. Every other combination, including unrecognized models and operator-supplied endpoints, uses the prompt fallback: the schema is converted into JSON instructions in the prompt and is not sent to the provider. |
-| **Native supported** | `native` | Asserts that this service accepts a native JSON schema. Use it for custom or OpenAI-compatible endpoints whose capabilities Mattermost can't detect. If the assertion is wrong, the provider rejects those requests. |
+| **Native supported** | `native` | Asserts that this service accepts a native JSON schema. Use it for custom or OpenAI-compatible endpoints whose capabilities Antimatter can't detect. If the assertion is wrong, the provider rejects those requests. |
 | **Prompt fallback** | `prompt_fallback` | Never sends the schema natively. The schema is always converted into prompt instructions. |
 
 The stored configuration key is `structuredOutputPolicy` on each service entry. An empty value means `auto`, so services configured before this setting existed remain valid without any change.
 
-The setting describes one service's capability, but the decision is made once per request and covers the service's entire fallback chain, because the prompt conversion happens before Mattermost picks which service actually serves the request. A schema is sent natively only when every possible attempt — the primary service and every service in its fallback chain — is either known-capable under **Auto (recommended)** or marked **Native supported**. If any link in the chain needs the prompt fallback, the whole request uses prompt instructions. Marking a service as **Native supported** therefore doesn't force native output for a chain that contains a service requiring the fallback.
+The setting describes one service's capability, but the decision is made once per request and covers the service's entire fallback chain, because the prompt conversion happens before Antimatter picks which service actually serves the request. A schema is sent natively only when every possible attempt — the primary service and every service in its fallback chain — is either known-capable under **Auto (recommended)** or marked **Native supported**. If any link in the chain needs the prompt fallback, the whole request uses prompt instructions. Marking a service as **Native supported** therefore doesn't force native output for a chain that contains a service requiring the fallback.
 
 Structured output is configured on the service only. The former agent-level structured output setting (`structuredOutputEnabled` in agent configuration) is deprecated: it's no longer shown in the agent editor and is ignored at runtime. The service policy applies both to agent conversations and to direct service calls through the LLM Bridge.
 
@@ -114,13 +114,13 @@ Each provider has specific configuration requirements:
 | **Scale AI** | API Key, API URL | Account ID (required for ScaleGov) |
 | **Azure OpenAI** | API Key, API URL | |
 
-For AWS Bedrock, authentication can be configured using AWS credentials in the API Key/Secret fields, or by using IAM roles when running Mattermost on AWS infrastructure.
+For AWS Bedrock, authentication can be configured using AWS credentials in the API Key/Secret fields, or by using IAM roles when running Antimatter on AWS infrastructure.
 
-**Important for Anthropic Claude models**: Before using Claude models via AWS Bedrock, you must submit a one-time First Time Use (FTU) form in the AWS Bedrock Model Catalog, and attach Bedrock API permissions to your Mattermost servers' IAM role. See the [AWS Bedrock setup guide](https://docs.mattermost.com/agents/docs/aws_bedrock_setup.html) for detailed instructions.
+**Important for Anthropic Claude models**: Before using Claude models via AWS Bedrock, you must submit a one-time First Time Use (FTU) form in the AWS Bedrock Model Catalog, and attach Bedrock API permissions to your Antimatter servers' IAM role. See the [AWS Bedrock setup guide](https://docs.antimatter.example/agents/docs/aws_bedrock_setup.html) for detailed instructions.
 
 OpenAI services always use the Responses API. OpenAI Compatible and Azure services keep the **Use Responses API** setting so you can disable it for endpoints that still require legacy Chat Completions compatibility.
 
-See the [Provider Guide](https://docs.mattermost.com/agents/docs/providers.html) for detailed provider-specific configuration.
+See the [Provider Guide](https://docs.antimatter.example/agents/docs/providers.html) for detailed provider-specific configuration.
 
 ### Agent configuration
 
@@ -134,14 +134,14 @@ When you create or edit an agent, use the three tabs in the full-page agent conf
 - **Access** for channel, team, and user restrictions, plus delegated agent admins
 - **MCPs** for the agent's allowed MCP tools
 
-If you have unsaved changes and try to leave the agent configuration view by selecting **Back to agents**, **Cancel**, or by pressing Escape, Mattermost shows a **Discard changes?** confirmation with **Discard** and **Keep editing**.
+If you have unsaved changes and try to leave the agent configuration view by selecting **Back to agents**, **Cancel**, or by pressing Escape, Antimatter shows a **Discard changes?** confirmation with **Discard** and **Keep editing**.
 
 #### Configuration tab
 
 | Setting | Description |
 |---------|-------------|
-| **Display Name** | User-facing name shown in Mattermost |
-| **Agent Username** | The Mattermost username for the agent. @mentions use this name. Set it when creating the agent; it can't be changed later. |
+| **Display Name** | User-facing name shown in Antimatter |
+| **Agent Username** | The Antimatter username for the agent. @mentions use this name. Set it when creating the agent; it can't be changed later. |
 | **Agent Avatar** | Custom image for the agent |
 | **Service** | Select a configured Service from the dropdown |
 | **Model** | (Optional) Override the service's default model for this agent |
@@ -159,7 +159,7 @@ Some capabilities depend on the selected Service type and, for OpenAI Compatible
 | **Web Search** (native tool) | Available for Anthropic, OpenAI, Google Gemini, and Google Vertex AI. For OpenAI Compatible and Azure, this setting is available when **Use Responses API** is enabled on the Service. Gemini and Vertex map this to Google Search grounding via the provider's Responses API. Allows the Agent to leverage the provider's native web search tool to respond with recent information. Capabilities and pricing are documented by the provider — see Anthropic's [web search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool) docs. |
 | **Web Fetch** (native tool) | Available for Anthropic. Lets the agent retrieve the full content of specific web pages and PDFs during a response. See Anthropic's [web fetch tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) docs for capabilities and pricing. |
 | **Code Execution / Code Interpreter** (native tool) | Available for Anthropic, OpenAI, and (with **Use Responses API**) OpenAI Compatible and Azure. Lets the agent run code in the provider's managed sandbox. For Anthropic, enabling this also permits web search and web fetch to post-process results inside that sandbox (Anthropic's [dynamic filtering](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool#dynamic-filtering)); when it is **not** enabled, the plugin pins those tools' `allowed_callers` to `direct` so no sandbox is ever provisioned. Refer to Anthropic's [code execution tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool) docs for pricing, data-retention, and ZDR implications. |
-| **Reasoning Enabled** | Available for Anthropic, OpenAI, Cohere North, Google Gemini, and Google Vertex AI. For OpenAI Compatible and Azure, this setting is available when **Use Responses API** is enabled on the Service. Enables extended thinking or reasoning capabilities for complex tasks. For Gemini / Vertex, Bifrost maps a token budget to `thinkingConfig.thinkingBudget` and an effort level to `thinkingConfig.thinkingLevel` on Gemini 3.0+. For Cohere North, reasoning is controlled via effort level. See the [Provider Guide](https://docs.mattermost.com/agents/docs/providers.html) for details. |
+| **Reasoning Enabled** | Available for Anthropic, OpenAI, Cohere North, Google Gemini, and Google Vertex AI. For OpenAI Compatible and Azure, this setting is available when **Use Responses API** is enabled on the Service. Enables extended thinking or reasoning capabilities for complex tasks. For Gemini / Vertex, Bifrost maps a token budget to `thinkingConfig.thinkingBudget` and an effort level to `thinkingConfig.thinkingLevel` on Gemini 3.0+. For Cohere North, reasoning is controlled via effort level. See the [Provider Guide](https://docs.antimatter.example/agents/docs/providers.html) for details. |
 
 Structured output is not an agent setting. It's configured per service — see [Structured output](#structured-output) — and applies to every request that asks for JSON matching a schema, whichever agent makes it.
 
@@ -195,7 +195,7 @@ Use this tab to control how the agent can use MCP tools. This tab is available o
 
 Dynamic tool loading and automatically enabled MCP tools are separate controls: auto-enable controls which tools the agent is allowed to use, while dynamic loading controls when tool schemas are exposed to the model.
 
-Updating an agent's display name also updates the linked Mattermost bot display name. Deleting an agent deactivates the linked Mattermost bot account.
+Updating an agent's display name also updates the linked Antimatter bot display name. Deleting an agent deactivates the linked Antimatter bot account.
 
 Legacy bots previously stored in plugin configuration are migrated on startup into database-backed agents and then managed from the **Agents** page. Migrated agents don't have a creator and can be managed by system admins.
 
@@ -221,7 +221,7 @@ For configuration details on native web search with supported providers, see the
 
 #### Provider comparison
 
-Mattermost supports two web search providers, each with varying capabilities:
+Antimatter supports two web search providers, each with varying capabilities:
 
 ##### Brave Search (Recommended)
 
@@ -237,8 +237,8 @@ Brave Search offers a superior experience for AI-powered search:
 
 Google Custom Search provides access to Google's search index but has several important limitations:
 
-- **Not a first-party integration**: Mattermost uses Google's Custom Search API, which doesn't provide the same quality of results as searching directly on google.com
-- **Relies on web scraping**: After receiving search results, Mattermost must scrape web pages to extract content for the agent. Many websites block automated scraping or return limited content to bots
+- **Not a first-party integration**: Antimatter uses Google's Custom Search API, which doesn't provide the same quality of results as searching directly on google.com
+- **Relies on web scraping**: After receiving search results, Antimatter must scrape web pages to extract content for the agent. Many websites block automated scraping or return limited content to bots
 - **Rate limits**: Google Custom Search has strict daily quota limits
 
 Due to these limitations, Google Custom Search may not always provide optimal results for agent queries.
@@ -301,7 +301,7 @@ To obtain Google Custom Search credentials:
 
 ### Embed search configuration
 
-To enable semantic search capabilities, you'll need to enable the `pgvector` extension in your PostgreSQL database, then configure embeddings provider settings including the provider (OpenAI, etc.), model for embeddings, and dimensions that match your chosen embedding model. Embedding search is available as an [experimental](https://docs.mattermost.com/manage/feature-labels.html#experimental) feature. Performance may vary with large datasets.
+To enable semantic search capabilities, you'll need to enable the `pgvector` extension in your PostgreSQL database, then configure embeddings provider settings including the provider (OpenAI, etc.), model for embeddings, and dimensions that match your chosen embedding model. Embedding search is available as an [experimental](https://docs.antimatter.example/manage/feature-labels.html#experimental) feature. Performance may vary with large datasets.
 
 Configure chunking options based on your needs:
 
@@ -343,7 +343,7 @@ Notes on deferred reindex:
 
 Configure who can access AI features by setting team-level, channel-level, and user-level permissions for each agent.
 
-Per-channel agent auto-reply is governed by the channel-management permission (`manage_public_channel_properties` or `manage_private_channel_properties`, depending on the channel type), checked server-side on writes; channel members can read the current setting. The auto-reply endpoints do not depend on the workspace default agent: reads and writes work even when the default agent is restricted from the channel or user (or when no agents are configured at all), and writes validate the *selected* agent's channel access instead. The channel settings tab UI requires Mattermost v11.10 or later; on older servers the tab is hidden, but the REST endpoint (`GET`/`PUT /plugins/mattermost-ai/channel/{channelid}/autoreply`) remains available.
+Per-channel agent auto-reply is governed by the channel-management permission (`manage_public_channel_properties` or `manage_private_channel_properties`, depending on the channel type), checked server-side on writes; channel members can read the current setting. The auto-reply endpoints do not depend on the workspace default agent: reads and writes work even when the default agent is restricted from the channel or user (or when no agents are configured at all), and writes validate the *selected* agent's channel access instead. The channel settings tab UI requires Antimatter v11.10 or later; on older servers the tab is hidden, but the REST endpoint (`GET`/`PUT /plugins/mattermost-ai/channel/{channelid}/autoreply`) remains available.
 
 ### Attribute-based access control (ABAC)
 
@@ -351,14 +351,14 @@ Attribute-based access control lets you restrict who can use agents, LLM service
 
 **Prerequisites:**
 
-- A Mattermost server (v12.0.0 or later) with attribute-based access control enabled. The plugin probes the server and hides all ABAC UI when the feature is unavailable. On servers without ABAC: legacy access modes keep their user/team-list checks, services and MCP servers are unrestricted — but **agents in attribute-based mode are unusable** (every user is denied, since the plugin cannot check whether a policy restricts them) until the server is upgraded or the agent is switched to a legacy access mode.
+- An Antimatter server (v12.0.0 or later) with attribute-based access control enabled. The plugin probes the server and hides all ABAC UI when the feature is unavailable. On servers without ABAC: legacy access modes keep their user/team-list checks, services and MCP servers are unrestricted — but **agents in attribute-based mode are unusable** (every user is denied, since the plugin cannot check whether a policy restricts them) until the server is upgraded or the agent is switched to a legacy access mode.
 - User attributes (custom profile attributes) configured on the server, since policies are written against them.
 
 **Policy-addressable resources.** Policies always grant or deny the `use` action for one resource:
 
 - **Agents** — set the agent's user access to **Attribute-based (access policy)** in the agent's Access tab, then author the policy there. In this mode, the agent's allow/block user and team lists are ignored; the policy is the only user-access gate. Anyone who can manage the agent — its creator, its agent admins, and users with the manage-others'-agents permission — can author the policy with the simplified (table) editor; system admins additionally get the advanced (CEL) editor.
 - **LLM services** — authored by system admins in **System Console > Plugins > Agents** on the service panel. System admins get the simplified (table) editor and the advanced (CEL) editor, the same as on the agent Access tab; Advanced is used for expressions the table can't display. A service policy restricts every agent backed by that service, on top of any per-agent restrictions. It also drives list/picker visibility for non–system-admins (see [Visibility (services and agents)](#visibility-services-and-agents)).
-- **MCP servers** — authored by system admins on the MCP **Configuration** tab (same Simple and Advanced editors as agents; Advanced is used for expressions the table can't display). Policies apply to remote servers, the built-in (embedded) Mattermost MCP server, and plugin-registered MCP servers. Users denied by an MCP server policy silently lose that server's tools; there is no notification in chat, the tools simply don't appear. Denying the built-in Mattermost server removes nearly all in-product Mattermost tools for matching users.
+- **MCP servers** — authored by system admins on the MCP **Configuration** tab (same Simple and Advanced editors as agents; Advanced is used for expressions the table can't display). Policies apply to remote servers, the built-in (embedded) Antimatter MCP server, and plugin-registered MCP servers. Users denied by an MCP server policy silently lose that server's tools; there is no notification in chat, the tools simply don't appear. Denying the built-in Antimatter server removes nearly all in-product Antimatter tools for matching users.
 
 **Allow and deny semantics.** For each request the plugin evaluates the applicable policies and applies these rules:
 
@@ -390,7 +390,7 @@ Tradeoff: if a non–system-admin agent admin loses access to the agent's servic
 
 ### Plugin metrics
 
-Metrics for Agents are exposed through the `/plugins/mattermost-ai/metrics` subpath under the existing Mattermost server metrics endpoint. This is controlled by the Listen address for performance configuration setting. It defaults to port `8067`, and the following metrics are available:
+Metrics for Agents are exposed through the `/plugins/mattermost-ai/metrics` subpath under the existing Antimatter server metrics endpoint. This is controlled by the Listen address for performance configuration setting. It defaults to port `8067`, and the following metrics are available:
 
 - `agents_system_plugin_start_timestamp_seconds`: The time the plugin started.
 - `agents_system_plugin_info`: The plugin version and installation ID.
@@ -403,11 +403,11 @@ Metrics for Agents are exposed through the `/plugins/mattermost-ai/metrics` subp
 
 The Agents plugin can track token usage for all LLM interactions to support billing and usage analytics. When enabled, token usage data is logged to a dedicated file at `logs/agents/token_usage.log` in JSON format, capturing detailed information about each request:
 
-- **User ID**: The Mattermost user who initiated the request
+- **User ID**: The Antimatter user who initiated the request
 - **Team ID**: The team context for the request
 - **Bot Username**: Which agent was used for the interaction
 - **Service ID** and **Service Name**: Which configured LLM service handled the request, logged as `service_id` and `service_name` directly after the existing `service_type` field
-- **Acting User ID**: The identity used for catalog attribution — the requesting user, or the agent's bot user ID when the agent uses service account authentication (external MCP servers then use shared credentials; Mattermost and plugin tools still run as the requesting user)
+- **Acting User ID**: The identity used for catalog attribution — the requesting user, or the agent's bot user ID when the agent uses service account authentication (external MCP servers then use shared credentials; Antimatter and plugin tools still run as the requesting user)
 - **Tool Auth Mode**: `user` or `service_account`, recording which credential mode built the request's tool catalog
 - **Input Tokens**: Number of tokens in the request to the LLM
 - **Output Tokens**: Number of tokens in the LLM response
@@ -491,7 +491,7 @@ HTTP POST /post/:postid/react
 The plugin offers three trace output modes, configurable via **Trace Output** in the System Console:
 
 - **Off** — tracing disabled, zero overhead.
-- **Server Logs** — finished spans are written to the Mattermost server log via the standard plugin logger. No collector required; pick this if you don't run Tempo, Jaeger, or another OTLP backend.
+- **Server Logs** — finished spans are written to the Antimatter server log via the standard plugin logger. No collector required; pick this if you don't run Tempo, Jaeger, or another OTLP backend.
 - **OTLP Endpoint** — spans are exported over OTLP gRPC to the endpoint configured in **OpenTelemetry Endpoint** (e.g. `localhost:4317`). Use this for full distributed tracing with a backend like Grafana Tempo or Jaeger.
 
 The setting can also be configured directly in the plugin configuration JSON:
@@ -519,7 +519,7 @@ This starts:
 
 Configure the plugin with endpoint `localhost:4317`, then interact with the bot. Open Grafana → **Explore** → **Tempo** and search by service name `mattermost-ai-agents`, or paste a trace ID directly.
 
-Grafana is mapped to port `3001` (not the default `3000`) so it does not collide with Mattermost's webapp dev server or the `mattermost-server` build/docker-compose stack.
+Grafana is mapped to port `3001` (not the default `3000`) so it does not collide with Antimatter's webapp dev server or the `mattermost-server` build/docker-compose stack.
 
 To stop the stack:
 
@@ -568,13 +568,13 @@ The plugin emits a server audit record for every state-changing operation: confi
 
 Records identify the actor (user ID, session, IP), the event, the request path, the outcome (including failures and permission denials, as HTTP status codes), the OpenTelemetry `trace_id` for pivoting into traces, and identifiers of affected objects using the same attribute names as the table above. Records never contain prompt content, conversation or channel content, tool arguments or results, configuration values, or free-form error text — a configuration save records only which top-level sections changed, and failure detail stays in the server log (correlate by timestamp, actor, or `trace_id`).
 
-There is no plugin-side toggle: records are always handed to the server, and persistence is governed entirely by the server's [audit logging configuration](https://docs.mattermost.com/administration-guide/manage/logging.html) (System Console → Compliance, or `ExperimentalAuditSettings`).
+There is no plugin-side toggle: records are always handed to the server, and persistence is governed entirely by the server's [audit logging configuration](https://docs.antimatter.example/administration-guide/manage/logging.html) (System Console → Compliance, or `ExperimentalAuditSettings`).
 
 ### Backup and restore
 
 The plugin stores agent data across both plugin configuration and plugin database tables. To backup:
 
-1. Ensure your regular Mattermost backup includes plugin configuration data.
+1. Ensure your regular Antimatter backup includes plugin configuration data.
 2. Include plugin database tables in your normal backup and restore process. In particular:
    - `Agents_UserAgents` for agents created or managed from the **Agents** page
    - `LLM_CustomPrompts` and `LLM_CustomPromptPins` for custom prompt templates and prompt pins
@@ -610,7 +610,7 @@ This separation allows multiple agents to share the same LLM service configurati
 }
 ```
 
-Service IDs are Mattermost-style 26-character IDs. Configurations created before this format was adopted used UUIDs; those are rewritten once on upgrade, so external automation that hard-coded UUID service IDs must re-read `GET /plugins/mattermost-ai/admin/config` to pick up the new IDs.
+Service IDs are Antimatter-style 26-character IDs. Configurations created before this format was adopted used UUIDs; those are rewritten once on upgrade, so external automation that hard-coded UUID service IDs must re-read `GET /plugins/mattermost-ai/admin/config` to pick up the new IDs.
 
 **Supported service types:** `openai`, `anthropic`, `azure`, `openaicompatible`, `asage`, `cohere`, `north`, `mistral`, `scale`
 
@@ -633,7 +633,7 @@ When a tool call fails, the agent does not always stop immediately. It may conti
 
 To avoid endless retries, the plugin enforces a limit of **three consecutive failed tool attempts**. After that, no further tool calls are made for that sequence; the model is instructed to describe the latest error and ask the user for guidance or any missing information such as permissions, identifiers, or configuration details.
 
-When users report repeated tool failures, use **LLM Trace** and debug logging to inspect tool errors and upstream responses. Also verify integration configuration such as API keys, endpoints, MCP connectivity, and third-party authorization, and confirm the user can access the underlying Mattermost resources the tool targets.
+When users report repeated tool failures, use **LLM Trace** and debug logging to inspect tool errors and upstream responses. Also verify integration configuration such as API keys, endpoints, MCP connectivity, and third-party authorization, and confirm the user can access the underlying Antimatter resources the tool targets.
 
 ## Integrations
 
@@ -645,19 +645,19 @@ The built-in `CreateFile` tool lets an agent create a text file that is attached
 
 ## Model Context Protocol (MCP) Integration
 
-The Model Context Protocol (MCP) integration lets Agents use tools exposed by MCP servers, including the embedded Mattermost tools, plugin-registered MCP servers from compatible Mattermost plugins, and optional remote servers.
+The Model Context Protocol (MCP) integration lets Agents use tools exposed by MCP servers, including the embedded Antimatter tools, plugin-registered MCP servers from compatible Antimatter plugins, and optional remote servers.
 
-The MCP client and the embedded Mattermost MCP server are always enabled. Admins manage remote MCP servers and connection timeout from the MCP UI in the System Console. The **Tools** tab also shows plugin-registered MCP servers, where admins can enable or disable each plugin server and set per-tool enabled state and approval policies. Agent-level MCP access is configured separately on each agent's **MCPs** tab.
+The MCP client and the embedded Antimatter MCP server are always enabled. Admins manage remote MCP servers and connection timeout from the MCP UI in the System Console. The **Tools** tab also shows plugin-registered MCP servers, where admins can enable or disable each plugin server and set per-tool enabled state and approval policies. Agent-level MCP access is configured separately on each agent's **MCPs** tab.
 
 ### Configuration
 
 1. Navigate to **System Console > Plugins > Agents > Model Context Protocol (MCP)**.
 2. Use the **Configuration** tab for:
 
-   - **Enable Mattermost MCP Server (HTTP)**: Optional HTTP endpoint for external MCP clients. See [Mattermost MCP Server](#mattermost-mcp-server).
+   - **Enable Antimatter MCP Server (HTTP)**: Optional HTTP endpoint for external MCP clients. See [Antimatter MCP Server](#antimatter-mcp-server).
    - **Connection Idle Timeout (minutes)**: Timeout for inactive user MCP connections (default: 30 minutes).
    - Remote MCP servers, including URL, custom headers, OAuth client settings, service account headers, and per-server enablement.
-   - **Built-in & plugin servers**: Read-only cards for the embedded Mattermost MCP server and any currently registered plugin MCP servers. Use each card's **Access policy** section to restrict which users can use that server's tools (see [Attribute-based access control (ABAC)](#attribute-based-access-control-abac)). Denying the built-in server removes nearly all in-product Mattermost tools for matching users. Plugin enablement and per-tool approval remain on the **Tools** tab.
+   - **Built-in & plugin servers**: Read-only cards for the embedded Antimatter MCP server and any currently registered plugin MCP servers. Use each card's **Access policy** section to restrict which users can use that server's tools (see [Attribute-based access control (ABAC)](#attribute-based-access-control-abac)). Denying the built-in server removes nearly all in-product Antimatter tools for matching users. Plugin enablement and per-tool approval remain on the **Tools** tab.
 
 3. Use the **Tools** tab to review discovered tools and set each tool's enabled state and approval policy. Expand a tool row to add an optional **Retrieval description override** for dynamic tool loading search; this helps the agent find the tool but does not change the tool schema sent after loading. Plugin-registered MCP servers appear as separate plugin rows in this tab.
 4. When creating or editing an agent on the **Agents** page, use the **MCPs** tab to choose whether that agent can use all MCP tools automatically or only a selected set of tools, and whether MCP tool schemas are loaded dynamically or exposed up front.
@@ -682,7 +682,7 @@ You can't disable MCP entirely from the System Console. To limit access, disable
 
 ### Plugin-registered MCP servers
 
-Compatible Mattermost plugins can register MCP servers with Agents. In the **Tools** tab, each registered plugin server appears as its own plugin row, where admins can enable or disable the entire plugin server and configure per-tool approval policies. Plugin tool names are shown in a friendlier form instead of the raw wire-format names.
+Compatible Antimatter plugins can register MCP servers with Agents. In the **Tools** tab, each registered plugin server appears as its own plugin row, where admins can enable or disable the entire plugin server and configure per-tool approval policies. Plugin tool names are shown in a friendlier form instead of the raw wire-format names.
 
 Access policies for plugin servers are authored on the **Configuration** tab under **Built-in & plugin servers**. Policy identity is keyed by the source plugin ID, so a policy survives unregister/re-register and path changes. Policies are not deleted automatically when a plugin unregisters; the dormant policy re-attaches if the same plugin registers again.
 
@@ -690,9 +690,9 @@ These admin-owned settings (enablement, per-tool approval, and access policy) pe
 
 The source plugin controls the plugin server's name, path, and whether it is eligible for external exposure. Admins do not configure the external exposure flag in the Agents UI.
 
-When a plugin server is enabled and the source plugin marks it for external exposure, its enabled tools can be added to the external Mattermost MCP HTTP endpoint. Per-tool admin policy applies to those tools there as well.
+When a plugin server is enabled and the source plugin marks it for external exposure, its enabled tools can be added to the external Antimatter MCP HTTP endpoint. Per-tool admin policy applies to those tools there as well.
 
-Proxied tool calls to plugin-registered MCP servers carry the authenticated Mattermost user context through to the source plugin, so user-scoped permissions still apply.
+Proxied tool calls to plugin-registered MCP servers carry the authenticated Antimatter user context through to the source plugin, so user-scoped permissions still apply.
 
 ### Configure OAuth-backed servers for agents
 
@@ -707,11 +707,11 @@ If a disconnected OAuth-backed server currently exposes no tools, you can still 
 
 The **Automatically enable all MCP tools** option remains the broadest setting. When enabled, the agent can use every currently available MCP tool as well as MCP tools added later.
 
-Enabling a server or tool for an agent controls what the agent is allowed to use, but it does not bypass tool approval policies. Tool execution still follows the policy configured in the **Tools** tab and each user's Mattermost and provider permissions.
+Enabling a server or tool for an agent controls what the agent is allowed to use, but it does not bypass tool approval policies. Tool execution still follows the policy configured in the **Tools** tab and each user's Antimatter and provider permissions.
 
 ### Service account authentication
 
-By default, MCP tool calls run with the credentials of the user who triggered the agent: per-user OAuth on external MCP servers, and the requesting user's own identity for embedded Mattermost tools. An agent can instead be switched to **service account authentication**, where external MCP servers use shared, admin-configured credentials. Embedded Mattermost and plugin tools still run as the requesting user.
+By default, MCP tool calls run with the credentials of the user who triggered the agent: per-user OAuth on external MCP servers, and the requesting user's own identity for embedded Antimatter tools. An agent can instead be switched to **service account authentication**, where external MCP servers use shared, admin-configured credentials. Embedded Antimatter and plugin tools still run as the requesting user.
 
 To set it up:
 
@@ -721,11 +721,11 @@ To set it up:
 The agent setting is all-or-nothing:
 
 - **External MCP servers**: connections send the server's service account headers in place of per-user OAuth. The server's custom headers are still sent in both modes; when both define the same header, the service account value wins. Servers without service account headers are excluded from this agent entirely — it fails closed, with no fallback to any user's personal OAuth connection. To mix personal and service account access, use two agents or separate MCP server entries.
-- **Embedded Mattermost tools and plugin-registered MCP servers**: tool calls run as the **requesting user**, the same as in per-user mode. Channel membership and Mattermost permissions of that user are the access boundary — reading posts, searching, and listing channel members return what that user can read.
+- **Embedded Antimatter tools and plugin-registered MCP servers**: tool calls run as the **requesting user**, the same as in per-user mode. Channel membership and Antimatter permissions of that user are the access boundary — reading posts, searching, and listing channel members return what that user can read.
 - Users are never prompted to connect accounts for this agent, per-user tool provider preferences don't apply, and the Agents RHS **Tools** popover is hidden.
 - Tool approval is unchanged: the person who triggered the agent still approves or rejects tool calls according to the configured tool policies. See [Multiplayer Tool Calling](features/multiplayer_tool_calling.md).
 
-> **Warning:** Service account authentication flattens permissions on **external** MCP servers — **every user who can use the agent acts with the agent's shared access** there. Restrict who can use the agent on its **Access** tab, and prefer a dedicated service account (and MCP server entry) per integration, scoped to the minimum permissions the agent needs. External systems attribute the agent's actions to the service account, not to the Mattermost user who triggered them; to correlate, enable [token usage tracking](#token-usage-tracking), where each record carries the triggering user (`user_id`), the acting identity (`acting_user_id`), and the auth mode (`tool_auth_mode`). Mattermost and plugin tools still run with each requesting user's own permissions. Header values are stored in the plugin configuration and are visible to system admins, like the server's other credentials.
+> **Warning:** Service account authentication flattens permissions on **external** MCP servers — **every user who can use the agent acts with the agent's shared access** there. Restrict who can use the agent on its **Access** tab, and prefer a dedicated service account (and MCP server entry) per integration, scoped to the minimum permissions the agent needs. External systems attribute the agent's actions to the service account, not to the Antimatter user who triggered them; to correlate, enable [token usage tracking](#token-usage-tracking), where each record carries the triggering user (`user_id`), the acting identity (`acting_user_id`), and the auth mode (`tool_auth_mode`). Antimatter and plugin tools still run with each requesting user's own permissions. Header values are stored in the plugin configuration and are visible to system admins, like the server's other credentials.
 
 ### MCP dynamic tool loading
 
@@ -735,7 +735,7 @@ When an agent's MCP dynamic tool loading setting is enabled, the model doesn't r
 
 After a tool is loaded successfully, it remains available for the rest of the conversation. On later turns, loaded tools are restored from retained conversation history when they are still authorized and available.
 
-The `search_tools` and `load_tool` meta-tools run automatically without approval. The loaded business tool still follows its configured approval policy and the user's Mattermost and provider permissions — or, for agents using [service account authentication](#service-account-authentication), service account credentials on external MCP servers and the requesting user's Mattermost permissions for embedded and plugin tools.
+The `search_tools` and `load_tool` meta-tools run automatically without approval. The loaded business tool still follows its configured approval policy and the user's Antimatter and provider permissions — or, for agents using [service account authentication](#service-account-authentication), service account credentials on external MCP servers and the requesting user's Antimatter permissions for embedded and plugin tools.
 
 Dynamic loading applies to normal agent conversation turns. Bridge integrations and direct tool catalog requests can still request concrete tool schemas directly.
 
@@ -743,13 +743,13 @@ Dynamic loading applies to normal agent conversation turns. Bridge integrations 
 
 - **Connection Management**: The system automatically manages user connections to MCP servers
 - **Idle Cleanup**: Inactive client connections are automatically closed after the configured timeout
-- **Per-User Connections**: Each user gets their own connection to MCP servers for security and isolation. Agents using service account authentication share one remote connection per agent (keyed to the agent's bot account) for external MCP servers; embedded Mattermost and plugin connections stay per requesting user
+- **Per-User Connections**: Each user gets their own connection to MCP servers for security and isolation. Agents using service account authentication share one remote connection per agent (keyed to the agent's bot account) for external MCP servers; embedded Antimatter and plugin connections stay per requesting user
 - **Tool Policies**: Use the **Tools** tab to allow, require approval for, or disable individual tools, and to add optional retrieval description overrides used by dynamic tool loading search
-- **Agent Scoping**: The RHS **Tools** popover only shows MCP providers allowed for the selected agent, and is hidden entirely for agents using service account authentication (there are no per-user remote connections or preferences to manage; embedded Mattermost and plugin connections still run as the requesting user). Tool use is still subject to admin tool policies and the user's Mattermost permissions
+- **Agent Scoping**: The RHS **Tools** popover only shows MCP providers allowed for the selected agent, and is hidden entirely for agents using service account authentication (there are no per-user remote connections or preferences to manage; embedded Antimatter and plugin connections still run as the requesting user). Tool use is still subject to admin tool policies and the user's Antimatter permissions
 
 ### OAuth-backed MCP servers
 
-Some MCP servers require OAuth per Mattermost user. For those servers, the plugin exposes `needsOAuth` and `authURL` to the Agents webapp so the UI can show when authorization is required and where to begin the flow. The webapp starts OAuth through the plugin route `GET /plugins/mattermost-ai/mcp/oauth/<server name>/start` and can clear the current user's stored token with `DELETE /plugins/mattermost-ai/mcp/oauth/<server name>`.
+Some MCP servers require OAuth per Antimatter user. For those servers, the plugin exposes `needsOAuth` and `authURL` to the Agents webapp so the UI can show when authorization is required and where to begin the flow. The webapp starts OAuth through the plugin route `GET /plugins/mattermost-ai/mcp/oauth/<server name>/start` and can clear the current user's stored token with `DELETE /plugins/mattermost-ai/mcp/oauth/<server name>`.
 
 **Agents panel (web and desktop):** In the Agents right-hand sidebar, start a new chat and open **Tools**. OAuth-backed servers show **Connect** when the signed-in user is not authenticated, and **Disconnect** when an OAuth session applies.
 
@@ -757,24 +757,24 @@ Some MCP servers require OAuth per Mattermost user. For those servers, the plugi
 
 **Conversations:** The plugin no longer posts ephemeral in-channel or in-thread messages to prompt MCP OAuth. Users should use the Agents webapp **Tools** menu to view connection state and run **Connect** or **Disconnect**.
 
-**Mobile and other clients:** MCP OAuth is not initiated from the mobile app or other clients that do not use the Agents webapp. Users need Mattermost web or desktop to connect OAuth-backed MCP servers.
+**Mobile and other clients:** MCP OAuth is not initiated from the mobile app or other clients that do not use the Agents webapp. Users need Antimatter web or desktop to connect OAuth-backed MCP servers.
 
 **Custom MCP OAuth setups:** If the OAuth start URL includes a `resource_metadata` query parameter, it is accepted only when its origin matches the origin of the configured MCP server **Server URL**. This prevents cross-origin metadata injection during discovery.
 
 ### Atlassian MCP server authorization
 
-When users connect to the Atlassian MCP server, they may encounter an authorization error requiring an organization admin to authorize your Mattermost domain. This configuration must be completed in Atlassian's admin console.
+When users connect to the Atlassian MCP server, they may encounter an authorization error requiring an organization admin to authorize your Antimatter domain. This configuration must be completed in Atlassian's admin console.
 
-**To authorize your Mattermost domain:**
+**To authorize your Antimatter domain:**
 
 1. Go to [admin.atlassian.com](https://admin.atlassian.com) and select your organization.
 2. Go to **Apps > AI settings > Rovo MCP server**.
-3. Select **Add domain** and enter your Mattermost domain with the path wildcard: `https://your-instance.mattermost.cloud/**`
+3. Select **Add domain** and enter your Antimatter domain with the path wildcard: `https://your-instance.antimatter.example/**`
 4. Select **Save**.
 
 **Important:** The `/**` path wildcard is required. Example domain patterns:
-- Single instance: `https://your-company.mattermost.cloud/**`
-- All subdomains: `https://*.mattermost.cloud/**`
+- Single instance: `https://your-company.antimatter.example/**`
+- All subdomains: `https://*.antimatter.example/**`
 - Custom domain: `https://chat.yourcompany.com/**`
 
 After adding the domain, wait 1-2 minutes for changes to propagate before users retry the connection.
@@ -789,39 +789,39 @@ For more information, see [Atlassian's documentation on MCP server settings](htt
 
 > **Note:** By default, the plugin doesn't render AI-generated Markdown links (for example, JIRA ticket links) as clickable links. URLs are displayed in plain text to reduce potential phishing and data exfiltration risk. If an admin enables **Render AI-generated links** (`allowUnsafeLinks`), AI-generated links may become clickable; enable this only with appropriate trust boundaries and security mitigations in place.
 
-## Mattermost MCP Server
+## Antimatter MCP Server
 
-The Mattermost MCP Server enables AI agents and external applications to interact with your Mattermost instance through the Model Context Protocol (MCP). This is a standardized protocol that allows AI assistants to read messages, search content, create posts, and manage channels and teams programmatically. The built-in Mattermost tools are always available to Agents through the embedded server, and the optional HTTP endpoint for external clients can also aggregate eligible tools from compatible plugin-registered MCP servers.
+The Antimatter MCP Server enables AI agents and external applications to interact with your Antimatter instance through the Model Context Protocol (MCP). This is a standardized protocol that allows AI assistants to read messages, search content, create posts, and manage channels and teams programmatically. The built-in Antimatter tools are always available to Agents through the embedded server, and the optional HTTP endpoint for external clients can also aggregate eligible tools from compatible plugin-registered MCP servers.
 
-**Standalone MCP server (separate process / stdio):** Running the standalone `mattermost-mcp-server` binary outside the Mattermost server is for **development and local use only** and is **not** intended for production. Production deployments should rely on the embedded Mattermost MCP server and the supported configuration in this plugin (System Console, HTTP endpoint for external clients, and agent MCP settings below).
+**Standalone MCP server (separate process / stdio):** Running the standalone `antimatter-mcp-server` binary outside the Antimatter server is for **development and local use only** and is **not** intended for production. Production deployments should rely on the embedded Antimatter MCP server and the supported configuration in this plugin (System Console, HTTP endpoint for external clients, and agent MCP settings below).
 
 ### Overview
 
-The Mattermost MCP Server provides:
+The Antimatter MCP Server provides:
 
-- **Direct Mattermost Integration**: AI agents can access your Mattermost data and functionality through a standardized API
-- **Security and Permissions**: All operations respect Mattermost's permission system - users only access what they're authorized to see
-- **Flexible Deployment**: Available as an embedded server for Mattermost AI agents or as an HTTP server for external MCP clients
+- **Direct Antimatter Integration**: AI agents can access your Antimatter data and functionality through a standardized API
+- **Security and Permissions**: All operations respect Antimatter's permission system - users only access what they're authorized to see
+- **Flexible Deployment**: Available as an embedded server for Antimatter AI agents or as an HTTP server for external MCP clients
 - **Rich Toolset**: Comprehensive tools for reading, searching, and creating content
 
 **Use Cases**
 
-With the Mattermost MCP Server, you can:
+With the Antimatter MCP Server, you can:
 
 - **Automate Channel Summaries**: Ask your AI agent to summarize activity across channels, catching up on discussions while you were away.
 - **Share Updates Across Channels**: Have your agent post status updates to multiple channels simultaneously, keeping distributed teams synchronized.
-- **Search Intelligently**: Search across your entire Mattermost workspace from any MCP-enabled client to find relevant discussions, decisions, or information.
+- **Search Intelligently**: Search across your entire Antimatter workspace from any MCP-enabled client to find relevant discussions, decisions, or information.
 - **Coordinate Teams**: Get lists of channel or team members to quickly identify who to contact or mention.
 - **Automate Workflows**: Use external MCP clients to automate routine tasks like posting stand-up updates, creating project channels, or notifying teams of important events.
 - **Access Context-Aware Assistance**: AI agents can read conversation threads to understand context before responding or taking action.
 
 ### Available Tools
 
-The built-in Mattermost MCP server provides the following native Mattermost tools:
+The built-in Antimatter MCP server provides the following native Antimatter tools:
 
 - **read_post**: Read a specific post and its thread
 - **read_channel**: Retrieve recent posts from a channel
-- **search_posts**: Search across Mattermost content with optional team/channel filters
+- **search_posts**: Search across Antimatter content with optional team/channel filters
 - **create_post**: Create new posts or replies in channels
 - **dm**: Send a direct message to a user
 - **group_message**: Send a message to a group conversation
@@ -836,7 +836,7 @@ The built-in Mattermost MCP server provides the following native Mattermost tool
 - **add_team_member**: Add a user to a team
 - **list_agents**: List the AI agents (bots) available to the current user, including each agent's ID, display name, and username
 
-The plugin also registers an extended catalog of read and write tools spanning Mattermost's main domains. Because the plugin supports dynamic tool loading, agents discover these on demand via the `search_tools` and `load_tool` meta-tools rather than carrying every schema in context. Write/destructive/permission-sensitive tools are marked with ⚠ and follow each user's Mattermost permissions.
+The plugin also registers an extended catalog of read and write tools spanning Antimatter's main domains. Because the plugin supports dynamic tool loading, agents discover these on demand via the `search_tools` and `load_tool` meta-tools rather than carrying every schema in context. Write/destructive/permission-sensitive tools are marked with ⚠ and follow each user's Antimatter permissions.
 
 - **Posts & messages**: get_post_info, list_pinned_posts, list_saved_posts, ⚠ update_post, ⚠ delete_post, ⚠ pin_post, ⚠ unpin_post, ⚠ save_post, ⚠ acknowledge_post
 - **Scheduled posts & reminders**: list_scheduled_posts, ⚠ create_scheduled_post, ⚠ update_scheduled_post, ⚠ delete_scheduled_post, ⚠ set_post_reminder
@@ -853,13 +853,13 @@ The plugin also registers an extended catalog of read and write tools spanning M
 - **Groups**: get_group_info, list_groups, get_user_groups, get_channel_groups, get_team_groups, get_users_in_group_channels
 - **Roles & permissions**: get_role, get_channel_moderations, ⚠ update_channel_member_roles, ⚠ update_team_member_roles
 
-These are the native Mattermost tools included by the Agents plugin itself. Plugin-registered MCP tools are configured separately in the **Tools** tab and are not part of the built-in list above.
+These are the native Antimatter tools included by the Agents plugin itself. Plugin-registered MCP tools are configured separately in the **Tools** tab and are not part of the built-in list above.
 
 ### Deployment
 
 #### For AI Agents
 
-The embedded Mattermost MCP server is available automatically to configured AI agents. No System Console switch is required to enable embedded MCP for in-product agents.
+The embedded Antimatter MCP server is available automatically to configured AI agents. No System Console switch is required to enable embedded MCP for in-product agents.
 
 Use **System Console > Plugins > Agents > Model Context Protocol (MCP)** to configure remote MCP servers, review plugin-registered MCP servers, set the idle timeout, control the optional HTTP endpoint for external clients, and manage per-tool enablement and approval policies. Then use each agent's **MCPs** tab on the **Agents** page to either automatically enable all MCP tools or restrict that agent to specific tools.
 
@@ -867,16 +867,16 @@ Configured agents can use these tools subject to their own MCP settings, admin t
 
 #### For External Clients
 
-You can enable external MCP clients, such as Claude web, Claude Code, or other MCP-compatible applications, to interact with your Mattermost instance. This HTTP server is separate from the always-on embedded MCP server used by Mattermost Agents.
+You can enable external MCP clients, such as Claude web, Claude Code, or other MCP-compatible applications, to interact with your Antimatter instance. This HTTP server is separate from the always-on embedded MCP server used by Antimatter Agents.
 
-When enabled, the external HTTP endpoint exposes the built-in Mattermost MCP tools. It can also aggregate enabled tools from plugin-registered MCP servers when the source plugin marks that server for external exposure and the plugin server is enabled in Agents.
+When enabled, the external HTTP endpoint exposes the built-in Antimatter MCP tools. It can also aggregate enabled tools from plugin-registered MCP servers when the source plugin marks that server for external exposure and the plugin server is enabled in Agents.
 
-Per-tool admin policy applies to aggregated plugin tools. Proxied plugin tool calls carry the authenticated Mattermost user context through to the source plugin, so the source plugin can continue to enforce user-scoped permissions.
+Per-tool admin policy applies to aggregated plugin tools. Proxied plugin tool calls carry the authenticated Antimatter user context through to the source plugin, so the source plugin can continue to enforce user-scoped permissions.
 
-If an exposed plugin tool name conflicts with a built-in Mattermost tool or with another exposed plugin tool, the conflicting plugin tool is skipped from the external endpoint. These conflicts are logged.
+If an exposed plugin tool name conflicts with a built-in Antimatter tool or with another exposed plugin tool, the conflicting plugin tool is skipped from the external endpoint. These conflicts are logged.
 
 **Requirements:**
-- Mattermost Server v11.2 or later
+- Antimatter Server v11.2 or later
 - Valid authentication method (OAuth or Personal Access Token)
 
 **Note:** The server uses streamable HTTP transport and does not support traditional Server-Sent Events (SSE) transport. External clients must use the streamable HTTP transport available at the `/mcp` endpoint.
@@ -884,8 +884,8 @@ If an exposed plugin tool name conflicts with a built-in Mattermost tool or with
 To enable an external MCP client:
 
 1. Go to **System Console > Plugins > Agents > Model Context Protocol (MCP)**
-2. Set **Enable Mattermost MCP Server (HTTP)** to **True**.
-The MCP server will be available at: `https://your-mattermost-server/plugins/mattermost-ai/mcp-server/mcp`
+2. Set **Enable Antimatter MCP Server (HTTP)** to **True**.
+The MCP server will be available at: `https://your-antimatter-server/plugins/mattermost-ai/mcp-server/mcp`
 
 **Authentication:**
 
@@ -896,22 +896,22 @@ The MCP server supports OAuth 2.0 authentication with both manual and automatic 
 **Prerequisites:**
 - Enable OAuth 2.0 service provider in **System Console > Integrations > Integration Management**:
   - Set **Enable OAuth 2.0 Service Provider** to **True**
-  - For automatic client registration, set **Enable OAuth 2.0 Dynamic Client Registration** to **True** (Note: DCR is an unprotected endpoint, meaning it is publicly accessible and does not require authentication—anyone can register OAuth clients if this feature is enabled. See the [OAuth 2.0 documentation](https://developers.mattermost.com/integrate/apps/authentication/oauth2/) for security considerations.)
+  - For automatic client registration, set **Enable OAuth 2.0 Dynamic Client Registration** to **True** (Note: DCR is an unprotected endpoint, meaning it is publicly accessible and does not require authentication—anyone can register OAuth clients if this feature is enabled. See the [OAuth 2.0 documentation](https://docs.antimatter.example/integrate/apps/authentication/oauth2/) for security considerations.)
 
 **Client Registration Methods:**
 - **Dynamic Client Registration (DCR/RFC 7591)**: External clients can automatically register and obtain credentials without manual setup.
-- **Manual Registration**: Create OAuth applications through **Product menu > Integrations > OAuth 2.0 Applications**. See the [OAuth 2.0 documentation](https://developers.mattermost.com/integrate/apps/authentication/oauth2/) for details.
+- **Manual Registration**: Create OAuth applications through **Product menu > Integrations > OAuth 2.0 Applications**. See the [OAuth 2.0 documentation](https://docs.antimatter.example/integrate/apps/authentication/oauth2/) for details.
 
 **Additional Details:**
 - Supports both public clients (e.g., desktop applications) and confidential clients (e.g., server applications)
-- Authorization through standard Mattermost OAuth flows
+- Authorization through standard Antimatter OAuth flows
 - OAuth metadata endpoints:
-  - Protected resource metadata: `https://your-mattermost-server/plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource`
-  - Authorization server metadata: `https://your-mattermost-server/.well-known/oauth-authorization-server`
+  - Protected resource metadata: `https://your-antimatter-server/plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource`
+  - Authorization server metadata: `https://your-antimatter-server/.well-known/oauth-authorization-server`
 
 *Personal Access Tokens*
 
-You can authenticate using Mattermost Personal Access Tokens (PAT):
+You can authenticate using Antimatter Personal Access Tokens (PAT):
 
-1. Create a Personal Access Token in Mattermost (**User Settings > Security > Personal Access Tokens**).
+1. Create a Personal Access Token in Antimatter (**User Settings > Security > Personal Access Tokens**).
 2. Configure your MCP client to use Bearer token authentication with the PAT.

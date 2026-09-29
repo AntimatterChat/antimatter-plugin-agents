@@ -1,6 +1,6 @@
-# Upgrading to Mattermost Agents V2
+# Upgrading to Antimatter Agents V2
 
-This guide describes how to upgrade the Mattermost Agents plugin (formerly Mattermost AI) from a v1.x release to v2.0.0. It covers the supported version path, the migrations that run automatically on first start of v2.0.0, the breaking changes and default-behavior flips that admins should know about before the upgrade window, and the verification steps to confirm the upgrade succeeded.
+This guide describes how to upgrade the Antimatter Agents plugin (formerly Antimatter AI) from a v1.x release to v2.0.0. It covers the supported version path, the migrations that run automatically on first start of v2.0.0, the breaking changes and default-behavior flips that admins should know about before the upgrade window, and the verification steps to confirm the upgrade succeeded.
 
 If you are running a fresh installation of v2.0.0 (no prior data, no prior `config.bots` entries), you do not need this guide — install the plugin and configure it using the [Admin Guide](admin_guide.md).
 
@@ -8,19 +8,19 @@ If you are running a fresh installation of v2.0.0 (no prior data, no prior `conf
 
 You are the right reader if all of the following apply:
 
-- You currently run the Mattermost AI / Mattermost Agents plugin at v1.x.
-- You administer the Mattermost server (System Admin) and own its database.
+- You currently run the Antimatter AI / Antimatter Agents plugin at v1.x.
+- You administer the Antimatter server (System Admin) and own its database.
 - You are planning to install v2.0.0.
 
-If you are upgrading the Mattermost server itself, refer to the standard Mattermost upgrade documentation in addition to this guide. The plugin upgrade does not change Mattermost server requirements beyond those listed in the [Admin Guide](admin_guide.md#prerequisites).
+If you are upgrading the Antimatter server itself, refer to the standard Antimatter upgrade documentation in addition to this guide. The plugin upgrade does not change Antimatter server requirements beyond those listed in the [Admin Guide](admin_guide.md#prerequisites).
 
 ## 2. Pre-flight checklist
 
 Complete every item before starting the upgrade. Do not skip the database backup.
 
-1. **Confirm your current plugin version.** Go to **System Console > Plugin Management** and note the installed version of Mattermost AI / Mattermost Agents.
-2. **Confirm your Mattermost server version.** v2.0.0 requires Mattermost Server v10.0 or later. The optional external MCP HTTP server requires Mattermost Server v11.2 or later.
-3. **Back up the Mattermost database.** v2.0.0 runs schema migrations on first start (see [Section 4](#4-what-gets-migrated-automatically)). Some migrations are not safely reversible (see [Section 8](#8-rollback-considerations)). In particular, migration 000007 drops the legacy `LLM_PostMeta` table without migrating its contents into the new conversation-entities tables — v1.x conversation titles cannot be recovered after the upgrade except from this backup. See [Section 5](#5-breaking-changes) for the full list of v1.x data that does not survive the upgrade.
+1. **Confirm your current plugin version.** Go to **System Console > Plugin Management** and note the installed version of Antimatter AI / Antimatter Agents.
+2. **Confirm your Antimatter server version.** v2.0.0 requires Antimatter Server v10.0 or later. The optional external MCP HTTP server requires Antimatter Server v11.2 or later.
+3. **Back up the Antimatter database.** v2.0.0 runs schema migrations on first start (see [Section 4](#4-what-gets-migrated-automatically)). Some migrations are not safely reversible (see [Section 8](#8-rollback-considerations)). In particular, migration 000007 drops the legacy `LLM_PostMeta` table without migrating its contents into the new conversation-entities tables — v1.x conversation titles cannot be recovered after the upgrade except from this backup. See [Section 5](#5-breaking-changes) for the full list of v1.x data that does not survive the upgrade.
 4. **Back up `config.json`.** The legacy bot migration removes entries from stored plugin configuration after copying them into the database. Keeping a pre-upgrade copy of `config.json` is the simplest way to recover original bot definitions if you need to roll back.
 5. **Capture a list of currently configured bots.** From your existing System Console > Plugins > Agents (or AI Bots) page, note the username, display name, service binding, and access rules of each bot. After the upgrade, you can compare this list against the migrated agents on the new **Agents** product page.
 6. **Identify any external integrations that read the `LLM_PostMeta` table directly.** That table is dropped by migration 000007. To our knowledge, no documented integration depends on this table.
@@ -28,9 +28,9 @@ Complete every item before starting the upgrade. Do not skip the database backup
 
 ## 3. Version sequence
 
-The supported upgrade path is to upgrade Mattermost to the latest v11.6 patch release before upgrading to Mattermost v11.7, which includes Agents v2.0.0.
+The supported upgrade path is to upgrade Antimatter to the latest v11.6 patch release before upgrading to Antimatter v11.7, which includes Agents v2.0.0.
 
-> **Why this matters:** Mattermost v11.6 is the tested source release for the Agents v2.0.0 upgrade. Upgrade to Mattermost v11.6 first if you are running an earlier Mattermost or plugin version.
+> **Why this matters:** Antimatter v11.6 is the tested source release for the Agents v2.0.0 upgrade. Upgrade to Antimatter v11.6 first if you are running an earlier Antimatter or plugin version.
 
 ## 4. What gets migrated automatically
 
@@ -50,10 +50,10 @@ After the schema migrations run, the plugin performs a one-time migration of leg
 
 1. The plugin acquires the cluster mutex `ai_legacy_bots_migration` so only one node performs the migration in HA deployments.
 2. The plugin checks the `legacy_config_bots_migrated` flag in the `Agents_System` table. If set, the migration is a no-op.
-3. For each entry in `config.bots`, the plugin verifies that a corresponding Mattermost bot account already exists. If any required Mattermost bot row is missing, the migration is **deferred** without setting the completion flag (it will retry on the next config update or restart).
+3. For each entry in `config.bots`, the plugin verifies that a corresponding Antimatter bot account already exists. If any required Antimatter bot row is missing, the migration is **deferred** without setting the completion flag (it will retry on the next config update or restart).
 4. Each `config.bots` entry is copied into `Agents_UserAgents` with:
     - A new agent ID and timestamps assigned by the store.
-    - `BotUserID` linked to the existing Mattermost bot account.
+    - `BotUserID` linked to the existing Antimatter bot account.
     - `CreatorID` left empty (migrated agents do not have a creator).
     - `AdminUserIDs` cleared. Migrated agents are managed by system admins.
     - `AutoEnableNewMCPTools = true` so migrated agents preserve the v1.x behavior of having access to every MCP tool, including ones added later.
@@ -64,7 +64,7 @@ After the schema migrations run, the plugin performs a one-time migration of leg
 ### 4.3 What changes in the System Console
 
 - **AI Bots** → redirects to the new top-level **Agents** product page. The legacy AI Bots editor is replaced by the **Agents** management UI (list page plus a three-tab agent editor: Configuration, Access, MCPs).
-- **Enable MCP Client** and **Enable Embedded Server** toggles are removed (PR #617). MCP and the embedded Mattermost MCP server are always on.
+- **Enable MCP Client** and **Enable Embedded Server** toggles are removed (PR #617). MCP and the embedded Antimatter MCP server are always on.
 - The **Use Responses API** toggle is removed for the **OpenAI** service type. OpenAI direct always uses the Responses API. The toggle remains for **OpenAI Compatible** and **Azure OpenAI** services.
 
 ## 5. Breaking changes
@@ -95,14 +95,14 @@ Services with type **OpenAI** unconditionally route through the OpenAI Responses
 
 ### 5.5 Standalone MCP server binary scope clarified
 
-The standalone `mattermost-mcp-server` binary (separate process, stdio transport) is documented as **development and local use only** and is not supported in production deployments. Production environments should rely on the embedded Mattermost MCP server and, when external clients are required, the HTTP MCP server endpoint configured from the System Console.
+The standalone `antimatter-mcp-server` binary (separate process, stdio transport) is documented as **development and local use only** and is not supported in production deployments. Production environments should rely on the embedded Antimatter MCP server and, when external clients are required, the HTTP MCP server endpoint configured from the System Console.
 
 ### 5.6 Removed in-product capabilities
 
 | Removed | Replacement |
 |---|---|
 | Built-in GitHub and Jira issue tools | MCP-backed providers |
-| Built-in Mattermost search/user tools | Embedded Mattermost MCP server (`search_posts`, `search_users`) |
+| Built-in Antimatter search/user tools | Embedded Antimatter MCP server (`search_posts`, `search_users`) |
 | Prompt hint buttons | Custom prompt templates |
 | Ephemeral OAuth-prompt messages in threads | **Connect** button in the agent's **MCPs** tab and the Agents RHS **Tools** menu |
 | `Minimum Size Ratio` chunking option (embedding search) | Removed; not replaced |
@@ -116,7 +116,7 @@ Defaults that ship with v2.0.0 differ from v1.x in the following ways. None of t
 | Setting | v1.x default | v2.0.0 default | Scope of change |
 |---|---|---|---|
 | MCP client | Disabled / opt-in | **Always on** | All deployments |
-| Embedded Mattermost MCP server | Disabled / opt-in | **Always on** | All deployments |
+| Embedded Antimatter MCP server | Disabled / opt-in | **Always on** | All deployments |
 | OpenAI direct: Responses API | Toggle, off-by-default | **Always on (no toggle)** | OpenAI service type only |
 | Native web search (per agent) | Off | **On for new agents** | Capable providers: OpenAI, Azure OpenAI, Anthropic, Google Gemini, Google Vertex AI. Native tools are filtered out at request time for Bedrock, Cohere, Mistral, and Scale-backed services. |
 | Extended reasoning / thinking (per agent) | Off | **On for new and migrated agents** (migration 000006 backfills `ReasoningEnabled=true`) | Capable providers (same scope as native web search) |
@@ -130,23 +130,23 @@ Defaults that ship with v2.0.0 differ from v1.x in the following ways. None of t
 
 ## 7. Step-by-step upgrade procedure
 
-### 7.1 Primary path: Upgrade Mattermost
+### 7.1 Primary path: Upgrade Antimatter
 
-Use this path when you receive Agents through the Mattermost server packaging.
+Use this path when you receive Agents through the Antimatter server packaging.
 
 1. **Take backups.**
-    1. Back up the Mattermost database.
+    1. Back up the Antimatter database.
     2. Back up `config.json` (or your equivalent stored plugin configuration source).
     3. If your deployment includes indexed vector data on a separate volume, snapshot it as well.
-2. **Upgrade to the latest Mattermost v11.6 patch release.** Mattermost v11.6 is the tested source release for the Agents v2.0.0 upgrade.
-3. **Confirm the v11.6 upgrade is healthy.** Verify Mattermost starts cleanly and that Mattermost AI / Mattermost Agents is enabled.
-4. **Upgrade Mattermost to v11.7.** Mattermost v11.7 includes Agents v2.0.0.
+2. **Upgrade to the latest Antimatter v11.6 patch release.** Antimatter v11.6 is the tested source release for the Agents v2.0.0 upgrade.
+3. **Confirm the v11.6 upgrade is healthy.** Verify Antimatter starts cleanly and that Antimatter AI / Antimatter Agents is enabled.
+4. **Upgrade Antimatter to v11.7.** Antimatter v11.7 includes Agents v2.0.0.
 5. **Watch the logs.** On startup, Agents v2.0.0 runs migrations 000005, 000006, and 000007, then performs the legacy bot migration described in [Section 4](#4-what-gets-migrated-automatically). In server logs, confirm:
     - Plugin start messages.
     - Migration log entries for each of 000005, 000006, 000007.
     - The log message `Migrated legacy config bots to self-service agents table` (one-time; only when at least one `config.bots` entry was present at startup).
     - No fatal migration errors. If any error occurs, see [Section 11](#11-troubleshooting).
-6. **Open the Agents page.** From the Mattermost product menu, navigate to the top-level **Agents** product entry. Confirm that each agent you noted in [Section 2 step 6](#2-pre-flight-checklist) is present. Migrated agents have no creator listed; system admins can edit and delete them from the row overflow menu.
+6. **Open the Agents page.** From the Antimatter product menu, navigate to the top-level **Agents** product entry. Confirm that each agent you noted in [Section 2 step 6](#2-pre-flight-checklist) is present. Migrated agents have no creator listed; system admins can edit and delete them from the row overflow menu.
 7. **Spot-check migrated agent configuration.**
     - Open the agent. Confirm the **Configuration** tab shows the expected display name, username, service, model, and custom instructions.
     - Confirm the **Access** tab shows the channel, user, team, and admin restrictions you expect.
@@ -155,13 +155,13 @@ Use this path when you receive Agents through the Mattermost server packaging.
 
 ### 7.2 Secondary path: Upload the plugin bundle
 
-Use this path only when you manage the Agents plugin bundle separately from the Mattermost server package.
+Use this path only when you manage the Agents plugin bundle separately from the Antimatter server package.
 
-1. **Take backups.** Back up the Mattermost database, `config.json`, and any separate indexed-vector storage.
-2. **Disable the plugin.** From **System Console > Plugin Management**, locate **Mattermost AI** / **Mattermost Agents** and select **Disable**. This prevents new traffic during the bundle swap.
-3. **Upload the v2.0.0 bundle.** Download the v2.0.0 plugin bundle (`.tar.gz`) from the [GitHub releases page](https://github.com/mattermost/mattermost-plugin-agents/releases). In **System Console > Plugin Management**, select **Upload Plugin** and upload the bundle. If a previous version is shown alongside the new bundle, remove the old version after confirming the new one is selected.
+1. **Take backups.** Back up the Antimatter database, `config.json`, and any separate indexed-vector storage.
+2. **Disable the plugin.** From **System Console > Plugin Management**, locate **Antimatter AI** / **Antimatter Agents** and select **Disable**. This prevents new traffic during the bundle swap.
+3. **Upload the v2.0.0 bundle.** Download the v2.0.0 plugin bundle (`.tar.gz`) from the [GitHub releases page](https://github.com/antimatterchat/antimatter-plugin-agents/releases). In **System Console > Plugin Management**, select **Upload Plugin** and upload the bundle. If a previous version is shown alongside the new bundle, remove the old version after confirming the new one is selected.
 4. **Re-enable the plugin.** Set the plugin to **Enabled**. On startup, v2.0.0 runs migrations 000005, 000006, and 000007, then performs the legacy bot migration described in [Section 4](#4-what-gets-migrated-automatically).
-5. **Complete the same post-upgrade checks.** Watch the logs, confirm migrated agents are present, and spot-check migrated agent configuration as described in [Section 7.1](#71-primary-path-upgrade-mattermost).
+5. **Complete the same post-upgrade checks.** Watch the logs, confirm migrated agents are present, and spot-check migrated agent configuration as described in [Section 7.1](#71-primary-path-upgrade-antimatter).
 
 ## 8. Rollback considerations
 
@@ -187,7 +187,7 @@ Do not attempt a rollback that runs only the down migrations — `LLM_PostMeta` 
 
 In HA deployments, complete the upgrade during a maintenance window and allow the cluster to start normally. Agents coordinates the schema migrations and legacy bot migration so only one node performs the data migration work.
 
-After startup, check logs from all nodes for migration errors and confirm the **Agents** page shows the expected migrated agents. If one node reports migration errors while another node succeeds, stop the rollout, preserve the logs, and contact Mattermost Support before retrying.
+After startup, check logs from all nodes for migration errors and confirm the **Agents** page shows the expected migrated agents. If one node reports migration errors while another node succeeds, stop the rollout, preserve the logs, and contact Antimatter Support before retrying.
 
 ## 10. Verification checklist
 
@@ -196,7 +196,7 @@ Tick through this list before ending the upgrade window.
 - [ ] Plugin status in **System Console > Plugin Management** shows v2.0.0 enabled with no errors.
 - [ ] Server logs show successful execution of migrations 000005, 000006, 000007.
 - [ ] Server logs show `Migrated legacy config bots to self-service agents table` (or no legacy bots existed in the source install).
-- [ ] The top-level **Agents** product page is reachable from the Mattermost product menu.
+- [ ] The top-level **Agents** product page is reachable from the Antimatter product menu.
 - [ ] Every bot that existed in v1.x appears as an agent in the **Agents** list with the same display name, username, and service binding.
 - [ ] Editing a migrated agent shows the expected access rules and **Automatically enable all MCP tools** turned on.
 - [ ] **System Console > Plugins > Agents > AI Bots** redirects to the **Agents** product page.
@@ -205,14 +205,14 @@ Tick through this list before ending the upgrade window.
 
 ## 11. Troubleshooting
 
-If the upgrade fails, stop the rollout and preserve the Mattermost server logs from every node. Restore the database and `config.json` from the pre-upgrade backups if you need to return service to the prior version.
+If the upgrade fails, stop the rollout and preserve the Antimatter server logs from every node. Restore the database and `config.json` from the pre-upgrade backups if you need to return service to the prior version.
 
-If migrations fail, the legacy bot migration does not complete, or migrated agents do not appear on the **Agents** page after startup, contact Mattermost Support with the server version, Agents plugin version, migration log entries, and whether the deployment is single-node or HA.
+If migrations fail, the legacy bot migration does not complete, or migrated agents do not appear on the **Agents** page after startup, contact Antimatter Support with the server version, Agents plugin version, migration log entries, and whether the deployment is single-node or HA.
 
 ## 12. Where to get help
 
-- **Issue tracker:** [github.com/mattermost/mattermost-plugin-agents/issues](https://github.com/mattermost/mattermost-plugin-agents/issues)
-- **Release notes:** [github.com/mattermost/mattermost-plugin-agents/releases](https://github.com/mattermost/mattermost-plugin-agents/releases)
+- **Issue tracker:** [github.com/antimatterchat/antimatter-plugin-agents/issues](https://github.com/antimatterchat/antimatter-plugin-agents/issues)
+- **Release notes:** [github.com/antimatterchat/antimatter-plugin-agents/releases](https://github.com/antimatterchat/antimatter-plugin-agents/releases)
 - **Admin guide:** [admin_guide.md](admin_guide.md)
 - **Provider configuration guide:** [providers.md](providers.md)
-- **Mattermost support channels:** customers with a support contract should open a case through the standard Mattermost support process and reference this upgrade guide.
+- **Antimatter support channels:** customers with a support contract should open a case through the standard Antimatter support process and reference this upgrade guide.

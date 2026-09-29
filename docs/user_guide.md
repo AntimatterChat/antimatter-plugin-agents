@@ -1,12 +1,12 @@
-# Mattermost Agents User Guide
+# Antimatter Agents User Guide
 
-This guide explains how to use the AI features available through the Mattermost Agents plugin. This plugin transforms Mattermost into an AI-enhanced collaboration platform to improve team productivity and communication.
+This guide explains how to use the AI features available through the Antimatter Agents plugin. This plugin transforms Antimatter into an AI-enhanced collaboration platform to improve team productivity and communication.
 
-With Mattermost Agents, you can summarize call and meeting recordings, turn long threads and unread channel messages into concise summaries, stay on top of your messages by identifying next steps and decisions, extract learnings and transform content into charts and documentation, dig further into any topic by asking for insights, and leverage voice dictation tools for hands-free communication.
+With Antimatter Agents, you can summarize call and meeting recordings, turn long threads and unread channel messages into concise summaries, stay on top of your messages by identifying next steps and decisions, extract learnings and transform content into charts and documentation, dig further into any topic by asking for insights, and leverage voice dictation tools for hands-free communication.
 
 ## Access AI features
 
-You can access AI features in Mattermost in the following ways:
+You can access AI features in Antimatter in the following ways:
 
 ### Web and desktop
 
@@ -33,17 +33,17 @@ You can have conversations with Agents in several ways:
 
 **Agents pane**: Use the Agents right-hand pane for a streamlined experience. Begin with suggested prompts or pinned custom prompt buttons, or engage in a private thread with an Agent for a tailored experience. If you have follow-up questions or need further insights, simply ask. You can also attach files for AI analysis or reference.
 
-**Direct messages**: Start a direct message with an Agent bot to have a private conversation. Chat privately with an Agent in direct message threads like you would any other Mattermost user.
+**Direct messages**: Start a direct message with an Agent bot to have a private conversation. Chat privately with an Agent in direct message threads like you would any other Antimatter user.
 
-**Channel mentions**: [@mention](https://docs.mattermost.com/collaborate/mention-people.html) Agent bots by their username, such as `@copilot`, in any thread to bring Agents capabilities to your conversation. The bot responds in a thread to keep channels organized, and other team members can view and contribute to the conversation. An Agent can help extract information quickly or transform discussions into charts, resources, documentation, and more, and can find action items and open questions in new messages. When you @mention an Agent in a thread, it uses earlier thread context up to that mention, including earlier posts in the thread. Later replies posted after that mention, and temporary placeholder bot posts, aren't included in that request.
+**Channel mentions**: [@mention](https://docs.antimatter.example/collaborate/mention-people.html) Agent bots by their username, such as `@copilot`, in any thread to bring Agents capabilities to your conversation. The bot responds in a thread to keep channels organized, and other team members can view and contribute to the conversation. An Agent can help extract information quickly or transform discussions into charts, resources, documentation, and more, and can find action items and open questions in new messages. When you @mention an Agent in a thread, it uses earlier thread context up to that mention, including earlier posts in the thread. Later replies posted after that mention, and temporary placeholder bot posts, aren't included in that request.
 
-When you attach files in the Agents pane, direct messages, or channel @mentions, Agents can use them as conversation context. Images are included only when vision is enabled for the bot. Other files contribute text only when Mattermost can read text from them, such as plain-text files or files with extracted text. Very large attachment text may be shortened, and if one attachment can't be read, that attachment is skipped while the conversation continues.
+When you attach files in the Agents pane, direct messages, or channel @mentions, Agents can use them as conversation context. Images are included only when vision is enabled for the bot. Other files contribute text only when Antimatter can read text from them, such as plain-text files or files with extracted text. Very large attachment text may be shortened, and if one attachment can't be read, that attachment is skipped while the conversation continues.
 
 > **Note:** Whether AI-generated links are clickable depends on your system admin configuration. Treat links in AI responses with caution and verify destinations before opening them.
 
 ### Select an agent
 
-If multiple agents are configured for your Mattermost workspace, select your preferred agent from any agent picker — such as the Agents pane, **Custom prompts**, or semantic search. Your choice is saved to your account and syncs across web, desktop, and mobile. Until you choose an agent, Mattermost uses the workspace default configured by your system administrator.
+If multiple agents are configured for your Antimatter workspace, select your preferred agent from any agent picker — such as the Agents pane, **Custom prompts**, or semantic search. Your choice is saved to your account and syncs across web, desktop, and mobile. Until you choose an agent, Antimatter uses the workspace default configured by your system administrator.
 
 You can also @mention a specific agent by name in channels.
 
@@ -59,7 +59,7 @@ To configure auto-reply, select the channel name to open the channel dropdown, s
 
 An automatic reply behaves exactly as if you had @mentioned the agent: the same tool permissions, usage restrictions, and conversation model apply, using the posting user's permissions. Posts from webhooks and system messages never trigger auto-replies, and posts from other bots don't either unless the integration explicitly opts in with the `activate_ai` post property. The "you must @mention an agent" reminder still works alongside auto-reply: when the agent does not reply automatically — for example a thread reply in a channel using the **Top-level posts only** mode — replying to an agent's thread without a mention shows the usual reminder.
 
-> **Note:** The channel settings tab requires Mattermost Server v11.10 or later; on older servers, users with permission to manage channel settings can still configure auto-reply through the plugin REST API.
+> **Note:** The channel settings tab requires Antimatter Server v11.10 or later; on older servers, users with permission to manage channel settings can still configure auto-reply through the plugin REST API.
 
 ### Use custom prompt templates
 
@@ -76,13 +76,13 @@ To manage custom prompts:
 
 The **All Prompts** tab shows prompts you created plus shared prompts from other users. The **Your Prompts** tab shows only prompts you created. Selecting a prompt from either list opens a dedicated prompt view inside the modal, with a back arrow to return to the list and the prompt name as the title. Shared prompts from other users open read-only. Only the prompt creator can edit or delete a prompt. Prompt titles can be up to 64 characters, and every prompt requires a template.
 
-When you select a saved prompt from **Custom prompts**, Mattermost renders the template with the current context and inserts the result into your draft. If you use this menu outside a bot direct message, Mattermost adds the currently selected bot mention before the rendered text. Pinned prompts in the Agents pane render the current saved template and send it immediately as a message.
+When you select a saved prompt from **Custom prompts**, Antimatter renders the template with the current context and inserts the result into your draft. If you use this menu outside a bot direct message, Antimatter adds the currently selected bot mention before the rendered text. Pinned prompts in the Agents pane render the current saved template and send it immediately as a message.
 
 Custom prompt templates support the following variables:
 
 | Variable | Inserts |
 |----------|---------|
-| `{{.Username}}` | Your Mattermost username |
+| `{{.Username}}` | Your Antimatter username |
 | `{{.FirstName}}` | Your first name |
 | `{{.LastName}}` | Your last name |
 | `{{.Channel}}` | The current channel display name |
@@ -96,35 +96,35 @@ If a value isn't available in the current context, the rendered prompt leaves it
 
 ### Use tools
 
-When Agents use external tools or integrations, Mattermost may prompt you to review tool usage based on the tool approval policy configured by your system admin. When review is required, only the person who requested the Agent interaction can accept or reject pending tools. For those pending tools, you'll see a card showing the tool name and description, arguments being passed to the tool, and **Accept** and **Reject** options. If multiple tools are waiting for a decision, Mattermost may also show **Accept all** and **Reject all** controls.
+When Agents use external tools or integrations, Antimatter may prompt you to review tool usage based on the tool approval policy configured by your system admin. When review is required, only the person who requested the Agent interaction can accept or reject pending tools. For those pending tools, you'll see a card showing the tool name and description, arguments being passed to the tool, and **Accept** and **Reject** options. If multiple tools are waiting for a decision, Antimatter may also show **Accept all** and **Reject all** controls.
 
 By default, tool calls are available in direct messages. If your system admin enables the experimental **Enable Channel Mention Tool Calling** setting, some tools can also run in channels. Depending on the configured tool policy, each tool call may require approval before execution or run automatically. A single Agent response can include both auto-approved tools and tools still waiting for approval. In that case, the auto-approved badge applies only to the individual tool that ran automatically, while pending tools continue to show **Accept** and **Reject** options. Tool results are shown after execution, and if a result needs a visibility decision, you'll see **Share** and **Keep private** options.
 
 Only the person who started the conversation can approve or reject tool calls. In direct messages with an agent, approved tool results are shared automatically because only you can view that conversation.
 
-In channels, tool approval can be a two-step process. After you approve a tool call and it runs, Mattermost can prompt you again to decide whether the tool arguments and results should be shared with the channel or kept private. If you choose **Keep Private**, other channel members don't see that tool data, and the channel-visible follow-up response is generated without the private content.
+In channels, tool approval can be a two-step process. After you approve a tool call and it runs, Antimatter can prompt you again to decide whether the tool arguments and results should be shared with the channel or kept private. If you choose **Keep Private**, other channel members don't see that tool data, and the channel-visible follow-up response is generated without the private content.
 
 If a tool execution fails, the Agent can continue with a follow-up response instead of stopping immediately. After three consecutive failed tool executions, the Agent stops calling further tools and is instructed to explain the latest error and ask you for guidance or any missing information. A successful tool execution resets that count.
 
-On web and desktop, start a new chat in the Agents right-hand pane and open the **Tools** menu in the header. The menu lists configured tool providers. Use **Refresh tool providers** in the menu header to rediscover available MCP tools—for example, after your admin adds or changes providers, or after you connect an OAuth-backed provider. For MCP servers that use OAuth, you'll see **Connect** when you're not authenticated and **Disconnect** when an OAuth session applies. You can turn individual providers on or off from this menu, and your choices are saved as your personal preferences. Mattermost doesn't send OAuth connection prompts as ephemeral posts in the conversation; use the **Tools** menu to check connection state and complete **Connect** or **Disconnect** flows.
+On web and desktop, start a new chat in the Agents right-hand pane and open the **Tools** menu in the header. The menu lists configured tool providers. Use **Refresh tool providers** in the menu header to rediscover available MCP tools—for example, after your admin adds or changes providers, or after you connect an OAuth-backed provider. For MCP servers that use OAuth, you'll see **Connect** when you're not authenticated and **Disconnect** when an OAuth session applies. You can turn individual providers on or off from this menu, and your choices are saved as your personal preferences. Antimatter doesn't send OAuth connection prompts as ephemeral posts in the conversation; use the **Tools** menu to check connection state and complete **Connect** or **Disconnect** flows.
 
-> **Note:** The Mattermost mobile apps don't currently support starting MCP OAuth connections from the Agents experience. Use web or desktop to connect OAuth-backed MCP providers.
+> **Note:** The Antimatter mobile apps don't currently support starting MCP OAuth connections from the Agents experience. Use web or desktop to connect OAuth-backed MCP providers.
 
 Depending on your workspace configuration, available tools in direct messages, and in channels when enabled by your system admin, can include:
 
-- Mattermost MCP tools, including tools to search posts, find users, and discover available agents. These tools are available through embedded MCP by default when your workspace and agent tool settings allow them
-- MCP tools provided by compatible installed Mattermost plugins that register tools with Agents, after an admin enables those plugin tools
+- Antimatter MCP tools, including tools to search posts, find users, and discover available agents. These tools are available through embedded MCP by default when your workspace and agent tool settings allow them
+- MCP tools provided by compatible installed Antimatter plugins that register tools with Agents, after an admin enables those plugin tools
 - MCP tools provided by separately configured remote MCP servers, after an admin enables them
 
 Tool availability depends on your user permissions, provider connection status, workspace configuration, and context.
 
 Some MCP providers require each user to connect their own account before those tools become available. When that applies, open the **Tools** menu in the Agents pane or RHS, select **Connect** for the provider, and wait for the list to refresh with the newly available tools.
 
-Some agents are configured by an admin to use **service account authentication** instead of per-user connections. When you chat with one of those agents, you're never asked to connect an account and the **Tools** menu isn't shown for that agent. External MCP tools run under admin-configured credentials; Mattermost and plugin tools still run with your own permissions. Tool approval works the same as with any other agent: if a tool call requires review, you still see the **Accept** and **Reject** options.
+Some agents are configured by an admin to use **service account authentication** instead of per-user connections. When you chat with one of those agents, you're never asked to connect an account and the **Tools** menu isn't shown for that agent. External MCP tools run under admin-configured credentials; Antimatter and plugin tools still run with your own permissions. Tool approval works the same as with any other agent: if a tool call requires review, you still see the **Accept** and **Reject** options.
 
 ### Ask agents to create files
 
-You can ask an agent to produce content as a file instead of pasting it into the chat. For example, ask for "the meeting notes as a markdown file" or "a Python script that parses this log, as a file". The agent creates the files and attaches them to its reply, so you can download or share them like any other Mattermost attachment.
+You can ask an agent to produce content as a file instead of pasting it into the chat. For example, ask for "the meeting notes as a markdown file" or "a Python script that parses this log, as a file". The agent creates the files and attaches them to its reply, so you can download or share them like any other Antimatter attachment.
 
 File creation supports text-based formats — the file name's extension determines the file type (such as `.md`, `.csv`, `.py`, or `.html`) — and an agent can attach up to 10 files to a single reply, with each file's content limited by the server's maximum file size setting. In direct messages, file creation is always available. In channels, it follows the same admin setting as other channel tool calling (see [Use tools](#use-tools)).
 
@@ -136,7 +136,7 @@ Agents can also attach created files to posts they make on your behalf. When you
 
 To summarize a discussion thread:
 
-1. Hover over the first message in any [conversation thread](https://docs.mattermost.com/collaborate/organize-conversations.html).
+1. Hover over the first message in any [conversation thread](https://docs.antimatter.example/collaborate/organize-conversations.html).
 2. Select the **AI Actions** icon.
 3. Select **Summarize Thread**. 
 
@@ -146,7 +146,7 @@ This is particularly useful for catching up on long discussions, creating meetin
 
 ### Summarize unread channels
 
-To summarize unread Mattermost channels:
+To summarize unread Antimatter channels:
 
 1. Scroll to the **New Messages** cutoff line in a channel with unread messages.
 2. Select **Ask AI**.
@@ -158,13 +158,13 @@ For more flexible channel analysis options, including **Ask Agents about this ch
 
 ## Search with AI
 
-You can enhance Mattermost [search](https://docs.mattermost.com/collaborate/search-for-messages.html) with AI capabilities. AI search is an [experimental](https://docs.mattermost.com/manage/feature-labels.html#experimental) feature.
+You can enhance Antimatter [search](https://docs.antimatter.example/collaborate/search-for-messages.html) with AI capabilities. AI search is an [experimental](https://docs.antimatter.example/manage/feature-labels.html#experimental) feature.
 
 Open the Agents pane from the right sidebar and use natural language to search for content (such as "find discussions about the new product launch"). The AI will find semantically relevant results, even if they don't contain the exact keywords, and results respect your permissions so you'll only see content you have access to.
 
 This feature accelerates decision-making and improves information flows by making it easier to find relevant content across threads, channels, and teams.
 
-Contact your system admin if this feature isn't available for your Mattermost instance.
+Contact your system admin if this feature isn't available for your Antimatter instance.
 
 ## Analyze images
 
@@ -176,32 +176,32 @@ Your system admin must enable vision capabilities for your bot, and the underlyi
 
 ## Record calls to summarize meetings
 
-You can leverage Mattermost Calls to turn meeting recordings into actionable summaries with a single action. Ensure key points of your calls and meetings are captured and shared easily, and share meeting insights with your team and the broader organization.
+You can leverage Antimatter Calls to turn meeting recordings into actionable summaries with a single action. Ensure key points of your calls and meetings are captured and shared easily, and share meeting insights with your team and the broader organization.
 
-To summarize a Mattermost call recording:
+To summarize an Antimatter call recording:
 
-1. [Start a call](https://docs.mattermost.com/collaborate/make-calls.html#start-a-call) in Mattermost and [record the call](https://docs.mattermost.com/collaborate/make-calls.html#record-a-call) during the meeting.
+1. [Start a call](https://docs.antimatter.example/collaborate/make-calls.html#start-a-call) in Antimatter and [record the call](https://docs.antimatter.example/collaborate/make-calls.html#record-a-call) during the meeting.
 2. Once the call ends and the call recording and transcription is ready, select the **Create meeting summary** option located directly above the call recording.
 
 The meeting summary is generated and shared as a direct message with the person who requested the meeting summary.
 
-Contact your system admin if these features aren't available for your Mattermost instance.
+Contact your system admin if these features aren't available for your Antimatter instance.
 
-## Summarize Zoom meetings in Mattermost
+## Summarize Zoom meetings in Antimatter
 
-The Zoom plugin must be [enabled and configured](https://docs.mattermost.com/integrate/zoom.html) by a Mattermost system admin and Zoom cloud recordings and transcripts must be enabled before you can summarize Zoom meetings.
+The Zoom plugin must be [enabled and configured](https://docs.antimatter.example/integrate/zoom.html) by an Antimatter system admin and Zoom cloud recordings and transcripts must be enabled before you can summarize Zoom meetings.
 
-If the Zoom plugin is enabled and configured, subscribe a Mattermost channel to a Zoom meeting (`/zoom subscription add [meeting ID]`) and record the meeting. Once the recording and transcription are available, they are automatically shared back to the channel.
+If the Zoom plugin is enabled and configured, subscribe an Antimatter channel to a Zoom meeting (`/zoom subscription add [meeting ID]`) and record the meeting. Once the recording and transcription are available, they are automatically shared back to the channel.
 
-Use Mattermost to turn Zoom meeting recordings into actionable AI-generated summaries with any model of your choosing, including your own. By summarizing your Zoom meeting recordings in Mattermost, you can easily share the insights with your team and the broader organization, enhancing communication and productivity without sacrificing data privacy and control.
+Use Antimatter to turn Zoom meeting recordings into actionable AI-generated summaries with any model of your choosing, including your own. By summarizing your Zoom meeting recordings in Antimatter, you can easily share the insights with your team and the broader organization, enhancing communication and productivity without sacrificing data privacy and control.
 
-To summarize a Zoom meeting in Mattermost:
+To summarize a Zoom meeting in Antimatter:
 
-1. Subscribe a Mattermost channel to a recurring Zoom meeting with `/zoom subscription add [meeting ID]` or start a meeting using the Zoom button in the Mattermost right-hand sidebar (RHS).
+1. Subscribe an Antimatter channel to a recurring Zoom meeting with `/zoom subscription add [meeting ID]` or start a meeting using the Zoom button in the Antimatter right-hand sidebar (RHS).
 2. Record the Zoom meeting.
-3. Once the meeting ends and the transcript file is posted to Mattermost, select the **Create meeting summary** option located directly above the file.
+3. Once the meeting ends and the transcript file is posted to Antimatter, select the **Create meeting summary** option located directly above the file.
 
-![Select the Create meeting summary option to summarize your Zoom meeting in Mattermost.](img/create-meeting-summary-zoom.png)
+![Select the Create meeting summary option to summarize your Zoom meeting in Antimatter.](img/create-meeting-summary-zoom.png)
 
 4. The meeting summary is generated and shared as a direct message with the person who requested the meeting summary.
 

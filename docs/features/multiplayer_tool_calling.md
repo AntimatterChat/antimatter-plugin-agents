@@ -22,7 +22,7 @@ Every tool call in a channel involves up to four distinct roles. These terms are
 |---|---|
 | **Initiator** | The human user who triggered the Agent — for example, by `@`-mentioning the bot or by sending a message in an Agents-pane thread. The initiator is recorded as `UserID` on the conversation row in the `LLM_Conversations` DB table. |
 | **Approver** | The user permitted to click **Accept** or **Reject** on a pending tool-call card. In multiplayer tool calling, **the approver is always the initiator** — never another channel member, never an admin. |
-| **Executor** | The identity Mattermost uses when actually running the tool — opening the HTTP request, hitting the MCP server, reading channel posts, etc. For agents using per-user authentication (the default), the executor inherits the initiator's user identity and the initiator's per-user OAuth tokens for OAuth-backed MCP servers. For agents configured with **service account authentication**, external MCP servers use admin-configured service account credentials and Mattermost (embedded) and plugin tools still run as the initiator (§3). |
+| **Executor** | The identity Antimatter uses when actually running the tool — opening the HTTP request, hitting the MCP server, reading channel posts, etc. For agents using per-user authentication (the default), the executor inherits the initiator's user identity and the initiator's per-user OAuth tokens for OAuth-backed MCP servers. For agents configured with **service account authentication**, external MCP servers use admin-configured service account credentials and Antimatter (embedded) and plugin tools still run as the initiator (§3). |
 | **Observer** (or **onlooker**) | Any other channel member who can read the channel post containing the Agent's response, but who did not trigger it. Observers are read-only with respect to the tool call: they cannot approve, cannot reject, and (by default) cannot see tool arguments or private results. |
 
 Concrete example: Maya `@`-mentions `@copilot` in `~team-eng` and asks it to look up a Jira ticket. Raj is also in `~team-eng` and watches the conversation unfold.
@@ -32,7 +32,7 @@ Concrete example: Maya `@`-mentions `@copilot` in `~team-eng` and asks it to loo
 - **Executor:** Maya's identity / Maya's Jira OAuth token
 - **Observer:** Raj
 
-These roles do not change mid-conversation. If Maya hands the keyboard to a teammate, the teammate is still posting as Maya from Mattermost's perspective and is therefore still the initiator.
+These roles do not change mid-conversation. If Maya hands the keyboard to a teammate, the teammate is still posting as Maya from Antimatter's perspective and is therefore still the initiator.
 
 ## 3. The credential model
 
@@ -40,9 +40,9 @@ Every agent runs its tools in one of two authentication modes. The mode is a pro
 
 ### Per-user authentication (the default)
 
-When a tool runs after approval, Mattermost executes it **as the initiator**. Two specific things this means:
+When a tool runs after approval, Antimatter executes it **as the initiator**. Two specific things this means:
 
-1. **Mattermost-side identity:** the user context passed into tool execution is built from the initiator's user record, channel membership, and team membership. Tools that read channel posts, search users, or call back into Mattermost see only what the initiator is permitted to see.
+1. **Antimatter-side identity:** the user context passed into tool execution is built from the initiator's user record, channel membership, and team membership. Tools that read channel posts, search users, or call back into Antimatter see only what the initiator is permitted to see.
 2. **OAuth-backed MCP servers:** for any MCP server that requires per-user OAuth, the OAuth token loaded for the call is the initiator's token, looked up by the initiator's user ID and the server name.
 
 The Agent bot's own credentials are **not** used to run third-party tools in this mode. The bot is a delivery surface — it posts the response and the tool cards — but the side effects of tool execution belong to the initiator. This is intentional: it keeps audit trails meaningful, it prevents privilege escalation through the bot, and it makes per-user OAuth scopes the right place to enforce who can do what.
@@ -59,18 +59,18 @@ For MCP servers that do not use OAuth (for example, a server fronted by a shared
 An agent can instead be switched to **service account authentication** — the **Use service accounts for authentication** setting on the agent's MCPs tab. The setting is all-or-nothing for that agent's **external** MCP servers and changes who the executor is there:
 
 - **External MCP servers:** tool calls are sent with the admin-configured **Service Account Authentication** headers from the server's System Console configuration (for example, a personal access token) instead of the initiator's OAuth token. Servers with no service account headers configured are **excluded from the agent's tool catalog entirely** — the agent fails closed rather than falling back to anyone's personal credentials.
-- **Embedded Mattermost tools and plugin-registered MCP servers:** tool calls run as the **initiator**, the same as in per-user mode. The initiator's channel membership and permissions are the access boundary inside Mattermost.
+- **Embedded Antimatter tools and plugin-registered MCP servers:** tool calls run as the **initiator**, the same as in per-user mode. The initiator's channel membership and permissions are the access boundary inside Antimatter.
 - **No per-user OAuth anywhere:** users are never prompted to connect accounts for these agents, per-user tool provider preferences don't apply, and the per-user **Tools** menu is not shown.
 
-**The approval contract does not change: the human approves; external MCP servers execute as the service account and Mattermost/plugin tools execute as the initiator.** The initiator is still the only person who can accept or reject a pending tool call (§4), per-tool policies (§5) still decide which calls need approval, and the Share / Keep Private flow (§6) still belongs to the initiator. What changes is whose credentials perform the side effect on external MCP servers once consent is given.
+**The approval contract does not change: the human approves; external MCP servers execute as the service account and Antimatter/plugin tools execute as the initiator.** The initiator is still the only person who can accept or reject a pending tool call (§4), per-tool policies (§5) still decide which calls need approval, and the Share / Keep Private flow (§6) still belongs to the initiator. What changes is whose credentials perform the side effect on external MCP servers once consent is given.
 
-This mode deliberately flattens permissions on external MCP servers: every user who can use the agent acts with the same service account access there. Mattermost and plugin tools still see only what the initiator can see. The external system's audit log shows the service account, not the human; Mattermost's token usage logs record the triggering user alongside the acting identity (`acting_user_id`, `tool_auth_mode`) so the two can be correlated. Only system administrators can enable the setting. While it is enabled, managers may edit non-sensitive config; sensitive fields stay system-admin-only — see [What's editable vs locked](managing_agents.md#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent. Configuration and hardening guidance live in the [admin guide](../admin_guide.md#service-account-authentication).
+This mode deliberately flattens permissions on external MCP servers: every user who can use the agent acts with the same service account access there. Antimatter and plugin tools still see only what the initiator can see. The external system's audit log shows the service account, not the human; Antimatter's token usage logs record the triggering user alongside the acting identity (`acting_user_id`, `tool_auth_mode`) so the two can be correlated. Only system administrators can enable the setting. While it is enabled, managers may edit non-sensitive config; sensitive fields stay system-admin-only — see [What's editable vs locked](managing_agents.md#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent. Configuration and hardening guidance live in the [admin guide](../admin_guide.md#service-account-authentication).
 
 ## 4. Approval ownership
 
 > **The conversation initiator is the only person who can approve or reject a pending tool call. No other channel member, including admins, can approve on the initiator's behalf.**
 
-This is enforced server-side, not just visually. When the **Accept** or **Reject** button is clicked, Mattermost checks that the clicking user's ID matches the conversation's recorded `UserID`. If it does not, the request is rejected with an error before any tool runs.
+This is enforced server-side, not just visually. When the **Accept** or **Reject** button is clicked, Antimatter checks that the clicking user's ID matches the conversation's recorded `UserID`. If it does not, the request is rejected with an error before any tool runs.
 
 The reasoning behind initiator-only approval:
 
@@ -118,7 +118,7 @@ The intent behind the three values, in plain language:
 
 - `ask` is the safe default. Use it for any tool that writes data, sends notifications, costs money, or whose output should never be revealed to the initiator without explicit consent.
 - `auto_run_in_dm` is the right setting for read-only tools whose output is fine to surface privately but might leak context if it appeared in a shared channel without the initiator's confirmation. Examples: searching the initiator's own email, listing their own calendar events.
-- `auto_run_everywhere` is for read-only tools whose results are unambiguously safe to share with everyone in any channel. The vetted-provider seeding flow (PR #520) installs the embedded Mattermost built-in tools (`read_post`, `read_channel`, `get_channel_info`, `get_channel_members`, `get_team_info`, `get_team_members`, `search_posts`, `search_users`, `get_user_channels`) at `auto_run_in_dm` by default. Admins must explicitly promote any of these to `auto_run_everywhere` if they want them to skip approval in channels — and given the privacy implications described in section 6, that decision should be deliberate.
+- `auto_run_everywhere` is for read-only tools whose results are unambiguously safe to share with everyone in any channel. The vetted-provider seeding flow (PR #520) installs the embedded Antimatter built-in tools (`read_post`, `read_channel`, `get_channel_info`, `get_channel_members`, `get_team_info`, `get_team_members`, `search_posts`, `search_users`, `get_user_channels`) at `auto_run_in_dm` by default. Admins must explicitly promote any of these to `auto_run_everywhere` if they want them to skip approval in channels — and given the privacy implications described in section 6, that decision should be deliberate.
 
 The policy list is not user-editable from the chat surface. Admins set it in the agent's tool configuration; per-call approvals do not promote a tool from `ask` to `auto_run_*`.
 
@@ -191,9 +191,9 @@ This is the intentional behavior. If a workflow needs an Agent to invoke `ask`-p
 Configuring the per-tool policy list is the main lever admins have over multiplayer behavior. A few recommendations:
 
 - **Default new tools to `ask`.** It is the conservative choice and the easiest to relax later. Going the other direction — discovering a tool you wanted to require approval for has been auto-running in channels — is much worse.
-- **Reserve `auto_run_everywhere` for read-only tools with built-in permission enforcement.** The embedded Mattermost search tools ship at `auto_run_in_dm` by default. They fit the `auto_run_everywhere` profile in principle — Mattermost server enforces per-user permissions on every result — but the choice to promote them is left to the admin so that channel privacy expectations are explicit. Tools that hit external APIs almost never belong in this category unless you have a strong reason.
+- **Reserve `auto_run_everywhere` for read-only tools with built-in permission enforcement.** The embedded Antimatter search tools ship at `auto_run_in_dm` by default. They fit the `auto_run_everywhere` profile in principle — Antimatter server enforces per-user permissions on every result — but the choice to promote them is left to the admin so that channel privacy expectations are explicit. Tools that hit external APIs almost never belong in this category unless you have a strong reason.
 - **Treat `auto_run_in_dm` as the "convenience in private, friction in public" mode.** Use it for tools that are safe for the initiator to see results from privately but where you don't want results splashed into a channel without explicit consent.
-- **Don't use policy as a substitute for credential scope.** Policy controls the prompt; the underlying tool still runs as the initiator — or, for service account agents, as the service account on external MCP servers and as the initiator for Mattermost and plugin tools. Lock down scopes in the OAuth provider (and scope service account tokens minimally), not in the Agents policy.
+- **Don't use policy as a substitute for credential scope.** Policy controls the prompt; the underlying tool still runs as the initiator — or, for service account agents, as the service account on external MCP servers and as the initiator for Antimatter and plugin tools. Lock down scopes in the OAuth provider (and scope service account tokens minimally), not in the Agents policy.
 - **Audit which tools are seeded by default.** PR #520 adds vetted-provider seeding so that built-in MCP tools come pre-configured. Review the seeded list when you upgrade to v2 to make sure the defaults match your risk tolerance.
 
 The channel tool-calling capability itself is gated by the workspace setting **Enable Channel Mention Tool Calling**, which is experimental at the time of the v2 launch. Until that setting is enabled, multiplayer tool calling is effectively limited to `auto_run_*` policies in DMs and admins do not need to think about channel privacy at all.
