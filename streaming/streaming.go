@@ -12,12 +12,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
-	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
-	"github.com/mattermost/mattermost-plugin-agents/v2/store"
-	"github.com/mattermost/mattermost-plugin-agents/v2/telemetry"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversation"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 	"github.com/mattermost/mattermost/server/public/model"
 	"go.opentelemetry.io/otel/trace"
 )

@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"slices"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 )

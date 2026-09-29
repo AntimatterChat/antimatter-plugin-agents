@@ -4,7 +4,7 @@
 package conversation
 
 import (
-	"github.com/mattermost/mattermost-plugin-agents/v2/store"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 )
 
 // Approval-stage string values mirror the webapp ToolApprovalStage. A post-anchor

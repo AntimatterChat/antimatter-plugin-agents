@@ -6,7 +6,7 @@ package mcp
 import (
 	"slices"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 )
 
 // ToolSelection narrows which MCP servers an operation is allowed to contact.

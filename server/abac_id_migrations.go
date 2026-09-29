@@ -6,7 +6,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/store"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"

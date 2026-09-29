@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	mcppkg "github.com/mattermost/mattermost-plugin-agents/v2/mcp"
-	loggerlib "github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/logger"
+	mcppkg "github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
+	loggerlib "github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
 
 	gosdkmcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/require"

@@ -17,8 +17,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

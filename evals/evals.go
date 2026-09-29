@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/bifrost"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/prompts"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/bifrost"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
 	"github.com/maximhq/bifrost/core/schemas"
 )
 

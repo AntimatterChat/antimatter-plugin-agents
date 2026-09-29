@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/jmoiron/sqlx"
-	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
-	"github.com/mattermost/mattermost-plugin-agents/v2/format"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 )

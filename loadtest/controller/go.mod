@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-agents/loadtest/controller
+module github.com/antimatterchat/antimatter-plugin-agents/loadtest/controller
 
 go 1.26.7
 

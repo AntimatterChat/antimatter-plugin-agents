@@ -14,10 +14,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-agents/v2/audit"
-	"github.com/mattermost/mattermost-plugin-agents/v2/config"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/stretchr/testify/assert"

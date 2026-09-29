@@ -6,7 +6,7 @@ package search
 import (
 	"sync/atomic"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 )
 
 // Availability keeps indexing and query-time search gates separate.

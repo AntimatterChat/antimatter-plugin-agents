@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/config"
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 )
 
 // stubAgentCounter is a minimal agentCounter for support packet tests.

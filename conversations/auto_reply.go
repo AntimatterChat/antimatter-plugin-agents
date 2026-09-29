@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/autoreply"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/autoreply"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

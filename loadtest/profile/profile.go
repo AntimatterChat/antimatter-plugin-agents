@@ -16,7 +16,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/toolrunner/limits"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/toolrunner/limits"
 )
 
 // LatencyProfile describes one named latency mix for mock streaming.

@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 )
 
 func TestResolveStructuredOutputCapability(t *testing.T) {

@@ -3,7 +3,7 @@
 
 package config
 
-import "github.com/mattermost/mattermost-plugin-agents/v2/llm"
+import "github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 
 // MigrateServiceStructuredOutputPolicies preserves the intent of the removed
 // per-agent structured output toggle. An agent that had it enabled used to send

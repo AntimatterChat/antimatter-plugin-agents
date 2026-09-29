@@ -6,7 +6,7 @@ package auth
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/logger"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

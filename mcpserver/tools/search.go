@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
 	"github.com/google/jsonschema-go/jsonschema"
-	"github.com/mattermost/mattermost-plugin-agents/v2/format"
-	"github.com/mattermost/mattermost-plugin-agents/v2/search"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

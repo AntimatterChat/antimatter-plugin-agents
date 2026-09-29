@@ -10,8 +10,8 @@ import (
 
 	"github.com/maximhq/bifrost/core/schemas"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/telemetry"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 )
 
 // convertToResponsesMessages converts llm.Post messages to Bifrost ResponsesMessage format.

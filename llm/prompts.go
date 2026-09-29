@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/format"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 )
 
 type Prompts struct {

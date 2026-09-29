@@ -10,7 +10,7 @@ import (
 	"slices"
 	"unicode/utf8"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/loadtest/profile"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/loadtest/profile"
 )
 
 // MaxCustomInstructionsRunes bounds the per-turn LLM system prompt and agent-save

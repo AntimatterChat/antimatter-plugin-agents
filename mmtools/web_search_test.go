@@ -13,10 +13,10 @@ import (
 	"testing"
 	"unicode/utf16"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/config"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/require"
 )

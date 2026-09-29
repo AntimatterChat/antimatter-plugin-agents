@@ -6,8 +6,8 @@ package conversations
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmtools"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmtools"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
-	"github.com/mattermost/mattermost-plugin-agents/v2/store"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/store"
 	"github.com/stretchr/testify/require"
 )
 

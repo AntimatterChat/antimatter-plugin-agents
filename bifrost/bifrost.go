@@ -32,8 +32,8 @@ import (
 	// Register the WebP decoder for image.DecodeConfig.
 	_ "golang.org/x/image/webp"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/telemetry"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 )
 
 const (

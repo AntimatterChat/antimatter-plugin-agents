@@ -4,7 +4,7 @@
 package audit
 
 import (
-	"github.com/mattermost/mattermost-plugin-agents/v2/telemetry"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/telemetry"
 )
 
 // Parameter keys for object identifiers in audit records. They reuse the

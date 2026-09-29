@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/format"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

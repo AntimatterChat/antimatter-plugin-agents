@@ -8,9 +8,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/chunking"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	"github.com/jmoiron/sqlx"
-	"github.com/mattermost/mattermost-plugin-agents/v2/chunking"
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

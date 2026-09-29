@@ -17,10 +17,10 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/chunking"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/mattermost/mattermost-plugin-agents/v2/chunking"
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
 	"github.com/pgvector/pgvector-go"
 )
 

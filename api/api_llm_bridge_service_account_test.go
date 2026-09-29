@@ -7,9 +7,9 @@ import (
 	"io"
 	"testing"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/public/bridgeclient"
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/public/bridgeclient"
 	"github.com/stretchr/testify/require"
 )
 

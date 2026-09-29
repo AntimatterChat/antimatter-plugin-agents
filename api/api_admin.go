@@ -11,12 +11,12 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/indexer"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-agents/v2/audit"
-	"github.com/mattermost/mattermost-plugin-agents/v2/config"
-	"github.com/mattermost/mattermost-plugin-agents/v2/indexer"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

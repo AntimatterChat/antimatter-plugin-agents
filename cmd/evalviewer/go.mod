@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-agents/cmd/evalviewer
+module github.com/antimatterchat/antimatter-plugin-agents/cmd/evalviewer
 
 go 1.26.7
 

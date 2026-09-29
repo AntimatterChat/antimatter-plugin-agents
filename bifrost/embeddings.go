@@ -10,7 +10,7 @@ import (
 	bifrostcore "github.com/maximhq/bifrost/core"
 	"github.com/maximhq/bifrost/core/schemas"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 )
 
 // Per-request limits for embedding APIs, matching the documented OpenAI and

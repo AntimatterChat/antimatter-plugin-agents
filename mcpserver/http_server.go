@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
-	loggerlib "github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/logger"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/tools"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
+	loggerlib "github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/tools"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

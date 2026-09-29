@@ -10,9 +10,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/format"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/format"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 )
 
 const DefaultMaxFileSize = int64(5 * 1024 * 1024)

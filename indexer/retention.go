@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 )
 
 func retentionDaysValue(days *int) int {

@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"math"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/chunking"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/chunking"
 )
 
 // Provider types

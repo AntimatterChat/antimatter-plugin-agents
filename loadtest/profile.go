@@ -6,7 +6,7 @@ package loadtest
 import (
 	"encoding/json"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/loadtest/profile"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/loadtest/profile"
 )
 
 // The mock profile implementation lives in loadtest/profile so that llm can

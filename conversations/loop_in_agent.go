@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

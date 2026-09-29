@@ -6,7 +6,7 @@ package llm_test
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm/llmtest"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm/llmtest"
 )
 
 // BenchmarkReadAll benchmarks the ReadAll() function with varying response sizes.

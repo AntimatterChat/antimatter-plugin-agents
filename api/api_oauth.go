@@ -7,9 +7,9 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/audit"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-agents/v2/audit"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

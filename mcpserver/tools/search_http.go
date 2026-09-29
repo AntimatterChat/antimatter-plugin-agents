@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/search"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
 )
 
 // HTTPSemanticSearchService provides semantic search by calling back to the plugin API.

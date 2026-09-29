@@ -11,14 +11,14 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/chunking"
-	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
-	"github.com/mattermost/mattermost-plugin-agents/v2/prompts"
-	"github.com/mattermost/mattermost-plugin-agents/v2/streaming"
-	"github.com/mattermost/mattermost-plugin-agents/v2/subtitles"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/chunking"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/i18n"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/prompts"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/streaming"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

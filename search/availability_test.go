@@ -6,8 +6,8 @@ package search
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings/mocks"
 	"github.com/stretchr/testify/require"
 )
 

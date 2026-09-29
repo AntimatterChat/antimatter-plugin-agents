@@ -9,8 +9,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/jmoiron/sqlx"
-	"github.com/mattermost/mattermost-plugin-agents/v2/config"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

@@ -10,9 +10,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	mcppkg "github.com/mattermost/mattermost-plugin-agents/v2/mcp"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
+	mcppkg "github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 
 	gosdkmcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/mock"

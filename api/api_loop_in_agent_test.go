@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/conversations"
 	"github.com/stretchr/testify/require"
 )
 

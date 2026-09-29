@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
-	mocks "github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
+	mocks "github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi/mocks"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"

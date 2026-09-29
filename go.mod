@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-agents/v2
+module github.com/antimatterchat/antimatter-plugin-agents/v2
 
 go 1.26.7
 

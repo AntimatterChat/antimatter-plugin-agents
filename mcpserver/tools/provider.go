@@ -10,11 +10,11 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/logger"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/search"
 	"github.com/google/jsonschema-go/jsonschema"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/logger"
-	"github.com/mattermost/mattermost-plugin-agents/v2/search"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )

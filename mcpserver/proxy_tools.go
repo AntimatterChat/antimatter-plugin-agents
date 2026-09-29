@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"time"
 
-	mcppkg "github.com/mattermost/mattermost-plugin-agents/v2/mcp"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
+	mcppkg "github.com/antimatterchat/antimatter-plugin-agents/v2/mcp"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mmapi"
 
 	gosdkmcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )

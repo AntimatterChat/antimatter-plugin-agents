@@ -9,8 +9,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
 	"github.com/google/jsonschema-go/jsonschema"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

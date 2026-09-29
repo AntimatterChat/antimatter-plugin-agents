@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/files"
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/files"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
 )
 
 func TestHTTPFileContentService_GetContent(t *testing.T) {

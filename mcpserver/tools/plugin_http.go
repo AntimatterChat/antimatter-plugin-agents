@@ -11,7 +11,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/mcpserver/auth"
 )
 
 // postPluginJSON marshals reqBody to JSON and POSTs it to a plugin callback

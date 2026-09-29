@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/embeddings"
 )
 
 // errCancelRequested signals that the admin requested cancellation; the

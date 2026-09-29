@@ -13,7 +13,7 @@ import (
 	bifrostcore "github.com/maximhq/bifrost/core"
 	"github.com/maximhq/bifrost/core/schemas"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/subtitles"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/subtitles"
 )
 
 // Transcriber implements transcription using the Bifrost gateway.

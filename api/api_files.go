@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/files"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/files"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 

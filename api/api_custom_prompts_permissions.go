@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/customprompts"
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-agents/v2/customprompts"
 )
 
 // requirePromptOwnership fetches the prompt by ID and verifies that the

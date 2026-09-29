@@ -22,10 +22,10 @@ import (
 	"github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/config"
-	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
-	"github.com/mattermost/mattermost-plugin-agents/v2/websearch"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/bots"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
+	"github.com/antimatterchat/antimatter-plugin-agents/v2/websearch"
 )
 
 const (
