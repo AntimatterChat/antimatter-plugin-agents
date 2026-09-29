@@ -154,15 +154,15 @@ var ErrAlreadyStreamingToPost = fmt.Errorf("already streaming to post")
 type MMPostStreamService struct {
 	contexts      map[string]postStreamContext
 	contextsMutex sync.Mutex
-	mmClient      Client
+	amClient      Client
 	i18n          *i18n.Bundle
 	turnStore     TurnStore
 }
 
-func NewMMPostStreamService(mmClient Client, i18n *i18n.Bundle) *MMPostStreamService {
+func NewMMPostStreamService(amClient Client, i18n *i18n.Bundle) *MMPostStreamService {
 	return &MMPostStreamService{
 		contexts: make(map[string]postStreamContext),
-		mmClient: mmClient,
+		amClient: amClient,
 		i18n:     i18n,
 	}
 }
@@ -175,7 +175,7 @@ func (p *MMPostStreamService) SetTurnStore(ts TurnStore) {
 
 func (p *MMPostStreamService) StreamToNewPost(ctx context.Context, botID string, requesterUserID string, stream *llm.TextStreamResult, post *model.Post, respondingToPostID string) error {
 	return p.streamToCreatedPost(ctx, botID, requesterUserID, stream, post, respondingToPostID, func() error {
-		if err := p.mmClient.CreatePost(post); err != nil {
+		if err := p.amClient.CreatePost(post); err != nil {
 			return fmt.Errorf("unable to create post: %w", err)
 		}
 		return nil
@@ -184,7 +184,7 @@ func (p *MMPostStreamService) StreamToNewPost(ctx context.Context, botID string,
 
 func (p *MMPostStreamService) StreamToNewDM(ctx context.Context, botID string, stream *llm.TextStreamResult, userID string, post *model.Post, respondingToPostID string) error {
 	return p.streamToCreatedPost(ctx, botID, userID, stream, post, respondingToPostID, func() error {
-		if err := p.mmClient.DM(botID, userID, post); err != nil {
+		if err := p.amClient.DM(botID, userID, post); err != nil {
 			return fmt.Errorf("failed to post DM: %w", err)
 		}
 		return nil
@@ -209,14 +209,14 @@ func (p *MMPostStreamService) streamToCreatedPost(ctx context.Context, botID str
 
 	go func() {
 		defer p.FinishStreaming(post.Id)
-		user, err := p.mmClient.GetUser(userID)
-		locale := *p.mmClient.GetConfig().LocalizationSettings.DefaultServerLocale
+		user, err := p.amClient.GetUser(userID)
+		locale := *p.amClient.GetConfig().LocalizationSettings.DefaultServerLocale
 		if err != nil {
 			p.StreamToPost(ctx, stream, post, locale, userID)
 			return
 		}
 
-		channel, err := p.mmClient.GetChannel(post.ChannelId)
+		channel, err := p.amClient.GetChannel(post.ChannelId)
 		if err != nil {
 			p.StreamToPost(ctx, stream, post, locale, userID)
 			return
@@ -239,7 +239,7 @@ func (p *MMPostStreamService) streamToCreatedPost(ctx context.Context, botID str
 func (p *MMPostStreamService) sendPostStreamingEvent(post *model.Post, broadcast *model.WebsocketBroadcast, fields map[string]any) {
 	payload := map[string]any{"post_id": post.Id}
 	maps.Copy(payload, fields)
-	p.mmClient.PublishWebSocketEvent("postupdate", payload, broadcast)
+	p.amClient.PublishWebSocketEvent("postupdate", payload, broadcast)
 }
 
 // StopStreaming cancels any in-flight stream to the given post.
@@ -296,14 +296,14 @@ func (p *MMPostStreamService) finalizeTurn(acc *turnAccumulator) {
 
 	contentJSON, err := json.Marshal(blocks)
 	if err != nil {
-		p.mmClient.LogError("Failed to marshal turn content blocks", "error", err, "post_id", acc.postID)
+		p.amClient.LogError("Failed to marshal turn content blocks", "error", err, "post_id", acc.postID)
 		return
 	}
 
 	if acc.existingAnchorID != "" && acc.isContinuation {
 		// Demote the prior anchor so the new turn becomes the post's anchor.
 		if demoteErr := p.turnStore.UpdateTurnPostID(acc.existingAnchorID, nil); demoteErr != nil {
-			p.mmClient.LogError("Failed to demote prior anchor turn", "error", demoteErr, "post_id", acc.postID, "turn_id", acc.existingAnchorID)
+			p.amClient.LogError("Failed to demote prior anchor turn", "error", demoteErr, "post_id", acc.postID, "turn_id", acc.existingAnchorID)
 		}
 	}
 
@@ -320,7 +320,7 @@ func (p *MMPostStreamService) finalizeTurn(acc *turnAccumulator) {
 	}
 
 	if err := p.turnStore.CreateTurnAutoSequence(turn); err != nil {
-		p.mmClient.LogError("Failed to create finalized assistant turn", "error", err, "post_id", acc.postID)
+		p.amClient.LogError("Failed to create finalized assistant turn", "error", err, "post_id", acc.postID)
 	}
 }
 
@@ -331,7 +331,7 @@ func (p *MMPostStreamService) broadcastToolCalls(post *model.Post, toolCalls []l
 	// Full data to the requester only.
 	fullJSON, err := json.Marshal(toolCalls)
 	if err != nil {
-		p.mmClient.LogError("Failed to marshal tool calls", "error", err)
+		p.amClient.LogError("Failed to marshal tool calls", "error", err)
 		return
 	}
 	p.sendPostStreamingEvent(post, &model.WebsocketBroadcast{
@@ -344,7 +344,7 @@ func (p *MMPostStreamService) broadcastToolCalls(post *model.Post, toolCalls []l
 	redacted := redactToolCalls(toolCalls)
 	redactedJSON, err := json.Marshal(redacted)
 	if err != nil {
-		p.mmClient.LogError("Failed to marshal redacted tool calls", "error", err)
+		p.amClient.LogError("Failed to marshal redacted tool calls", "error", err)
 		return
 	}
 	p.sendPostStreamingEvent(post, &model.WebsocketBroadcast{
@@ -433,7 +433,7 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 			// the requester and the bot count as DMs here. Group DMs follow the
 			// channel share-flow, so their tool_use blocks default to unshared.
 			isDM := false
-			if ch, chErr := p.mmClient.GetChannel(post.ChannelId); chErr == nil {
+			if ch, chErr := p.amClient.GetChannel(post.ChannelId); chErr == nil {
 				isDM = amapi.IsDMWith(requesterUserID, ch)
 			}
 			acc = newTurnAccumulator(convID, post.Id, existingAnchorID, isContinuation, isDM)
@@ -457,8 +457,8 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 		case event, ok := <-stream.Stream:
 			if !ok {
 				// Stream channel closed - persist final state
-				if err := p.mmClient.UpdatePost(post); err != nil {
-					p.mmClient.LogError("Streaming failed to update post on channel close", "error", err)
+				if err := p.amClient.UpdatePost(post); err != nil {
+					p.amClient.LogError("Streaming failed to update post on channel close", "error", err)
 				}
 				return
 			}
@@ -492,7 +492,7 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 					}
 					if dropped > 0 && !attachmentCapWarned {
 						attachmentCapWarned = true
-						p.mmClient.LogWarn("Streaming truncated attachments over the per-post limit",
+						p.amClient.LogWarn("Streaming truncated attachments over the per-post limit",
 							"post_id", post.Id, "dropped", dropped, "limit", maxPostAttachments)
 					}
 				}
@@ -503,7 +503,7 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 				// approval) or attached files is a valid response.
 				hasToolCalls := acc != nil && len(acc.toolCalls) > 0
 				if strings.TrimSpace(post.Message) == "" && !hasToolCalls && len(post.FileIds) == 0 {
-					p.mmClient.LogError("LLM closed stream with no result")
+					p.amClient.LogError("LLM closed stream with no result")
 					T := i18n.LocalizerFunc(p.i18n, userLocale)
 					emptyText := T("agents.stream_to_post_llm_not_return", "Sorry! The LLM did not return a result.")
 					post.Message = emptyText
@@ -514,8 +514,8 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 					p.sendPostStreamingEvent(post, broadcast, map[string]any{"next": post.Message})
 				}
 
-				if err := p.mmClient.UpdatePost(post); err != nil {
-					p.mmClient.LogError("Streaming failed to update post", "error", err)
+				if err := p.amClient.UpdatePost(post); err != nil {
+					p.amClient.LogError("Streaming failed to update post", "error", err)
 					return
 				}
 				return
@@ -536,7 +536,7 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 					separator = "\n\n"
 					post.Message += separator
 				}
-				p.mmClient.LogError("Streaming result to post failed partway", "error", err)
+				p.amClient.LogError("Streaming result to post failed partway", "error", err)
 				T := i18n.LocalizerFunc(p.i18n, userLocale)
 				errorText := T("agents.stream_to_post_access_llm_error", "Sorry! An error occurred while accessing the LLM. See server logs for details.")
 				post.Message += errorText
@@ -548,8 +548,8 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 					acc.sequence.AppendText(errorText)
 				}
 
-				if err := p.mmClient.UpdatePost(post); err != nil {
-					p.mmClient.LogError("Error recovering from streaming error", "error", err)
+				if err := p.amClient.UpdatePost(post); err != nil {
+					p.amClient.LogError("Error recovering from streaming error", "error", err)
 					return
 				}
 				p.sendPostStreamingEvent(post, broadcast, map[string]any{"next": post.Message})
@@ -615,14 +615,14 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 								originalMsg, hasOriginal := annotationMap["originalMessage"].(string)
 								removedRanges, hasRanges := annotationMap["removedTextRanges"].([]llm.TextRange)
 								if !hasOriginal || !hasRanges || !acc.sequence.RemoveTextRanges(originalMsg, removedRanges) || acc.sequence.Text() != cleanedMsg {
-									p.mmClient.LogWarn("Unable to preserve turn text segments during citation cleanup", "post_id", post.Id)
+									p.amClient.LogWarn("Unable to preserve turn text segments during citation cleanup", "post_id", post.Id)
 								}
 							}
 						}
 
 						annotationsJSON, err := json.Marshal(annotations)
 						if err != nil {
-							p.mmClient.LogError("Failed to marshal annotations", "error", err)
+							p.amClient.LogError("Failed to marshal annotations", "error", err)
 						} else {
 							p.sendPostStreamingEvent(post, broadcast, map[string]any{"control": "annotations", "annotations": string(annotationsJSON)})
 						}
@@ -633,7 +633,7 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 				} else if annotations, ok := event.Value.([]llm.Annotation); ok {
 					annotationsJSON, err := json.Marshal(annotations)
 					if err != nil {
-						p.mmClient.LogError("Failed to marshal annotations", "error", err)
+						p.amClient.LogError("Failed to marshal annotations", "error", err)
 					} else {
 						p.sendPostStreamingEvent(post, broadcast, map[string]any{"control": "annotations", "annotations": string(annotationsJSON)})
 					}
@@ -668,15 +668,15 @@ func (p *MMPostStreamService) streamToPostImpl(ctx context.Context, stream *llm.
 					}
 					serverToolsJSON, err := json.Marshal(serverTools)
 					if err != nil {
-						p.mmClient.LogError("Failed to marshal server tool activity", "error", err)
+						p.amClient.LogError("Failed to marshal server tool activity", "error", err)
 					} else {
 						p.sendPostStreamingEvent(post, broadcast, map[string]any{"control": "server_tool", "server_tool": string(serverToolsJSON)})
 					}
 				}
 			}
 		case <-ctx.Done():
-			if err := p.mmClient.UpdatePost(post); err != nil {
-				p.mmClient.LogError("Error updating post on stop signaled", "error", err)
+			if err := p.amClient.UpdatePost(post); err != nil {
+				p.amClient.LogError("Error updating post on stop signaled", "error", err)
 				return
 			}
 			p.sendPostStreamingEvent(post, broadcast, map[string]any{"control": PostStreamingControlCancel})

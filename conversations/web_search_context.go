@@ -22,9 +22,9 @@ func (c *Conversations) extractWebSearchContext(currentPost *model.Post) map[str
 	}
 
 	// Get thread to search for web search context in previous posts
-	threadData, err := amapi.GetThreadData(c.mmClient, rootID)
+	threadData, err := amapi.GetThreadData(c.amClient, rootID)
 	if err != nil {
-		c.mmClient.LogDebug("Unable to get thread data for web search context extraction", "error", err)
+		c.amClient.LogDebug("Unable to get thread data for web search context extraction", "error", err)
 		return nil
 	}
 
@@ -38,25 +38,25 @@ func (c *Conversations) extractWebSearchContext(currentPost *model.Post) map[str
 
 		webSearchContextJSON, ok := webSearchContextProp.(string)
 		if !ok {
-			c.mmClient.LogWarn("Web search context prop is not a string", "post_id", post.Id)
+			c.amClient.LogWarn("Web search context prop is not a string", "post_id", post.Id)
 			continue
 		}
 
-		c.mmClient.LogDebug("Found web search context in thread",
+		c.amClient.LogDebug("Found web search context in thread",
 			"current_post", currentPost.Id,
 			"context_post", post.Id)
 
 		return c.unmarshalWebSearchContext(webSearchContextJSON, post.Id)
 	}
 
-	c.mmClient.LogDebug("No web search context found in thread", "root_id", rootID)
+	c.amClient.LogDebug("No web search context found in thread", "root_id", rootID)
 	return nil
 }
 
 func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, postID string) map[string]any {
 	var params map[string]any
 	if err := json.Unmarshal([]byte(webSearchContextJSON), &params); err != nil {
-		c.mmClient.LogError("Failed to unmarshal web search context", "error", err, "post_id", postID)
+		c.amClient.LogError("Failed to unmarshal web search context", "error", err, "post_id", postID)
 		return nil
 	}
 
@@ -72,19 +72,19 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 		// Re-marshal and unmarshal to get proper types
 		contextBytes, marshalErr := json.Marshal(raw)
 		if marshalErr != nil {
-			c.mmClient.LogError("Failed to re-marshal web search context", "error", marshalErr, "post_id", postID)
+			c.amClient.LogError("Failed to re-marshal web search context", "error", marshalErr, "post_id", postID)
 			return nil
 		}
 
 		var searchContexts []amtools.WebSearchContextValue
 		if unmarshalErr := json.Unmarshal(contextBytes, &searchContexts); unmarshalErr != nil {
-			c.mmClient.LogError("Failed to unmarshal web search context values", "error", unmarshalErr, "post_id", postID)
+			c.amClient.LogError("Failed to unmarshal web search context values", "error", unmarshalErr, "post_id", postID)
 			return nil
 		}
 
 		params[amtools.WebSearchContextKey] = searchContexts
 
-		c.mmClient.LogDebug("Reconstructed web search context",
+		c.amClient.LogDebug("Reconstructed web search context",
 			"post_id", postID,
 			"num_contexts", len(searchContexts))
 	}
@@ -96,7 +96,7 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 			var allowedURLs []string
 			if unmarshalErr := json.Unmarshal(urlBytes, &allowedURLs); unmarshalErr == nil {
 				params[amtools.WebSearchAllowedURLsKey] = allowedURLs
-				c.mmClient.LogDebug("Reconstructed allowed URLs", "post_id", postID, "num_urls", len(allowedURLs))
+				c.amClient.LogDebug("Reconstructed allowed URLs", "post_id", postID, "num_urls", len(allowedURLs))
 			}
 		}
 	}
@@ -106,7 +106,7 @@ func (c *Conversations) unmarshalWebSearchContext(webSearchContextJSON string, p
 	// but we keep the search results and allowed URLs for context/citations
 	params[amtools.WebSearchCountKey] = 0
 	params[amtools.WebSearchExecutedQueriesKey] = []string{}
-	c.mmClient.LogDebug("Reset web search tracking for new request cycle", "post_id", postID)
+	c.amClient.LogDebug("Reset web search tracking for new request cycle", "post_id", postID)
 
 	return params
 }

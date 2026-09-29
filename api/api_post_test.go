@@ -459,8 +459,8 @@ func TestHandleTranscribeFileDeniedByFilePolicy(t *testing.T) {
 			e.mockAPI.On("HasPermissionToChannel", testUserID, channelID, model.PermissionReadChannel).Return(true)
 			e.mockAPI.On("GetUser", testUserID).Return(&model.User{Id: testUserID}, nil)
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.On(
+			amClient := mocks.NewMockClient(t)
+			amClient.On(
 				"HasPermissionToFileAction",
 				sessionID,
 				fileID,
@@ -469,23 +469,23 @@ func TestHandleTranscribeFileDeniedByFilePolicy(t *testing.T) {
 
 			adminReadCalled := false
 			if test.allowed {
-				mmClient.EXPECT().GetFileInfo(fileID).
+				amClient.EXPECT().GetFileInfo(fileID).
 					Run(func(string) { adminReadCalled = true }).
 					Return((*model.FileInfo)(nil), test.getFileInfoErr)
 			} else {
-				mmClient.EXPECT().GetFileInfo(fileID).
+				amClient.EXPECT().GetFileInfo(fileID).
 					Run(func(string) { adminReadCalled = true }).
 					Return(&model.FileInfo{Id: fileID, ChannelId: channelID}, nil).
 					Maybe()
 			}
-			mmClient.EXPECT().GetFile(fileID).
+			amClient.EXPECT().GetFile(fileID).
 				Run(func(string) { adminReadCalled = true }).
 				Return(io.NopCloser(strings.NewReader("sensitive recording contents")), nil).
 				Maybe()
 
 			e.api.meetingsService = meetings.NewService(
 				e.client,
-				mmClient,
+				amClient,
 				nil,
 				nil,
 				e.bots,

@@ -133,10 +133,10 @@ func (a *API) handlePutChannelAutoReply(c *gin.Context) {
 // setting changed so open channel-settings modals can re-sync. The broadcast
 // must be non-nil (the server dereferences it).
 func (a *API) publishChannelAutoReplyUpdated(channelID string, saved ChannelAutoReply) {
-	if a.mmClient == nil {
+	if a.amClient == nil {
 		return
 	}
-	a.mmClient.PublishWebSocketEvent(
+	a.amClient.PublishWebSocketEvent(
 		WebsocketEventChannelAutoReplyUpdated,
 		map[string]any{
 			"channel_id": channelID,

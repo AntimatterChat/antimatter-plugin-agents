@@ -106,7 +106,7 @@ func TestBlocksToPost(t *testing.T) {
 			},
 		},
 		// File and image blocks are no longer "skipped"; they lazy-resolve
-		// through mmClient. See TestBlocksToPost_LazyResolvesAttachments
+		// through amClient. See TestBlocksToPost_LazyResolvesAttachments
 		// for the new behavior. This case is deliberately removed because
 		// its old expectation (no Files entry) only held while attachments
 		// were broken.
@@ -333,7 +333,7 @@ func newFakeReadCloser(s string) io.ReadCloser {
 }
 
 // TestBlocksToPost_LazyResolvesAttachments encodes the new desired behavior:
-// file and image content blocks are lazy-resolved through mmClient at the
+// file and image content blocks are lazy-resolved through amClient at the
 // moment we build the LLM request, instead of being inlined when the user
 // turn was first written.
 func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
@@ -374,7 +374,7 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				bytesBack, readErr := io.ReadAll(post.Files[0].Reader)
 				require.NoError(t, readErr)
 				assert.Equal(t, "PNGDATA", string(bytesBack),
-					"the Reader bound to Post.Files must yield the bytes that mmClient.GetFile returned for that exact FileID")
+					"the Reader bound to Post.Files must yield the bytes that amClient.GetFile returned for that exact FileID")
 			},
 		},
 		{
@@ -625,8 +625,8 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 		},
 		{
 			// Documents the zero-config safety guarantee: a turn with only
-			// text/thinking/tool blocks must not panic when mmClient is nil.
-			name:      "nil mmClient is safe when no file or image blocks are present",
+			// text/thinking/tool blocks must not panic when amClient is nil.
+			name:      "nil amClient is safe when no file or image blocks are present",
 			role:      "assistant",
 			nilClient: true,
 			blocks: []ContentBlock{
@@ -705,13 +705,13 @@ func TestBlocksToPost_LazyResolvesAttachments(t *testing.T) {
 				return
 			}
 
-			mmClient := amapimocks.NewMockClient(t)
+			amClient := amapimocks.NewMockClient(t)
 			if tt.setup != nil {
-				tt.setup(mmClient)
+				tt.setup(amClient)
 			}
 
-			post := BlocksToPost(tt.blocks, role, PostConversionOptions{MMClient: mmClient, EnableVision: tt.enableVision})
-			tt.assert(t, mmClient, post)
+			post := BlocksToPost(tt.blocks, role, PostConversionOptions{AMClient: amClient, EnableVision: tt.enableVision})
+			tt.assert(t, amClient, post)
 		})
 	}
 }

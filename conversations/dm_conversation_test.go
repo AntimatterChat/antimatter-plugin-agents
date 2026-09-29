@@ -367,7 +367,7 @@ type dmTestEnv struct {
 	policyChecker *dmPolicyChecker
 	streamService *fakeStreamingService
 	mockAPI       *plugintest.API
-	mmClient      *fakeMMClient
+	amClient      *fakeAMClient
 	mcpMgr        *testMCPClientManager
 	botService    *bots.AMBots
 	botID         string
@@ -421,7 +421,7 @@ func setupDMTestEnv(t *testing.T, llmResponses ...*llm.TextStreamResult) *dmTest
 		Name: botUserID + "__" + userID,
 	}
 	user := &model.User{Id: userID, Username: "testuser", Locale: "en"}
-	mmClient := &fakeMMClient{
+	amClient := &fakeAMClient{
 		users: map[string]*model.User{
 			userID: user,
 		},
@@ -463,7 +463,7 @@ func setupDMTestEnv(t *testing.T, llmResponses ...*llm.TextStreamResult) *dmTest
 
 	convs := conversations.New(
 		promptsManager,
-		mmClient,
+		amClient,
 		streamSvc,
 		contextBuilder,
 		botsService,
@@ -483,7 +483,7 @@ func setupDMTestEnv(t *testing.T, llmResponses ...*llm.TextStreamResult) *dmTest
 		policyChecker: policyChecker,
 		streamService: streamSvc,
 		mockAPI:       mockAPI,
-		mmClient:      mmClient,
+		amClient:      amClient,
 		mcpMgr:        mcpMgr,
 		botService:    botsService,
 		botID:         botID,

@@ -52,11 +52,11 @@ func TestUnmarshalWebSearchContext(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			mmClient := mocks.NewMockClient(t)
-			mmClient.EXPECT().LogDebug(mock.Anything, mock.Anything).Maybe()
-			mmClient.EXPECT().LogError(mock.Anything, mock.Anything).Maybe()
+			amClient := mocks.NewMockClient(t)
+			amClient.EXPECT().LogDebug(mock.Anything, mock.Anything).Maybe()
+			amClient.EXPECT().LogError(mock.Anything, mock.Anything).Maybe()
 
-			c := &Conversations{mmClient: mmClient}
+			c := &Conversations{amClient: amClient}
 
 			params := c.unmarshalWebSearchContext(tc.json, "post-id")
 

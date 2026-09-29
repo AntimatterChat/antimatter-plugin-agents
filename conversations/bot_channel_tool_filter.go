@@ -133,15 +133,15 @@ func (c *Conversations) shouldConstrainChannelFollowUpToAutoEverywhere(isDM bool
 	// Channel follow-ups rebuild strict MCP registries before the follow-up
 	// request is sent. If the root post cannot prove this was a normal
 	// interactive channel flow, keep only auto-run-everywhere MCP tools.
-	if conv == nil || conv.RootPostID == nil || c.mmClient == nil {
+	if conv == nil || conv.RootPostID == nil || c.amClient == nil {
 		return true
 	}
 
-	rootPost, rootErr := c.mmClient.GetPost(*conv.RootPostID)
+	rootPost, rootErr := c.amClient.GetPost(*conv.RootPostID)
 	if rootErr != nil || rootPost == nil {
 		return true
 	}
-	rootUser, userErr := c.mmClient.GetUser(rootPost.UserId)
+	rootUser, userErr := c.amClient.GetUser(rootPost.UserId)
 	if userErr != nil {
 		return true
 	}

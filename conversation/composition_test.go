@@ -24,16 +24,16 @@ import (
 // ComputeComposition can then attribute the provider's authoritative token
 // total back to those sources.
 func TestBuildCompletionRequestComposition(t *testing.T) {
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 
-	mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
+	amClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 		Id: "img1", Name: "diagram.png", MimeType: "image/png", Size: 100,
 	}, nil)
-	mmClient.On("GetFile", "img1").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
-	mmClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
+	amClient.On("GetFile", "img1").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
+	amClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 		Id: "doc1", Name: "notes.txt", MimeType: "text/plain", Size: 5,
 	}, nil)
-	mmClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello world")), nil)
+	amClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello world")), nil)
 
 	botID := model.NewId()
 	userID := model.NewId()
@@ -44,7 +44,7 @@ func TestBuildCompletionRequestComposition(t *testing.T) {
 		},
 	}
 
-	svc, s := setupTestServiceWithClient(t, mmClient, bots)
+	svc, s := setupTestServiceWithClient(t, amClient, bots)
 
 	// User turn carries both an image and a text file.
 	res, err := svc.CreateConversation(CreateConversationParams{

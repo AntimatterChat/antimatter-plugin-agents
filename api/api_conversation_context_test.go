@@ -359,22 +359,22 @@ func TestHandleGetConversationContextPassesSessionToFilePolicy(t *testing.T) {
 			bot := bots.NewBot(llm.BotConfig{Name: "ai", DisplayName: "AI"}, llm.ServiceConfig{}, amBot, fake)
 			e.bots.SetBotsForTesting([]*bots.Bot{bot})
 
-			mmClient := amapimocks.NewMockClient(t)
-			mmClient.On(
+			amClient := amapimocks.NewMockClient(t)
+			amClient.On(
 				"HasPermissionToFileAction",
 				sessionID,
 				fileID,
 				model.AccessControlPolicyActionDownloadFileAttachment,
 			).Return(tt.allowed)
 			adminReadCalled := false
-			mmClient.EXPECT().GetFileInfo(fileID).
+			amClient.EXPECT().GetFileInfo(fileID).
 				Run(func(string) { adminReadCalled = true }).
 				Return(&model.FileInfo{
 					Id: fileID, Name: "notes.txt", MimeType: "text/plain", Size: int64(len(fileBody)), Content: fileBody,
 				}, nil).
 				Maybe()
-			mmClient.On("LogError", mock.Anything, mock.Anything).Maybe()
-			e.api.mmClient = mmClient
+			amClient.On("LogError", mock.Anything, mock.Anything).Maybe()
+			e.api.amClient = amClient
 
 			request := httptest.NewRequest(http.MethodGet, "/conversations/conv-files/context", nil)
 			request.Header.Add("Mattermost-User-ID", testUserID)

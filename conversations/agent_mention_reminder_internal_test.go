@@ -97,7 +97,7 @@ func TestFindPreviousThreadPost(t *testing.T) {
 			mockClient := mocks.NewMockClient(t)
 			mockClient.EXPECT().GetPostThread(rootID).Return(tc.thread, nil)
 
-			conv := &Conversations{mmClient: mockClient}
+			conv := &Conversations{amClient: mockClient}
 			got, err := conv.findPreviousThreadPost(tc.target)
 			require.NoError(t, err)
 			if tc.wantID == "" {
@@ -113,7 +113,7 @@ func TestFindPreviousThreadPost(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 		mockClient.EXPECT().GetPostThread(rootID).Return(nil, errors.New("thread not found"))
 
-		conv := &Conversations{mmClient: mockClient}
+		conv := &Conversations{amClient: mockClient}
 		got, err := conv.findPreviousThreadPost(reply)
 		require.Error(t, err)
 		require.Nil(t, got)
@@ -123,7 +123,7 @@ func TestFindPreviousThreadPost(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 		mockClient.EXPECT().GetPostThread(rootID).Return(nil, nil)
 
-		conv := &Conversations{mmClient: mockClient}
+		conv := &Conversations{amClient: mockClient}
 		got, err := conv.findPreviousThreadPost(reply)
 		require.NoError(t, err)
 		require.Nil(t, got)

@@ -183,7 +183,7 @@ func TestDecorateStreamAttachesSandboxFilesOnlyFromActiveContext(t *testing.T) {
 	historicalContext := ctxWithCreatedFiles("historical-created")
 	historicalContext.AddSandboxFiles(llm.ProviderFileReference{ID: "historical", ProviderRoute: "anthropic::old"})
 
-	c := &Conversations{mmClient: client}
+	c := &Conversations{amClient: client}
 	decorated := c.decorateStreamWithCreatedFiles(
 		context.Background(),
 		bot,

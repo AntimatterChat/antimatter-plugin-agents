@@ -161,7 +161,7 @@ func (m *mockConvServiceStore) GetMaxSequenceForConversation(conversationID stri
 	return len(m.turns[conversationID]), nil
 }
 
-func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, mmClient *amapimocks.MockClient) (*TestEnvironment, *noToolsStreamingService, *mockConvServiceStore) {
+func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, amClient *amapimocks.MockClient) (*TestEnvironment, *noToolsStreamingService, *mockConvServiceStore) {
 	t.Helper()
 
 	e := SetupTestEnvironment(t)
@@ -176,7 +176,7 @@ func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, mmClient
 	})
 
 	e.api.prompts = promptsObj
-	e.api.mmClient = mmClient
+	e.api.amClient = amClient
 	e.api.contextBuilder = llmcontext.NewLLMContextBuilder(
 		e.client,
 		&noToolsTestToolProvider{},
@@ -190,7 +190,7 @@ func setupNoToolsAPI(t *testing.T, mcpProvider *noToolsTestMCPProvider, mmClient
 	// Wire up a conversation service with an in-memory store so that
 	// thread analysis can create conversation entities.
 	convStore := newMockConvServiceStore()
-	convService := conversation.NewService(convStore, promptsObj, mmClient, e.bots)
+	convService := conversation.NewService(convStore, promptsObj, amClient, e.bots)
 	e.api.SetConversationService(convService)
 
 	fakeLLM := NewFakeLLM("summary response")
@@ -210,8 +210,8 @@ func TestHandleThreadAnalysisDoesNotLoadToolsWhenToolsAreDisabled(t *testing.T) 
 	gin.DefaultWriter = io.Discard
 
 	mcpProvider := &noToolsTestMCPProvider{}
-	mmClient := amapimocks.NewMockClient(t)
-	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, mmClient)
+	amClient := amapimocks.NewMockClient(t)
+	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, amClient)
 	defer e.Cleanup(t)
 
 	requestingUser := &model.User{Id: testUserID, Username: "requester", Locale: "en"}
@@ -231,8 +231,8 @@ func TestHandleThreadAnalysisDoesNotLoadToolsWhenToolsAreDisabled(t *testing.T) 
 		Order: []string{"postid"},
 		Posts: map[string]*model.Post{"postid": threadPost},
 	}
-	mmClient.On("GetPostThread", "postid").Return(postList, nil)
-	mmClient.On("GetUser", testOtherUserID).Return(&model.User{Id: testOtherUserID, Username: "author"}, nil)
+	amClient.On("GetPostThread", "postid").Return(postList, nil)
+	amClient.On("GetUser", testOtherUserID).Return(&model.User{Id: testOtherUserID, Username: "author"}, nil)
 
 	request := httptest.NewRequest(http.MethodPost, "/post/postid/analyze", strings.NewReader(`{"analysis_type":"summarize_thread"}`))
 	request.Header.Add("Mattermost-User-ID", testUserID)
@@ -250,8 +250,8 @@ func TestHandleIntervalDoesNotLoadToolsWhenToolsAreDisabled(t *testing.T) {
 	gin.DefaultWriter = io.Discard
 
 	mcpProvider := &noToolsTestMCPProvider{}
-	mmClient := amapimocks.NewMockClient(t)
-	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, mmClient)
+	amClient := amapimocks.NewMockClient(t)
+	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, amClient)
 	defer e.Cleanup(t)
 
 	requestingUser := &model.User{Id: testUserID, Username: "requester", Locale: "en"}
@@ -267,8 +267,8 @@ func TestHandleIntervalDoesNotLoadToolsWhenToolsAreDisabled(t *testing.T) {
 		Order: []string{"post-1"},
 		Posts: map[string]*model.Post{"post-1": channelPost},
 	}
-	mmClient.On("GetPostsSince", testChannelID, int64(1)).Return(postList, nil)
-	mmClient.On("GetUser", testOtherUserID).Return(&model.User{Id: testOtherUserID, Username: "author"}, nil)
+	amClient.On("GetPostsSince", testChannelID, int64(1)).Return(postList, nil)
+	amClient.On("GetUser", testOtherUserID).Return(&model.User{Id: testOtherUserID, Username: "author"}, nil)
 
 	request := httptest.NewRequest(http.MethodPost, "/channel/"+testChannelID+"/interval", strings.NewReader(`{"start_time":1,"end_time":0,"preset_prompt":"summarize_range"}`))
 	request.Header.Add("Mattermost-User-ID", testUserID)
@@ -291,8 +291,8 @@ func TestHandleChannelAnalysisAcceptsNamespacedEmbeddedTools(t *testing.T) {
 			{Name: "mattermost__get_channel_info", ServerOrigin: mcp.EmbeddedClientKey},
 		},
 	}
-	mmClient := amapimocks.NewMockClient(t)
-	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, mmClient)
+	amClient := amapimocks.NewMockClient(t)
+	e, streamingService, _ := setupNoToolsAPI(t, mcpProvider, amClient)
 	defer e.Cleanup(t)
 
 	requestingUser := &model.User{Id: testUserID, Username: "requester", Locale: "en"}
@@ -324,8 +324,8 @@ func TestHandleIntervalSetsConversationRootPostID(t *testing.T) {
 	gin.DefaultWriter = io.Discard
 
 	mcpProvider := &noToolsTestMCPProvider{}
-	mmClient := amapimocks.NewMockClient(t)
-	e, streamingService, convStore := setupNoToolsAPI(t, mcpProvider, mmClient)
+	amClient := amapimocks.NewMockClient(t)
+	e, streamingService, convStore := setupNoToolsAPI(t, mcpProvider, amClient)
 	defer e.Cleanup(t)
 
 	requestingUser := &model.User{Id: testUserID, Username: "requester", Locale: "en"}
@@ -341,8 +341,8 @@ func TestHandleIntervalSetsConversationRootPostID(t *testing.T) {
 		Order: []string{"post-1"},
 		Posts: map[string]*model.Post{"post-1": channelPost},
 	}
-	mmClient.On("GetPostsSince", testChannelID, int64(1)).Return(postList, nil)
-	mmClient.On("GetUser", testOtherUserID).Return(&model.User{Id: testOtherUserID, Username: "author"}, nil)
+	amClient.On("GetPostsSince", testChannelID, int64(1)).Return(postList, nil)
+	amClient.On("GetUser", testOtherUserID).Return(&model.User{Id: testOtherUserID, Username: "author"}, nil)
 
 	request := httptest.NewRequest(http.MethodPost, "/channel/"+testChannelID+"/interval", strings.NewReader(`{"start_time":1,"end_time":0,"preset_prompt":"summarize_range"}`))
 	request.Header.Add("Mattermost-User-ID", testUserID)

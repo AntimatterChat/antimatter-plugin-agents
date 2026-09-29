@@ -54,7 +54,7 @@ func (a *API) handleGetConversationContext(c *gin.Context) {
 	// Anthropic's alternating-role requirement, which CountTokens enforces).
 	enableVision, maxFileSize := a.attachmentConfigForBot(conv.BotID)
 	llmCtx := a.buildContextForConversation(c.Request.Context(), userID, conv)
-	req, err := conversation.AssembleRequest(conv, turns, llmCtx, a.mmClient, enableVision, maxFileSize, conversation.BuildOptions{
+	req, err := conversation.AssembleRequest(conv, turns, llmCtx, a.amClient, enableVision, maxFileSize, conversation.BuildOptions{
 		SessionID: auth.SessionIDFromContext(c.Request.Context()),
 	})
 	if err != nil {

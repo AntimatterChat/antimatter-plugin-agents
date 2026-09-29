@@ -52,7 +52,7 @@ func (a *API) convertBridgePostsToInternal(req bridgeclient.CompletionRequest) (
 				}
 
 				// Get file info
-				fileInfo, err := a.mmClient.GetFileInfo(fileID)
+				fileInfo, err := a.amClient.GetFileInfo(fileID)
 				if err != nil {
 					return nil, fmt.Errorf("failed to get file info for file ID %s: %w", fileID, err)
 				}
@@ -65,13 +65,13 @@ func (a *API) convertBridgePostsToInternal(req bridgeclient.CompletionRequest) (
 				}
 
 				// Get file reader
-				fileReader, err := a.mmClient.GetFile(fileID)
+				fileReader, err := a.amClient.GetFile(fileID)
 				if err != nil {
 					return nil, fmt.Errorf("failed to get file for file ID %s: %w", fileID, err)
 				}
 				data, err := io.ReadAll(fileReader)
 				if closeErr := fileReader.Close(); closeErr != nil {
-					a.mmClient.LogError("failed to close bridge file reader", "error", closeErr)
+					a.amClient.LogError("failed to close bridge file reader", "error", closeErr)
 				}
 				if err != nil {
 					return nil, fmt.Errorf("failed to read file for file ID %s: %w", fileID, err)

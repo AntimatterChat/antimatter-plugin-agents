@@ -167,7 +167,7 @@ func (a *API) publishMCPOAuthClusterInvalidation(userID string) {
 
 // publishMCPConnectionUpdated notifies the webapp that the user connected an MCP server (OAuth callback).
 func (a *API) publishMCPConnectionUpdated(userID string, session *mcp.OAuthSession) {
-	if a.mmClient == nil || userID == "" {
+	if a.amClient == nil || userID == "" {
 		return
 	}
 
@@ -183,7 +183,7 @@ func (a *API) publishMCPConnectionUpdated(userID string, session *mcp.OAuthSessi
 		}
 	}
 
-	a.mmClient.PublishWebSocketEvent(
+	a.amClient.PublishWebSocketEvent(
 		WebsocketEventMCPConnectionUpdated,
 		payload,
 		&model.WebsocketBroadcast{UserId: userID},

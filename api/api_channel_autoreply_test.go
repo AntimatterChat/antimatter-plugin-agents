@@ -204,7 +204,7 @@ func TestPutChannelAutoReplyPermissionMatrix(t *testing.T) {
 				// A rejected PUT must not publish a websocket event: the
 				// strict mock has no expectations, so any
 				// PublishWebSocketEvent call fails the test.
-				e.api.mmClient = amapimocks.NewMockClient(t)
+				e.api.amClient = amapimocks.NewMockClient(t)
 			}
 
 			resp := e.doChannelAutoReplyRequest(t, http.MethodPut, validBody)
@@ -295,7 +295,7 @@ func TestPutChannelAutoReplyValidation(t *testing.T) {
 			// A rejected PUT must not publish a websocket event: the strict
 			// mock has no expectations, so any PublishWebSocketEvent call
 			// fails the test.
-			e.api.mmClient = amapimocks.NewMockClient(t)
+			e.api.amClient = amapimocks.NewMockClient(t)
 
 			resp := e.doChannelAutoReplyRequest(t, http.MethodPut, tc.body)
 			require.Equal(t, tc.expectedStatus, resp.StatusCode)
@@ -416,14 +416,14 @@ func TestPutChannelAutoReplyPersistsAndPublishes(t *testing.T) {
 		broadcast *model.WebsocketBroadcast
 	}
 	var events []wsEvent
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
 		Run(func(args mock.Arguments) {
 			payload, _ := args.Get(1).(map[string]any)
 			broadcast, _ := args.Get(2).(*model.WebsocketBroadcast)
 			events = append(events, wsEvent{name: args.String(0), payload: payload, broadcast: broadcast})
 		}).Return()
-	e.api.mmClient = mmClient
+	e.api.amClient = amClient
 
 	doPut := func(t *testing.T, body string) (*http.Response, ChannelAutoReply) {
 		t.Helper()

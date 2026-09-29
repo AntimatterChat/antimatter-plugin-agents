@@ -84,7 +84,7 @@ func TestDirectMessageConversations(t *testing.T) {
 			// Setup mocks and services
 			mockAPI := &plugintest.API{}
 			client := pluginapi.NewClient(mockAPI, nil)
-			mmClient := mocks.NewMockClient(t)
+			amClient := mocks.NewMockClient(t)
 			botService := bots.New(mockAPI, client, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 			prompts, err := llm.NewPrompts(prompts.PromptsFolder)
 			require.NoError(t, err, "Failed to load prompts")
@@ -93,17 +93,17 @@ func TestDirectMessageConversations(t *testing.T) {
 			mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
 			mockAPI.On("GetTeam", threadData.Team.Id).Return(threadData.Team, nil)
 			mockAPI.On("GetChannel", threadData.Channel.Id).Return(threadData.Channel, nil)
-			mmClient.On("GetPostThread", threadData.LatestPost().Id).Return(threadData.PostList, nil).Maybe()
-			mmClient.On("GetChannel", threadData.Channel.Id).Return(threadData.Channel, nil).Maybe()
+			amClient.On("GetPostThread", threadData.LatestPost().Id).Return(threadData.PostList, nil).Maybe()
+			amClient.On("GetChannel", threadData.Channel.Id).Return(threadData.Channel, nil).Maybe()
 
 			for _, user := range threadData.Users {
-				mmClient.On("GetUser", user.Id).Return(user, nil).Maybe()
+				amClient.On("GetUser", user.Id).Return(user, nil).Maybe()
 			}
 			for _, fileInfo := range threadData.FileInfos {
-				mmClient.On("GetFileInfo", fileInfo.Id).Return(fileInfo, nil).Maybe()
+				amClient.On("GetFileInfo", fileInfo.Id).Return(fileInfo, nil).Maybe()
 			}
 			for id, file := range threadData.Files {
-				mmClient.On("GetFile", id).Return(io.NopCloser(bytes.NewReader(file)), nil).Maybe()
+				amClient.On("GetFile", id).Return(io.NopCloser(bytes.NewReader(file)), nil).Maybe()
 			}
 
 			// Create mock implementations
@@ -120,7 +120,7 @@ func TestDirectMessageConversations(t *testing.T) {
 
 			_ = conversations.New(
 				prompts,
-				mmClient,
+				amClient,
 				nil,
 				contextBuilder,
 				botService,

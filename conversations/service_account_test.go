@@ -127,12 +127,12 @@ func serviceAccountConversations(t *testing.T, convStore *loadedStateFlowStore, 
 	botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	botsService.SetBotsForTesting([]*bots.Bot{serviceAccountTestBot(true)})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Maybe()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Maybe()
 
 	return &Conversations{
-		mmClient:       mmClient,
+		amClient:       amClient,
 		contextBuilder: newSingleBuildLLMContextBuilder(t, provider),
 		bots:           botsService,
 		convService:    conversation.NewService(convStore, nil, nil, nil),

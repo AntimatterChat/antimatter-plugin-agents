@@ -427,7 +427,7 @@ func TestChannelFollowUpStrictRegistry(t *testing.T) {
 		name              string
 		isDM              bool
 		toolPolicyChecker mapPolicyChecker
-		setupMMClient     func(t *testing.T) *mocks.MockClient
+		setupAMClient     func(t *testing.T) *mocks.MockClient
 		expectedFiltered  bool
 		expectedOptsEmpty bool
 		expectSafeTool    bool
@@ -436,10 +436,10 @@ func TestChannelFollowUpStrictRegistry(t *testing.T) {
 		{
 			name:              "get post failure fails closed",
 			toolPolicyChecker: channelPolicyChecker,
-			setupMMClient: func(t *testing.T) *mocks.MockClient {
-				mmClient := mocks.NewMockClient(t)
-				mmClient.On("GetPost", "root-id").Return((*model.Post)(nil), errors.New("missing root post")).Once()
-				return mmClient
+			setupAMClient: func(t *testing.T) *mocks.MockClient {
+				amClient := mocks.NewMockClient(t)
+				amClient.On("GetPost", "root-id").Return((*model.Post)(nil), errors.New("missing root post")).Once()
+				return amClient
 			},
 			expectedFiltered: true,
 			expectSafeTool:   true,
@@ -448,11 +448,11 @@ func TestChannelFollowUpStrictRegistry(t *testing.T) {
 		{
 			name:              "get user failure fails closed",
 			toolPolicyChecker: channelPolicyChecker,
-			setupMMClient: func(t *testing.T) *mocks.MockClient {
-				mmClient := mocks.NewMockClient(t)
-				mmClient.On("GetPost", "root-id").Return(&model.Post{UserId: "root-user"}, nil).Once()
-				mmClient.On("GetUser", "root-user").Return((*model.User)(nil), errors.New("missing root user")).Once()
-				return mmClient
+			setupAMClient: func(t *testing.T) *mocks.MockClient {
+				amClient := mocks.NewMockClient(t)
+				amClient.On("GetPost", "root-id").Return(&model.Post{UserId: "root-user"}, nil).Once()
+				amClient.On("GetUser", "root-user").Return((*model.User)(nil), errors.New("missing root user")).Once()
+				return amClient
 			},
 			expectedFiltered: true,
 			expectSafeTool:   true,
@@ -470,13 +470,13 @@ func TestChannelFollowUpStrictRegistry(t *testing.T) {
 		{
 			name:              "confirmed ActivateAI filters auto everywhere",
 			toolPolicyChecker: channelPolicyChecker,
-			setupMMClient: func(t *testing.T) *mocks.MockClient {
+			setupAMClient: func(t *testing.T) *mocks.MockClient {
 				rootPost := &model.Post{UserId: "bot-user"}
 				rootPost.AddProp(ActivateAIProp, true)
-				mmClient := mocks.NewMockClient(t)
-				mmClient.On("GetPost", "root-id").Return(rootPost, nil).Once()
-				mmClient.On("GetUser", "bot-user").Return(&model.User{Id: "bot-user", IsBot: true}, nil).Once()
-				return mmClient
+				amClient := mocks.NewMockClient(t)
+				amClient.On("GetPost", "root-id").Return(rootPost, nil).Once()
+				amClient.On("GetUser", "bot-user").Return(&model.User{Id: "bot-user", IsBot: true}, nil).Once()
+				return amClient
 			},
 			expectedFiltered: true,
 			expectSafeTool:   true,
@@ -496,8 +496,8 @@ func TestChannelFollowUpStrictRegistry(t *testing.T) {
 				configProvider:    config,
 				toolPolicyChecker: tt.toolPolicyChecker,
 			}
-			if tt.setupMMClient != nil {
-				c.mmClient = tt.setupMMClient(t)
+			if tt.setupAMClient != nil {
+				c.amClient = tt.setupAMClient(t)
 			}
 			rootID := "root-id"
 
@@ -576,8 +576,8 @@ func TestChannelMentionSystemPromptDynamicToolWorkflow(t *testing.T) {
 
 func TestUserMCPPreferenceContextOptionsNormalizesDisabledServersBeforeBuild(t *testing.T) {
 	origin := "https://mcp.example.com"
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("KVGet", "user_tool_providers_user-id", mock.AnythingOfType("*mcp.UserToolProviderPreferences")).
+	amClient := mocks.NewMockClient(t)
+	amClient.On("KVGet", "user_tool_providers_user-id", mock.AnythingOfType("*mcp.UserToolProviderPreferences")).
 		Run(func(args mock.Arguments) {
 			prefs := args.Get(1).(*mcp.UserToolProviderPreferences)
 			prefs.DisabledServers = []string{"  " + origin + "/  "}
@@ -586,7 +586,7 @@ func TestUserMCPPreferenceContextOptionsNormalizesDisabledServersBeforeBuild(t *
 		Once()
 
 	c := &Conversations{
-		mmClient:       mmClient,
+		amClient:       amClient,
 		contextBuilder: &llmcontext.Builder{},
 	}
 

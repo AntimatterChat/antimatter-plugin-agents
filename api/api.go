@@ -165,7 +165,7 @@ type API struct {
 	contextBuilder        *llmcontext.Builder
 	prompts               *llm.Prompts
 	config                Config
-	mmClient              amapi.Client
+	amClient              amapi.Client
 	dbClient              *amapi.DBClient
 	streamingService      streaming.Service
 	i18nBundle            *i18n.Bundle
@@ -213,7 +213,7 @@ func New(
 	llmContextBuilder *llmcontext.Builder,
 	config Config,
 	prompts *llm.Prompts,
-	mmClient amapi.Client,
+	amClient amapi.Client,
 	dbClient *amapi.DBClient,
 	streamingService streaming.Service,
 	i18nBundle *i18n.Bundle,
@@ -244,14 +244,14 @@ func New(
 		meetingsService:       meetingsService,
 		indexerService:        indexerService,
 		searchService:         searchService,
-		fileService:           files.New(mmClient),
+		fileService:           files.New(amClient),
 		pluginAPI:             pluginAPI,
 		metricsService:        metricsService,
 		metricsHandler:        metrics.NewMetricsHandler(metricsService),
 		contextBuilder:        llmContextBuilder,
 		prompts:               prompts,
 		config:                config,
-		mmClient:              mmClient,
+		amClient:              amClient,
 		dbClient:              dbClient,
 		streamingService:      streamingService,
 		i18nBundle:            i18nBundle,

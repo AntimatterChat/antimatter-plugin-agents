@@ -56,12 +56,12 @@ func TestChannelSummarization(t *testing.T) {
 			threadData := evals.LoadThreadFromJSON(t, path)
 
 			// Setup mocks
-			mmClient := mocks.NewMockClient(t)
+			amClient := mocks.NewMockClient(t)
 			promptsObj, err := llm.NewPrompts(prompts.PromptsFolder)
 			require.NoError(t, err, "Failed to load prompts")
 
 			// Setup mock expectations
-			setupChannelMocksFromThreadData(mmClient, threadData)
+			setupChannelMocksFromThreadData(amClient, threadData)
 
 			// Create a conversation service with in-memory store for eval tests
 			evalStore := newEvalInMemoryStore()
@@ -72,7 +72,7 @@ func TestChannelSummarization(t *testing.T) {
 			channelService := channels.New(
 				t.LLM,
 				promptsObj,
-				mmClient,
+				amClient,
 				nil, // dbClient not needed for this test
 				convSvc,
 			)
@@ -243,22 +243,22 @@ func (b *evalBotLookup) GetBotConfigByID(string) (bool, int64, bool) {
 	return false, 0, false
 }
 
-func setupChannelMocksFromThreadData(mmClient *mocks.MockClient, threadData *evals.ThreadExport) {
+func setupChannelMocksFromThreadData(amClient *mocks.MockClient, threadData *evals.ThreadExport) {
 	// Mock posts retrieval - return the thread data as channel posts
-	mmClient.On("GetPostsSince", threadData.Channel.Id, fixedStart).Return(threadData.PostList, nil)
+	amClient.On("GetPostsSince", threadData.Channel.Id, fixedStart).Return(threadData.PostList, nil)
 
 	// Mock users
 	for userID, user := range threadData.Users {
-		mmClient.On("GetUser", userID).Return(user, nil)
+		amClient.On("GetUser", userID).Return(user, nil)
 	}
 
 	// Mock file info if needed
 	for _, fileInfo := range threadData.FileInfos {
-		mmClient.On("GetFileInfo", fileInfo.Id).Return(fileInfo, nil).Maybe()
+		amClient.On("GetFileInfo", fileInfo.Id).Return(fileInfo, nil).Maybe()
 	}
 
 	// Mock file content if needed
 	for id, file := range threadData.Files {
-		mmClient.On("GetFile", id).Return(io.NopCloser(bytes.NewReader(file)), nil).Maybe()
+		amClient.On("GetFile", id).Return(io.NopCloser(bytes.NewReader(file)), nil).Maybe()
 	}
 }

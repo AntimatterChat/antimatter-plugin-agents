@@ -85,13 +85,13 @@ func computeAllowToolsInChannel(configEnabled bool, post *model.Post, postingUse
 }
 
 func (c *Conversations) userMCPPreferenceContextOptions(userID string, logMessage string) []llm.ContextOption {
-	if c.contextBuilder == nil || c.mmClient == nil || userID == "" {
+	if c.contextBuilder == nil || c.amClient == nil || userID == "" {
 		return nil
 	}
 
-	prefs, err := mcp.LoadUserPreferences(c.mmClient, userID)
+	prefs, err := mcp.LoadUserPreferences(c.amClient, userID)
 	if err != nil {
-		c.mmClient.LogWarn(logMessage, "error", err.Error(), "userID", userID)
+		c.amClient.LogWarn(logMessage, "error", err.Error(), "userID", userID)
 		return nil
 	}
 	if len(prefs.DisabledServers) == 0 {
@@ -163,9 +163,9 @@ func (c *Conversations) MessageHasBeenPosted(pluginContext *plugin.Context, post
 
 	if err := c.handleMessages(ctx, post); err != nil {
 		if errors.Is(err, ErrNoResponse) {
-			c.mmClient.LogDebug(err.Error())
+			c.amClient.LogDebug(err.Error())
 		} else {
-			c.mmClient.LogError(err.Error())
+			c.amClient.LogError(err.Error())
 		}
 	}
 }
@@ -201,12 +201,12 @@ func (c *Conversations) handleMessages(ctx context.Context, post *model.Post) er
 		return fmt.Errorf("not responding to webhook posts: %w", ErrNoResponse)
 	}
 
-	channel, err := c.mmClient.GetChannel(post.ChannelId)
+	channel, err := c.amClient.GetChannel(post.ChannelId)
 	if err != nil {
 		return fmt.Errorf("unable to get channel: %w", err)
 	}
 
-	postingUser, err := c.mmClient.GetUser(post.UserId)
+	postingUser, err := c.amClient.GetUser(post.UserId)
 	if err != nil {
 		return err
 	}
@@ -270,7 +270,7 @@ func (c *Conversations) handleMentions(ctx context.Context, bot *bots.Bot, post 
 	if placeholderErr := c.createResponsePlaceholder(bot.GetAMBot().UserId, postingUser.Id, responsePost, post.Id); placeholderErr != nil {
 		return fmt.Errorf("unable to create response placeholder: %w", placeholderErr)
 	}
-	progress := newResponseProgressReporter(ctx, c.mmClient, responsePost)
+	progress := newResponseProgressReporter(ctx, c.amClient, responsePost)
 	progress.Advance(responseProgressCheckingMCP)
 	defer func() {
 		if err != nil {
@@ -348,7 +348,7 @@ func (c *Conversations) handleMentionViaConversation(
 		return fmt.Errorf("failed to get or create conversation: %w", convErr)
 	}
 	responsePost.AddProp(streaming.ConversationIDProp, convResult.Conversation.ID)
-	if updateErr := c.mmClient.UpdatePost(responsePost); updateErr != nil {
+	if updateErr := c.amClient.UpdatePost(responsePost); updateErr != nil {
 		return fmt.Errorf("failed to attach conversation to response placeholder: %w", updateErr)
 	}
 	if channelToolsAutoRunEverywhereOnly {
@@ -358,7 +358,7 @@ func (c *Conversations) handleMentionViaConversation(
 	ctx, runSpan := c.startAgentRunSpan(ctx, convResult.Conversation.ID, convResult.UserTurnID)
 	defer runSpan.End()
 
-	threadData, threadErr := amapi.GetThreadData(c.mmClient, responsePost.RootId)
+	threadData, threadErr := amapi.GetThreadData(c.amClient, responsePost.RootId)
 	if threadErr != nil {
 		return fmt.Errorf("failed to get thread data: %w", threadErr)
 	}
@@ -414,7 +414,7 @@ func (c *Conversations) handleMentionViaConversation(
 				post.Message,
 				llmContext,
 			); genErr != nil {
-				c.mmClient.LogError("Failed to generate title", "error", genErr.Error())
+				c.amClient.LogError("Failed to generate title", "error", genErr.Error())
 			}
 		}()
 	}
@@ -438,7 +438,7 @@ func (c *Conversations) handleDMs(ctx context.Context, bot *bots.Bot, channel *m
 	if placeholderErr := c.createResponsePlaceholder(bot.GetAMBot().UserId, postingUser.Id, responsePost, post.Id); placeholderErr != nil {
 		return fmt.Errorf("unable to create response placeholder: %w", placeholderErr)
 	}
-	progress := newResponseProgressReporter(ctx, c.mmClient, responsePost)
+	progress := newResponseProgressReporter(ctx, c.amClient, responsePost)
 	progress.Advance(responseProgressCheckingMCP)
 	defer func() {
 		if err != nil {
@@ -473,7 +473,7 @@ func (c *Conversations) handleDMViaConversation(ctx context.Context, bot *bots.B
 		return fmt.Errorf("unable to create DM conversation: %w", err)
 	}
 	responsePost.AddProp(streaming.ConversationIDProp, convResult.ConversationID)
-	if updateErr := c.mmClient.UpdatePost(responsePost); updateErr != nil {
+	if updateErr := c.amClient.UpdatePost(responsePost); updateErr != nil {
 		return fmt.Errorf("failed to attach conversation to response placeholder: %w", updateErr)
 	}
 
@@ -497,7 +497,7 @@ func (c *Conversations) handleDMViaConversation(ctx context.Context, bot *bots.B
 	if convResult.IsNew {
 		go func() {
 			if titleErr := c.convService.GenerateTitle(convResult.ConversationID, bot.LLM(), post.Message, llmContext); titleErr != nil {
-				c.mmClient.LogError("Failed to generate title", "error", titleErr.Error())
+				c.amClient.LogError("Failed to generate title", "error", titleErr.Error())
 			}
 		}()
 	}
@@ -549,7 +549,7 @@ func cloneWithAgentMention(post *model.Post, botUsername string) *model.Post {
 
 func (c *Conversations) createResponsePlaceholder(botID, requesterUserID string, post *model.Post, respondingToPostID string) error {
 	streaming.ModifyPostForBot(botID, requesterUserID, post, respondingToPostID)
-	return c.mmClient.CreatePost(post)
+	return c.amClient.CreatePost(post)
 }
 
 // streamToExistingPost streams an LLM response onto an existing post. With
@@ -581,8 +581,8 @@ func (c *Conversations) failResponsePlaceholder(post *model.Post, userLocale str
 		message = T("agents.stream_to_post_access_llm_error", message)
 	}
 	post.Message = message
-	if err := c.mmClient.UpdatePost(post); err != nil {
-		c.mmClient.LogError("Failed to update response placeholder after startup error", "error", err)
+	if err := c.amClient.UpdatePost(post); err != nil {
+		c.amClient.LogError("Failed to update response placeholder after startup error", "error", err)
 	}
 }
 
@@ -598,8 +598,8 @@ func (c *Conversations) fallbackLocale(userLocale string) string {
 	if userLocale != "" {
 		return userLocale
 	}
-	if c.mmClient != nil {
-		if config := c.mmClient.GetConfig(); config != nil && config.LocalizationSettings.DefaultServerLocale != nil && *config.LocalizationSettings.DefaultServerLocale != "" {
+	if c.amClient != nil {
+		if config := c.amClient.GetConfig(); config != nil && config.LocalizationSettings.DefaultServerLocale != nil && *config.LocalizationSettings.DefaultServerLocale != "" {
 			return *config.LocalizationSettings.DefaultServerLocale
 		}
 	}

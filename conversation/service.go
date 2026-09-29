@@ -62,7 +62,7 @@ type BotLookup interface {
 type Service struct {
 	store    Store
 	prompts  *llm.Prompts
-	mmClient amapi.Client
+	amClient amapi.Client
 	bots     BotLookup
 }
 
@@ -70,13 +70,13 @@ type Service struct {
 func NewService(
 	s Store,
 	prompts *llm.Prompts,
-	mmClient amapi.Client,
+	amClient amapi.Client,
 	bots BotLookup,
 ) *Service {
 	return &Service{
 		store:    s,
 		prompts:  prompts,
-		mmClient: mmClient,
+		amClient: amClient,
 		bots:     bots,
 	}
 }
@@ -125,7 +125,7 @@ func (s *Service) CreateConversation(params CreateConversationParams) (*CreateCo
 	}
 
 	turnID := model.NewId()
-	content, err := marshalBlocks(userBlocksWithAttachments(params.UserMessage, params.FileIDs, amapi.WithFilePolicy(s.mmClient, params.SessionID)))
+	content, err := marshalBlocks(userBlocksWithAttachments(params.UserMessage, params.FileIDs, amapi.WithFilePolicy(s.amClient, params.SessionID)))
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal user message: %w", err)
 	}
@@ -334,7 +334,7 @@ func (s *Service) GetOrCreateConversation(params GetOrCreateParams) (*GetOrCreat
 
 // appendUserTurn creates a new user turn at the next available sequence number.
 func (s *Service) appendUserTurn(conversationID, message string, postID *string, fileIDs []string, sessionID string) (string, error) {
-	content, err := marshalBlocks(userBlocksWithAttachments(message, fileIDs, amapi.WithFilePolicy(s.mmClient, sessionID)))
+	content, err := marshalBlocks(userBlocksWithAttachments(message, fileIDs, amapi.WithFilePolicy(s.amClient, sessionID)))
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal user message: %w", err)
 	}
@@ -393,7 +393,7 @@ func (s *Service) BuildCompletionRequest(
 		return nil, fmt.Errorf("failed to get turns: %w", err)
 	}
 	enableVision, maxFileSize := s.attachmentConfigForBot(conv.BotID)
-	return AssembleRequest(conv, turns, context, s.mmClient, enableVision, maxFileSize, opts...)
+	return AssembleRequest(conv, turns, context, s.amClient, enableVision, maxFileSize, opts...)
 }
 
 // AssembleRequest builds the CompletionRequest from already-loaded turns and
@@ -403,7 +403,7 @@ func AssembleRequest(
 	conv *store.Conversation,
 	turns []store.Turn,
 	context *llm.Context,
-	mmClient amapi.Client,
+	amClient amapi.Client,
 	enableVision bool,
 	maxFileSize int64,
 	opts ...BuildOptions,
@@ -443,7 +443,7 @@ func AssembleRequest(
 		RestoreLoadedMCPToolsFromTurns(context.Tools, turns)
 	}
 
-	mmClient = amapi.WithFilePolicy(mmClient, firstBuildOptions(opts).SessionID)
+	amClient = amapi.WithFilePolicy(amClient, firstBuildOptions(opts).SessionID)
 
 	posts := make([]llm.Post, 0, len(turns)+1)
 
@@ -455,7 +455,7 @@ func AssembleRequest(
 
 	conversionOpts := PostConversionOptions{
 		RedactUnshared: redactUnshared,
-		MMClient:       mmClient,
+		AMClient:       amClient,
 		EnableVision:   enableVision,
 		MaxFileSize:    maxFileSize,
 	}
@@ -711,7 +711,7 @@ func (s *Service) BuildChannelMentionRequest(
 	}
 
 	enableVision, maxFileSize := s.attachmentConfigForBot(conv.BotID)
-	mmClient := amapi.WithFilePolicy(s.mmClient, firstBuildOptions(opts).SessionID)
+	amClient := amapi.WithFilePolicy(s.amClient, firstBuildOptions(opts).SessionID)
 
 	// Build a set of post IDs that belong to the bot's turns.
 	turnPostIDs := make(map[string]bool)
@@ -781,7 +781,7 @@ func (s *Service) BuildChannelMentionRequest(
 	// matching BuildCompletionRequest's behavior.
 	conversionOpts := PostConversionOptions{
 		RedactUnshared: redactUnshared,
-		MMClient:       mmClient,
+		AMClient:       amClient,
 		EnableVision:   enableVision,
 		MaxFileSize:    maxFileSize,
 	}
@@ -813,8 +813,8 @@ func (s *Service) BuildChannelMentionRequest(
 			if user, ok := threadData.UsersByID[threadPost.UserId]; ok {
 				username = user.Username
 			}
-			blocks := userBlocksWithAttachments(format.AuthoredPost(threadPost, username), threadPost.FileIds, mmClient)
-			posts = append(posts, BlocksToPost(blocks, "user", PostConversionOptions{RedactUnshared: redactUnshared, MMClient: mmClient, EnableVision: enableVision, MaxFileSize: maxFileSize}))
+			blocks := userBlocksWithAttachments(format.AuthoredPost(threadPost, username), threadPost.FileIds, amClient)
+			posts = append(posts, BlocksToPost(blocks, "user", PostConversionOptions{RedactUnshared: redactUnshared, AMClient: amClient, EnableVision: enableVision, MaxFileSize: maxFileSize}))
 		}
 		if latestPostLinkedRole == "user" && threadPost.Id == latestPostLinkedPostID {
 			break

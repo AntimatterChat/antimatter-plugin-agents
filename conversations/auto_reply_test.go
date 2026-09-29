@@ -60,7 +60,7 @@ func (f *fakeAutoReplySettings) set(setting autoreply.Setting) {
 type autoReplyTestEnv struct {
 	conversations *conversations.Conversations
 	convStore     *fakeConvStore
-	mmClient      *fakeMMClient
+	amClient      *fakeAMClient
 	mockAPI       *plugintest.API
 	botService    *bots.AMBots
 	fakeLLM       *dmTestLLM
@@ -126,7 +126,7 @@ func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponse
 	botService.SetBotsForTesting(registered)
 
 	channel := &model.Channel{Id: autoReplyChannelID, Type: model.ChannelTypeOpen, TeamId: autoReplyTeamID}
-	mmClient := &fakeMMClient{
+	amClient := &fakeAMClient{
 		users: map[string]*model.User{
 			autoReplyUserID:       {Id: autoReplyUserID, Username: "aruser", Locale: "en"},
 			autoReplyOtherUserID:  {Id: autoReplyOtherUserID, Username: "arother", Locale: "en"},
@@ -144,11 +144,11 @@ func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponse
 	require.NoError(t, err)
 
 	convFakeStore := newFakeConvStore()
-	convSvc := conversation.NewService(convFakeStore, promptsManager, mmClient, botService)
+	convSvc := conversation.NewService(convFakeStore, promptsManager, amClient, botService)
 
 	convs := conversations.New(
 		promptsManager,
-		mmClient,
+		amClient,
 		&fakeStreamingService{},
 		contextBuilder,
 		botService,
@@ -165,7 +165,7 @@ func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponse
 	return &autoReplyTestEnv{
 		conversations: convs,
 		convStore:     convFakeStore,
-		mmClient:      mmClient,
+		amClient:      amClient,
 		mockAPI:       mockAPI,
 		botService:    botService,
 		fakeLLM:       fLLM,
@@ -176,8 +176,8 @@ func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponse
 }
 
 func (env *autoReplyTestEnv) setThread(rootID string, posts ...*model.Post) {
-	if env.mmClient.postThreads == nil {
-		env.mmClient.postThreads = map[string]*model.PostList{}
+	if env.amClient.postThreads == nil {
+		env.amClient.postThreads = map[string]*model.PostList{}
 	}
 	postsByID := map[string]*model.Post{}
 	order := make([]string, 0, len(posts))
@@ -187,10 +187,10 @@ func (env *autoReplyTestEnv) setThread(rootID string, posts ...*model.Post) {
 	}
 	list := &model.PostList{Order: order, Posts: postsByID}
 	for _, p := range posts {
-		env.mmClient.postThreads[p.Id] = list
+		env.amClient.postThreads[p.Id] = list
 	}
-	if rootID != "" && env.mmClient.postThreads[rootID] == nil {
-		env.mmClient.postThreads[rootID] = list
+	if rootID != "" && env.amClient.postThreads[rootID] == nil {
+		env.amClient.postThreads[rootID] = list
 	}
 }
 
@@ -446,8 +446,8 @@ func TestAutoReplyTriggerMatrix(t *testing.T) {
 			env.conversations.MessageHasBeenPosted(nil, post)
 
 			if tc.expectFired {
-				require.Len(t, env.mmClient.createdPosts, 1, "expected exactly one bot placeholder post")
-				placeholder := env.mmClient.createdPosts[0]
+				require.Len(t, env.amClient.createdPosts, 1, "expected exactly one bot placeholder post")
+				placeholder := env.amClient.createdPosts[0]
 				require.Equal(t, autoReplyChannelID, placeholder.ChannelId)
 				require.Equal(t, tc.expectedRootID, placeholder.RootId)
 				require.Equal(t, tc.expectedBotUserID, placeholder.UserId)
@@ -455,14 +455,14 @@ func TestAutoReplyTriggerMatrix(t *testing.T) {
 				blocks := singleConversationUserBlocks(t, env)
 				require.Equal(t, tc.expectedConvMessage, blocks[0].Text)
 			} else {
-				require.Empty(t, env.mmClient.createdPosts, "expected no bot reply")
+				require.Empty(t, env.amClient.createdPosts, "expected no bot reply")
 				require.Empty(t, allConversations(env.convStore), "expected no conversation")
 			}
 
 			if tc.expectReminder {
-				require.Len(t, env.mmClient.ephemeralPosts, 1, "expected the mention reminder")
+				require.Len(t, env.amClient.ephemeralPosts, 1, "expected the mention reminder")
 			} else {
-				require.Empty(t, env.mmClient.ephemeralPosts, "expected no mention reminder")
+				require.Empty(t, env.amClient.ephemeralPosts, "expected no mention reminder")
 			}
 		})
 	}
@@ -552,14 +552,14 @@ func TestAutoReplyTriggerRechecks(t *testing.T) {
 			post := tc.buildPost(env)
 			env.conversations.MessageHasBeenPosted(nil, post)
 
-			require.Empty(t, env.mmClient.createdPosts, "quiet no-op must not create posts")
+			require.Empty(t, env.amClient.createdPosts, "quiet no-op must not create posts")
 			require.Empty(t, allConversations(env.convStore), "quiet no-op must not create conversations")
-			require.Empty(t, env.mmClient.loggedErrors(), "quiet no-op must not log at error level")
+			require.Empty(t, env.amClient.loggedErrors(), "quiet no-op must not log at error level")
 
 			if tc.expectReminder {
-				require.Len(t, env.mmClient.ephemeralPosts, 1, "expected the mention reminder")
+				require.Len(t, env.amClient.ephemeralPosts, 1, "expected the mention reminder")
 			} else {
-				require.Empty(t, env.mmClient.ephemeralPosts, "expected no ephemeral post")
+				require.Empty(t, env.amClient.ephemeralPosts, "expected no ephemeral post")
 			}
 		})
 	}
@@ -601,7 +601,7 @@ func TestAutoReplySynthesizedMention(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			env := setupAutoReplyTestEnv(t, []llm.BotConfig{autoReplyBotConfig()}, dmMakeTextStream("canned reply"))
-			env.mmClient.fileInfos = tc.fileInfos
+			env.amClient.fileInfos = tc.fileInfos
 			env.settings.set(autoreply.Setting{
 				ChannelID: autoReplyChannelID,
 				BotID:     autoReplyBotUserID,
@@ -611,7 +611,7 @@ func TestAutoReplySynthesizedMention(t *testing.T) {
 			post := tc.buildPost(env)
 			env.conversations.MessageHasBeenPosted(&plugin.Context{SessionId: model.NewId()}, post)
 
-			require.Len(t, env.mmClient.createdPosts, 1, "expected the auto-reply to fire")
+			require.Len(t, env.amClient.createdPosts, 1, "expected the auto-reply to fire")
 			blocks := singleConversationUserBlocks(t, env)
 			require.Equal(t, conversation.BlockTypeText, blocks[0].Type)
 			require.Equal(t, tc.expectedText, blocks[0].Text)
@@ -637,7 +637,7 @@ func TestAutoReplyNilServiceIsNoop(t *testing.T) {
 	post := env.threadReply(autoReplyUserID, "thanks!", true)
 	env.conversations.MessageHasBeenPosted(nil, post)
 
-	require.Empty(t, env.mmClient.createdPosts, "no auto-reply must fire without the settings lookup")
-	require.Len(t, env.mmClient.ephemeralPosts, 1, "the mention reminder must behave exactly as today")
-	require.Empty(t, env.mmClient.loggedErrors())
+	require.Empty(t, env.amClient.createdPosts, "no auto-reply must fire without the settings lookup")
+	require.Len(t, env.amClient.ephemeralPosts, 1, "the mention reminder must behave exactly as today")
+	require.Empty(t, env.amClient.loggedErrors())
 }

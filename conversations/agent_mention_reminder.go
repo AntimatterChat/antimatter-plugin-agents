@@ -42,7 +42,7 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 
 	prev, err := c.findPreviousThreadPost(post)
 	if err != nil {
-		c.mmClient.LogDebug("agent mention reminder: failed to load thread", "error", err.Error(), "post_id", post.Id)
+		c.amClient.LogDebug("agent mention reminder: failed to load thread", "error", err.Error(), "post_id", post.Id)
 		return
 	}
 	if prev == nil {
@@ -59,7 +59,7 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 		return
 	}
 	if err := c.bots.CheckUsageRestrictions(ctx, post.UserId, bot, channel); err != nil {
-		c.mmClient.LogDebug(
+		c.amClient.LogDebug(
 			"agent mention reminder: bot unavailable for user/channel",
 			"error", err.Error(),
 			"post_id", post.Id,
@@ -90,12 +90,12 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 	ephemeral.AddProp(AgentMentionReminderBotDisplayNameProp, amBot.DisplayName)
 	ephemeral.AddProp(AgentMentionReminderTargetPostIDProp, post.Id)
 
-	c.mmClient.SendEphemeralPost(post.UserId, ephemeral)
+	c.amClient.SendEphemeralPost(post.UserId, ephemeral)
 }
 
 // findPreviousThreadPost uses thread order to break same-timestamp ties.
 func (c *Conversations) findPreviousThreadPost(post *model.Post) (*model.Post, error) {
-	thread, err := c.mmClient.GetPostThread(post.RootId)
+	thread, err := c.amClient.GetPostThread(post.RootId)
 	if err != nil {
 		return nil, err
 	}

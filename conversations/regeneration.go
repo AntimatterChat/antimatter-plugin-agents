@@ -72,7 +72,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		return errors.New("tagged no regen")
 	}
 
-	user, err := c.mmClient.GetUser(userID)
+	user, err := c.amClient.GetUser(userID)
 	if err != nil {
 		return fmt.Errorf("unable to get user to regen post: %w", err)
 	}
@@ -92,12 +92,12 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 	case threadIDProp != nil:
 		threadID := threadIDProp.(string)
 		analysisType := analysisTypeProp.(string)
-		threadPost, getPostErr := c.mmClient.GetPost(threadID)
+		threadPost, getPostErr := c.amClient.GetPost(threadID)
 		if getPostErr != nil {
 			return fmt.Errorf("could not get thread post on regen: %w", getPostErr)
 		}
 
-		if !c.mmClient.HasPermissionToChannel(userID, threadPost.ChannelId, model.PermissionReadChannel) {
+		if !c.amClient.HasPermissionToChannel(userID, threadPost.ChannelId, model.PermissionReadChannel) {
 			return errors.New("user doesn't have permission to read channel original thread in in")
 		}
 
@@ -108,7 +108,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 			c.contextBuilder.WithLLMContextNoTools(),
 		)
 
-		analyzer := threads.New(bot.LLM(), c.prompts, c.mmClient, c.convService)
+		analyzer := threads.New(bot.LLM(), c.prompts, c.amClient, c.convService)
 		var analyzeResult *threads.AnalyzeResult
 		switch analysisType {
 		case "summarize_thread":
@@ -128,7 +128,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 	case referenceRecordingFileIDProp != nil:
 		post.Message = ""
 		referencedRecordingFileID := referenceRecordingFileIDProp.(string)
-		mm := amapi.WithFilePolicy(c.mmClient, auth.SessionIDFromContext(ctx))
+		mm := amapi.WithFilePolicy(c.amClient, auth.SessionIDFromContext(ctx))
 
 		fileInfo, getErr := mm.GetFileInfo(referencedRecordingFileID)
 		if getErr != nil {
@@ -151,7 +151,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 			return errors.New("transcription is empty on regen")
 		}
 
-		originalFileChannel, channelErr := c.mmClient.GetChannel(fileInfo.ChannelId)
+		originalFileChannel, channelErr := c.amClient.GetChannel(fileInfo.ChannelId)
 		if channelErr != nil {
 			return fmt.Errorf("could not get channel of original recording on regen: %w", channelErr)
 		}
@@ -170,7 +170,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 	case referencedTranscriptPostProp != nil:
 		post.Message = ""
 		referencedTranscriptionPostID := referencedTranscriptPostProp.(string)
-		referencedTranscriptionPost, postErr := c.mmClient.GetPost(referencedTranscriptionPostID)
+		referencedTranscriptionPost, postErr := c.amClient.GetPost(referencedTranscriptionPostID)
 		if postErr != nil {
 			return fmt.Errorf("could not get transcription post on regen: %w", postErr)
 		}
@@ -179,7 +179,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		if fileIDErr != nil {
 			return fmt.Errorf("unable to get transcription file id: %w", fileIDErr)
 		}
-		mm := amapi.WithFilePolicy(c.mmClient, auth.SessionIDFromContext(ctx))
+		mm := amapi.WithFilePolicy(c.amClient, auth.SessionIDFromContext(ctx))
 		transcriptionFileReader, fileErr := mm.GetFile(transcriptionFileID)
 		if fileErr != nil {
 			return fmt.Errorf("unable to read calls file: %w", fileErr)
@@ -229,7 +229,7 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		}
 	}
 
-	config := c.mmClient.GetConfig()
+	config := c.amClient.GetConfig()
 	c.streamingService.StreamToPost(ctx, result, post, *config.LocalizationSettings.DefaultServerLocale, user.Id)
 
 	return nil
@@ -281,7 +281,7 @@ func (c *Conversations) regenerateViaConversation(
 
 	// Scrub the prior generation so the stream runs identically to a first.
 	if delErr := c.convService.DeleteResponseTurns(conv.ID, post.Id); delErr != nil {
-		c.mmClient.LogError("Failed to scrub prior response turns on regen", "error", delErr.Error(), "post_id", post.Id, "conversation_id", conv.ID)
+		c.amClient.LogError("Failed to scrub prior response turns on regen", "error", delErr.Error(), "post_id", post.Id, "conversation_id", conv.ID)
 	}
 
 	// Clear prior attachments so the regenerated response starts clean.

@@ -123,7 +123,7 @@ func (c *Conversations) beginToolDecision(ctx context.Context, spanName, logMsg,
 		return fail(ErrPostMissingConversationID)
 	}
 
-	c.mmClient.LogDebug(logMsg,
+	c.amClient.LogDebug(logMsg,
 		"post_id", post.Id,
 		"conv_id", convID,
 		"accepted_count", acceptedCount,
@@ -175,7 +175,7 @@ func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post 
 		return err
 	}
 
-	user, err := c.mmClient.GetUser(userID)
+	user, err := c.amClient.GetUser(userID)
 	if err != nil {
 		return fmt.Errorf("unable to get user: %w", err)
 	}
@@ -581,7 +581,7 @@ func (c *Conversations) HandleToolResult(ctx context.Context, userID string, pos
 		return nil
 	}
 
-	user, err := c.mmClient.GetUser(userID)
+	user, err := c.amClient.GetUser(userID)
 	if err != nil {
 		return fmt.Errorf("unable to get user: %w", err)
 	}
@@ -685,9 +685,9 @@ func (c *Conversations) buildToolFollowUpRequest(conv *store.Conversation, llmCo
 		// permissions, API blip), degrade to turns-only context rather than
 		// failing the resume. BuildChannelMentionRequest does the same on
 		// empty thread data.
-		threadData, err := amapi.GetThreadData(c.mmClient, *conv.RootPostID)
+		threadData, err := amapi.GetThreadData(c.amClient, *conv.RootPostID)
 		if err != nil {
-			c.mmClient.LogWarn("Failed to get thread data for tool follow-up, falling back to turns-only context", "error", err)
+			c.amClient.LogWarn("Failed to get thread data for tool follow-up, falling back to turns-only context", "error", err)
 			return c.convService.BuildCompletionRequest(conv, llmContext, buildOpts)
 		}
 		return c.convService.BuildChannelMentionRequest(conv, llmContext, threadData, buildOpts)

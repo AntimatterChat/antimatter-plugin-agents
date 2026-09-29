@@ -39,12 +39,12 @@ func (e *TestEnvironment) Cleanup(t *testing.T) {
 func SetupTestEnvironment(t *testing.T) *TestEnvironment {
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
-	mmClient := mocks.NewMockClient(t)
+	amClient := mocks.NewMockClient(t)
 
 	botsService := bots.New(mockAPI, client, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 	conversations := &Conversations{
-		mmClient: mmClient,
+		amClient: amClient,
 		bots:     botsService,
 	}
 
@@ -113,11 +113,11 @@ func TestHandleMessages(t *testing.T) {
 	t.Run("non-system posts pass the system-message guard", func(t *testing.T) {
 		for _, postType := range []string{"", "custom_llmbot"} {
 			t.Run("type="+postType, func(t *testing.T) {
-				mmClient := mocks.NewMockClient(t)
+				amClient := mocks.NewMockClient(t)
 				sentinel := errors.New("reached channel lookup")
-				mmClient.EXPECT().GetChannel("channelid").Return(nil, sentinel).Once()
+				amClient.EXPECT().GetChannel("channelid").Return(nil, sentinel).Once()
 
-				conv := &Conversations{mmClient: mmClient, bots: e.bots}
+				conv := &Conversations{amClient: amClient, bots: e.bots}
 				err := conv.handleMessages(ctx, &model.Post{
 					UserId:    "userid",
 					ChannelId: "channelid",

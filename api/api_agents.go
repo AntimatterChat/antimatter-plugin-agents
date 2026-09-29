@@ -265,9 +265,9 @@ func (a *API) refreshBotsAndNotify() error {
 			a.pluginAPI.Log.Error("Failed to publish agent update cluster event", "error", err.Error())
 		}
 	}
-	if a.mmClient != nil {
+	if a.amClient != nil {
 		// PublishWebSocketEvent requires a non-nil broadcast (server dereferences it).
-		a.mmClient.PublishWebSocketEvent(WebsocketEventBotsInvalidate, map[string]any{}, &model.WebsocketBroadcast{})
+		a.amClient.PublishWebSocketEvent(WebsocketEventBotsInvalidate, map[string]any{}, &model.WebsocketBroadcast{})
 	}
 	return ensureErr
 }

@@ -421,12 +421,12 @@ func TestHandleToolCallExecutesApprovedToolRestoredFromLoadTurns(t *testing.T) {
 	bot := loadedStateBot(&loadedStateLLM{})
 	botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
 
 	c := &Conversations{
-		mmClient:       mmClient,
+		amClient:       amClient,
 		contextBuilder: loadedStateBuilder(t),
 		bots:           botsService,
 		convService:    conversation.NewService(convStore, nil, nil, nil),
@@ -481,12 +481,12 @@ func TestHandleToolCallFailsSafelyWhenNoMatchingLoadTurn(t *testing.T) {
 	bot := loadedStateBot(&loadedStateLLM{})
 	botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
 
 	c := &Conversations{
-		mmClient:       mmClient,
+		amClient:       amClient,
 		contextBuilder: loadedStateBuilder(t),
 		bots:           botsService,
 		convService:    conversation.NewService(convStore, nil, nil, nil),
@@ -544,12 +544,12 @@ func TestHandleToolCallRejectsServerOriginMismatchEvenAfterLoad(t *testing.T) {
 	bot := loadedStateBot(&loadedStateLLM{})
 	botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
 
 	c := &Conversations{
-		mmClient:       mmClient,
+		amClient:       amClient,
 		contextBuilder: loadedStateBuilder(t),
 		bots:           botsService,
 		convService:    conversation.NewService(convStore, nil, nil, nil),
@@ -610,12 +610,12 @@ func TestHandleToolCallRestoresMultipleLoadsBeforeExecutingApprovedTool(t *testi
 	bot := loadedStateBot(&loadedStateLLM{})
 	botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Return(&model.User{Id: "user-id", Username: "user"}, nil).Once()
 
 	c := &Conversations{
-		mmClient:       mmClient,
+		amClient:       amClient,
 		contextBuilder: loadedStateBuilder(t, transitionTool),
 		bots:           botsService,
 		convService:    conversation.NewService(convStore, nil, nil, nil),
@@ -817,11 +817,11 @@ func TestHandleToolResultScopesSharedToClickedPost(t *testing.T) {
 	botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	botsService.SetBotsForTesting([]*bots.Bot{loadedStateBot(&loadedStateLLM{})})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
 
 	c := &Conversations{
-		mmClient:    mmClient,
+		amClient:    amClient,
 		bots:        botsService,
 		convService: conversation.NewService(convStore, nil, nil, nil),
 	}

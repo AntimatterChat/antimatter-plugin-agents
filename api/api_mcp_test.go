@@ -362,11 +362,11 @@ func TestHandleGetUserMCPToolsStaticOAuthCredentialsNeedOAuthWhenUnauthenticated
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).Return(amapi.ErrKVNotFound)
-	mmClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil)
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).Return(amapi.ErrKVNotFound)
+	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -404,17 +404,17 @@ func TestHandleGetUserMCPToolsStoredTokenMarksZeroToolServerAuthenticated(t *tes
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).
 		Run(func(args mock.Arguments) {
 			raw := args.Get(1).(*[]byte)
 			b, _ := json.Marshal(oauth2.Token{AccessToken: "stored-token"})
 			*raw = b
 		}).
 		Return(nil)
-	mmClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil)
+	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -452,8 +452,8 @@ func TestHandleGetUserMCPToolsAuthErrorsOverrideStoredTokensForZeroToolServers(t
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).
 		Run(func(args mock.Arguments) {
 			raw := args.Get(1).(*[]byte)
 			b, _ := json.Marshal(oauth2.Token{AccessToken: "stored-token"})
@@ -461,9 +461,9 @@ func TestHandleGetUserMCPToolsAuthErrorsOverrideStoredTokensForZeroToolServers(t
 		}).
 		Return(nil).
 		Maybe()
-	mmClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil).Maybe()
+	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).Return(nil).Maybe()
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -676,9 +676,9 @@ func TestHandleGetUserMCPToolsAuthNeededStateOverridesDiscoveredTools(t *testing
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).Return(amapi.ErrKVNotFound)
-	mmClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("KVGet", "mcp_oauth_token_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*[]uint8")).Return(amapi.ErrKVNotFound)
+	amClient.On("KVGet", "mcp_oauth_needed_v1_"+testUserID+"_"+server.Name, mock.AnythingOfType("*mcp.OAuthNeededState")).
 		Run(func(args mock.Arguments) {
 			state := args.Get(1).(*mcp.OAuthNeededState)
 			*state = mcp.OAuthNeededState{
@@ -687,7 +687,7 @@ func TestHandleGetUserMCPToolsAuthNeededStateOverridesDiscoveredTools(t *testing
 		}).
 		Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", &http.Client{}, func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -941,17 +941,17 @@ func TestHandleDeleteUserMCPOAuth(t *testing.T) {
 		},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 	var gotEvent string
 	var gotPayload map[string]any
 	var gotBroadcast *model.WebsocketBroadcast
-	mmClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
+	amClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
 		Run(func(args mock.Arguments) {
 			gotEvent = args.String(0)
 			gotPayload, _ = args.Get(1).(map[string]any)
 			gotBroadcast, _ = args.Get(2).(*model.WebsocketBroadcast)
 		}).Return()
-	e.api.mmClient = mmClient
+	e.api.amClient = amClient
 
 	request := httptest.NewRequest(http.MethodDelete, "/mcp/oauth/TestServer", nil)
 	request.Header.Add("Mattermost-User-Id", testUserID)
@@ -1089,14 +1089,14 @@ func TestHandleOAuthStartRedirectsToProviderAuthorizeURL(t *testing.T) {
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
-	mmClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
+	amClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
 	// Trust-on-first-use issuer pin for static credentials.
-	mmClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
-	mmClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
+	amClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
+	amClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -1161,8 +1161,8 @@ func TestHandleOAuthStartRejectsResourceMetadataWrongOrigin(t *testing.T) {
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	amClient := amapimocks.NewMockClient(t)
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -1191,17 +1191,17 @@ func TestPublishMCPConnectionUpdatedEmitsUserScopedEvent(t *testing.T) {
 	e := SetupTestEnvironment(t)
 	defer e.Cleanup(t)
 
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 	var gotEvent string
 	var gotPayload map[string]any
 	var gotBroadcast *model.WebsocketBroadcast
-	mmClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
+	amClient.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}"), mock.AnythingOfType("*model.WebsocketBroadcast")).
 		Run(func(args mock.Arguments) {
 			gotEvent = args.String(0)
 			gotPayload, _ = args.Get(1).(map[string]any)
 			gotBroadcast, _ = args.Get(2).(*model.WebsocketBroadcast)
 		}).Return()
-	e.api.mmClient = mmClient
+	e.api.amClient = amClient
 
 	session := &mcp.OAuthSession{
 		UserID:    testUserID,
@@ -1218,11 +1218,11 @@ func TestPublishMCPConnectionUpdatedEmitsUserScopedEvent(t *testing.T) {
 	require.Equal(t, testUserID, gotBroadcast.UserId)
 }
 
-func TestPublishMCPConnectionUpdatedNoOpWhenMMClientMissing(t *testing.T) {
+func TestPublishMCPConnectionUpdatedNoOpWhenAMClientMissing(t *testing.T) {
 	e := SetupTestEnvironment(t)
 	defer e.Cleanup(t)
 
-	e.api.mmClient = nil
+	e.api.amClient = nil
 	session := &mcp.OAuthSession{
 		UserID:    testUserID,
 		ServerID:  "TestServer",
@@ -1265,14 +1265,14 @@ func TestHandleOAuthStartAcceptsResourceMetadataMatchingOrigin(t *testing.T) {
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
-	mmClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
+	amClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
 	// Trust-on-first-use issuer pin for static credentials.
-	mmClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
-	mmClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
+	amClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
+	amClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}
@@ -1331,18 +1331,18 @@ func setupAuditOAuthStartEnv(t *testing.T, e *TestEnvironment) mcp.ServerConfig 
 		Servers: []mcp.ServerConfig{server},
 	}
 
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 	// OAuth discovery emits step-by-step LogDebug/LogWarn diagnostics; they are
 	// never asserted on here, so accept them.
-	mmClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
-	mmClient.On("LogWarn", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
+	amClient.On("LogDebug", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
+	amClient.On("LogWarn", mock.AnythingOfType("string"), mock.Anything).Return().Maybe()
 	// Static credentials are trust-on-first-use pinned to their issuer, which
 	// reads and (first time) writes a pin record before the session is stored.
-	mmClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
-	mmClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
-	mmClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
+	amClient.On("KVGet", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.staticIssuerPin")).Return(amapi.ErrKVNotFound).Maybe()
+	amClient.On("KVCompareAndSet", mock.AnythingOfType("string"), nil, mock.AnythingOfType("*mcp.staticIssuerPin")).Return(true, nil).Maybe()
+	amClient.On("KVSetWithExpiry", mock.AnythingOfType("string"), mock.AnythingOfType("*mcp.OAuthSession"), mock.Anything).Return(nil)
 
-	oauthManager := mcp.NewOAuthManager(mmClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
+	oauthManager := mcp.NewOAuthManager(amClient, "https://mattermost.example.com/plugins/mattermost-ai/oauth/callback", authServer.Client(), func(serverID string) (mcp.ServerConfig, bool) {
 		if serverID == server.Name {
 			return server, true
 		}

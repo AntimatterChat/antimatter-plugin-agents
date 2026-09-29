@@ -119,12 +119,12 @@ func setupChannelAnalysisAPI(t *testing.T, dynamicLoading bool) (*TestEnvironmen
 		&noToolsTestContextConfigProvider{},
 	)
 
-	mmClient := amapimocks.NewMockClient(t)
-	e.api.mmClient = mmClient
+	amClient := amapimocks.NewMockClient(t)
+	e.api.amClient = amClient
 	streamingService := &noToolsStreamingService{}
 	e.api.streamingService = streamingService
 	convStore := newMockConvServiceStore()
-	e.api.SetConversationService(conversation.NewService(convStore, promptsObj, mmClient, e.bots))
+	e.api.SetConversationService(conversation.NewService(convStore, promptsObj, amClient, e.bots))
 
 	fakeLLM := &channelAnalysisSequenceLLM{
 		calls: [][]llm.TextStreamEvent{

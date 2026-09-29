@@ -45,8 +45,8 @@ type TokenResolver func(sessionID string) (string, error)
 type AuthenticationProvider interface {
 	ValidateAuth(ctx context.Context) error
 
-	// GetAuthenticatedMattermostClient returns an authenticated Mattermost client
-	GetAuthenticatedMattermostClient(ctx context.Context) (*model.Client4, error)
+	// GetAuthenticatedAntimatterClient returns an authenticated Mattermost client
+	GetAuthenticatedAntimatterClient(ctx context.Context) (*model.Client4, error)
 }
 
 // UserIdentityProvider can supply the authenticated Mattermost user for the current context.
@@ -79,8 +79,8 @@ func newProviderBase(externalURL, internalURL string, logger logger.Logger) prov
 }
 
 // validateAuth implements AuthenticationProvider.ValidateAuth for providers
-// whose GetAuthenticatedMattermostClient performs all validation.
+// whose GetAuthenticatedAntimatterClient performs all validation.
 func validateAuth(ctx context.Context, p AuthenticationProvider) error {
-	_, err := p.GetAuthenticatedMattermostClient(ctx)
+	_, err := p.GetAuthenticatedAntimatterClient(ctx)
 	return err
 }

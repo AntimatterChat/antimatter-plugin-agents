@@ -136,7 +136,7 @@ func (a *API) handleChannelAnalysis(c *gin.Context) {
 	}
 
 	// Create channels analyzer with conversation service
-	analyzer := channels.New(bot.LLM(), a.prompts, a.mmClient, a.dbClient, a.convService)
+	analyzer := channels.New(bot.LLM(), a.prompts, a.amClient, a.dbClient, a.convService)
 
 	// Prepare analysis data for the prompt
 	analysisData := map[string]any{
@@ -277,7 +277,7 @@ func (a *API) handleInterval(c *gin.Context) {
 	}
 
 	// Call channels interval processing with conversation entity
-	result, err := channels.New(bot.LLM(), a.prompts, a.mmClient, a.dbClient, a.convService).Interval(
+	result, err := channels.New(bot.LLM(), a.prompts, a.amClient, a.dbClient, a.convService).Interval(
 		c.Request.Context(), context, channel.Id, userID, bot.GetAMBot().UserId, data.StartTime, data.EndTime, promptPreset,
 	)
 	if err != nil {

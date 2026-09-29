@@ -224,8 +224,8 @@ func (s *MattermostHTTPMCPServer) getAllowedOrigins() []string {
 	originsMap := make(map[string]struct{})
 
 	// Add Mattermost server URL as allowed origin
-	if mmURL := s.config.GetMMServerURL(); mmURL != "" {
-		originsMap[mmURL] = struct{}{}
+	if amURL := s.config.GetMMServerURL(); amURL != "" {
+		originsMap[amURL] = struct{}{}
 	}
 
 	// Add configured site URL as allowed origin (for reverse proxy scenarios)

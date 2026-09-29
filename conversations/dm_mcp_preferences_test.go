@@ -85,7 +85,7 @@ func configureDMPreferenceMCPTools(env *dmTestEnv) {
 func saveDisabledGithubPreference(t *testing.T, env *dmTestEnv) {
 	t.Helper()
 
-	_, err := mcp.SaveUserPreferences(env.mmClient, env.userID, &mcp.UserToolProviderPreferences{
+	_, err := mcp.SaveUserPreferences(env.amClient, env.userID, &mcp.UserToolProviderPreferences{
 		DisabledServers: []string{dmPreferenceGithubOrigin},
 	})
 	require.NoError(t, err)
@@ -137,7 +137,7 @@ func TestGroupDMMentionPostedDisabledMCPServerNotReachableByDynamicMetaTools(t *
 		ChannelId: env.channelID,
 		Message:   "@ai use a tool",
 	}
-	env.mmClient.postThreads = map[string]*model.PostList{
+	env.amClient.postThreads = map[string]*model.PostList{
 		post.Id: {
 			Order: []string{post.Id},
 			Posts: map[string]*model.Post{

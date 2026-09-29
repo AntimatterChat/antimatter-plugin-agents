@@ -36,7 +36,7 @@ type ConfigProvider interface {
 
 type Conversations struct {
 	prompts           *llm.Prompts
-	mmClient          amapi.Client
+	amClient          amapi.Client
 	streamingService  streaming.Service
 	contextBuilder    *llmcontext.Builder
 	bots              *bots.AMBots
@@ -57,7 +57,7 @@ type MeetingsService interface {
 
 func New(
 	prompts *llm.Prompts,
-	mmClient amapi.Client,
+	amClient amapi.Client,
 	streamingService streaming.Service,
 	contextBuilder *llmcontext.Builder,
 	botsService *bots.AMBots,
@@ -68,7 +68,7 @@ func New(
 ) *Conversations {
 	return &Conversations{
 		prompts:          prompts,
-		mmClient:         mmClient,
+		amClient:         amClient,
 		streamingService: streamingService,
 		contextBuilder:   contextBuilder,
 		bots:             botsService,
@@ -284,7 +284,7 @@ func (c *Conversations) runToolLoop(
 	runner := toolrunner.New(lm, toolrunner.WithMaxRounds(maxRounds))
 	return runner.Run(ctx, req, shouldExecute, func(turns []toolrunner.ToolTurn) {
 		if writeErr := c.convService.WriteToolTurns(convID, turns, sharedForTurns(turns)); writeErr != nil {
-			c.mmClient.LogError(writeFailMsg, append([]any{"error", writeErr}, writeFailArgs...)...)
+			c.amClient.LogError(writeFailMsg, append([]any{"error", writeErr}, writeFailArgs...)...)
 		}
 	}, opts...)
 }

@@ -144,9 +144,9 @@ func TestBuildConversationContextWithTools_DMShapeBuildsOnce(t *testing.T) {
 			provider := &countingMCPToolProvider{}
 
 			// A missing expectation fails the test if the preferences are read anyway.
-			mmClient := mocks.NewMockClient(t)
+			amClient := mocks.NewMockClient(t)
 			if tc.wantPrefsLoaded {
-				mmClient.On("KVGet", "user_tool_providers_user-id", mock.AnythingOfType("*mcp.UserToolProviderPreferences")).
+				amClient.On("KVGet", "user_tool_providers_user-id", mock.AnythingOfType("*mcp.UserToolProviderPreferences")).
 					Run(func(args mock.Arguments) {
 						prefs := args.Get(1).(*mcp.UserToolProviderPreferences)
 						prefs.DisabledServers = []string{disabledOrigin}
@@ -156,7 +156,7 @@ func TestBuildConversationContextWithTools_DMShapeBuildsOnce(t *testing.T) {
 			}
 
 			c := &Conversations{
-				mmClient:       mmClient,
+				amClient:       amClient,
 				contextBuilder: newSingleBuildLLMContextBuilder(t, provider),
 			}
 			user := &model.User{Id: "user-id", Username: "user"}

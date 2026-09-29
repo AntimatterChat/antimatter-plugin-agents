@@ -396,11 +396,11 @@ func newRejectionFollowUpConversations(
 	botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	botsService.SetBotsForTesting([]*bots.Bot{loadedStateBot(lm)})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
-	mmClient.On("KVGet", mock.Anything, mock.Anything).Maybe().Return(nil)
-	mmClient.On("GetConfig").Maybe().Return(&model.Config{})
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
+	amClient.On("KVGet", mock.Anything, mock.Anything).Maybe().Return(nil)
+	amClient.On("GetConfig").Maybe().Return(&model.Config{})
 
 	tools := []llm.Tool{loadedStateTool(), loadedStateTransitionTool(nil)}
 	if failingTool {
@@ -412,7 +412,7 @@ func newRejectionFollowUpConversations(
 	}
 
 	return &Conversations{
-		mmClient:         mmClient,
+		amClient:         amClient,
 		contextBuilder:   newChannelFollowUpTestBuilder(t, tools, &channelFollowUpTestConfig{}),
 		bots:             botsService,
 		convService:      conversation.NewService(convStore, nil, nil, nil),

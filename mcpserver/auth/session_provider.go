@@ -32,9 +32,9 @@ func (p *SessionAuthenticationProvider) ValidateAuth(ctx context.Context) error 
 	return validateAuth(ctx, p)
 }
 
-// GetAuthenticatedMattermostClient returns a session-authenticated Mattermost client
+// GetAuthenticatedAntimatterClient returns a session-authenticated Mattermost client
 // Uses token resolver to get tokens from session IDs for the embedded server
-func (p *SessionAuthenticationProvider) GetAuthenticatedMattermostClient(ctx context.Context) (*model.Client4, error) {
+func (p *SessionAuthenticationProvider) GetAuthenticatedAntimatterClient(ctx context.Context) (*model.Client4, error) {
 	client, _, err := p.authenticatedClientAndUser(ctx)
 	if err != nil {
 		return nil, err

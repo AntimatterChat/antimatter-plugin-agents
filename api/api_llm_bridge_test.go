@@ -68,15 +68,15 @@ func (m *mockEmbeddedMCPServer) CreateClientTransport(userID, sessionID string, 
 // Full-stack integration tests using bridge client → real API → fake LLM
 
 func TestConvertBridgePostsToInternalUnsupportedImageDoesNotReadFile(t *testing.T) {
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On("GetFileInfo", "svg1").Return(&model.FileInfo{
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On("GetFileInfo", "svg1").Return(&model.FileInfo{
 		Id:       "svg1",
 		Name:     "vector.svg",
 		MimeType: "image/svg+xml",
 		Size:     1234,
 	}, nil)
 
-	api := &API{mmClient: mmClient}
+	api := &API{amClient: amClient}
 	posts, err := api.convertBridgePostsToInternal(bridgeclient.CompletionRequest{
 		Posts: []bridgeclient.Post{{
 			Role:    "user",
@@ -88,7 +88,7 @@ func TestConvertBridgePostsToInternalUnsupportedImageDoesNotReadFile(t *testing.
 	require.NoError(t, err)
 	require.Len(t, posts, 1)
 	require.Len(t, posts[0].Files, 1)
-	mmClient.AssertNotCalled(t, "GetFile", "svg1")
+	amClient.AssertNotCalled(t, "GetFile", "svg1")
 	require.Equal(t, "image/svg+xml", posts[0].Files[0].MimeType)
 	require.Empty(t, posts[0].Files[0].Data)
 	require.Nil(t, posts[0].Files[0].Reader)

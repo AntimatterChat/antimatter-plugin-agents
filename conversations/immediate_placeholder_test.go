@@ -29,13 +29,13 @@ func assertInitialResponsePlaceholder(t *testing.T, post *model.Post, botID, req
 	require.Empty(t, post.GetProp(streaming.ConversationIDProp))
 }
 
-func assertConversationAttachedBeforeLLM(t *testing.T, client *fakeMMClient) {
+func assertConversationAttachedBeforeLLM(t *testing.T, client *fakeAMClient) {
 	t.Helper()
 	require.NotEmpty(t, client.updatedPosts, "conversation_id must be persisted before the LLM is invoked")
 	require.NotEmpty(t, client.updatedPosts[0].GetProp(streaming.ConversationIDProp))
 }
 
-func assertResponseProgressEvents(t *testing.T, client *fakeMMClient, channelID string) {
+func assertResponseProgressEvents(t *testing.T, client *fakeAMClient, channelID string) {
 	t.Helper()
 	expectedPhases := []string{
 		"checking_mcp",
@@ -121,10 +121,10 @@ func TestMessagePostedCreatesChannelPlaceholderBeforeMCPDiscovery(t *testing.T) 
 			mcpInvoked := false
 			env.mcpMgr.onGetTools = func() {
 				mcpInvoked = true
-				require.Len(t, env.mmClient.createdPosts, 1)
+				require.Len(t, env.amClient.createdPosts, 1)
 				assertInitialResponsePlaceholder(
 					t,
-					env.mmClient.createdPosts[0],
+					env.amClient.createdPosts[0],
 					autoReplyBotUserID,
 					tt.requesterID,
 					autoReplyChannelID,
@@ -133,21 +133,21 @@ func TestMessagePostedCreatesChannelPlaceholderBeforeMCPDiscovery(t *testing.T) 
 				)
 				require.Empty(t, allConversations(env.convStore), "placeholder must precede conversation persistence")
 			}
-			env.mmClient.onUpdatePost = func(*model.Post) {
+			env.amClient.onUpdatePost = func(*model.Post) {
 				require.True(t, mcpInvoked)
 			}
 
 			llmInvoked := false
 			env.fakeLLM.onChat = func() {
 				llmInvoked = true
-				assertConversationAttachedBeforeLLM(t, env.mmClient)
+				assertConversationAttachedBeforeLLM(t, env.amClient)
 			}
 
 			env.conversations.MessageHasBeenPosted(nil, tt.post(env))
 
 			require.True(t, mcpInvoked)
 			require.True(t, llmInvoked)
-			assertResponseProgressEvents(t, env.mmClient, autoReplyChannelID)
+			assertResponseProgressEvents(t, env.amClient, autoReplyChannelID)
 		})
 	}
 }
@@ -158,10 +158,10 @@ func TestMessagePostedCreatesDMPlaceholderBeforeMCPDiscovery(t *testing.T) {
 	mcpInvoked := false
 	env.mcpMgr.onGetTools = func() {
 		mcpInvoked = true
-		require.Len(t, env.mmClient.createdPosts, 1)
+		require.Len(t, env.amClient.createdPosts, 1)
 		assertInitialResponsePlaceholder(
 			t,
-			env.mmClient.createdPosts[0],
+			env.amClient.createdPosts[0],
 			env.botID,
 			env.userID,
 			env.channelID,
@@ -170,14 +170,14 @@ func TestMessagePostedCreatesDMPlaceholderBeforeMCPDiscovery(t *testing.T) {
 		)
 		require.Empty(t, allConversations(env.convStore), "placeholder must precede conversation persistence")
 	}
-	env.mmClient.onUpdatePost = func(*model.Post) {
+	env.amClient.onUpdatePost = func(*model.Post) {
 		require.True(t, mcpInvoked)
 	}
 
 	llmInvoked := false
 	env.fakeLLM.onChat = func() {
 		llmInvoked = true
-		assertConversationAttachedBeforeLLM(t, env.mmClient)
+		assertConversationAttachedBeforeLLM(t, env.amClient)
 	}
 
 	env.conversations.MessageHasBeenPosted(nil, &model.Post{
@@ -189,35 +189,35 @@ func TestMessagePostedCreatesDMPlaceholderBeforeMCPDiscovery(t *testing.T) {
 
 	require.True(t, mcpInvoked)
 	require.True(t, llmInvoked)
-	assertResponseProgressEvents(t, env.mmClient, env.channelID)
+	assertResponseProgressEvents(t, env.amClient, env.channelID)
 }
 
 func TestMessagePostedDoesNotCreatePlaceholderWhenRejected(t *testing.T) {
 	tests := []struct {
 		name string
-		run  func(t *testing.T) *fakeMMClient
+		run  func(t *testing.T) *fakeAMClient
 	}{
 		{
 			name: "non-trigger channel post",
-			run: func(t *testing.T) *fakeMMClient {
+			run: func(t *testing.T) *fakeAMClient {
 				env := setupAutoReplyTestEnv(t, []llm.BotConfig{autoReplyBotConfig()})
 				env.conversations.MessageHasBeenPosted(nil, env.rootPost(autoReplyUserID, "not a mention"))
-				return env.mmClient
+				return env.amClient
 			},
 		},
 		{
 			name: "channel usage restriction",
-			run: func(t *testing.T) *fakeMMClient {
+			run: func(t *testing.T) *fakeAMClient {
 				cfg := autoReplyBotConfig()
 				cfg.ChannelAccessLevel = llm.ChannelAccessLevelNone
 				env := setupAutoReplyTestEnv(t, []llm.BotConfig{cfg})
 				env.conversations.MessageHasBeenPosted(nil, env.rootPost(autoReplyUserID, "@"+autoReplyBotUsername+" help"))
-				return env.mmClient
+				return env.amClient
 			},
 		},
 		{
 			name: "DM user usage restriction",
-			run: func(t *testing.T) *fakeMMClient {
+			run: func(t *testing.T) *fakeAMClient {
 				env := setupDMTestEnv(t)
 				env.botService.SetBotsForTesting([]*bots.Bot{
 					bots.NewBot(
@@ -239,7 +239,7 @@ func TestMessagePostedDoesNotCreatePlaceholderWhenRejected(t *testing.T) {
 					ChannelId: env.channelID,
 					Message:   "help",
 				})
-				return env.mmClient
+				return env.amClient
 			},
 		},
 	}
@@ -254,21 +254,21 @@ func TestMessagePostedDoesNotCreatePlaceholderWhenRejected(t *testing.T) {
 func TestMessagePostedUpdatesPlaceholderOnSetupFailure(t *testing.T) {
 	tests := []struct {
 		name string
-		run  func(t *testing.T) *fakeMMClient
+		run  func(t *testing.T) *fakeAMClient
 	}{
 		{
 			name: "channel thread setup fails",
-			run: func(t *testing.T) *fakeMMClient {
+			run: func(t *testing.T) *fakeAMClient {
 				env := setupAutoReplyTestEnv(t, []llm.BotConfig{autoReplyBotConfig()})
 				post := env.rootPost(autoReplyUserID, "@"+autoReplyBotUsername+" help")
-				env.mmClient.postThreads = nil
+				env.amClient.postThreads = nil
 				env.conversations.MessageHasBeenPosted(nil, post)
-				return env.mmClient
+				return env.amClient
 			},
 		},
 		{
 			name: "DM provider setup fails",
-			run: func(t *testing.T) *fakeMMClient {
+			run: func(t *testing.T) *fakeAMClient {
 				env := setupDMTestEnv(t)
 				env.conversations.MessageHasBeenPosted(nil, &model.Post{
 					Id:        "post1",
@@ -276,7 +276,7 @@ func TestMessagePostedUpdatesPlaceholderOnSetupFailure(t *testing.T) {
 					ChannelId: env.channelID,
 					Message:   "help",
 				})
-				return env.mmClient
+				return env.amClient
 			},
 		},
 	}
@@ -298,8 +298,8 @@ func TestMessagePostedUpdatesPlaceholderWhenConversationSetupFails(t *testing.T)
 
 	env.conversations.MessageHasBeenPosted(nil, env.rootPost(autoReplyUserID, "@"+autoReplyBotUsername+" help"))
 
-	require.Len(t, env.mmClient.createdPosts, 1)
-	require.Len(t, env.mmClient.updatedPosts, 1)
-	require.Empty(t, env.mmClient.updatedPosts[0].GetProp(streaming.ConversationIDProp))
-	require.Contains(t, env.mmClient.updatedPosts[0].Message, "An error occurred")
+	require.Len(t, env.amClient.createdPosts, 1)
+	require.Len(t, env.amClient.updatedPosts, 1)
+	require.Empty(t, env.amClient.updatedPosts[0].GetProp(streaming.ConversationIDProp))
+	require.Contains(t, env.amClient.updatedPosts[0].Message, "An error occurred")
 }

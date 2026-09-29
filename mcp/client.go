@@ -303,15 +303,15 @@ func (c *EmbeddedServerClient) CreateClient(ctx context.Context, userID, session
 		if c.pluginAPI == nil {
 			return nil, fmt.Errorf("plugin API is required when sessionID is provided")
 		}
-		mmSession, err := c.pluginAPI.Session.Get(sessionID)
+		amSession, err := c.pluginAPI.Session.Get(sessionID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get session: %w", err)
 		}
-		if mmSession == nil {
+		if amSession == nil {
 			return nil, fmt.Errorf("session not found")
 		}
-		if mmSession.UserId != userID {
-			return nil, fmt.Errorf("session user ID does not match: expected %s, got %s", userID, mmSession.UserId)
+		if amSession.UserId != userID {
+			return nil, fmt.Errorf("session user ID does not match: expected %s, got %s", userID, amSession.UserId)
 		}
 	}
 

@@ -1850,12 +1850,12 @@ func TestGetOrCreateConversation_RaceConflict(t *testing.T) {
 // tests can drive lazy file/image resolution end-to-end.
 func setupTestServiceWithClient(
 	t *testing.T,
-	mmClient amapi.Client,
+	amClient amapi.Client,
 	bots *testBotLookup,
 ) (*Service, *store.Store) {
 	t.Helper()
 
-	if mockClient, ok := mmClient.(*amapimocks.MockClient); ok {
+	if mockClient, ok := amClient.(*amapimocks.MockClient); ok {
 		mockClient.On(
 			"HasPermissionToFileAction",
 			attachmentTestSessionID,
@@ -1886,7 +1886,7 @@ func setupTestServiceWithClient(
 	if bots == nil {
 		bots = &testBotLookup{botUserIDs: map[string]bool{}}
 	}
-	svc := NewService(s, nil, mmClient, bots)
+	svc := NewService(s, nil, amClient, bots)
 	return svc, s
 }
 
@@ -1895,18 +1895,18 @@ func setupTestServiceWithClient(
 // BlockTypeImage / BlockTypeFile entries (lazy-load: NO inlined Content)
 // alongside the leading text block.
 func TestCreateConversation_FileIDsPersistsAsContentBlocks(t *testing.T) {
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 	// No .Maybe(): GetFileInfo MUST be called for every FileID so the
 	// MIME type is read from the server (not inferred from the filename
 	// extension). Mockery fails the test if either expectation is unmet.
-	mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
+	amClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 		Id: "img1", Name: "shot.png", MimeType: "image/png",
 	}, nil)
-	mmClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
+	amClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 		Id: "doc1", Name: "foo.txt", MimeType: "text/plain",
 	}, nil)
 
-	svc, s := setupTestServiceWithClient(t, mmClient, nil)
+	svc, s := setupTestServiceWithClient(t, amClient, nil)
 
 	result, err := svc.CreateConversation(CreateConversationParams{
 		UserID:       model.NewId(),
@@ -1936,26 +1936,26 @@ func TestCreateConversation_FileIDsPersistsAsContentBlocks(t *testing.T) {
 	assert.Equal(t, "img1", blocks[1].FileID)
 	assert.Equal(t, "image/png", blocks[1].MimeType)
 	assert.Empty(t, blocks[1].Content,
-		"image block must NOT inline content at user-turn write time; image bytes lazy-load via mmClient at request build time")
+		"image block must NOT inline content at user-turn write time; image bytes lazy-load via amClient at request build time")
 
 	assert.Equal(t, BlockTypeFile, blocks[2].Type, "non-image attachment must persist as a BlockTypeFile")
 	assert.Equal(t, "doc1", blocks[2].FileID)
 	assert.Equal(t, "text/plain", blocks[2].MimeType)
 	assert.Empty(t, blocks[2].Content,
-		"file content must NOT be inlined at user-turn write time; it lazy-loads via mmClient at request build time")
+		"file content must NOT be inlined at user-turn write time; it lazy-loads via amClient at request build time")
 }
 
 // TestGetOrCreateConversation_AppendsFileIDs verifies the same shape applies
 // when appending a new user turn to an existing conversation.
 func TestGetOrCreateConversation_AppendsFileIDs(t *testing.T) {
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 	// No .Maybe(): GetFileInfo for the appended attachment MUST run so
 	// MIME comes from the server, not the filename extension.
-	mmClient.On("GetFileInfo", "doc2").Return(&model.FileInfo{
+	amClient.On("GetFileInfo", "doc2").Return(&model.FileInfo{
 		Id: "doc2", Name: "notes.txt", MimeType: "text/plain",
 	}, nil)
 
-	svc, s := setupTestServiceWithClient(t, mmClient, nil)
+	svc, s := setupTestServiceWithClient(t, amClient, nil)
 
 	botID := model.NewId()
 	userID := model.NewId()
@@ -2033,19 +2033,19 @@ func TestCreateConversation_EmptyFileIDsAndMessage(t *testing.T) {
 // contract. If GetFileInfo errors for one fileID, the user turn must still
 // be created with the rest. Mirrors the old PostToAIPost behavior.
 func TestCreateConversation_FileIDInfoErrorIsSkipped(t *testing.T) {
-	mmClient := amapimocks.NewMockClient(t)
+	amClient := amapimocks.NewMockClient(t)
 	// Both GetFileInfo calls MUST happen — the bad one returns an error,
 	// but production must still attempt the fetch (otherwise an
 	// implementation that filtered FileIDs by some local rule would
 	// silently match this test). LogError must also actually fire so
 	// the error is observable to operators.
-	mmClient.On("GetFileInfo", "broken").Return(nil, errors.New("file gone"))
-	mmClient.On("GetFileInfo", "ok1").Return(&model.FileInfo{
+	amClient.On("GetFileInfo", "broken").Return(nil, errors.New("file gone"))
+	amClient.On("GetFileInfo", "ok1").Return(&model.FileInfo{
 		Id: "ok1", Name: "good.txt", MimeType: "text/plain",
 	}, nil)
-	mmClient.On("LogError", mock.Anything, mock.Anything).Return()
+	amClient.On("LogError", mock.Anything, mock.Anything).Return()
 
-	svc, s := setupTestServiceWithClient(t, mmClient, nil)
+	svc, s := setupTestServiceWithClient(t, amClient, nil)
 
 	result, err := svc.CreateConversation(CreateConversationParams{
 		UserID:       model.NewId(),
@@ -2075,21 +2075,21 @@ func TestCreateConversation_FileIDInfoErrorIsSkipped(t *testing.T) {
 
 // TestBuildCompletionRequest_AttachmentsResolveLazily wires the full path:
 // CreateConversation persists references → BuildCompletionRequest →
-// BlocksToPost re-fetches the file/image bytes via mmClient.
+// BlocksToPost re-fetches the file/image bytes via amClient.
 func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 	t.Run("EnableVision=true populates Files and message gets file content", func(t *testing.T) {
-		mmClient := amapimocks.NewMockClient(t)
+		amClient := amapimocks.NewMockClient(t)
 
 		// Used twice: once for user-turn creation (read MIME) and once at
 		// request build time (lazy resolve).
-		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
 		}, nil)
-		mmClient.On("GetFile", "img1").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
-		mmClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
+		amClient.On("GetFile", "img1").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
+		amClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 			Id: "doc1", Name: "notes.txt", MimeType: "text/plain", Size: 5,
 		}, nil)
-		mmClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
+		amClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
 
 		botID := model.NewId()
 		bots := &testBotLookup{
@@ -2099,7 +2099,7 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 			},
 		}
 
-		svc, _ := setupTestServiceWithClient(t, mmClient, bots)
+		svc, _ := setupTestServiceWithClient(t, amClient, bots)
 
 		result, err := svc.CreateConversation(CreateConversationParams{
 			UserID:       model.NewId(),
@@ -2132,15 +2132,15 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 	})
 
 	t.Run("EnableVision=false drops image but keeps file text content", func(t *testing.T) {
-		mmClient := amapimocks.NewMockClient(t)
+		amClient := amapimocks.NewMockClient(t)
 
-		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
 		}, nil)
-		mmClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 			Id: "doc1", Name: "notes.txt", MimeType: "text/plain", Size: 5,
 		}, nil)
-		mmClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
+		amClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
 		// NOTE: no GetFile(img1) expectation — vision is off so it must NOT be called.
 
 		botID := model.NewId()
@@ -2151,7 +2151,7 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 			},
 		}
 
-		svc, _ := setupTestServiceWithClient(t, mmClient, bots)
+		svc, _ := setupTestServiceWithClient(t, amClient, bots)
 
 		result, err := svc.CreateConversation(CreateConversationParams{
 			UserID:       model.NewId(),
@@ -2176,7 +2176,7 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 		// readable in the test, not just implicit in mockery's strict
 		// mode. Production silently fetching the image bytes anyway
 		// would be a bug we'd want to surface here.
-		mmClient.AssertNotCalled(t, "GetFile", "img1")
+		amClient.AssertNotCalled(t, "GetFile", "img1")
 		assert.Empty(t, userPost.Files, "image attachments must be dropped entirely when vision is disabled")
 		assert.Contains(t, userPost.Message, "Content: hello",
 			"text-file content must still flow through to the LLM even when vision is off")
@@ -2196,16 +2196,16 @@ func TestBuildCompletionRequest_AttachmentsResolveLazily(t *testing.T) {
 // BuildCompletionRequest, which would not exercise this path.
 func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 	t.Run("EnableVision=true populates Files and message gets file content", func(t *testing.T) {
-		mmClient := amapimocks.NewMockClient(t)
+		amClient := amapimocks.NewMockClient(t)
 
-		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
 		}, nil)
-		mmClient.On("GetFile", "img1").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
-		mmClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
+		amClient.On("GetFile", "img1").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
+		amClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 			Id: "doc1", Name: "notes.txt", MimeType: "text/plain", Size: 5,
 		}, nil)
-		mmClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
+		amClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
 
 		botID := model.NewId()
 		userID := model.NewId()
@@ -2217,7 +2217,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 			},
 		}
 
-		svc, _ := setupTestServiceWithClient(t, mmClient, bots)
+		svc, _ := setupTestServiceWithClient(t, amClient, bots)
 
 		result, err := svc.CreateConversation(CreateConversationParams{
 			UserID:       userID,
@@ -2264,15 +2264,15 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 	})
 
 	t.Run("EnableVision=false drops image but keeps file text content", func(t *testing.T) {
-		mmClient := amapimocks.NewMockClient(t)
+		amClient := amapimocks.NewMockClient(t)
 
-		mmClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "img1").Return(&model.FileInfo{
 			Id: "img1", Name: "pic.png", MimeType: "image/png", Size: 100,
 		}, nil)
-		mmClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "doc1").Return(&model.FileInfo{
 			Id: "doc1", Name: "notes.txt", MimeType: "text/plain", Size: 5,
 		}, nil)
-		mmClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
+		amClient.On("GetFile", "doc1").Return(io.NopCloser(strings.NewReader("hello")), nil)
 		// NOTE: no GetFile(img1) expectation — vision is off so the
 		// channel-mention path must NOT fetch the image bytes either.
 
@@ -2286,7 +2286,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 			},
 		}
 
-		svc, _ := setupTestServiceWithClient(t, mmClient, bots)
+		svc, _ := setupTestServiceWithClient(t, amClient, bots)
 
 		result, err := svc.CreateConversation(CreateConversationParams{
 			UserID:       userID,
@@ -2318,7 +2318,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 
 		require.Len(t, req.Posts, 2)
 		userPost := req.Posts[1]
-		mmClient.AssertNotCalled(t, "GetFile", "img1")
+		amClient.AssertNotCalled(t, "GetFile", "img1")
 		assert.Empty(t, userPost.Files,
 			"image attachments must be dropped on the channel-mention path when vision is disabled")
 		assert.Contains(t, userPost.Message, "Content: hello",
@@ -2326,12 +2326,12 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 	})
 
 	t.Run("image on root post is visible to later mention in same thread", func(t *testing.T) {
-		mmClient := amapimocks.NewMockClient(t)
+		amClient := amapimocks.NewMockClient(t)
 
-		mmClient.On("GetFileInfo", "img-root").Return(&model.FileInfo{
+		amClient.On("GetFileInfo", "img-root").Return(&model.FileInfo{
 			Id: "img-root", Name: "screenshot.png", MimeType: "image/png", Size: 100,
 		}, nil)
-		mmClient.On("GetFile", "img-root").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
+		amClient.On("GetFile", "img-root").Return(io.NopCloser(strings.NewReader("PNGDATA")), nil)
 
 		botID := model.NewId()
 		userID := model.NewId()
@@ -2344,7 +2344,7 @@ func TestBuildChannelMentionRequest_AttachmentsResolveLazily(t *testing.T) {
 			},
 		}
 
-		svc, _ := setupTestServiceWithClient(t, mmClient, bots)
+		svc, _ := setupTestServiceWithClient(t, amClient, bots)
 
 		result, err := svc.CreateConversation(CreateConversationParams{
 			UserID:       userID,
@@ -2407,19 +2407,19 @@ func TestBuildChannelMentionRequest_DeniedThreadAttachmentIsWithheld(t *testing.
 		secretContent   = "TOP_SECRET_FILE_BODY"
 	)
 
-	mmClient := amapimocks.NewMockClient(t)
-	mmClient.On(
+	amClient := amapimocks.NewMockClient(t)
+	amClient.On(
 		"HasPermissionToFileAction",
 		deniedSessionID,
 		secretFileID,
 		model.AccessControlPolicyActionDownloadFileAttachment,
 	).Return(false)
 	adminReadCalled := false
-	mmClient.On("GetFileInfo", secretFileID).
+	amClient.On("GetFileInfo", secretFileID).
 		Run(func(mock.Arguments) { adminReadCalled = true }).
 		Return(&model.FileInfo{Id: secretFileID, Name: "classified.txt", MimeType: "text/plain", Content: secretContent}, nil).
 		Maybe()
-	mmClient.On("GetFile", secretFileID).
+	amClient.On("GetFile", secretFileID).
 		Run(func(mock.Arguments) { adminReadCalled = true }).
 		Return(io.NopCloser(strings.NewReader(secretContent)), nil).
 		Maybe()
@@ -2434,7 +2434,7 @@ func TestBuildChannelMentionRequest_DeniedThreadAttachmentIsWithheld(t *testing.
 		configByID: map[string]testBotConfig{botID: {enableVision: true}},
 	}
 
-	svc, _ := setupTestServiceWithClient(t, mmClient, bots)
+	svc, _ := setupTestServiceWithClient(t, amClient, bots)
 
 	result, err := svc.CreateConversation(CreateConversationParams{
 		UserID:       deniedUserID,

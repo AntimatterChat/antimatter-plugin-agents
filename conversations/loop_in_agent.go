@@ -55,7 +55,7 @@ func (c *Conversations) HandleLoopInAgent(ctx context.Context, userID string, bo
 		return ErrLoopInWrongAgent
 	}
 
-	postingUser, err := c.mmClient.GetUser(userID)
+	postingUser, err := c.amClient.GetUser(userID)
 	if err != nil {
 		return fmt.Errorf("unable to get user: %w", err)
 	}

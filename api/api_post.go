@@ -147,7 +147,7 @@ func (a *API) handleThreadAnalysis(c *gin.Context) {
 
 	// Create thread analyzer with conversation service
 	botUserID := bot.GetAMBot().UserId
-	analyzer := threads.New(bot.LLM(), a.prompts, a.mmClient, a.convService)
+	analyzer := threads.New(bot.LLM(), a.prompts, a.amClient, a.convService)
 	var analyzeResult *threads.AnalyzeResult
 	var title string
 	switch data.AnalysisType {
@@ -177,11 +177,11 @@ func (a *API) handleThreadAnalysis(c *gin.Context) {
 	if a.convService != nil {
 		if updateErr := a.convService.UpdateConversationRootPostID(analyzeResult.ConversationID, analysisPost.Id); updateErr != nil {
 			// Log the error but don't fail the request -- the analysis was already streamed
-			a.mmClient.LogError("Failed to update conversation root post ID", "error", updateErr.Error())
+			a.amClient.LogError("Failed to update conversation root post ID", "error", updateErr.Error())
 		}
 		// Set title directly (no LLM call needed for fixed analysis titles)
 		if titleErr := a.convService.UpdateConversationTitle(analyzeResult.ConversationID, title); titleErr != nil {
-			a.mmClient.LogError("Failed to set conversation title", "error", titleErr.Error())
+			a.amClient.LogError("Failed to set conversation title", "error", titleErr.Error())
 		}
 	}
 

@@ -116,15 +116,15 @@ func TestHandleToolCallAuditRecordsDecision(t *testing.T) {
 			lm := &loadedStateLLM{}
 			botsService.SetBotsForTesting([]*bots.Bot{loadedStateBot(lm)})
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-			mmClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
-			mmClient.On("KVGet", mock.Anything, mock.Anything).Maybe().Return(nil)
-			mmClient.On("GetConfig").Maybe().Return(&model.Config{})
+			amClient := mocks.NewMockClient(t)
+			amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+			amClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
+			amClient.On("KVGet", mock.Anything, mock.Anything).Maybe().Return(nil)
+			amClient.On("GetConfig").Maybe().Return(&model.Config{})
 
 			streamingService := &loadedStateStreamingService{}
 			c := &Conversations{
-				mmClient:          mmClient,
+				amClient:          amClient,
 				contextBuilder:    loadedStateBuilder(t),
 				bots:              botsService,
 				convService:       conversation.NewService(convStore, nil, nil, nil),
@@ -190,11 +190,11 @@ func TestHandleToolResultAuditRecordsDecision(t *testing.T) {
 	botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	botsService.SetBotsForTesting([]*bots.Bot{loadedStateBot(&loadedStateLLM{})})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
 
 	c := &Conversations{
-		mmClient:    mmClient,
+		amClient:    amClient,
 		bots:        botsService,
 		convService: conversation.NewService(convStore, nil, nil, nil),
 	}

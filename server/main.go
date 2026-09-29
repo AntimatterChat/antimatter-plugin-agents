@@ -106,7 +106,7 @@ func (l *pluginLogger) Error(message string, keyValuePairs ...any) {
 func (p *Plugin) OnActivate() error {
 	pluginAPI := pluginapi.NewClient(p.API, p.Driver)
 	p.pluginAPI = pluginAPI
-	mmClient := amapi.NewClient(pluginAPI, p.API)
+	amClient := amapi.NewClient(pluginAPI, p.API)
 	dbClient := amapi.NewDBClient(pluginAPI)
 
 	// Initialize store and run database migrations
@@ -131,8 +131,8 @@ func (p *Plugin) OnActivate() error {
 	// Tune connection pool for LLM streaming: shorter idle timeout to avoid
 	// reusing stale connections after SSE streams close during tool calling,
 	// and more idle connections per host for concurrent LLM requests.
-	if mmTransport, ok := llmUpstreamHTTPClient.Transport.(*httpservice.MattermostTransport); ok {
-		if transport, ok := mmTransport.Transport.(*http.Transport); ok {
+	if amTransport, ok := llmUpstreamHTTPClient.Transport.(*httpservice.MattermostTransport); ok {
+		if transport, ok := amTransport.Transport.(*http.Transport); ok {
 			transport.IdleConnTimeout = 30 * time.Second
 			transport.MaxIdleConnsPerHost = 10
 		}
@@ -299,7 +299,7 @@ func (p *Plugin) OnActivate() error {
 	migrateAndRefresh("activation")
 
 	autoreplyStore := autoreply.NewStore(dbClient)
-	autoreplyService := autoreply.NewService(autoreplyStore, bots, mmClient, p)
+	autoreplyService := autoreply.NewService(autoreplyStore, bots, amClient, p)
 	if loadCacheErr := autoreplyService.LoadCache(); loadCacheErr != nil {
 		return fmt.Errorf("failed to load channel auto-reply settings: %w", loadCacheErr)
 	}
@@ -311,7 +311,7 @@ func (p *Plugin) OnActivate() error {
 		return promptManagerErr
 	}
 
-	streamingService := streaming.NewMMPostStreamService(mmClient, i18nBundle)
+	streamingService := streaming.NewMMPostStreamService(amClient, i18nBundle)
 
 	// Availability is the single source of truth for the embedding search.
 	// Indexing stays available whenever search is initialized so a reindex can
@@ -338,7 +338,7 @@ func (p *Plugin) OnActivate() error {
 	embeddingsSearch, err := search.InitEmbeddingsSearch(
 		dbClient.DB,
 		p.configuration.EmbeddingSearchConfig(),
-		indexer.DeferredIndexRebuildActive(mmClient),
+		indexer.DeferredIndexRebuildActive(amClient),
 	)
 	if err != nil {
 		pluginAPI.Log.Warn("failed to initialize search infrastructure", "error", err)
@@ -348,7 +348,7 @@ func (p *Plugin) OnActivate() error {
 
 	// Create indexer service. IndexSearch stays available whenever search is
 	// initialized, so a full reindex can run during model incompatibility.
-	indexerService := indexer.New(searchAvailability.IndexSearch, configGetter, mmClient, bots, dbClient.DB, p.API)
+	indexerService := indexer.New(searchAvailability.IndexSearch, configGetter, amClient, bots, dbClient.DB, p.API)
 
 	// Query-time search is only allowed when the configured embedding model is
 	// compatible with the existing index.
@@ -387,7 +387,7 @@ func (p *Plugin) OnActivate() error {
 	// configured model and existing index are incompatible.
 	searchService := search.New(
 		searchAvailability.QuerySearch,
-		mmClient,
+		amClient,
 		prompts,
 		streamingService,
 		nil, // conversation service wired in a later step
@@ -398,7 +398,7 @@ func (p *Plugin) OnActivate() error {
 		newEmbeddingsSearch, initErr := search.InitEmbeddingsSearch(
 			dbClient.DB,
 			p.configuration.EmbeddingSearchConfig(),
-			indexer.DeferredIndexRebuildActive(mmClient),
+			indexer.DeferredIndexRebuildActive(amClient),
 		)
 		if initErr != nil {
 			pluginAPI.Log.Error("Failed to reinitialize embedding search", "trigger", trigger, "error", initErr)
@@ -421,7 +421,7 @@ func (p *Plugin) OnActivate() error {
 	}, &pluginLogger{service: &pluginAPI.Log}, untrustedHTTPClient)
 
 	toolProvider := amtools.NewMMToolProvider(
-		mmClient,
+		amClient,
 		webSearchService,
 	)
 
@@ -435,7 +435,7 @@ func (p *Plugin) OnActivate() error {
 
 	// Embedded MCP is always available after PR #617, even if older configs still
 	// have the legacy toggle stored as false.
-	fileContentService := files.New(mmClient)
+	fileContentService := files.New(amClient)
 	var (
 		embeddedMu     sync.Mutex
 		embeddedServer *EmbeddedMCPServer
@@ -470,7 +470,7 @@ func (p *Plugin) OnActivate() error {
 		}
 		return mcp.ServerConfig{}, false
 	}
-	mcpClientManager := mcp.NewClientManager(p.configuration.MCP(), pluginAPI.Log, pluginAPI, mcp.NewOAuthManager(mmClient, oauthCallbackURL, untrustedHTTPClient, serverConfigLookup), ensureEmbeddedMCPServer(), untrustedHTTPClient, mmClient, accessChecker)
+	mcpClientManager := mcp.NewClientManager(p.configuration.MCP(), pluginAPI.Log, pluginAPI, mcp.NewOAuthManager(amClient, oauthCallbackURL, untrustedHTTPClient, serverConfigLookup), ensureEmbeddedMCPServer(), untrustedHTTPClient, amClient, accessChecker)
 	reinitMCP := func() {
 		mcpClientManager.ReInit(p.configuration.MCP(), ensureEmbeddedMCPServer())
 	}
@@ -486,7 +486,7 @@ func (p *Plugin) OnActivate() error {
 
 	conversationsService := conversations.New(
 		prompts,
-		mmClient,
+		amClient,
 		streamingService,
 		contextBuilder,
 		bots,
@@ -496,14 +496,14 @@ func (p *Plugin) OnActivate() error {
 		&p.configuration,
 	)
 
-	convService := conversation.NewService(p.store, prompts, mmClient, bots)
+	convService := conversation.NewService(p.store, prompts, amClient, bots)
 	conversationsService.SetConversationService(convService)
 	conversationsService.SetAutoReplySettings(autoreplyService)
 	searchService.SetConversationService(convService)
 
 	meetingsService := meetings.NewService(
 		pluginAPI,
-		mmClient,
+		amClient,
 		streamingService,
 		prompts,
 		bots,
@@ -527,7 +527,7 @@ func (p *Plugin) OnActivate() error {
 	// Create logger adapter to route MCP handler logs through plugin logging
 	mcpHandlerLogger := NewPluginAPILoggerAdapter(pluginAPI.Log)
 	internalServerURL := deriveInternalServerURL(pluginAPI, *siteURL)
-	handlers, err := mcpserver.NewPluginMCPHandlers(*siteURL, internalServerURL, mcpHandlerLogger, mcpClientManager, mmClient, accessChecker, func() string {
+	handlers, err := mcpserver.NewPluginMCPHandlers(*siteURL, internalServerURL, mcpHandlerLogger, mcpClientManager, amClient, accessChecker, func() string {
 		return p.configuration.MCP().EmbeddedServer.ID
 	})
 	if err != nil {
@@ -550,7 +550,7 @@ func (p *Plugin) OnActivate() error {
 		contextBuilder,
 		&p.configuration,
 		prompts,
-		mmClient,
+		amClient,
 		dbClient,
 		streamingService,
 		i18nBundle,

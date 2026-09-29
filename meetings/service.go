@@ -23,7 +23,7 @@ var MeetingBotUsernames = []string{"calls", "zoom", "google-meet"}
 // Service handles meeting summarization and transcription functionality
 type Service struct {
 	pluginAPI        *pluginapi.Client
-	mmClient         amapi.Client
+	amClient         amapi.Client
 	streamingService streaming.Service
 	prompts          *llm.Prompts
 	bots             *bots.AMBots
@@ -38,7 +38,7 @@ type Service struct {
 // NewService creates a new meetings service
 func NewService(
 	pluginAPI *pluginapi.Client,
-	mmClient amapi.Client,
+	amClient amapi.Client,
 	streamingService streaming.Service,
 	prompts *llm.Prompts,
 	bots *bots.AMBots,
@@ -49,7 +49,7 @@ func NewService(
 ) *Service {
 	service := &Service{
 		pluginAPI:        pluginAPI,
-		mmClient:         mmClient,
+		amClient:         amClient,
 		streamingService: streamingService,
 		prompts:          prompts,
 		bots:             bots,

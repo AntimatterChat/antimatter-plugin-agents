@@ -327,7 +327,7 @@ func isUserMCPServerAuthenticated(
 func (a *API) handleGetUserPreferences(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
 
-	prefs, err := mcp.LoadUserPreferences(a.mmClient, userID)
+	prefs, err := mcp.LoadUserPreferences(a.amClient, userID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to load preferences: %w", err))
 		return
@@ -352,7 +352,7 @@ func (a *API) handlePutUserPreferences(c *gin.Context) {
 		return
 	}
 
-	saved, err := mcp.SaveUserPreferences(a.mmClient, userID, &prefs)
+	saved, err := mcp.SaveUserPreferences(a.amClient, userID, &prefs)
 	if err != nil {
 		if errors.Is(err, mcp.ErrUserPreferencesInvalid) {
 			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid preferences: %w", err))
@@ -420,7 +420,7 @@ func (a *API) handleDeleteUserMCPOAuth(c *gin.Context) {
 
 // publishMCPDisconnected notifies the webapp that the user disconnected an MCP server.
 func (a *API) publishMCPDisconnected(userID, serverName string) {
-	if a.mmClient == nil || userID == "" {
+	if a.amClient == nil || userID == "" {
 		return
 	}
 
@@ -432,7 +432,7 @@ func (a *API) publishMCPDisconnected(userID, serverName string) {
 		payload["serverOrigin"] = sc.BaseURL
 	}
 
-	a.mmClient.PublishWebSocketEvent(
+	a.amClient.PublishWebSocketEvent(
 		WebsocketEventMCPConnectionUpdated,
 		payload,
 		&model.WebsocketBroadcast{UserId: userID},

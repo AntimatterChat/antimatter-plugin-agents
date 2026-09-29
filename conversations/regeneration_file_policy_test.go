@@ -95,20 +95,20 @@ func TestHandleRegenerateDeniedByFilePolicy(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fileID := model.NewId()
-			mmClient := mocks.NewMockClient(t)
-			mmClient.On("GetUser", userID).Return(&model.User{Id: userID}, nil)
-			mmClient.On(
+			amClient := mocks.NewMockClient(t)
+			amClient.On("GetUser", userID).Return(&model.User{Id: userID}, nil)
+			amClient.On(
 				"HasPermissionToFileAction",
 				sessionID,
 				fileID,
 				model.AccessControlPolicyActionDownloadFileAttachment,
 			).Return(false)
 			adminReadCalled := false
-			mmClient.EXPECT().GetFileInfo(fileID).
+			amClient.EXPECT().GetFileInfo(fileID).
 				Run(func(string) { adminReadCalled = true }).
 				Return(&model.FileInfo{Id: fileID}, nil).
 				Maybe()
-			mmClient.EXPECT().GetFile(fileID).
+			amClient.EXPECT().GetFile(fileID).
 				Run(func(string) { adminReadCalled = true }).
 				Return(io.NopCloser(strings.NewReader("sensitive meeting contents")), nil).
 				Maybe()
@@ -126,13 +126,13 @@ func TestHandleRegenerateDeniedByFilePolicy(t *testing.T) {
 			})
 
 			c := &Conversations{
-				mmClient:         mmClient,
+				amClient:         amClient,
 				bots:             botsService,
 				convService:      &conversation.Service{},
 				streamingService: regenNoopStreaming{},
 			}
 			if tt.setup != nil {
-				tt.setup(t, mmClient, c, fileID)
+				tt.setup(t, amClient, c, fileID)
 			}
 
 			post := &model.Post{Id: "regen-post-id", UserId: botID}

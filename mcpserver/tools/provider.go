@@ -272,7 +272,7 @@ func (p *MattermostToolProvider) registerDynamicTool(server *mcp.Server, mcpTool
 
 // createMCPToolContext creates an MCPToolContext from the Go context, authenticated client, and request metadata
 func (p *MattermostToolProvider) createMCPToolContext(ctx context.Context, metadata mcp.Meta) (*MCPToolContext, error) {
-	client, err := p.authProvider.GetAuthenticatedMattermostClient(ctx)
+	client, err := p.authProvider.GetAuthenticatedAntimatterClient(ctx)
 	if err != nil {
 		return nil, err
 	}

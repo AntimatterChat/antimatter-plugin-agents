@@ -31,7 +31,7 @@ type fakeWebSocketEvent struct {
 	broadcast *model.WebsocketBroadcast
 }
 
-type fakeMMClient struct {
+type fakeAMClient struct {
 	users                map[string]*model.User
 	postThreads          map[string]*model.PostList
 	kv                   map[string]any
@@ -53,7 +53,7 @@ type fakeMMClient struct {
 	logErrors []string
 }
 
-func (c *fakeMMClient) GetUser(userID string) (*model.User, error) {
+func (c *fakeAMClient) GetUser(userID string) (*model.User, error) {
 	user, ok := c.users[userID]
 	if !ok {
 		return nil, errors.New("user not found")
@@ -61,7 +61,7 @@ func (c *fakeMMClient) GetUser(userID string) (*model.User, error) {
 	return user, nil
 }
 
-func (c *fakeMMClient) GetPostThread(postID string) (*model.PostList, error) {
+func (c *fakeAMClient) GetPostThread(postID string) (*model.PostList, error) {
 	postList, ok := c.postThreads[postID]
 	if !ok {
 		return nil, errors.New("thread not found")
@@ -69,7 +69,7 @@ func (c *fakeMMClient) GetPostThread(postID string) (*model.PostList, error) {
 	return postList, nil
 }
 
-func (c *fakeMMClient) CreatePost(post *model.Post) error {
+func (c *fakeAMClient) CreatePost(post *model.Post) error {
 	if !c.allowCreatePost {
 		return errors.New("not implemented")
 	}
@@ -77,7 +77,7 @@ func (c *fakeMMClient) CreatePost(post *model.Post) error {
 	return nil
 }
 
-func (c *fakeMMClient) UpdatePost(post *model.Post) error {
+func (c *fakeAMClient) UpdatePost(post *model.Post) error {
 	c.updatedPosts = append(c.updatedPosts, post.Clone())
 	if c.onUpdatePost != nil {
 		c.onUpdatePost(post)
@@ -85,7 +85,7 @@ func (c *fakeMMClient) UpdatePost(post *model.Post) error {
 	return nil
 }
 
-func (c *fakeMMClient) KVGet(key string, value any) error {
+func (c *fakeAMClient) KVGet(key string, value any) error {
 	stored, ok := c.kv[key]
 	if !ok {
 		return errors.New("not found")
@@ -97,7 +97,7 @@ func (c *fakeMMClient) KVGet(key string, value any) error {
 	return json.Unmarshal(data, value)
 }
 
-func (c *fakeMMClient) KVSet(key string, value any) error {
+func (c *fakeAMClient) KVSet(key string, value any) error {
 	if c.kv == nil {
 		c.kv = make(map[string]any)
 	}
@@ -105,11 +105,11 @@ func (c *fakeMMClient) KVSet(key string, value any) error {
 	return nil
 }
 
-func (c *fakeMMClient) KVSetWithExpiry(key string, value any, _ time.Duration) error {
+func (c *fakeAMClient) KVSetWithExpiry(key string, value any, _ time.Duration) error {
 	return c.KVSet(key, value)
 }
 
-func (c *fakeMMClient) KVCompareAndSet(key string, oldValue, newValue any) (bool, error) {
+func (c *fakeAMClient) KVCompareAndSet(key string, oldValue, newValue any) (bool, error) {
 	if c.kv == nil {
 		c.kv = make(map[string]any)
 	}
@@ -139,21 +139,21 @@ func (c *fakeMMClient) KVCompareAndSet(key string, oldValue, newValue any) (bool
 	return true, nil
 }
 
-func (c *fakeMMClient) KVCompareAndSetWithExpiry(key string, oldValue, newValue any, _ time.Duration) (bool, error) {
+func (c *fakeAMClient) KVCompareAndSetWithExpiry(key string, oldValue, newValue any, _ time.Duration) (bool, error) {
 	return c.KVCompareAndSet(key, oldValue, newValue)
 }
 
-func (c *fakeMMClient) KVDelete(key string) error {
+func (c *fakeAMClient) KVDelete(key string) error {
 	delete(c.kv, key)
 	c.kvDeletes = append(c.kvDeletes, key)
 	return nil
 }
 
-func (c *fakeMMClient) AddReaction(*model.Reaction) error {
+func (c *fakeAMClient) AddReaction(*model.Reaction) error {
 	return errors.New("not implemented")
 }
 
-func (c *fakeMMClient) GetPost(postID string) (*model.Post, error) {
+func (c *fakeAMClient) GetPost(postID string) (*model.Post, error) {
 	if c.posts != nil {
 		if post, ok := c.posts[postID]; ok {
 			return post, nil
@@ -162,23 +162,23 @@ func (c *fakeMMClient) GetPost(postID string) (*model.Post, error) {
 	return nil, errors.New("post not found")
 }
 
-func (c *fakeMMClient) GetPostsSince(string, int64) (*model.PostList, error) {
+func (c *fakeAMClient) GetPostsSince(string, int64) (*model.PostList, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) GetPostsBefore(string, string, int, int) (*model.PostList, error) {
+func (c *fakeAMClient) GetPostsBefore(string, string, int, int) (*model.PostList, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) DM(string, string, *model.Post) error {
+func (c *fakeAMClient) DM(string, string, *model.Post) error {
 	return errors.New("not implemented")
 }
 
-func (c *fakeMMClient) GetTeam(string) (*model.Team, error) {
+func (c *fakeAMClient) GetTeam(string) (*model.Team, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) GetChannel(channelID string) (*model.Channel, error) {
+func (c *fakeAMClient) GetChannel(channelID string) (*model.Channel, error) {
 	if c.channels != nil {
 		if ch, ok := c.channels[channelID]; ok {
 			return ch, nil
@@ -187,11 +187,11 @@ func (c *fakeMMClient) GetChannel(channelID string) (*model.Channel, error) {
 	return nil, errors.New("channel not found")
 }
 
-func (c *fakeMMClient) GetDirectChannel(string, string) (*model.Channel, error) {
+func (c *fakeAMClient) GetDirectChannel(string, string) (*model.Channel, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) PublishWebSocketEvent(event string, payload map[string]any, broadcast *model.WebsocketBroadcast) {
+func (c *fakeAMClient) PublishWebSocketEvent(event string, payload map[string]any, broadcast *model.WebsocketBroadcast) {
 	c.websocketEvents = append(c.websocketEvents, fakeWebSocketEvent{
 		event:     event,
 		payload:   payload,
@@ -199,60 +199,60 @@ func (c *fakeMMClient) PublishWebSocketEvent(event string, payload map[string]an
 	})
 }
 
-func (c *fakeMMClient) GetConfig() *model.Config {
+func (c *fakeAMClient) GetConfig() *model.Config {
 	return &model.Config{}
 }
 
-func (c *fakeMMClient) LogError(msg string, _ ...any) {
+func (c *fakeAMClient) LogError(msg string, _ ...any) {
 	c.logMu.Lock()
 	defer c.logMu.Unlock()
 	c.logErrors = append(c.logErrors, msg)
 }
 
 // loggedErrors returns a snapshot of the error-level log messages.
-func (c *fakeMMClient) loggedErrors() []string {
+func (c *fakeAMClient) loggedErrors() []string {
 	c.logMu.Lock()
 	defer c.logMu.Unlock()
 	return append([]string(nil), c.logErrors...)
 }
 
-func (c *fakeMMClient) LogWarn(string, ...any) {}
+func (c *fakeAMClient) LogWarn(string, ...any) {}
 
-func (c *fakeMMClient) GetUserByUsername(string) (*model.User, error) {
+func (c *fakeAMClient) GetUserByUsername(string) (*model.User, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) GetUserStatus(string) (*model.Status, error) {
+func (c *fakeAMClient) GetUserStatus(string) (*model.Status, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) HasPermissionTo(string, *model.Permission) bool {
+func (c *fakeAMClient) HasPermissionTo(string, *model.Permission) bool {
 	return true
 }
 
-func (c *fakeMMClient) GetPluginStatus(string) (*model.PluginStatus, error) {
+func (c *fakeAMClient) GetPluginStatus(string) (*model.PluginStatus, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) PluginHTTP(*http.Request) *http.Response {
+func (c *fakeAMClient) PluginHTTP(*http.Request) *http.Response {
 	return nil
 }
 
-func (c *fakeMMClient) LogDebug(string, ...any) {}
+func (c *fakeAMClient) LogDebug(string, ...any) {}
 
-func (c *fakeMMClient) GetChannelByName(string, string, bool) (*model.Channel, error) {
+func (c *fakeAMClient) GetChannelByName(string, string, bool) (*model.Channel, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) HasPermissionToChannel(string, string, *model.Permission) bool {
+func (c *fakeAMClient) HasPermissionToChannel(string, string, *model.Permission) bool {
 	return true
 }
 
-func (c *fakeMMClient) HasPermissionToFileAction(sessionID, _, _ string) bool {
+func (c *fakeAMClient) HasPermissionToFileAction(sessionID, _, _ string) bool {
 	return sessionID != ""
 }
 
-func (c *fakeMMClient) GetFileInfo(fileID string) (*model.FileInfo, error) {
+func (c *fakeAMClient) GetFileInfo(fileID string) (*model.FileInfo, error) {
 	if c.fileInfos != nil {
 		if info, ok := c.fileInfos[fileID]; ok {
 			return info, nil
@@ -261,15 +261,15 @@ func (c *fakeMMClient) GetFileInfo(fileID string) (*model.FileInfo, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) GetFile(string) (io.ReadCloser, error) {
+func (c *fakeAMClient) GetFile(string) (io.ReadCloser, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) UploadFile(io.Reader, string, string) (*model.FileInfo, error) {
+func (c *fakeAMClient) UploadFile(io.Reader, string, string) (*model.FileInfo, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *fakeMMClient) SendEphemeralPost(userID string, post *model.Post) {
+func (c *fakeAMClient) SendEphemeralPost(userID string, post *model.Post) {
 	c.ephemeralPosts = append(c.ephemeralPosts, post.Clone())
 	c.ephemeralPostUserIDs = append(c.ephemeralPostUserIDs, userID)
 }

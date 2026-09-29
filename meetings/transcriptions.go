@@ -36,7 +36,7 @@ func (s *Service) HandleTranscribeFile(userID string, bot *bots.Bot, post *model
 		return nil, err
 	}
 
-	mm := amapi.WithFilePolicy(s.mmClient, sessionID)
+	mm := amapi.WithFilePolicy(s.amClient, sessionID)
 	recordingFileInfo, err := mm.GetFileInfo(fileID)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (s *Service) HandleSummarizeTranscription(userID string, bot *bots.Bot, pos
 		return nil, ErrNotMeetingBotPost
 	}
 
-	createdPost, err := s.newCallTranscriptionSummaryThread(bot, user, post, channel, amapi.WithFilePolicy(s.mmClient, sessionID))
+	createdPost, err := s.newCallTranscriptionSummaryThread(bot, user, post, channel, amapi.WithFilePolicy(s.amClient, sessionID))
 	if err != nil {
 		return nil, fmt.Errorf("unable to summarize transcription: %w", err)
 	}

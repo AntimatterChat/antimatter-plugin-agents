@@ -37,7 +37,7 @@ const (
 
 type reminderFixture struct {
 	conv       *conversations.Conversations
-	client     *fakeMMClient
+	client     *fakeAMClient
 	botService *bots.AMBots
 	mockAPI    *plugintest.API
 }
@@ -77,7 +77,7 @@ func newReminderFixtureWithBotConfig(t *testing.T, botConfig llm.BotConfig) *rem
 	promptsManager, err := llm.NewPrompts(prompts.PromptsFolder)
 	require.NoError(t, err)
 
-	client := &fakeMMClient{
+	client := &fakeAMClient{
 		users: map[string]*model.User{
 			reminderUserID:      {Id: reminderUserID, Username: "user", Locale: "en"},
 			reminderOtherUserID: {Id: reminderOtherUserID, Username: "other", Locale: "en"},

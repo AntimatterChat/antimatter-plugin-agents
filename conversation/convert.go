@@ -36,7 +36,7 @@ var unsharedToolUseArgumentsRedaction = json.RawMessage("{}")
 // PostConversionOptions configures how BlocksToPost converts content blocks.
 type PostConversionOptions struct {
 	RedactUnshared bool
-	MMClient       amapi.Client
+	AMClient       amapi.Client
 	EnableVision   bool
 	MaxFileSize    int64
 	ToolStore      *llm.ToolStore
@@ -142,13 +142,13 @@ func BlocksToPost(
 			if !opts.EnableVision {
 				continue
 			}
-			if opts.MMClient == nil {
+			if opts.AMClient == nil {
 				continue
 			}
-			fileInfo, err := opts.MMClient.GetFileInfo(block.FileID)
+			fileInfo, err := opts.AMClient.GetFileInfo(block.FileID)
 			if err != nil {
 				if !errors.Is(err, amapi.ErrFileActionForbidden) {
-					opts.MMClient.LogError("failed to get file info for image attachment", "error", err)
+					opts.AMClient.LogError("failed to get file info for image attachment", "error", err)
 				}
 				continue
 			}
@@ -159,17 +159,17 @@ func BlocksToPost(
 				})
 				continue
 			}
-			reader, err := opts.MMClient.GetFile(block.FileID)
+			reader, err := opts.AMClient.GetFile(block.FileID)
 			if err != nil {
-				opts.MMClient.LogError("failed to get file for image attachment", "error", err)
+				opts.AMClient.LogError("failed to get file for image attachment", "error", err)
 				continue
 			}
 			data, err := io.ReadAll(reader)
 			if closeErr := reader.Close(); closeErr != nil {
-				opts.MMClient.LogError("failed to close image attachment reader", "error", closeErr)
+				opts.AMClient.LogError("failed to close image attachment reader", "error", closeErr)
 			}
 			if err != nil {
-				opts.MMClient.LogError("failed to read image attachment", "error", err)
+				opts.AMClient.LogError("failed to read image attachment", "error", err)
 				continue
 			}
 			post.Files = append(post.Files, llm.File{
@@ -180,13 +180,13 @@ func BlocksToPost(
 			})
 
 		case BlockTypeFile:
-			if opts.MMClient == nil {
+			if opts.AMClient == nil {
 				continue
 			}
-			fileInfo, err := opts.MMClient.GetFileInfo(block.FileID)
+			fileInfo, err := opts.AMClient.GetFileInfo(block.FileID)
 			if err != nil {
 				if !errors.Is(err, amapi.ErrFileActionForbidden) {
-					opts.MMClient.LogError("failed to get file info for file attachment", "error", err)
+					opts.AMClient.LogError("failed to get file info for file attachment", "error", err)
 				}
 				continue
 			}
@@ -217,17 +217,17 @@ func BlocksToPost(
 
 			content := extracted
 			if content == "" {
-				reader, err := opts.MMClient.GetFile(block.FileID)
+				reader, err := opts.AMClient.GetFile(block.FileID)
 				if err != nil {
-					opts.MMClient.LogError("failed to get file for file attachment", "error", err)
+					opts.AMClient.LogError("failed to get file for file attachment", "error", err)
 					continue
 				}
 				body, err := io.ReadAll(io.LimitReader(reader, effectiveMax))
 				if closeErr := reader.Close(); closeErr != nil {
-					opts.MMClient.LogError("failed to close file attachment reader", "error", closeErr)
+					opts.AMClient.LogError("failed to close file attachment reader", "error", closeErr)
 				}
 				if err != nil {
-					opts.MMClient.LogError("failed to read file content", "error", err)
+					opts.AMClient.LogError("failed to read file content", "error", err)
 					continue
 				}
 				content = string(body)

@@ -47,7 +47,7 @@ func (c *Conversations) attachSandboxOutputFiles(ctx context.Context, bot *bots.
 		return
 	}
 	downloader := bot.ProviderServices().FileDownloader
-	amtools.AttachSandboxOutputFiles(ctx, c.mmClient, downloader, llmCtx)
+	amtools.AttachSandboxOutputFiles(ctx, c.amClient, downloader, llmCtx)
 }
 
 func (c *Conversations) collectAttachableFileIDs(post *model.Post, extraFileIDs []string, contexts []*llm.Context) []string {
@@ -75,8 +75,8 @@ func (c *Conversations) collectAttachableFileIDs(post *model.Post, extraFileIDs 
 		appendID(id)
 	}
 	if room := max(maxResponseAttachments-len(post.FileIds), 0); len(candidates) > room {
-		if c.mmClient != nil {
-			c.mmClient.LogWarn("Truncating created files beyond the response attachment cap",
+		if c.amClient != nil {
+			c.amClient.LogWarn("Truncating created files beyond the response attachment cap",
 				"post_id", post.Id, "dropped", len(candidates)-room, "cap", maxResponseAttachments)
 		}
 		candidates = candidates[:room]
@@ -93,8 +93,8 @@ func (c *Conversations) collectCreatedFileIDsFromTurns(convID, postID string) []
 	}
 	turns, err := c.convService.GetTurns(convID)
 	if err != nil {
-		if c.mmClient != nil {
-			c.mmClient.LogError("Failed to get turns for created-file recovery", "error", err, "conversation_id", convID)
+		if c.amClient != nil {
+			c.amClient.LogError("Failed to get turns for created-file recovery", "error", err, "conversation_id", convID)
 		}
 		return nil
 	}

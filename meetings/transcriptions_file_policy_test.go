@@ -58,8 +58,8 @@ func TestHandleSummarizeTranscriptionDeniedByFilePolicy(t *testing.T) {
 	mockAPI.On("LogError", mock.Anything).Maybe()
 	defer mockAPI.AssertExpectations(t)
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On(
+	amClient := mocks.NewMockClient(t)
+	amClient.On(
 		"HasPermissionToFileAction",
 		sessionID,
 		fileID,
@@ -68,7 +68,7 @@ func TestHandleSummarizeTranscriptionDeniedByFilePolicy(t *testing.T) {
 
 	s := &Service{
 		pluginAPI:     pluginapi.NewClient(mockAPI, nil),
-		mmClient:      mmClient,
+		amClient:      amClient,
 		i18n:          i18n.Init(),
 		conversations: &conversations.Conversations{},
 	}

@@ -48,7 +48,7 @@ func (n *recordingNotifier) publishedIDs() []string {
 
 // newTestService builds a Service backed by a real store and a real AMBots
 // instance holding botList.
-func newTestService(t *testing.T, dbClient *amapi.DBClient, notifier ClusterNotifier, mmClient amapi.Client, botList []*bots.Bot) *Service {
+func newTestService(t *testing.T, dbClient *amapi.DBClient, notifier ClusterNotifier, amClient amapi.Client, botList []*bots.Bot) *Service {
 	t.Helper()
 
 	mockAPI := &plugintest.API{}
@@ -56,7 +56,7 @@ func newTestService(t *testing.T, dbClient *amapi.DBClient, notifier ClusterNoti
 	botsService := bots.New(mockAPI, client, nil, nil, accesscontrol.New(accesscontrol.PassthroughClient{}, nil, accesscontrol.NoMCPServerIDs, nil), &http.Client{}, nil)
 	botsService.SetBotsForTesting(botList)
 
-	return NewService(NewStore(dbClient), botsService, mmClient, notifier)
+	return NewService(NewStore(dbClient), botsService, amClient, notifier)
 }
 
 // newTestBot builds a real bots.Bot with the given Mattermost bot user ID.
@@ -203,11 +203,11 @@ func TestServiceSetValidation(t *testing.T) {
 				botID = ""
 			}
 
-			mmClient := mocks.NewMockClient(t)
+			amClient := mocks.NewMockClient(t)
 			if tc.getChannelErr != nil {
-				mmClient.EXPECT().GetChannel(mock.Anything).Return(nil, tc.getChannelErr).Maybe()
+				amClient.EXPECT().GetChannel(mock.Anything).Return(nil, tc.getChannelErr).Maybe()
 			} else {
-				mmClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
+				amClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
 					return &model.Channel{Id: id, Type: tc.channelType}, nil
 				}).Maybe()
 			}
@@ -218,7 +218,7 @@ func TestServiceSetValidation(t *testing.T) {
 			}
 
 			notifier := &recordingNotifier{}
-			svc := newTestService(t, dbClient, notifier, mmClient, botList)
+			svc := newTestService(t, dbClient, notifier, amClient, botList)
 
 			setting, err := svc.Set(channelID, botID, tc.mode, model.NewId())
 			require.Error(t, err)
@@ -276,11 +276,11 @@ func TestServiceSetSuccess(t *testing.T) {
 			botID := model.NewId()
 			updatedBy := model.NewId()
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.EXPECT().GetChannel(channelID).Return(&model.Channel{Id: channelID, Type: tc.channelType}, nil).Once()
+			amClient := mocks.NewMockClient(t)
+			amClient.EXPECT().GetChannel(channelID).Return(&model.Channel{Id: channelID, Type: tc.channelType}, nil).Once()
 
 			notifier := &recordingNotifier{}
-			svc := newTestService(t, dbClient, notifier, mmClient, []*bots.Bot{newTestBot(botID, tc.botCfg(channelID))})
+			svc := newTestService(t, dbClient, notifier, amClient, []*bots.Bot{newTestBot(botID, tc.botCfg(channelID))})
 
 			setting, err := svc.Set(channelID, botID, tc.mode, updatedBy)
 			require.NoError(t, err)
@@ -312,12 +312,12 @@ func TestServiceSetOverwrite(t *testing.T) {
 	botA := model.NewId()
 	botB := model.NewId()
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.EXPECT().GetChannel(channelID).Return(&model.Channel{Id: channelID, Type: model.ChannelTypeOpen}, nil).Twice()
+	amClient := mocks.NewMockClient(t)
+	amClient.EXPECT().GetChannel(channelID).Return(&model.Channel{Id: channelID, Type: model.ChannelTypeOpen}, nil).Twice()
 
 	notifier := &recordingNotifier{}
 	allowAll := llm.BotConfig{ChannelAccessLevel: llm.ChannelAccessLevelAll}
-	svc := newTestService(t, dbClient, notifier, mmClient, []*bots.Bot{
+	svc := newTestService(t, dbClient, notifier, amClient, []*bots.Bot{
 		newTestBot(botA, allowAll),
 		newTestBot(botB, allowAll),
 	})
@@ -373,14 +373,14 @@ func TestServiceDelete(t *testing.T) {
 			}
 			botID := model.NewId()
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
+			amClient := mocks.NewMockClient(t)
+			amClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
 				return &model.Channel{Id: id, Type: model.ChannelTypeOpen}, nil
 			}).Maybe()
 
 			notifier := &recordingNotifier{}
 			bot := newTestBot(botID, llm.BotConfig{ChannelAccessLevel: llm.ChannelAccessLevelAll})
-			svc := newTestService(t, dbClient, notifier, mmClient, []*bots.Bot{bot})
+			svc := newTestService(t, dbClient, notifier, amClient, []*bots.Bot{bot})
 
 			expectedNotifications := []string(nil)
 			if tc.setFirst {
@@ -417,11 +417,11 @@ func TestServiceGet(t *testing.T) {
 	channelID := model.NewId()
 	botID := model.NewId()
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.EXPECT().GetChannel(channelID).Return(&model.Channel{Id: channelID, Type: model.ChannelTypeOpen}, nil).Once()
+	amClient := mocks.NewMockClient(t)
+	amClient.EXPECT().GetChannel(channelID).Return(&model.Channel{Id: channelID, Type: model.ChannelTypeOpen}, nil).Once()
 
 	bot := newTestBot(botID, llm.BotConfig{ChannelAccessLevel: llm.ChannelAccessLevelAll})
-	svc := newTestService(t, dbClient, &recordingNotifier{}, mmClient, []*bots.Bot{bot})
+	svc := newTestService(t, dbClient, &recordingNotifier{}, amClient, []*bots.Bot{bot})
 
 	setting, err := svc.Set(channelID, botID, ModeThreads, model.NewId())
 	require.NoError(t, err)
@@ -572,16 +572,16 @@ func TestServiceNotifierFailureDoesNotFailWrite(t *testing.T) {
 			channelID := model.NewId()
 			botID := model.NewId()
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
+			amClient := mocks.NewMockClient(t)
+			amClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
 				return &model.Channel{Id: id, Type: model.ChannelTypeOpen}, nil
 			}).Maybe()
 			// The failed broadcast is surfaced as a warning log.
-			mmClient.EXPECT().LogWarn(mock.Anything, mock.Anything).Once()
+			amClient.EXPECT().LogWarn(mock.Anything, mock.Anything).Once()
 
 			notifier := &recordingNotifier{err: errors.New("cluster down")}
 			bot := newTestBot(botID, llm.BotConfig{ChannelAccessLevel: llm.ChannelAccessLevelAll})
-			svc := newTestService(t, dbClient, notifier, mmClient, []*bots.Bot{bot})
+			svc := newTestService(t, dbClient, notifier, amClient, []*bots.Bot{bot})
 
 			tc.op(t, svc, channelID, botID)
 
@@ -617,11 +617,11 @@ func TestServiceStalledDBWriteDoesNotBlockGetCached(t *testing.T) {
 	stalledChannelID := model.NewId()
 	botID := model.NewId()
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.EXPECT().GetChannel(stalledChannelID).Return(&model.Channel{Id: stalledChannelID, Type: model.ChannelTypeOpen}, nil).Once()
+	amClient := mocks.NewMockClient(t)
+	amClient.EXPECT().GetChannel(stalledChannelID).Return(&model.Channel{Id: stalledChannelID, Type: model.ChannelTypeOpen}, nil).Once()
 
 	bot := newTestBot(botID, llm.BotConfig{ChannelAccessLevel: llm.ChannelAccessLevelAll})
-	svc := newTestService(t, dbClient, &recordingNotifier{}, mmClient, []*bots.Bot{bot})
+	svc := newTestService(t, dbClient, &recordingNotifier{}, amClient, []*bots.Bot{bot})
 	require.NoError(t, svc.LoadCache())
 
 	// Uncommitted insert for the same channel ID: Set's upsert now blocks on
@@ -683,15 +683,15 @@ func TestServiceStalledDBWriteDoesNotBlockGetCached(t *testing.T) {
 func TestServiceConcurrentAccess(t *testing.T) {
 	dbClient := testDB(t)
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
+	amClient := mocks.NewMockClient(t)
+	amClient.EXPECT().GetChannel(mock.Anything).RunAndReturn(func(id string) (*model.Channel, error) {
 		return &model.Channel{Id: id, Type: model.ChannelTypeOpen}, nil
 	}).Maybe()
 
 	botID := model.NewId()
 	bot := newTestBot(botID, llm.BotConfig{ChannelAccessLevel: llm.ChannelAccessLevelAll})
 	notifier := &recordingNotifier{}
-	svc := newTestService(t, dbClient, notifier, mmClient, []*bots.Bot{bot})
+	svc := newTestService(t, dbClient, notifier, amClient, []*bots.Bot{bot})
 
 	channelIDs := []string{model.NewId(), model.NewId(), model.NewId(), model.NewId()}
 	updatedBy := model.NewId()

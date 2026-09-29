@@ -132,15 +132,15 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 			bot := loadedStateBot(lm)
 			botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-			mmClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
-			mmClient.On("KVGet", mock.Anything, mock.Anything).Maybe().Return(nil)
-			mmClient.On("GetConfig").Maybe().Return(&model.Config{})
+			amClient := mocks.NewMockClient(t)
+			amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+			amClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
+			amClient.On("KVGet", mock.Anything, mock.Anything).Maybe().Return(nil)
+			amClient.On("GetConfig").Maybe().Return(&model.Config{})
 
 			streamingService := &loadedStateStreamingService{}
 			c := &Conversations{
-				mmClient:         mmClient,
+				amClient:         amClient,
 				contextBuilder:   loadedStateBuilder(t),
 				bots:             botsService,
 				convService:      conversation.NewService(convStore, nil, nil, nil),
@@ -257,12 +257,12 @@ func TestHandleToolCallMixedBatchInChannelAwaitsShareDecision(t *testing.T) {
 	bot := loadedStateBot(lm)
 	botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-	mmClient := mocks.NewMockClient(t)
-	mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-	mmClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
+	amClient := mocks.NewMockClient(t)
+	amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+	amClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
 
 	c := &Conversations{
-		mmClient:         mmClient,
+		amClient:         amClient,
 		contextBuilder:   loadedStateBuilder(t),
 		bots:             botsService,
 		convService:      conversation.NewService(convStore, nil, nil, nil),
@@ -344,15 +344,15 @@ func TestStreamToolFollowUpInteractiveFlag(t *testing.T) {
 		// A human reply posted to the thread that was never stored as a turn;
 		// the rebuilt request must carry it so the follow-up keeps its context.
 		threadReply := &model.Post{Id: "reply-id", RootId: "root-id", UserId: "human-user", Message: "non-turn thread reply"}
-		mmClient := mocks.NewMockClient(t)
-		mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-		mmClient.On("GetPost", "root-id").Return(rootPost, nil).Once()
-		mmClient.On("GetUser", "automation-bot").Return(&model.User{Id: "automation-bot", IsBot: true}, nil)
-		mmClient.On("GetUser", "human-user").Return(&model.User{Id: "human-user", Username: "human"}, nil)
-		mmClient.On("GetConfig").Maybe().Return(&model.Config{})
+		amClient := mocks.NewMockClient(t)
+		amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+		amClient.On("GetPost", "root-id").Return(rootPost, nil).Once()
+		amClient.On("GetUser", "automation-bot").Return(&model.User{Id: "automation-bot", IsBot: true}, nil)
+		amClient.On("GetUser", "human-user").Return(&model.User{Id: "human-user", Username: "human"}, nil)
+		amClient.On("GetConfig").Maybe().Return(&model.Config{})
 		// Channel follow-ups rebuild thread context via GetThreadData; return a
 		// live thread with a non-turn reply to exercise the thread-aware path.
-		mmClient.On("GetPostThread", "root-id").Return(&model.PostList{
+		amClient.On("GetPostThread", "root-id").Return(&model.PostList{
 			Order: []string{"root-id", "reply-id"},
 			Posts: map[string]*model.Post{"root-id": rootPost, "reply-id": threadReply},
 		}, nil).Once()
@@ -360,7 +360,7 @@ func TestStreamToolFollowUpInteractiveFlag(t *testing.T) {
 		lm := &loadedStateLLM{}
 		streamingService := &loadedStateStreamingService{}
 		c := &Conversations{
-			mmClient:          mmClient,
+			amClient:          amClient,
 			contextBuilder:    loadedStateBuilder(t),
 			convService:       conversation.NewService(convStore, nil, nil, nil),
 			streamingService:  streamingService,
@@ -525,16 +525,16 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 			bot := loadedStateBot(lm)
 			botsService.SetBotsForTesting([]*bots.Bot{bot})
 
-			mmClient := mocks.NewMockClient(t)
-			mmClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
-			mmClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
-			mmClient.On("GetConfig").Maybe().Return(&model.Config{})
+			amClient := mocks.NewMockClient(t)
+			amClient.On("LogDebug", mock.Anything, mock.Anything).Maybe().Return()
+			amClient.On("GetUser", "user-id").Maybe().Return(&model.User{Id: "user-id", Username: "user"}, nil)
+			amClient.On("GetConfig").Maybe().Return(&model.Config{})
 
 			contextBuilder := loadedStateBuilder(t)
 
 			streamingService := &loadedStateStreamingService{}
 			c := &Conversations{
-				mmClient:          mmClient,
+				amClient:          amClient,
 				contextBuilder:    contextBuilder,
 				bots:              botsService,
 				convService:       conversation.NewService(convStore, nil, nil, nil),

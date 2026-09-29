@@ -48,7 +48,7 @@ type ClusterNotifier interface {
 type Service struct {
 	store    *Store
 	bots     *bots.AMBots
-	mmClient amapi.Client
+	amClient amapi.Client
 	notifier ClusterNotifier
 
 	writeMu sync.Mutex
@@ -59,11 +59,11 @@ type Service struct {
 
 // NewService creates the auto-reply service. Call LoadCache before serving
 // reads.
-func NewService(store *Store, botsService *bots.AMBots, mmClient amapi.Client, notifier ClusterNotifier) *Service {
+func NewService(store *Store, botsService *bots.AMBots, amClient amapi.Client, notifier ClusterNotifier) *Service {
 	return &Service{
 		store:    store,
 		bots:     botsService,
-		mmClient: mmClient,
+		amClient: amClient,
 		notifier: notifier,
 		cache:    make(map[string]Setting),
 	}
@@ -132,7 +132,7 @@ func (s *Service) Set(channelID, botID string, mode Mode, updatedBy string) (*Se
 		return nil, fmt.Errorf("bot %s not found: %w", botID, ErrValidation)
 	}
 
-	channel, err := s.mmClient.GetChannel(channelID)
+	channel, err := s.amClient.GetChannel(channelID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to look up channel %s: %w", channelID, err)
 	}
@@ -222,6 +222,6 @@ func (s *Service) notifyPeers(channelID string) {
 		return
 	}
 	if err := s.notifier.PublishChannelAutoReplyInvalidate(channelID); err != nil {
-		s.mmClient.LogWarn("Failed to broadcast channel auto-reply invalidation; peer nodes may serve a stale setting", "channel_id", channelID, "error", err.Error())
+		s.amClient.LogWarn("Failed to broadcast channel auto-reply invalidation; peer nodes may serve a stale setting", "channel_id", channelID, "error", err.Error())
 	}
 }

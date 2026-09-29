@@ -143,9 +143,9 @@ func TestAuditUpdateMCPUserPreferences(t *testing.T) {
 				{Name: "server-b", Enabled: true, BaseURL: "https://b.example"},
 			}}
 
-			mmClient := amapimocks.NewMockClient(t)
-			mmClient.On("KVSet", mock.AnythingOfType("string"), mock.Anything).Return(tt.kvSetErr).Maybe()
-			e.api.mmClient = mmClient
+			amClient := amapimocks.NewMockClient(t)
+			amClient.On("KVSet", mock.AnythingOfType("string"), mock.Anything).Return(tt.kvSetErr).Maybe()
+			e.api.amClient = amClient
 
 			records := e.CaptureAuditRecords()
 
