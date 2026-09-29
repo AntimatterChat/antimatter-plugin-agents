@@ -329,7 +329,7 @@ export class BotConfigHelper {
 }
 
 /**
- * Create a bot config helper from a Mattermost container
+ * Create a bot config helper from an Antimatter container
  */
 export async function createBotConfigHelper(antimatter: AntimatterContainer): Promise<BotConfigHelper> {
     const adminClient = await antimatter.getAdminClient();

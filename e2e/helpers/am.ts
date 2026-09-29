@@ -11,7 +11,7 @@ async function fetchPostsForChannel(client: Client4, channelId: string): Promise
     const getPosts = (client as unknown as { getPostsForChannel?: typeof client.getPosts }).getPostsForChannel
         || client.getPosts;
     if (typeof getPosts !== 'function') {
-        throw new Error('Mattermost client does not expose getPostsForChannel or getPosts');
+        throw new Error('Antimatter client does not expose getPostsForChannel or getPosts');
     }
     const postsResponse = await getPosts.call(client, channelId, 0, 200);
     return getPostsArray(postsResponse);
@@ -41,7 +41,7 @@ export class AntimatterPage {
         await this.page.addInitScript(() => { localStorage.setItem('__landingPageSeen__', 'true'); });
 
         // Polyfill crypto.randomUUID for insecure contexts (e.g., Docker test environments
-        // where the Mattermost URL uses a non-localhost IP like http://172.17.0.1:PORT).
+        // where the Antimatter URL uses a non-localhost IP like http://172.17.0.1:PORT).
         // crypto.randomUUID requires a secure context but crypto.getRandomValues does not.
         await this.page.addInitScript(() => {
             if (typeof crypto !== 'undefined' && typeof crypto.randomUUID !== 'function') {
@@ -86,7 +86,7 @@ export class AntimatterPage {
     }
 
     /**
-     * The Mattermost webapp occasionally fails to lazy-load one of its static chunks right after
+     * The Antimatter webapp occasionally fails to lazy-load one of its static chunks right after
      * login (ChunkLoadError / "Loading CSS chunk N failed") and then never renders the channel view.
      * Reload once in that case instead of waiting out the full timeout.
      */
@@ -284,7 +284,7 @@ export class AntimatterPage {
             await appBarIcon.waitFor({ state: 'visible', timeout: 10000 });
 
             // Check if RHS is already open
-            const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+            const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
             const isRHSVisible = await rhsContainer.isVisible().catch(() => false);
 
             if (!isRHSVisible) {

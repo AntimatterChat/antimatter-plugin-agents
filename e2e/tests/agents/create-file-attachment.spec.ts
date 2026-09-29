@@ -100,7 +100,7 @@ async function approveAndShareToolRound(page: Page): Promise<void> {
 }
 
 test.describe('Response File Attachments (Aimock)', () => {
-    // Serial: one shared Mattermost + aimock sidecar; each test swaps fixtures via setFixtures.
+    // Serial: one shared Antimatter + aimock sidecar; each test swaps fixtures via setFixtures.
     test.describe.configure({mode: 'serial'});
 
     let antimatter: AntimatterContainer;
@@ -157,7 +157,7 @@ test.describe('Response File Attachments (Aimock)', () => {
         await aiPlugin.openRHS();
         await aiPlugin.sendMessage(prompt);
 
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         const latestBotPost = rhsContainer.locator('[data-testid="llm-bot-post"]').last();
         await expect(latestBotPost).toBeVisible({timeout: 90000});
 

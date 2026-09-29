@@ -39,7 +39,7 @@ test.describe('Streaming and Persistence - aimock', () => {
     test('Streaming Cursor Display', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_STREAMING_CURSOR_PROMPT);
         await llmBotHelper.waitForStreamingComplete();
@@ -49,7 +49,7 @@ test.describe('Streaming and Persistence - aimock', () => {
     test('Streaming Complete Lifecycle', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_STREAMING_LIFECYCLE_PROMPT);
         await llmBotHelper.waitForReasoning();
@@ -65,7 +65,7 @@ test.describe('Streaming and Persistence - aimock', () => {
     test('Navigation Persistence', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_NAV_PERSISTENCE_PROMPT);
         await llmBotHelper.waitForStreamingComplete();
@@ -89,7 +89,7 @@ test.describe('Streaming and Persistence - aimock', () => {
     test('Thread View Persistence', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_THREAD_PERSIST_PROMPT);
         await llmBotHelper.waitForStreamingComplete();
@@ -134,7 +134,7 @@ test.describe('Stop Generating Button - aimock', () => {
     test('Stop Generating Button', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_STOP_GENERATING_PROMPT);
 

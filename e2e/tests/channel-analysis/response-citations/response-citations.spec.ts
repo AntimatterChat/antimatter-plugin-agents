@@ -39,7 +39,7 @@ class ChannelAnalysisCitationsHelper {
      * Get the RHS container
      */
     getRHSContainer() {
-        return this.page.getByTestId('mattermost-ai-rhs');
+        return this.page.getByTestId('antimatter-ai-rhs');
     }
 }
 
@@ -79,7 +79,7 @@ test.describe('Channel Analysis Citations', () => {
     test('Channel analysis with custom query produces citations', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -135,7 +135,7 @@ data: [DONE]
     test('Quick action "Summarize last 7 days" produces citations', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -188,7 +188,7 @@ data: [DONE]
     test('Quick action "Summarize last 14 days" with multiple messages', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -256,7 +256,7 @@ data: [DONE]
     test('Channel analysis response and citations persist after RHS close/reopen', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -328,7 +328,7 @@ data: [DONE]
     test('Citation format and structure in channel analysis', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -387,7 +387,7 @@ data: [DONE]
     test('Citation tooltip displays message preview on hover', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -453,7 +453,7 @@ data: [DONE]
     test('Multiple citations appear in channel analysis response', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -511,7 +511,7 @@ data: [DONE]
     test('Channel analysis response with markdown formatting includes citations', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelAnalysisHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready

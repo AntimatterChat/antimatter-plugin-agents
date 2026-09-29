@@ -80,7 +80,7 @@ test.describe('Direct Channel Creation', () => {
     });
 
     await aiPlugin.appBarIcon.click();
-    await expect(page.getByTestId('mattermost-ai-rhs')).not.toBeVisible();
+    await expect(page.getByTestId('antimatter-ai-rhs')).not.toBeVisible();
     await aiPlugin.openRHS();
 
     // Select a bot (the channel should already exist from previous test)

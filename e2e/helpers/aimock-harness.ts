@@ -65,7 +65,7 @@ export async function askAimockBot(
     const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, antimatterUrl);
     await aiPlugin.sendMessage(prompt);
 
-    const rhs = page.getByTestId('mattermost-ai-rhs');
+    const rhs = page.getByTestId('antimatter-ai-rhs');
     return { llmBotHelper, rhs, botPost: rhs.locator('[data-testid="llm-bot-post"]').last() };
 }
 

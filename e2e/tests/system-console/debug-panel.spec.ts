@@ -22,7 +22,7 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
  * UPDATE THESE if the page structure changes (e.g., settings added/removed/reordered):
  *
  * Current order of radio button pairs on the page:
- *   0-1:  Plugin Enable (Mattermost built-in)
+ *   0-1:  Plugin Enable (Antimatter built-in)
  *   2-3:  Render AI-generated links
  *   4-5:  Enable Channel Mention Tool Calling
  *   6-7:  Allow native web search in channels

@@ -1,7 +1,7 @@
 /**
- * HTTP helpers for Mattermost plugin APIs (admin config and plugin routes).
+ * HTTP helpers for Antimatter plugin APIs (admin config and plugin routes).
  * Use these instead of Client4 getConfig/patchConfig or ad hoc fetch strings for
- * mattermost-plugin-agents endpoints.
+ * antimatter-plugin-agents endpoints.
  */
 
 import { Client4 } from '@mattermost/client';

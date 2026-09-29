@@ -72,7 +72,7 @@ export async function stopAIMockCitationStack(stack: AIMockCitationStack): Promi
     const stops = [
         () => stack.aimock.stop(),
         () => stack.webSearchMock.stop(),
-        () => stack.mattermost.stop(),
+        () => stack.antimatter.stop(),
     ];
 
     for (const stop of stops) {
@@ -127,11 +127,11 @@ export function describeAIMockCitationCase(options: {
             const aiPlugin = new AIPlugin(page);
             const llmBotHelper = new LLMBotPostHelper(page);
 
-            await amPage.login(stack.mattermost.url(), 'regularuser', 'regularuser', {
+            await amPage.login(stack.antimatter.url(), 'regularuser', 'regularuser', {
                 channelViewTimeoutMs: 90000,
             });
             await amPage.createAndNavigateToDMWithBot(
-                stack.mattermost,
+                stack.antimatter,
                 'regularuser',
                 'regularuser',
                 stack.botUsername,

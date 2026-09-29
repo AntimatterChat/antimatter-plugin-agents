@@ -88,7 +88,7 @@ async function setupAdminUser(antimatter: AntimatterContainer): Promise<void> {
 }
 
 /**
- * Run a Mattermost container configured for System Console tests
+ * Run an Antimatter container configured for System Console tests
  * @param config Plugin configuration (services, bots, etc.)
  * @returns Configured AntimatterContainer
  */

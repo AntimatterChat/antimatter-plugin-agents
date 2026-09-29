@@ -46,7 +46,7 @@ test.afterAll(async () => {
  *
  * regularuser creates the channel, so PUTs to the autoreply endpoint run as a
  * regular member and implicitly exercise the phase-2 channel-management
- * permission path (the Mattermost default scheme grants
+ * permission path (the Antimatter default scheme grants
  * manage_public_channel_properties to channel members). If the PUT ever 403s
  * under a future default-scheme change, fall back to antimatter.getAdminClient()
  * for the PUT only.
@@ -59,7 +59,7 @@ async function setupClientAndChannel(testTag: string): Promise<{
     const client = await antimatter.getClient(username, password);
     const teams = await client.getMyTeams();
     const team = teams[0];
-    // bot_id in the autoreply payload is the bot's Mattermost user id
+    // bot_id in the autoreply payload is the bot's Antimatter user id
     // (bots.GetBotByID matches on it), not the plugin-config id.
     const botUser = await client.getUserByUsername('mock');
     const channel = await client.createChannel({

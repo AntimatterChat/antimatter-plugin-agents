@@ -54,7 +54,7 @@ test.describe('Auto Run (DM) Policy (Aimock)', () => {
         await aiPlugin.openRHS();
         await aiPlugin.sendMessage(userMessage);
 
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         const latestBotPost = rhsContainer.locator('[data-testid="llm-bot-post"]').last();
         await expect(latestBotPost).toBeVisible({ timeout: 90000 });
 

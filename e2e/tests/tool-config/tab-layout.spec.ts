@@ -61,7 +61,7 @@ test.describe('Tab Layout', () => {
         await toolConfig.navigateToPluginConfig(antimatter.url());
 
         // Verify Configuration tab content is visible by default
-        await expect(page.getByText('Enable Mattermost MCP Server (HTTP)')).toBeVisible();
+        await expect(page.getByText('Enable Antimatter MCP Server (HTTP)')).toBeVisible();
 
         // Click Tools tab
         await toolConfig.getTab('Tools').click();
@@ -69,6 +69,6 @@ test.describe('Tab Layout', () => {
 
         // Click back to Configuration tab
         await toolConfig.getTab('Configuration').click();
-        await expect(page.getByText('Enable Mattermost MCP Server (HTTP)')).toBeVisible();
+        await expect(page.getByText('Enable Antimatter MCP Server (HTTP)')).toBeVisible();
     });
 });

@@ -6,8 +6,8 @@ import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, buildTextResponse } from 'helpers/openai-mock';
 
-// spec: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/e2e/specs/smart-reactions.md
-// seed: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/seed.spec.ts
+// spec: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/e2e/specs/smart-reactions.md
+// seed: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/seed.spec.ts
 
 const username = 'regularuser';
 const password = 'regularuser';

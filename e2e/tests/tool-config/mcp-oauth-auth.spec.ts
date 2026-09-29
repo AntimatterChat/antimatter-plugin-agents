@@ -77,7 +77,7 @@ test.describe('MCP OAuth Authentication', () => {
         const tools = await apiHelper.getUserMCPTools(token);
         expect(tools.servers).toBeDefined();
 
-        const embeddedServer = tools.servers.find((s: any) => s.name === 'Mattermost');
+        const embeddedServer = tools.servers.find((s: any) => s.name === 'Antimatter');
         expect(embeddedServer).toBeDefined();
         expect(embeddedServer.authenticated).toBe(true);
         expect(embeddedServer.needsOAuth).toBe(false);
@@ -135,11 +135,11 @@ test.describe('MCP OAuth Authentication', () => {
         const token = adminClient.getToken();
 
         await expect(
-            apiHelper.disconnectMCPOAuth(token, 'Mattermost'),
+            apiHelper.disconnectMCPOAuth(token, 'Antimatter'),
         ).resolves.toBeUndefined();
 
         const tools = await apiHelper.getUserMCPTools(token);
-        const embeddedServer = tools.servers.find((s: any) => s.name === 'Mattermost');
+        const embeddedServer = tools.servers.find((s: any) => s.name === 'Antimatter');
         expect(embeddedServer).toBeDefined();
         expect(embeddedServer.authenticated).toBe(true);
         expect(embeddedServer.needsOAuth).toBe(false);

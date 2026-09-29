@@ -117,7 +117,7 @@ test.describe('aimock sidecar HTTP', () => {
     });
 });
 
-test.describe('aimock Mattermost stack', () => {
+test.describe('aimock Antimatter stack', () => {
     let antimatter: AntimatterContainer;
     let aimock: AIMockContainer;
 

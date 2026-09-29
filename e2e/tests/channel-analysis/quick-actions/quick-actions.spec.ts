@@ -85,7 +85,7 @@ test.describe('Channel Analysis Quick Actions', () => {
     test('Agents button opens channel analysis popover', async ({ page }) => {
         const { amPage, aiPlugin, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -112,7 +112,7 @@ test.describe('Channel Analysis Quick Actions', () => {
     test('Summarize unreads quick action triggers channel summarization', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -137,7 +137,7 @@ data: [DONE]
         await aiPlugin.clickSummarizeUnreads();
 
         // 6. Wait for RHS to open with the response
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible({ timeout: 10000 });
 
         // 7. Wait for streaming to complete
         await llmBotHelper.waitForStreamingComplete();
@@ -161,7 +161,7 @@ data: [DONE]
     test('Summarize last 7 days quick action triggers channel summarization', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -186,7 +186,7 @@ data: [DONE]
         await aiPlugin.clickSummarizeDays(7);
 
         // 6. Wait for RHS to open with the response
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible({ timeout: 10000 });
 
         // 7. Wait for streaming to complete
         await llmBotHelper.waitForStreamingComplete();
@@ -210,7 +210,7 @@ data: [DONE]
     test('Summarize last 14 days quick action triggers channel summarization', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -235,7 +235,7 @@ data: [DONE]
         await aiPlugin.clickSummarizeDays(14);
 
         // 6. Wait for RHS to open with the response
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible({ timeout: 10000 });
 
         // 7. Wait for streaming to complete
         await llmBotHelper.waitForStreamingComplete();
@@ -259,7 +259,7 @@ data: [DONE]
     test('Custom question via channel analysis popover', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -284,7 +284,7 @@ data: [DONE]
         await aiPlugin.sendChannelAnalysisMessage('What are the main action items mentioned in this channel?');
 
         // 6. Wait for RHS to open with the response
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible({ timeout: 10000 });
 
         // 7. Wait for streaming to complete
         await llmBotHelper.waitForStreamingComplete();
@@ -309,7 +309,7 @@ data: [DONE]
     test('Provider selector is visible in channel analysis popover', async ({ page }) => {
         const { amPage, aiPlugin, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -339,7 +339,7 @@ data: [DONE]
     test('Multiple quick actions can be used in sequence', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, channelHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -364,7 +364,7 @@ data: [DONE]
         await aiPlugin.clickSummarizeDays(7);
 
         // 5. Wait for first response
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible({ timeout: 10000 });
         await llmBotHelper.waitForStreamingComplete();
 
         // 6. Verify first response

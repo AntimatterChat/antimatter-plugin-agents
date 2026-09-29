@@ -6,8 +6,8 @@ import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTestText } from 'helpers/openai-mock';
 
-// spec: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/e2e/specs/long-conversation-handling.md
-// seed: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/seed.spec.ts
+// spec: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/e2e/specs/long-conversation-handling.md
+// seed: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/seed.spec.ts
 
 const username = 'regularuser';
 const password = 'regularuser';
@@ -77,7 +77,7 @@ test.describe('Long Conversation Handling - Creating Long Conversations', () => 
         }
 
         // Verify all messages are present in the conversation
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer.getByText('Message 1', { exact: true })).toBeVisible();
         await expect(rhsContainer.getByText('Message 10')).toBeVisible();
 
@@ -107,7 +107,7 @@ test.describe('Long Conversation Handling - Creating Long Conversations', () => 
         await aiPlugin.waitForBotResponse(responseTestText);
 
         // All messages should be handled successfully
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
     });
 });
@@ -130,7 +130,7 @@ test.describe('Long Conversation Handling - Scrolling', () => {
         await aiPlugin.sendMessage('Latest message');
         await aiPlugin.waitForBotResponse(responseTestText);
 
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer.getByText('Latest message')).toBeVisible();
     });
 
@@ -147,7 +147,7 @@ test.describe('Long Conversation Handling - Scrolling', () => {
         }
 
         // Try to scroll up in the conversation
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await rhsContainer.evaluate((el) => {
             el.scrollTop = 0;
         });
@@ -208,7 +208,7 @@ test.describe('Long Conversation Handling - UI Responsiveness', () => {
         await aiPlugin.clickChatHistoryItem(1);
 
         // Should load smoothly
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer.getByText('First conv 1', { exact: true })).toBeVisible({ timeout: 10000 });
     });
 });

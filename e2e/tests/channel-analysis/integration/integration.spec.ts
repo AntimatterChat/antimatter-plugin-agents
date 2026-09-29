@@ -12,7 +12,7 @@ import { LLMBotPostHelper } from 'helpers/llmbot-post';
 /**
  * Test Suite: Channel Analysis Integration Tests (Mocked)
  *
- * Tests integration of channel analysis with other Mattermost/AI plugin features using mocked backends.
+ * Tests integration of channel analysis with other Antimatter/AI plugin features using mocked backends.
  * These tests validate that channel analysis works harmoniously with:
  * - Regular RHS chat conversations
  * - Chat history navigation
@@ -158,7 +158,7 @@ test.describe('Channel Analysis Integration (Mocked)', () => {
     test('Channel analysis after regular RHS chat', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -232,7 +232,7 @@ data: [DONE]
     test('Regular chat after channel analysis', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -286,7 +286,7 @@ data: [DONE]
     test('Chat history navigation with channel analysis', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -360,7 +360,7 @@ data: [DONE]
     test('Large response rendering with comprehensive channel analysis', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -404,7 +404,7 @@ data: [DONE]
     test('Multiple quick actions in sequence', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -472,7 +472,7 @@ data: [DONE]
     test('RHS state management with channel analysis integration', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, integrationHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -500,7 +500,7 @@ data: [DONE]
         await llmBotHelper.waitForStreamingComplete();
 
         // 6. Verify RHS is now open with channel analysis response
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
 
         // 7. Verify initial response mentions infrastructure

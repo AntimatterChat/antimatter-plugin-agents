@@ -6,8 +6,8 @@ import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
-// spec: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/e2e/specs/advanced-error-scenarios.md
-// seed: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/seed.spec.ts
+// spec: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/e2e/specs/advanced-error-scenarios.md
+// seed: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/seed.spec.ts
 
 const username = 'regularuser';
 const password = 'regularuser';
@@ -50,7 +50,7 @@ test.describe('Advanced Error Scenarios - Network Errors', () => {
         await page.waitForTimeout(2000);
 
         // Should display error message or handle gracefully
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
     });
 
@@ -68,7 +68,7 @@ test.describe('Advanced Error Scenarios - Network Errors', () => {
         await page.waitForTimeout(2000);
 
         // Should display error or handle gracefully
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible();
     });
 
     test('Handle 429 Rate Limiting', async ({ page }) => {
@@ -83,7 +83,7 @@ test.describe('Advanced Error Scenarios - Network Errors', () => {
 
         // Wait for error message to appear in the RHS
         // The error should be displayed to the user, so wait for the RHS to stabilize
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
 
         // Ensure the textarea is still available after error (plugin remains functional)
@@ -104,7 +104,7 @@ test.describe('Advanced Error Scenarios - Network Errors', () => {
         await page.waitForTimeout(2000);
 
         // Should display authentication error
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible();
     });
 
     test('Handle 403 Forbidden', async ({ page }) => {
@@ -121,7 +121,7 @@ test.describe('Advanced Error Scenarios - Network Errors', () => {
         await page.waitForTimeout(2000);
 
         // Should display permission error
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible();
     });
 });
 
@@ -148,7 +148,7 @@ data: [DONE]
         await aiPlugin.sendMessage('Recovery message');
 
         // Should recover and work normally
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer.getByText('Success')).toBeVisible({ timeout: 10000 });
     });
 
@@ -168,7 +168,7 @@ data: [DONE]
         await page.waitForTimeout(1000);
 
         // RHS should still be open and functional
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible();
         await expect(aiPlugin.rhsPostTextarea).toBeVisible();
     });
 });

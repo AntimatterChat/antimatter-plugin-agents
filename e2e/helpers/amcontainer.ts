@@ -17,12 +17,13 @@ const defaultUsername        = "admin";
 const defaultPassword        = "admin";
 const defaultTeamName        = "test";
 const defaultTeamDisplayName = "Test";
-// release-11.10 does not implement plugin EvaluateAccessControl (mattermost#37509 landed on master / 11.11).
-const defaultMattermostImage = "mattermostdevelopment/mattermost-enterprise-edition:master";
+// release-11.10 does not implement plugin EvaluateAccessControl (upstream server PR 37509 landed on master / 11.11).
+const defaultAntimatterImage = "mattermostdevelopment/mattermost-enterprise-edition:master";
 export const POSTGRES_IMAGE = "pgvector/pgvector:pg15";
 
 export function antimatterImage(): string {
-    return process.env.MM_IMAGE || defaultMattermostImage;
+    // AM_IMAGE is authoritative; the legacy MM_IMAGE is still accepted.
+    return process.env.AM_IMAGE || process.env.MM_IMAGE || defaultAntimatterImage;
 }
 
 type PluginConfig = Record<string, unknown>;
@@ -273,9 +274,9 @@ export default class AntimatterContainer {
 
     start = async (): Promise<AntimatterContainer> => {
         const image = antimatterImage();
-        const isCustomImage = !!process.env.MM_IMAGE;
-        console.log(`\n🚀 Starting Mattermost container`);
-        console.log(`   Image: ${image}${isCustomImage ? ' (custom via MM_IMAGE)' : ' (default)'}`);
+        const isCustomImage = !!(process.env.AM_IMAGE || process.env.MM_IMAGE);
+        console.log(`\n🚀 Starting Antimatter container`);
+        console.log(`   Image: ${image}${isCustomImage ? ' (custom via AM_IMAGE/MM_IMAGE)' : ' (default)'}`);
 
         this.network = await new Network().start()
         // Use pgvector image to enable semantic search functionality

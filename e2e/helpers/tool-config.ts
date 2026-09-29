@@ -169,7 +169,7 @@ export class ToolConfigUIHelper {
  * ToolConfigAPIHelper - Programmatic config read/write for tool configs
  *
  * Uses GET/PUT /plugins/mattermost-ai/admin/config so reads and writes match
- * database-backed configuration (not Mattermost PluginSettings).
+ * database-backed configuration (not Antimatter PluginSettings).
  */
 export class ToolConfigAPIHelper {
     private adminApi: PluginAdminConfigApi;

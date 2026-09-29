@@ -87,7 +87,7 @@ test.describe('Channel Analysis Edge Cases', () => {
     test('Channel with minimal content', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -125,7 +125,7 @@ data: [DONE]
     test('Unicode and international characters', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -168,7 +168,7 @@ data: [DONE]
     test('Long message in channel', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -208,7 +208,7 @@ data: [DONE]
     test('Multiple questions sequentially', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -270,7 +270,7 @@ data: [DONE]
     test('Channel analysis while RHS already open', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -283,7 +283,7 @@ data: [DONE]
         await aiPlugin.openRHS();
 
         // 5. Verify RHS is open
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
 
         // 6. Now open channel analysis while RHS is already open
@@ -315,7 +315,7 @@ data: [DONE]
     test('Refresh page and check persistence', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -366,7 +366,7 @@ data: [DONE]
     test('Special characters in queries', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -404,7 +404,7 @@ data: [DONE]
     test('Very short query', async ({ page }) => {
         const { amPage, aiPlugin, llmBotHelper, edgeCasesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready

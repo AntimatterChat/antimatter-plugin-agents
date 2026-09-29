@@ -389,7 +389,7 @@ test.describe('Tool Call Policies (Mocked LLM)', () => {
                 },
             ]);
 
-            const promptMessage = `Please read the Mattermost post with ID ${seededPost.id}.`;
+            const promptMessage = `Please read the Antimatter post with ID ${seededPost.id}.`;
             await amPage.sendChannelMessage(promptMessage);
 
             const sentPost = await waitForSentPost(page, promptMessage);

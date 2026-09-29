@@ -9,14 +9,14 @@ import { adminUsername, adminPassword } from 'helpers/system-console-container';
 /**
  * Test Suite: Vetted Server Seed (4.6)
  *
- * Verifies that the embedded Mattermost server has vetted tools pre-seeded
+ * Verifies that the embedded Antimatter server has vetted tools pre-seeded
  * with "Auto Run (DM)" policy and enabled state for READ-only tools.
  */
 
 let antimatter: AntimatterContainer;
 let openAIMock: OpenAIMockContainer;
 
-// Known vetted READ tools for the embedded Mattermost server
+// Known vetted READ tools for the embedded Antimatter server
 const VETTED_READ_TOOLS = [
     'read_post',
     'read_channel',
@@ -40,7 +40,7 @@ test.describe('Vetted Server Seed', () => {
         await antimatter.stop();
     });
 
-    test('should show vetted Mattermost tools pre-seeded as Auto Run (DM)', async ({ page }) => {
+    test('should show vetted Antimatter tools pre-seeded as Auto Run (DM)', async ({ page }) => {
         test.setTimeout(60000);
 
         const amPage = new AntimatterPage(page);

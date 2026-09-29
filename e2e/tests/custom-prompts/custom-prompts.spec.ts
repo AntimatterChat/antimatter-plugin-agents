@@ -155,7 +155,7 @@ async function openCustomPromptsModal(page) {
     await page.evaluate(() => {
         const store = (window as any).store || (window as any).__store;
         if (!store?.dispatch) {
-            throw new Error('Mattermost Redux store is unavailable');
+            throw new Error('Antimatter Redux store is unavailable');
         }
         store.dispatch({ type: 'SHOW_CUSTOM_PROMPTS_MODAL', show: true });
     });

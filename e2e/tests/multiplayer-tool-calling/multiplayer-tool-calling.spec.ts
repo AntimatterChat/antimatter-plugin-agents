@@ -45,7 +45,7 @@ const TOOL_CARD_CHEVRON_SELECTOR = '[class*="StyledChevronIcon"]';
 const TOOL_CARD_ARGUMENTS_SELECTOR = '[class*="FieldList"], [class*="NoParams"]';
 
 const multiplayerCustomInstructions = [
-    'You have access to Mattermost tools including create_post and get_channel_info.',
+    'You have access to Antimatter tools including create_post and get_channel_info.',
     'When a user asks you to post a message, call get_channel_info first, then create_post.',
 ].join(' ');
 
@@ -258,7 +258,7 @@ async function navigateToChannel(page: Page, baseUrl: string, channelName: strin
 }
 
 test.describe('Multiplayer Tool Calling (Aimock)', () => {
-    // Serial: one shared Mattermost + aimock sidecar; each test reloads fixtures via setFixtures/restart.
+    // Serial: one shared Antimatter + aimock sidecar; each test reloads fixtures via setFixtures/restart.
     // Keep-private runs first so a prior happy-path create_post does not leave Town Square posts that
     // could confuse later reject-path assertions (reject verifies the post text stays absent).
     test.describe.configure({mode: 'serial'});

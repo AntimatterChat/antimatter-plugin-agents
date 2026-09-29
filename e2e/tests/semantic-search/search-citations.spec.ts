@@ -108,7 +108,7 @@ test.describe('Post Citations Display', () => {
         // Verify permalink citation links are rendered inside the bot response post.
         // Scope to the RHS bot post rather than the last PostText in the thread to avoid
         // racing against the user query/root post order in CI.
-        const rhsBotPost = page.getByTestId('mattermost-ai-rhs').locator('[data-testid="llm-bot-post"]').filter({
+        const rhsBotPost = page.getByTestId('antimatter-ai-rhs').locator('[data-testid="llm-bot-post"]').filter({
             hasText: searchResponseText,
         }).last();
         await expect(rhsBotPost).toBeVisible({timeout: 30000});

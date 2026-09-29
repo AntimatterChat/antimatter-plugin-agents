@@ -6,8 +6,8 @@ import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks } from 'helpers/openai-mock';
 
-// spec: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/e2e/specs/action-item-extraction.md
-// seed: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/seed.spec.ts
+// spec: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/e2e/specs/action-item-extraction.md
+// seed: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/seed.spec.ts
 
 const username = 'regularuser';
 const password = 'regularuser';
@@ -83,7 +83,7 @@ test.describe('UI and Display Verification', () => {
         // 5. Observe the right-hand sidebar (RHS)
         await aiPlugin.expectRHSOpenWithPost();
 
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible();
     });
 
     test('Verify AI Actions Menu Icon and Tooltip', async ({ page }) => {

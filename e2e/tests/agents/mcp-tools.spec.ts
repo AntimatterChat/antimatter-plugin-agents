@@ -18,7 +18,7 @@ import { AgentAPIHelper } from 'helpers/agent-api';
 import { AgentPageHelper } from 'helpers/agent-page';
 import { AIPlugin } from 'helpers/ai-plugin';
 
-/** Matches mcp.EmbeddedClientKey — MCP server origin for the embedded Mattermost tools server. */
+/** Matches mcp.EmbeddedClientKey — MCP server origin for the embedded Antimatter tools server. */
 const embeddedAntimatterOrigin = 'embedded://mattermost';
 
 let antimatter: AntimatterContainer;
@@ -88,7 +88,7 @@ test.describe('Agent MCP Tools', () => {
 
         await expect(agentPage.getMCPSearchInput()).toBeVisible({ timeout: 15000 });
         // Provider name from GET /mcp/tools (mcp.EmbeddedServerName)
-        await expect(page.getByText('Mattermost', {exact: true})).toBeVisible({ timeout: 15000 });
+        await expect(page.getByText('Antimatter', {exact: true})).toBeVisible({ timeout: 15000 });
     });
 
     // MM-69185 regression: visiting the MCPs tab on an agent whose persisted
@@ -128,7 +128,7 @@ test.describe('Agent MCP Tools', () => {
 
         // Wait for the live MCP catalog to render — at this point orphan
         // reconciliation has run.
-        await expect(page.getByText('Mattermost', { exact: true })).toBeVisible({ timeout: 15000 });
+        await expect(page.getByText('Antimatter', { exact: true })).toBeVisible({ timeout: 15000 });
 
         await agentPage.getModalCancelButton().click();
 
@@ -171,7 +171,7 @@ test.describe('Agent MCP Tools', () => {
         const selectiveAgentSystemPrompt =
             'You are called Selective Tools Agent with the username selectivetoolsagent';
         const toolPrompt =
-            `Use the read_post tool to read the Mattermost post with ID ${seededPost.id}. ` +
+            `Use the read_post tool to read the Antimatter post with ID ${seededPost.id}. ` +
             'Summarize its contents. Do not answer from memory. Call the tool now.';
 
         // Prove the allowed tool reaches runtime by requiring a read_post tool call first, then only
@@ -245,7 +245,7 @@ test.describe('Agent MCP Tools', () => {
         await expect(menu.getByText('No tool providers available')).toBeVisible({ timeout: 20000 });
     });
 
-    test('RHS Tools popover shows Mattermost provider when only embedded tools are enabled', async ({ page }) => {
+    test('RHS Tools popover shows Antimatter provider when only embedded tools are enabled', async ({ page }) => {
         test.setTimeout(90000);
         const agentApi = new AgentAPIHelper(antimatter.url());
         const adminClient = await antimatter.getClient(agentAdminUsername, agentAdminPassword);
@@ -275,7 +275,7 @@ test.describe('Agent MCP Tools', () => {
 
         const menu = await aiPlugin.openRhsToolProvidersMenu();
         await expect(menu.getByText('Tool Providers', { exact: true })).toBeVisible();
-        await expect(menu.getByText('Mattermost')).toBeVisible({ timeout: 20000 });
+        await expect(menu.getByText('Antimatter')).toBeVisible({ timeout: 20000 });
         await expect(menu.getByText('No tool providers available')).not.toBeVisible();
     });
 
@@ -325,11 +325,11 @@ test.describe('Agent MCP Tools', () => {
 
         const menu = await aiPlugin.openRhsToolProvidersMenu();
         await expect(menu.getByText('Tool Providers', { exact: true })).toBeVisible();
-        await expect(menu.getByText('Mattermost')).toBeVisible({ timeout: 20000 });
+        await expect(menu.getByText('Antimatter')).toBeVisible({ timeout: 20000 });
         await expect(menu.getByText('No tool providers available')).not.toBeVisible();
     });
 
-    test('RHS Tools popover lists Mattermost for default Mock Bot (no per-agent MCP restriction)', async ({
+    test('RHS Tools popover lists Antimatter for default Mock Bot (no per-agent MCP restriction)', async ({
         page,
     }) => {
         test.setTimeout(90000);
@@ -345,6 +345,6 @@ test.describe('Agent MCP Tools', () => {
         await aiPlugin.switchBotWhenListed('Mock Bot');
 
         const menu = await aiPlugin.openRhsToolProvidersMenu();
-        await expect(menu.getByText('Mattermost')).toBeVisible({ timeout: 20000 });
+        await expect(menu.getByText('Antimatter')).toBeVisible({ timeout: 20000 });
     });
 });

@@ -104,7 +104,7 @@ test.describe('Search Sources Display', () => {
         await aiPlugin.waitForBotResponse(searchResponseWithSourcesText);
 
         // Verify RHS is still visible with search response text
-        await expect(page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+        await expect(page.getByTestId('antimatter-ai-rhs')).toBeVisible();
         await expect(page.getByText(searchResponseWithSourcesText)).toBeVisible();
     });
 

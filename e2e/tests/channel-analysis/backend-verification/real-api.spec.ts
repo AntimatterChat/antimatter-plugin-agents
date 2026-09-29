@@ -83,7 +83,7 @@ async function fetchPostsForChannel(client: Client4, channelID: string): Promise
     const getPosts = (client as unknown as { getPostsForChannel?: typeof client.getPosts }).getPostsForChannel ||
         client.getPosts;
     if (typeof getPosts !== 'function') {
-        throw new Error('Mattermost client does not expose getPostsForChannel or getPosts');
+        throw new Error('Antimatter client does not expose getPostsForChannel or getPosts');
     }
 
     const postsResponse = await getPosts.call(client, channelID, 0, 20);

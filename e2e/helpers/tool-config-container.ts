@@ -48,7 +48,7 @@ export async function setupRegularTestUser(antimatter: AntimatterContainer): Pro
  * Plugin config for tool-config E2E tests.
  *
  * Uses Smocker mock as LLM + enables MCP with the embedded server.
- * The embedded server provides real Mattermost tools for testing tool configs.
+ * The embedded server provides real Antimatter tools for testing tool configs.
  */
 export async function RunToolConfigContainer(): Promise<AntimatterContainer> {
     return RunSystemConsoleContainer({

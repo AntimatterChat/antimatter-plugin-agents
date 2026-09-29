@@ -75,7 +75,7 @@ async function waitForPost(
     await expect.poll(async () => {
         const getPosts = client.getPostsForChannel || client.getPosts;
         if (typeof getPosts !== 'function') {
-            throw new Error('Mattermost client does not expose getPostsForChannel or getPosts');
+            throw new Error('Antimatter client does not expose getPostsForChannel or getPosts');
         }
 
         const postsResponse = await getPosts.call(client, channelID, 0, 200);

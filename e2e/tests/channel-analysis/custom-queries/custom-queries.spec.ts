@@ -100,7 +100,7 @@ test.describe('Channel Analysis Custom Queries', () => {
     test('Channel-specific custom question submission and response', async ({ page }) => {
         const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -143,7 +143,7 @@ data: [DONE]
     test('Channel analysis question with special characters', async ({ page }) => {
         const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -184,7 +184,7 @@ data: [DONE]
     test('Long channel analysis question (200+ characters)', async ({ page }) => {
         const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -226,7 +226,7 @@ data: [DONE]
     test('Multiple channel analysis questions in sequence', async ({ page }) => {
         const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -306,7 +306,7 @@ data: [DONE]
     test('Emoji in channel analysis question', async ({ page }) => {
         const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready
@@ -346,7 +346,7 @@ data: [DONE]
     test('Short single-word query about channel', async ({ page }) => {
         const { amPage, llmBotHelper, customQueriesHelper } = await setupTestPage(page);
 
-        // 1. Login to Mattermost as regularuser
+        // 1. Login to Antimatter as regularuser
         await amPage.login(antimatter.url(), username, password);
 
         // 2. Wait for page to be ready

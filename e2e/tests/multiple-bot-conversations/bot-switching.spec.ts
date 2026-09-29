@@ -6,8 +6,8 @@ import { AntimatterPage } from 'helpers/am';
 import { AIPlugin } from 'helpers/ai-plugin';
 import { OpenAIMockContainer, RunOpenAIMocks, responseTest, responseTest2, responseTestText, responseTest2Text } from 'helpers/openai-mock';
 
-// spec: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/e2e/specs/multiple-bot-conversations.md
-// seed: /Users/nickmisasi/workspace/worktrees/mattermost-plugin-ai-agents-in-e2e/seed.spec.ts
+// spec: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/e2e/specs/multiple-bot-conversations.md
+// seed: /Users/nickmisasi/workspace/worktrees/antimatter-plugin-ai-agents-in-e2e/seed.spec.ts
 
 const username = 'regularuser';
 const password = 'regularuser';
@@ -62,7 +62,7 @@ test.describe('Multiple Bot Conversations - Bot Switching', () => {
         await aiPlugin.waitForBotResponse(responseTest2Text);
 
         // Verify we're now using second bot
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
     });
 
@@ -115,7 +115,7 @@ test.describe('Multiple Bot Conversations - Bot Switching', () => {
         await aiPlugin.waitForBotResponse(responseTest2Text);
 
         // Verify new conversation doesn't have first conversation content
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer.getByText('First conversation')).not.toBeVisible();
     });
 });

@@ -14,11 +14,11 @@ export class SystemConsoleHelper {
 
     /**
      * Navigate to the AI plugin system console page
-     * @param baseUrl - Mattermost base URL
+     * @param baseUrl - Antimatter base URL
      */
     async navigateToPluginConfig(baseUrl: string): Promise<void> {
         // Polyfill crypto.randomUUID for insecure contexts (e.g., Docker test environments
-        // where the Mattermost URL uses a non-localhost IP like http://172.17.0.1:PORT).
+        // where the Antimatter URL uses a non-localhost IP like http://172.17.0.1:PORT).
         // crypto.randomUUID requires a secure context but crypto.getRandomValues does not.
         await this.page.addInitScript(() => {
             if (typeof crypto !== 'undefined' && typeof crypto.randomUUID !== 'function') {

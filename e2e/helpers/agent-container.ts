@@ -12,7 +12,7 @@ export const mockServiceId = 'mock-service';
 export const secondServiceId = 'second-service';
 
 /**
- * Run a Mattermost container configured for agent E2E tests.
+ * Run an Antimatter container configured for agent E2E tests.
  * - Two mock LLM services (for service switching tests)
  * - MCP enabled with embedded server (for tool selection tests)
  * - Three users: admin (sysadmin), regularuser, unprivileged (self-service agent perms come from RunSystemConsoleContainer)

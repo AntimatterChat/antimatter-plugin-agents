@@ -100,7 +100,7 @@ test.describe('Disabled Tool Excluded (Aimock)', () => {
         await amPage.login(antimatter.url(), username, password);
         await aiPlugin.openRHS();
 
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         const botPosts = rhsContainer.locator('[data-testid="llm-bot-post"]');
         const stopButton = page.getByRole('button', { name: /stop/i });
 

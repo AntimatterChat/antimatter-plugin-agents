@@ -40,7 +40,7 @@ export class AgentPageHelper {
 
     // --- Listing Page Locators ---
 
-    /** Mattermost's global header also renders a screen-reader-only "Agents" h1 once the product loads. */
+    /** Antimatter's global header also renders a screen-reader-only "Agents" h1 once the product loads. */
     getListingHeading(): Locator {
         return this.page.getByRole('heading', { name: 'Agents', exact: true })
             .and(this.page.locator(':not(#global-header *)'));
@@ -81,7 +81,7 @@ export class AgentPageHelper {
 
     /**
      * Click Edit in the agent row actions menu. Scoped to the row so we do not hit other
-     * global "Edit" controls elsewhere in the Mattermost product shell.
+     * global "Edit" controls elsewhere in the Antimatter product shell.
      */
     async clickEditAction(displayName: string): Promise<void> {
         const rowScope = this.page.getByText(displayName, { exact: true }).locator(
@@ -92,7 +92,7 @@ export class AgentPageHelper {
 
     /**
      * Click Delete in the agent row actions menu. Scoped to the row so we do not hit other
-     * global "Delete" controls elsewhere in the Mattermost product shell.
+     * global "Delete" controls elsewhere in the Antimatter product shell.
      */
     async clickDeleteAction(displayName: string): Promise<void> {
         const rowScope = this.page.getByText(displayName, { exact: true }).locator(
@@ -106,7 +106,7 @@ export class AgentPageHelper {
     getModal(): Locator {
         // Keep the legacy name for existing tests. The agent editor is now a full-page view,
         // but confirmation dialogs still render as dialogs.
-        return this.page.locator('.mmAiModal__sheet')
+        return this.page.locator('.amAiModal__sheet')
             .or(this.page.locator('[class*="ModalOverlay"]'))
             .or(this.page.locator('[class*="modal-content"]'));
     }

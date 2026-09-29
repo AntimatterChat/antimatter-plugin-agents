@@ -41,7 +41,7 @@ test.describe('Reasoning Display - aimock', () => {
     test('Reasoning Display - Renders from aimock', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_REASONING_RENDER_PROMPT);
         await llmBotHelper.waitForReasoning();
@@ -59,7 +59,7 @@ test.describe('Reasoning Display - aimock', () => {
     test('Reasoning Toggle - Expand and Collapse', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_REASONING_TOGGLE_PROMPT);
         await llmBotHelper.waitForReasoning();
@@ -80,7 +80,7 @@ test.describe('Reasoning Display - aimock', () => {
     test('Reasoning States - Complete State', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_REASONING_COMPLETE_PROMPT);
         await llmBotHelper.waitForReasoning();
@@ -97,7 +97,7 @@ test.describe('Reasoning Display - aimock', () => {
     test('Multiple Posts with Reasoning', async ({ page }) => {
         test.setTimeout(180000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_REASONING_MULTI_FIRST_PROMPT);
         await llmBotHelper.waitForReasoning();
@@ -161,7 +161,7 @@ test.describe('Reasoning Persistence After Refresh - aimock', () => {
     test('Reasoning Persistence After Refresh', async ({ page }) => {
         test.setTimeout(120000);
 
-        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.mattermost.url());
+        const { aiPlugin, llmBotHelper } = await setupAimockTestPage(page, harness.antimatter.url());
 
         await aiPlugin.sendMessage(PHASE3_REASONING_PERSIST_PROMPT);
         await llmBotHelper.waitForReasoning();

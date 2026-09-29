@@ -21,7 +21,7 @@ export class AIPlugin {
 
   /** Root of the Copilot / AI RHS panel (plugin UI). */
   getRhsContainer(): Locator {
-    return this.page.getByTestId('mattermost-ai-rhs');
+    return this.page.getByTestId('antimatter-ai-rhs');
   }
 
   /** Triggers the per-session MCP tool provider popover (only on the New chat tab). */
@@ -54,7 +54,7 @@ export class AIPlugin {
     await expect(this.appBarIcon).toBeVisible({ timeout: 30000 });
 
     // Check if RHS is already open to avoid unnecessary clicks
-    const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+    const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
     const isRHSVisible = await rhsContainer.isVisible().catch(() => false);
 
     if (!isRHSVisible) {
@@ -161,7 +161,7 @@ export class AIPlugin {
 
   async waitForBotResponse(expectedText: string) {
     // Scope to RHS container to avoid matching text elsewhere on the page
-    const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+    const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
 
     // 1. Wait for text to appear (indicates response started)
     // Increased timeout to 30s for CI
@@ -207,7 +207,7 @@ export class AIPlugin {
   }
 
   async expectRHSOpenWithPost(expectedText?: string) {
-    await expect(this.page.getByTestId('mattermost-ai-rhs')).toBeVisible();
+    await expect(this.page.getByTestId('antimatter-ai-rhs')).toBeVisible();
     if (expectedText) {
       await expect(this.page.getByText(expectedText)).toBeVisible();
     }
@@ -223,7 +223,7 @@ export class AIPlugin {
   }
 
   async resetState() {
-    const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+    const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
     if (await rhsContainer.isVisible().catch(() => false)) {
         // Close RHS to reset internal component state if needed
         await this.closeRHS();
@@ -319,7 +319,7 @@ export class AIPlugin {
     await input.press('Enter');
 
     // Wait for RHS to open with the response
-    const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+    const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
     await expect(rhsContainer).toBeVisible({ timeout: 10000 });
   }
 
@@ -329,7 +329,7 @@ export class AIPlugin {
     await unreadsButton.click();
 
     // Wait for RHS to open with the response
-    const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+    const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
     await expect(rhsContainer).toBeVisible({ timeout: 10000 });
   }
 
@@ -339,7 +339,7 @@ export class AIPlugin {
     await daysButton.click();
 
     // Wait for RHS to open with the response
-    const rhsContainer = this.page.getByTestId('mattermost-ai-rhs');
+    const rhsContainer = this.page.getByTestId('antimatter-ai-rhs');
     await expect(rhsContainer).toBeVisible({ timeout: 10000 });
   }
 

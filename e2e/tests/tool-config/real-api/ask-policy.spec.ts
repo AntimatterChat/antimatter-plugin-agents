@@ -54,7 +54,7 @@ test.describe('Ask Policy (Aimock)', () => {
         await aiPlugin.openRHS();
         await aiPlugin.sendMessage(userMessage);
 
-        const rhsContainer = page.getByTestId('mattermost-ai-rhs');
+        const rhsContainer = page.getByTestId('antimatter-ai-rhs');
         await expect(rhsContainer).toBeVisible();
 
         const botPosts = rhsContainer.locator('[data-testid="llm-bot-post"]');
