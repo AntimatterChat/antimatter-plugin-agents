@@ -118,7 +118,7 @@ func (s *Service) newCallRecordingThread(bot *bots.Bot, requestingUser *model.Us
 		Message: T("agents.summarize_recording", "Sure, I will summarize this recording: %s/_redirect/pl/%s\n", *siteURL, recordingPost.Id),
 	}
 	surePost.AddProp(streaming.NoRegen, "true")
-	if err := s.botDMNonResponse(bot.GetMMBot().UserId, requestingUser.Id, surePost); err != nil {
+	if err := s.botDMNonResponse(bot.GetAMBot().UserId, requestingUser.Id, surePost); err != nil {
 		return nil, err
 	}
 
@@ -141,7 +141,7 @@ func (s *Service) newCallTranscriptionSummaryThread(bot *bots.Bot, requestingUse
 	}
 	surePost.AddProp(streaming.NoRegen, "true")
 	surePost.AddProp(ReferencedTranscriptPostID, transcriptionPost.Id)
-	if err := s.botDMNonResponse(bot.GetMMBot().UserId, requestingUser.Id, surePost); err != nil {
+	if err := s.botDMNonResponse(bot.GetAMBot().UserId, requestingUser.Id, surePost); err != nil {
 		return nil, err
 	}
 
@@ -212,7 +212,7 @@ func (s *Service) newCallTranscriptionSummaryThread(bot *bots.Bot, requestingUse
 			Message:   "",
 		}
 		summaryPost.AddProp(ReferencedTranscriptPostID, transcriptionPost.Id)
-		if err := s.streamingService.StreamToNewPost(stdcontext.Background(), bot.GetMMBot().UserId, requestingUser.Id, summaryStream, summaryPost, transcriptionPost.Id); err != nil {
+		if err := s.streamingService.StreamToNewPost(stdcontext.Background(), bot.GetAMBot().UserId, requestingUser.Id, summaryStream, summaryPost, transcriptionPost.Id); err != nil {
 			return fmt.Errorf("unable to stream result to post: %w", err)
 		}
 
@@ -230,7 +230,7 @@ func (s *Service) summarizeCallRecording(bot *bots.Bot, rootID string, requestin
 		Message: T("agents.summarize_call_recording_processing", "Processing audio into transcription. This will take some time..."),
 	}
 	transcriptPost.AddProp(ReferencedRecordingFileID, recordingFileID)
-	if err := s.botDMNonResponse(bot.GetMMBot().UserId, requestingUser.Id, transcriptPost); err != nil {
+	if err := s.botDMNonResponse(bot.GetAMBot().UserId, requestingUser.Id, transcriptPost); err != nil {
 		return err
 	}
 

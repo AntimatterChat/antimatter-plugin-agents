@@ -38,7 +38,7 @@ func (e *serviceLLMEntry) shutdownNow() {
 // against svc. The caller must invoke release when the request is done; the
 // model may be shut down shortly afterwards if the configuration changed in the
 // meantime.
-func (b *MMBots) AcquireServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (llm.LanguageModel, func(), error) {
+func (b *AMBots) AcquireServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (llm.LanguageModel, func(), error) {
 	entry, err := b.leaseServiceLLM(svc, fallbacks)
 	if err != nil {
 		return nil, nil, err
@@ -52,7 +52,7 @@ func (b *MMBots) AcquireServiceLLM(svc llm.ServiceConfig, fallbacks []llm.Servic
 // Clients are cached rather than built per request or per agent because each
 // Bifrost client starts a worker pool (1,000 goroutines and a 5,000-item queue
 // per registered provider by default).
-func (b *MMBots) leaseServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (*serviceLLMEntry, error) {
+func (b *AMBots) leaseServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (*serviceLLMEntry, error) {
 	if entry, ok := b.leaseCachedServiceLLM(svc, fallbacks); ok {
 		return entry, nil
 	}
@@ -108,7 +108,7 @@ func (b *MMBots) leaseServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceC
 // ReconcileServiceLLMs drops cached models whose service or fallback chain
 // changed or disappeared. Entries still in use are retired and shut down once
 // their last lease is released.
-func (b *MMBots) ReconcileServiceLLMs(services []llm.ServiceConfig) {
+func (b *AMBots) ReconcileServiceLLMs(services []llm.ServiceConfig) {
 	lookup := llm.ServiceLookup(services)
 
 	b.serviceLLMMu.Lock()
@@ -133,7 +133,7 @@ func (b *MMBots) ReconcileServiceLLMs(services []llm.ServiceConfig) {
 // ShutdownServiceLLMs shuts every provider client down, cached or retired,
 // regardless of outstanding leases. Agents use these clients too. Called on
 // plugin deactivation.
-func (b *MMBots) ShutdownServiceLLMs() {
+func (b *AMBots) ShutdownServiceLLMs() {
 	b.serviceLLMMu.Lock()
 	entries := slices.Collect(maps.Values(b.serviceLLMs))
 	entries = append(entries, slices.Collect(maps.Keys(b.retiredServiceLLMs))...)
@@ -153,7 +153,7 @@ func (b *MMBots) ShutdownServiceLLMs() {
 // from b.serviceLLMs, so that no new lease can be taken: that is what makes
 // inUse.Add and inUse.Wait mutually exclusive, and the "Add after Wait" hazard
 // impossible.
-func (b *MMBots) retire(entry *serviceLLMEntry) {
+func (b *AMBots) retire(entry *serviceLLMEntry) {
 	if b.retiredServiceLLMs == nil {
 		b.retiredServiceLLMs = make(map[*serviceLLMEntry]struct{})
 	}
@@ -171,7 +171,7 @@ func (b *MMBots) retire(entry *serviceLLMEntry) {
 
 // leaseCachedServiceLLM takes a lease on the cached entry for svc when it was
 // built from exactly this configuration.
-func (b *MMBots) leaseCachedServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (*serviceLLMEntry, bool) {
+func (b *AMBots) leaseCachedServiceLLM(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (*serviceLLMEntry, bool) {
 	b.serviceLLMMu.Lock()
 	defer b.serviceLLMMu.Unlock()
 

@@ -52,7 +52,7 @@ const (
 type TestEnvironment struct {
 	api               *API
 	mockAPI           *plugintest.API
-	bots              *bots.MMBots
+	bots              *bots.AMBots
 	config            *testConfigImpl
 	client            *pluginapi.Client
 	conversationStore *mockConversationStore
@@ -699,8 +699,8 @@ func newPassthroughAccessChecker() *accesscontrol.Checker {
 	return accesscontrol.New(accesscontrol.PassthroughClient{}, nil, accesscontrol.NoMCPServerIDs, nil)
 }
 
-// createTestBots creates a test MMBots instance for testing
-func createTestBots(mockAPI *plugintest.API, client *pluginapi.Client) *bots.MMBots {
+// createTestBots creates a test AMBots instance for testing
+func createTestBots(mockAPI *plugintest.API, client *pluginapi.Client) *bots.AMBots {
 	testBots := bots.New(mockAPI, client, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	return testBots
 }
@@ -708,14 +708,14 @@ func createTestBots(mockAPI *plugintest.API, client *pluginapi.Client) *bots.MMB
 // setupTestBot configures a test bot in the environment
 func (e *TestEnvironment) setupTestBot(botConfig llm.BotConfig) {
 	// Create a mock bot user
-	mmBot := &model.Bot{
+	amBot := &model.Bot{
 		UserId:      testBotUserID,
 		Username:    botConfig.Name,
 		DisplayName: botConfig.DisplayName,
 	}
 
 	// Create the bot instance
-	bot := bots.NewBot(botConfig, llm.ServiceConfig{}, mmBot, nil)
+	bot := bots.NewBot(botConfig, llm.ServiceConfig{}, amBot, nil)
 
 	// Set the bot directly for testing
 	e.bots.SetBotsForTesting([]*bots.Bot{bot})
@@ -841,7 +841,7 @@ func TestAIBotRequiredUsesConfiguredDefaultBot(t *testing.T) {
 	require.False(t, ctx.IsAborted())
 
 	selectedBot := ctx.MustGet(ContextBotKey).(*bots.Bot)
-	require.Equal(t, "ai", selectedBot.GetMMBot().Username)
+	require.Equal(t, "ai", selectedBot.GetAMBot().Username)
 }
 
 func TestPostRouter(t *testing.T) {

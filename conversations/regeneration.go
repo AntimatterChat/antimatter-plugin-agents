@@ -112,11 +112,11 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		var analyzeResult *threads.AnalyzeResult
 		switch analysisType {
 		case "summarize_thread":
-			analyzeResult, err = analyzer.Summarize(ctx, threadID, llmContext, bot.GetMMBot().UserId, userID)
+			analyzeResult, err = analyzer.Summarize(ctx, threadID, llmContext, bot.GetAMBot().UserId, userID)
 		case "action_items":
-			analyzeResult, err = analyzer.FindActionItems(ctx, threadID, llmContext, bot.GetMMBot().UserId, userID)
+			analyzeResult, err = analyzer.FindActionItems(ctx, threadID, llmContext, bot.GetAMBot().UserId, userID)
 		case "open_questions":
-			analyzeResult, err = analyzer.FindOpenQuestions(ctx, threadID, llmContext, bot.GetMMBot().UserId, userID)
+			analyzeResult, err = analyzer.FindOpenQuestions(ctx, threadID, llmContext, bot.GetAMBot().UserId, userID)
 		default:
 			return fmt.Errorf("invalid analysis type: %s", analysisType)
 		}
@@ -222,8 +222,8 @@ func (c *Conversations) HandleRegenerate(ctx stdcontext.Context, userID string, 
 		}
 	}
 
-	if amapi.IsDMWith(bot.GetMMBot().UserId, channel) {
-		if channel.Name == bot.GetMMBot().UserId+"__"+user.Id || channel.Name == user.Id+"__"+bot.GetMMBot().UserId {
+	if amapi.IsDMWith(bot.GetAMBot().UserId, channel) {
+		if channel.Name == bot.GetAMBot().UserId+"__"+user.Id || channel.Name == user.Id+"__"+bot.GetAMBot().UserId {
 			c.streamingService.StreamToPost(ctx, result, post, user.Locale, user.Id)
 			return nil
 		}
@@ -264,7 +264,7 @@ func (c *Conversations) regenerateViaConversation(
 		c.contextBuilder.WithLLMContextResponseFiles(),
 	)
 
-	isDM := amapi.IsDMWith(bot.GetMMBot().UserId, channel)
+	isDM := amapi.IsDMWith(bot.GetAMBot().UserId, channel)
 	toolsDisabled := applyToolAvailability(llmContext, isDM, c.channelMentionToolCallingEnabled())
 
 	// Build the request BEFORE scrubbing — ExcludeAfterPostID needs the anchor.

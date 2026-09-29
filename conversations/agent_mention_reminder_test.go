@@ -38,7 +38,7 @@ const (
 type reminderFixture struct {
 	conv       *conversations.Conversations
 	client     *fakeMMClient
-	botService *bots.MMBots
+	botService *bots.AMBots
 	mockAPI    *plugintest.API
 }
 

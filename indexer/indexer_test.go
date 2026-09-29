@@ -144,7 +144,7 @@ func TestShouldIndexPost(t *testing.T) {
 	}
 
 	// Create indexer with empty bots
-	mockBots := &bots.MMBots{}
+	mockBots := &bots.AMBots{}
 	indexer := New(nil, nil, nil, mockBots, nil, nil)
 
 	for _, tt := range tests {
@@ -156,7 +156,7 @@ func TestShouldIndexPost(t *testing.T) {
 }
 
 func TestDeletePost(t *testing.T) {
-	mockBots := &bots.MMBots{}
+	mockBots := &bots.AMBots{}
 	ctx := context.Background()
 	postID := "test-post-id"
 
@@ -171,7 +171,7 @@ func TestDeletePost(t *testing.T) {
 }
 
 func TestIndexPost(t *testing.T) {
-	mockBots := &bots.MMBots{}
+	mockBots := &bots.AMBots{}
 	ctx := context.Background()
 
 	t.Run("does not index deleted post", func(t *testing.T) {
@@ -221,7 +221,7 @@ func TestIndexPost(t *testing.T) {
 }
 
 func TestFilterAndCreateDocs(t *testing.T) {
-	mockBots := &bots.MMBots{}
+	mockBots := &bots.AMBots{}
 	indexer := New(nil, nil, nil, mockBots, nil, nil)
 
 	tests := []struct {
@@ -943,7 +943,7 @@ func TestResumeRefreshesModelInfo(t *testing.T) {
 					defer cfgMu.Unlock()
 					return cfg
 				},
-				mockClient, &bots.MMBots{}, db, mockMutexAPI,
+				mockClient, &bots.AMBots{}, db, mockMutexAPI,
 			)
 			idx.storeRetryAttempts = 1
 
@@ -1011,7 +1011,7 @@ func TestResumeRefreshesModelInfo(t *testing.T) {
 		idx := New(
 			func() embeddings.EmbeddingSearch { return mockSearch },
 			func() embeddings.EmbeddingSearchConfig { return modelCfg("openai", "old-model", 768) },
-			mockClient, &bots.MMBots{}, db, mockMutexAPI,
+			mockClient, &bots.AMBots{}, db, mockMutexAPI,
 		)
 
 		_, err = idx.StartCatchUpJob()
@@ -1546,7 +1546,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 		name     string
 		post     *model.Post
 		channel  *model.Channel
-		botSetup func(*bots.MMBots)
+		botSetup func(*bots.AMBots)
 		expected bool
 	}{
 		{
@@ -1563,7 +1563,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Type: model.ChannelTypeDirect,
 				Name: "bot-user-id__regular-user-id", // DM channel name contains bot ID
 			},
-			botSetup: func(mockBots *bots.MMBots) {
+			botSetup: func(mockBots *bots.AMBots) {
 				testBot := bots.NewBot(
 					llm.BotConfig{Name: "testbot"},
 					llm.ServiceConfig{},
@@ -1588,7 +1588,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Type: model.ChannelTypeOpen,
 				Name: "town-square",
 			},
-			botSetup: func(mockBots *bots.MMBots) {
+			botSetup: func(mockBots *bots.AMBots) {
 				testBot := bots.NewBot(
 					llm.BotConfig{Name: "testbot"},
 					llm.ServiceConfig{},
@@ -1612,7 +1612,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Id:   "channel1",
 				Type: model.ChannelTypeOpen,
 			},
-			botSetup: func(mockBots *bots.MMBots) {},
+			botSetup: func(mockBots *bots.AMBots) {},
 			expected: false,
 		},
 		{
@@ -1628,7 +1628,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Id:   "channel1",
 				Type: model.ChannelTypeOpen,
 			},
-			botSetup: func(mockBots *bots.MMBots) {},
+			botSetup: func(mockBots *bots.AMBots) {},
 			expected: false,
 		},
 		{
@@ -1644,7 +1644,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Id:   "channel1",
 				Type: model.ChannelTypeOpen,
 			},
-			botSetup: func(mockBots *bots.MMBots) {},
+			botSetup: func(mockBots *bots.AMBots) {},
 			expected: false,
 		},
 		{
@@ -1660,7 +1660,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Id:   "channel1",
 				Type: model.ChannelTypeOpen,
 			},
-			botSetup: func(mockBots *bots.MMBots) {},
+			botSetup: func(mockBots *bots.AMBots) {},
 			expected: false,
 		},
 		{
@@ -1676,7 +1676,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Id:   "channel1",
 				Type: model.ChannelTypeOpen,
 			},
-			botSetup: func(mockBots *bots.MMBots) {},
+			botSetup: func(mockBots *bots.AMBots) {},
 			expected: false,
 		},
 		{
@@ -1693,7 +1693,7 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				Type: model.ChannelTypeDirect,
 				Name: "user1__user2",
 			},
-			botSetup: func(mockBots *bots.MMBots) {
+			botSetup: func(mockBots *bots.AMBots) {
 				// Bot has a different user ID not in channel name
 				testBot := bots.NewBot(
 					llm.BotConfig{Name: "testbot"},
@@ -1715,14 +1715,14 @@ func TestShouldIndexPost_AdditionalCases(t *testing.T) {
 				DeleteAt: 0,
 			},
 			channel:  nil,
-			botSetup: func(mockBots *bots.MMBots) {},
+			botSetup: func(mockBots *bots.AMBots) {},
 			expected: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockBots := &bots.MMBots{}
+			mockBots := &bots.AMBots{}
 			tt.botSetup(mockBots)
 			indexer := New(nil, nil, nil, mockBots, nil, nil)
 			result := indexer.shouldIndexPost(tt.post, tt.channel)
@@ -1736,7 +1736,7 @@ func TestIndexPost_WithSearchError(t *testing.T) {
 	t.Run("returns error when search.Store fails", func(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		ctx := context.Background()
 		post := &model.Post{
@@ -1768,7 +1768,7 @@ func TestIndexPost_WithSearchError(t *testing.T) {
 // TestDeletePost_WithSearchError tests DeletePost when search.Delete() returns an error
 func TestDeletePost_WithSearchError(t *testing.T) {
 	t.Run("returns error when search.Delete fails", func(t *testing.T) {
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
 
 		ctx := context.Background()
@@ -2207,7 +2207,7 @@ func TestStartCatchUpJob_AdditionalCases(t *testing.T) {
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
 		mockMutexAPI := &plugintest.API{}
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		mockMutexAPI.On("KVSetWithOptions", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 		mockMutexAPI.On("KVDelete", mock.AnythingOfType("string")).Return(nil).Maybe()
@@ -2312,7 +2312,7 @@ func TestRunReindexJob(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Add test posts to the database
 		now := model.GetMillis()
@@ -2470,7 +2470,7 @@ func TestJobProgressAndHeartbeat(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Add many posts to trigger progress saves
 		now := model.GetMillis()
@@ -2530,7 +2530,7 @@ func TestBatchProcessing(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Add posts that will require multiple batches (configured batch size = 100)
 		now := model.GetMillis()
@@ -2587,7 +2587,7 @@ func TestCutoffTimestampHandling(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		cutoffTime := model.GetMillis()
 
@@ -2690,7 +2690,7 @@ func TestCheckIndexHealth_ExcludesBotDMChannels(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Setup bot
 		testBot := bots.NewBot(
@@ -2754,7 +2754,7 @@ func TestCheckIndexHealth_ExcludesBotPosts(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Setup bots with user IDs
 		testBot := bots.NewBot(
@@ -2847,7 +2847,7 @@ func TestCheckIndexHealth_ExcludesBotPosts(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 		mockBots.SetBotsForTesting([]*bots.Bot{}) // Empty list
 
 		now := model.GetMillis()
@@ -2887,7 +2887,7 @@ func TestResumeFromCheckpoint(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Add a channel and 10 posts with sequential timestamps
 		now := model.GetMillis()
@@ -2972,7 +2972,7 @@ func TestResumeFromCheckpoint(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Add a channel and 5 posts
 		now := model.GetMillis()
@@ -3027,7 +3027,7 @@ func TestResumeFromCheckpoint(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Add a channel and enough posts to require multiple batches (batch size is 100)
 		now := model.GetMillis()
@@ -3332,7 +3332,7 @@ func TestCatchUpPassHeartbeat(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Set up cutoff time before posts are created
 		cutoffTime := model.GetMillis()
@@ -3380,7 +3380,7 @@ func TestCatchUpPassHeartbeat(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		// Set cutoffTime well in the past so all catch-up posts have CreateAt values
 		// safely below catchUpCutoff (which captures time.Now() during the catch-up pass)
@@ -3442,7 +3442,7 @@ func TestCatchUpFailureHandling(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		cutoffTime := model.GetMillis()
 
@@ -3493,7 +3493,7 @@ func TestResumePreservation(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 		mockMutexAPI := &plugintest.API{}
 
 		// Create a failed job with specific CutoffAt and TotalRows
@@ -3554,7 +3554,7 @@ func TestResumePreservation(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 		mockMutexAPI := &plugintest.API{}
 
 		// Add posts to the database (use past timestamps to avoid race with cutoff capture)
@@ -3762,7 +3762,7 @@ func TestReindexJobCancelReplicaLagRace(t *testing.T) {
 
 		mockClient := mocks.NewMockClient(t)
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-		mockBots := &bots.MMBots{}
+		mockBots := &bots.AMBots{}
 
 		now := model.GetMillis()
 		_, err := db.Exec("INSERT INTO Channels (Id, Type, Name) VALUES ('channel1', 'O', 'town-square')")
@@ -3892,7 +3892,7 @@ func TestReindexJobCancelReplicaLagRace(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.MMBots{}, db, nil)
+		indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := &JobStatus{
 			JobID:     jobID,
@@ -3944,7 +3944,7 @@ func TestStartReindexJobAssignsFreshJobID(t *testing.T) {
 	mockSearch.On("Clear", mock.Anything).Return(nil).Maybe()
 	mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Maybe()
 
-	indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.MMBots{}, db, mockMutexAPI)
+	indexer := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.AMBots{}, db, mockMutexAPI)
 	status, err := indexer.StartReindexJob(true)
 	require.NoError(t, err)
 	require.NotEmpty(t, status.JobID, "StartReindexJob should assign a JobID")
@@ -4154,7 +4154,7 @@ func TestCatchUpPassSkipsAlreadyIndexedPosts(t *testing.T) {
 
 			mockClient := mocks.NewMockClient(t)
 			mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
-			mockBots := &bots.MMBots{}
+			mockBots := &bots.AMBots{}
 
 			_, err := db.Exec("INSERT INTO Channels (Id, Type, Name, TeamId) VALUES ('channel1', 'O', 'town-square', 'team1')")
 			require.NoError(t, err)
@@ -4269,7 +4269,7 @@ func TestStartReindexJob_FreshInstall_AuthenticUpstreamContract(t *testing.T) {
 		func() embeddings.EmbeddingSearch { return mockSearch },
 		nil,
 		realClient,
-		&bots.MMBots{},
+		&bots.AMBots{},
 		db,
 		pluginTestAPI,
 	)

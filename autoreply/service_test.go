@@ -46,7 +46,7 @@ func (n *recordingNotifier) publishedIDs() []string {
 	return slices.Clone(n.published)
 }
 
-// newTestService builds a Service backed by a real store and a real MMBots
+// newTestService builds a Service backed by a real store and a real AMBots
 // instance holding botList.
 func newTestService(t *testing.T, dbClient *amapi.DBClient, notifier ClusterNotifier, mmClient amapi.Client, botList []*bots.Bot) *Service {
 	t.Helper()

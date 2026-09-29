@@ -15,11 +15,11 @@ import (
 const botUserID = "agent-bot-user-id"
 
 func pluginWithAgentBot() *Plugin {
-	mmBots := &bots.MMBots{}
-	mmBots.SetBotsForTesting([]*bots.Bot{
+	amBots := &bots.AMBots{}
+	amBots.SetBotsForTesting([]*bots.Bot{
 		bots.NewBot(llm.BotConfig{}, llm.ServiceConfig{}, &model.Bot{UserId: botUserID}, nil),
 	})
-	return &Plugin{bots: mmBots}
+	return &Plugin{bots: amBots}
 }
 
 func TestNotificationWillBePushed(t *testing.T) {

@@ -116,7 +116,7 @@ func (c *Conversations) beginToolDecision(ctx context.Context, spanName, logMsg,
 	// added by the handler once the resolution is known; arguments, results,
 	// and answers never enter the record.
 	auditRec := audit.RecordFromContext(ctx)
-	audit.AddParam(auditRec, audit.KeyAgentID, bot.GetMMBot().UserId)
+	audit.AddParam(auditRec, audit.KeyAgentID, bot.GetAMBot().UserId)
 
 	convID, ok := post.GetProp(streaming.ConversationIDProp).(string)
 	if !ok || convID == "" {
@@ -180,7 +180,7 @@ func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post 
 		return fmt.Errorf("unable to get user: %w", err)
 	}
 
-	isDM := amapi.IsDMWith(bot.GetMMBot().UserId, channel)
+	isDM := amapi.IsDMWith(bot.GetAMBot().UserId, channel)
 
 	// Build the execution context bound to this conversation. A tool-approval
 	// click is by definition an interactive user action. ResponseFiles keeps
@@ -568,7 +568,7 @@ func (c *Conversations) HandleToolResult(ctx context.Context, userID string, pos
 	}
 
 	// DMs stream the follow-up from HandleToolCall.
-	isDM := amapi.IsDMWith(bot.GetMMBot().UserId, channel)
+	isDM := amapi.IsDMWith(bot.GetAMBot().UserId, channel)
 	if isDM {
 		return nil
 	}

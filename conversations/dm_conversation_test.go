@@ -369,7 +369,7 @@ type dmTestEnv struct {
 	mockAPI       *plugintest.API
 	mmClient      *fakeMMClient
 	mcpMgr        *testMCPClientManager
-	botService    *bots.MMBots
+	botService    *bots.AMBots
 	botID         string
 	userID        string
 	channelID     string

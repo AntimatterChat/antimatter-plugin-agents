@@ -49,9 +49,9 @@ func (c *Conversations) HandleLoopInAgent(ctx context.Context, userID string, bo
 		return ErrLoopInNoAgentContext
 	}
 
-	requestedMMBot := bot.GetMMBot()
-	threadMMBot := threadBot.GetMMBot()
-	if requestedMMBot == nil || requestedMMBot.Username == "" || threadMMBot == nil || requestedMMBot.UserId != threadMMBot.UserId {
+	requestedAMBot := bot.GetAMBot()
+	threadAMBot := threadBot.GetAMBot()
+	if requestedAMBot == nil || requestedAMBot.Username == "" || threadAMBot == nil || requestedAMBot.UserId != threadAMBot.UserId {
 		return ErrLoopInWrongAgent
 	}
 
@@ -60,5 +60,5 @@ func (c *Conversations) HandleLoopInAgent(ctx context.Context, userID string, bo
 		return fmt.Errorf("unable to get user: %w", err)
 	}
 
-	return c.handleMentions(ctx, bot, cloneWithAgentMention(post, requestedMMBot.Username), postingUser, channel)
+	return c.handleMentions(ctx, bot, cloneWithAgentMention(post, requestedAMBot.Username), postingUser, channel)
 }

@@ -26,7 +26,7 @@ type Service struct {
 	mmClient         amapi.Client
 	streamingService streaming.Service
 	prompts          *llm.Prompts
-	bots             *bots.MMBots
+	bots             *bots.AMBots
 	i18n             *i18n.Bundle
 	metricsService   metrics.Metrics
 	contextBuilder   *llmcontext.Builder
@@ -41,7 +41,7 @@ func NewService(
 	mmClient amapi.Client,
 	streamingService streaming.Service,
 	prompts *llm.Prompts,
-	bots *bots.MMBots,
+	bots *bots.AMBots,
 	i18n *i18n.Bundle,
 	metricsService metrics.Metrics,
 	contextBuilder *llmcontext.Builder,

@@ -17,7 +17,7 @@ import (
 
 var ErrUsageRestriction = errors.New("usage restriction")
 
-func (m *MMBots) CheckUsageRestrictions(ctx context.Context, requestingUserID string, bot *Bot, channel *model.Channel) error {
+func (m *AMBots) CheckUsageRestrictions(ctx context.Context, requestingUserID string, bot *Bot, channel *model.Channel) error {
 	if err := m.CheckUsageRestrictionsForUser(ctx, bot, requestingUserID); err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (m *MMBots) CheckUsageRestrictions(ctx context.Context, requestingUserID st
 // an error wrapping ErrUsageRestriction. Unlike CheckUsageRestrictions it does
 // not consider user-scope restrictions, so callers can validate channel-level
 // settings (e.g. auto-reply) independent of any requesting user.
-func (m *MMBots) CheckUsageRestrictionsForChannel(bot *Bot, channel *model.Channel) error {
+func (m *AMBots) CheckUsageRestrictionsForChannel(bot *Bot, channel *model.Channel) error {
 	switch bot.GetConfig().ChannelAccessLevel {
 	case llm.ChannelAccessLevelAll:
 		return nil
@@ -72,8 +72,8 @@ func teamMemberActive(client *pluginapi.Client, teamID, userID string) (bool, er
 // UsageRestrictionsForUserConfig returns nil if userID is allowed by cfg's
 // UserAccessLevel / UserIDs / TeamIDs, otherwise an error wrapping ErrUsageRestriction.
 // This is the shared source of truth for user-scope access checks. Callers
-// without an MMBots instance (e.g. API code when bots may be nil) should use this
-// with the plugin client; MMBots.CheckUsageRestrictionsForUserConfig delegates here.
+// without an AMBots instance (e.g. API code when bots may be nil) should use this
+// with the plugin client; AMBots.CheckUsageRestrictionsForUserConfig delegates here.
 func UsageRestrictionsForUserConfig(client *pluginapi.Client, cfg llm.BotConfig, requestingUserID string) error {
 	switch cfg.UserAccessLevel {
 	case llm.UserAccessLevelAll:
@@ -121,7 +121,7 @@ func UsageRestrictionsForUserConfig(client *pluginapi.Client, cfg llm.BotConfig,
 // ABAC agent decision (legacy UserAccessLevel as legacyCheck), then ABAC
 // service for cfg.ServiceID. Denied fallback hops are dropped per request
 // rather than hiding the agent; see allowedFallbackServiceIDs.
-func (m *MMBots) CheckUsageRestrictionsForUserConfig(ctx context.Context, cfg llm.BotConfig, requestingUserID string) error {
+func (m *AMBots) CheckUsageRestrictionsForUserConfig(ctx context.Context, cfg llm.BotConfig, requestingUserID string) error {
 	legacy := func() error { return UsageRestrictionsForUserConfig(m.pluginAPI, cfg, requestingUserID) }
 	if err := m.accessChecker.CanUseAgent(ctx, requestingUserID, &cfg, legacy); err != nil {
 		return wrapDeny(err)
@@ -142,6 +142,6 @@ func wrapDeny(err error) error {
 	return err
 }
 
-func (m *MMBots) CheckUsageRestrictionsForUser(ctx context.Context, bot *Bot, requestingUserID string) error {
+func (m *AMBots) CheckUsageRestrictionsForUser(ctx context.Context, bot *Bot, requestingUserID string) error {
 	return m.CheckUsageRestrictionsForUserConfig(ctx, bot.GetConfig(), requestingUserID)
 }

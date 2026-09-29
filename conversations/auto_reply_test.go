@@ -62,7 +62,7 @@ type autoReplyTestEnv struct {
 	convStore     *fakeConvStore
 	mmClient      *fakeMMClient
 	mockAPI       *plugintest.API
-	botService    *bots.MMBots
+	botService    *bots.AMBots
 	fakeLLM       *dmTestLLM
 	mcpMgr        *testMCPClientManager
 	settings      *fakeAutoReplySettings

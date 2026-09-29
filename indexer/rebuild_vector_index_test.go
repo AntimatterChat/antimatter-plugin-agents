@@ -198,7 +198,7 @@ func TestRunRebuildVectorIndexJobPrepareFinalizeNoClear(t *testing.T) {
 	idx := New(
 		func() embeddings.EmbeddingSearch { return search },
 		func() embeddings.EmbeddingSearchConfig { return cfg },
-		mockClient, &bots.MMBots{}, db, nil,
+		mockClient, &bots.AMBots{}, db, nil,
 	)
 
 	jobStatus := &JobStatus{

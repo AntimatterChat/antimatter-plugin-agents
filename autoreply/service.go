@@ -47,7 +47,7 @@ type ClusterNotifier interface {
 // writeMu.
 type Service struct {
 	store    *Store
-	bots     *bots.MMBots
+	bots     *bots.AMBots
 	mmClient amapi.Client
 	notifier ClusterNotifier
 
@@ -59,7 +59,7 @@ type Service struct {
 
 // NewService creates the auto-reply service. Call LoadCache before serving
 // reads.
-func NewService(store *Store, botsService *bots.MMBots, mmClient amapi.Client, notifier ClusterNotifier) *Service {
+func NewService(store *Store, botsService *bots.AMBots, mmClient amapi.Client, notifier ClusterNotifier) *Service {
 	return &Service{
 		store:    store,
 		bots:     botsService,

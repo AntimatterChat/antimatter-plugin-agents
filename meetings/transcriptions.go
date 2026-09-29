@@ -122,7 +122,7 @@ func (s *Service) HandlePostbackSummary(userID string, post *model.Post) (map[st
 	}
 
 	postedSummary := &model.Post{
-		UserId:    bot.GetMMBot().UserId,
+		UserId:    bot.GetAMBot().UserId,
 		ChannelId: transcriptionPost.ChannelId,
 		RootId:    transcriptionPost.RootId,
 		Message:   post.Message,

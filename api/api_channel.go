@@ -147,7 +147,7 @@ func (a *API) handleChannelAnalysis(c *gin.Context) {
 		"Prompt":       data.Prompt,
 	}
 
-	result, err := analyzer.AnalyzeChannel(c.Request.Context(), llmContext, channel.Id, userID, bot.GetMMBot().UserId, analysisData)
+	result, err := analyzer.AnalyzeChannel(c.Request.Context(), llmContext, channel.Id, userID, bot.GetAMBot().UserId, analysisData)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to analyze channel: %w", err))
 		return
@@ -156,7 +156,7 @@ func (a *API) handleChannelAnalysis(c *gin.Context) {
 	// Create analysis post with conversation ID for streaming turn persistence
 	analysisPost := makeAnalysisPost("", data.AnalysisType, result.ConversationID)
 
-	if err := a.streamingService.StreamToNewDM(telemetry.DetachContext(c.Request.Context()), bot.GetMMBot().UserId, result.Stream, user.Id, analysisPost, ""); err != nil {
+	if err := a.streamingService.StreamToNewDM(telemetry.DetachContext(c.Request.Context()), bot.GetAMBot().UserId, result.Stream, user.Id, analysisPost, ""); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -278,7 +278,7 @@ func (a *API) handleInterval(c *gin.Context) {
 
 	// Call channels interval processing with conversation entity
 	result, err := channels.New(bot.LLM(), a.prompts, a.mmClient, a.dbClient, a.convService).Interval(
-		c.Request.Context(), context, channel.Id, userID, bot.GetMMBot().UserId, data.StartTime, data.EndTime, promptPreset,
+		c.Request.Context(), context, channel.Id, userID, bot.GetAMBot().UserId, data.StartTime, data.EndTime, promptPreset,
 	)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -291,7 +291,7 @@ func (a *API) handleInterval(c *gin.Context) {
 	post.AddProp(streaming.ConversationIDProp, result.ConversationID)
 
 	// Stream result to new DM
-	if err := a.streamingService.StreamToNewDM(telemetry.DetachContext(c.Request.Context()), bot.GetMMBot().UserId, result.Stream, user.Id, post, ""); err != nil {
+	if err := a.streamingService.StreamToNewDM(telemetry.DetachContext(c.Request.Context()), bot.GetAMBot().UserId, result.Stream, user.Id, post, ""); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

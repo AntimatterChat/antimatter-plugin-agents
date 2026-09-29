@@ -36,11 +36,11 @@ func TestEnsureBotsOpenAIWorkerPoolIsSharedAndReleased(t *testing.T) {
 		APIKey:       "sk-test",
 		DefaultModel: "gpt-4o",
 	}}}
-	mmBots := newEnsureBotsHarness(t, cfg, store)
+	amBots := newEnsureBotsHarness(t, cfg, store)
 
 	baseline := settleGoroutines()
-	require.NoError(t, mmBots.EnsureBots())
-	require.Len(t, mmBots.GetAllBots(), agents)
+	require.NoError(t, amBots.EnsureBots())
+	require.Len(t, amBots.GetAllBots(), agents)
 	afterFirst := settleGoroutines()
 	t.Logf("first build: +%d goroutines for %d agents", afterFirst-baseline, agents)
 	require.Greater(t, afterFirst-baseline, workers/2, "no worker pool started; the measurement is invalid")
@@ -50,7 +50,7 @@ func TestEnsureBotsOpenAIWorkerPoolIsSharedAndReleased(t *testing.T) {
 		for i := range store.agents {
 			store.agents[i].CustomInstructions = fmt.Sprintf("round-%d", round)
 		}
-		require.NoError(t, mmBots.EnsureBots())
+		require.NoError(t, amBots.EnsureBots())
 	}
 	afterAgentChanges := settleGoroutines()
 	t.Logf("after agent changes: %+d goroutines", afterAgentChanges-afterFirst)
@@ -58,8 +58,8 @@ func TestEnsureBotsOpenAIWorkerPoolIsSharedAndReleased(t *testing.T) {
 
 	for round := range 3 {
 		cfg.services[0].APIKey = fmt.Sprintf("sk-round-%d", round)
-		require.NoError(t, mmBots.EnsureBots())
-		mmBots.ReconcileServiceLLMs(cfg.services)
+		require.NoError(t, amBots.EnsureBots())
+		amBots.ReconcileServiceLLMs(cfg.services)
 	}
 	// Retirement shuts the replaced client down on its own goroutine.
 	require.Eventually(t, func() bool {
@@ -81,14 +81,14 @@ func TestEnsureBotsRejectedAgentDoesNotPinClient(t *testing.T) {
 		{ID: "openai-svc", Name: "OpenAI", Type: llm.ServiceTypeOpenAI, APIKey: "sk-test", DefaultModel: "gpt-4o", FallbackServiceID: "north-svc"},
 		{ID: "north-svc", Name: "North", Type: llm.ServiceTypeNorth, APIKey: "north-key", APIURL: "http://localhost", DefaultModel: "command-a"},
 	}}
-	mmBots := newEnsureBotsHarness(t, cfg, store)
+	amBots := newEnsureBotsHarness(t, cfg, store)
 
 	baseline := settleGoroutines()
-	err := mmBots.EnsureBots()
+	err := amBots.EnsureBots()
 	require.ErrorContains(t, err, "does not support provider-native tools")
 	require.Greater(t, settleGoroutines()-baseline, workers/2, "no client was built; the measurement is invalid")
 
-	mmBots.ReconcileServiceLLMs(nil)
+	amBots.ReconcileServiceLLMs(nil)
 	require.Eventually(t, func() bool {
 		return settleGoroutines()-baseline < workers/2
 	}, 15*time.Second, 50*time.Millisecond, "the rejected agent kept the retired client alive")

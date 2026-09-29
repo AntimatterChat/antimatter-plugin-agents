@@ -27,7 +27,7 @@ func newPassthroughAccessChecker() *accesscontrol.Checker {
 type TestEnvironment struct {
 	conversations *Conversations
 	mockAPI       *plugintest.API
-	bots          *bots.MMBots
+	bots          *bots.AMBots
 }
 
 func (e *TestEnvironment) Cleanup(t *testing.T) {

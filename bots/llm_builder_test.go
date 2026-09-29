@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// mockPluginAPI exposes the plugintest API the test MMBots was built with.
-func mockPluginAPI(b *MMBots) *plugintest.API {
+// mockPluginAPI exposes the plugintest API the test AMBots was built with.
+func mockPluginAPI(b *AMBots) *plugintest.API {
 	return b.ensureBotsClusterMutex.(*plugintest.API)
 }
 
@@ -158,11 +158,11 @@ func TestBuildLLMStructuredOutputPolicy(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mmBots := newTestMMBots(t, &mockConfig{})
-			mockAPI := mockPluginAPI(mmBots)
+			amBots := newTestAMBots(t, &mockConfig{})
+			mockAPI := mockPluginAPI(amBots)
 			mockAPI.On("LogInfo", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
 
-			model := buildTestLLM(t, mmBots, tt.service, tt.botConfig, tt.fallbacks)
+			model := buildTestLLM(t, amBots, tt.service, tt.botConfig, tt.fallbacks)
 			require.NotNil(t, model)
 
 			assert.Equal(t, tt.wantPromptFallback, promptFallbackApplied(t, model))
@@ -171,14 +171,14 @@ func TestBuildLLMStructuredOutputPolicy(t *testing.T) {
 }
 
 func TestBuildLLMServiceCallKeepsServiceDefaults(t *testing.T) {
-	mmBots := newTestMMBots(t, &mockConfig{})
-	mockAPI := mockPluginAPI(mmBots)
+	amBots := newTestAMBots(t, &mockConfig{})
+	mockAPI := mockPluginAPI(amBots)
 	mockAPI.On("LogInfo", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
 
 	service := mockServiceWithPolicy("mock", llm.StructuredOutputPolicyNative)
 	service.LoadTestMockConfig = buildTinyLoadTestProfile(t, nil)
 
-	model := buildTestLLM(t, mmBots, service, nil, nil)
+	model := buildTestLLM(t, amBots, service, nil, nil)
 
 	// The chain is usable end to end without an agent behind it.
 	assert.Equal(t, 100000, model.InputTokenLimit())
@@ -309,17 +309,17 @@ func TestTokenUsageIdentity(t *testing.T) {
 // buildTestLLM returns the model production hands out: an agent's when
 // botConfig is set, otherwise a direct service call's. Provider clients are
 // shut down when the test ends.
-func buildTestLLM(t *testing.T, mmBots *MMBots, svc llm.ServiceConfig, botConfig *llm.BotConfig, fallbacks []llm.ServiceConfig) llm.LanguageModel {
+func buildTestLLM(t *testing.T, amBots *AMBots, svc llm.ServiceConfig, botConfig *llm.BotConfig, fallbacks []llm.ServiceConfig) llm.LanguageModel {
 	t.Helper()
-	t.Cleanup(mmBots.ShutdownServiceLLMs)
+	t.Cleanup(amBots.ShutdownServiceLLMs)
 
 	if botConfig == nil {
-		model, release, err := mmBots.AcquireServiceLLM(svc, fallbacks)
+		model, release, err := amBots.AcquireServiceLLM(svc, fallbacks)
 		require.NoError(t, err)
 		t.Cleanup(release)
 		return model
 	}
-	model, _, err := mmBots.getLLM(svc, *botConfig, fallbacks)
+	model, _, err := amBots.getLLM(svc, *botConfig, fallbacks)
 	require.NoError(t, err)
 	return model
 }

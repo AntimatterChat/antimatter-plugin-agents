@@ -25,7 +25,7 @@ import (
 )
 
 func TestShouldIndexPostWithFloor(t *testing.T) {
-	mockBots := &bots.MMBots{}
+	mockBots := &bots.AMBots{}
 	idx := New(nil, nil, nil, mockBots, nil, nil)
 	channel := &model.Channel{Id: "channel1", Type: model.ChannelTypeOpen}
 
@@ -190,7 +190,7 @@ func TestIndexablePostsFetchRespectsFloor(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	idx := New(nil, nil, nil, &bots.MMBots{}, db, nil)
+	idx := New(nil, nil, nil, &bots.AMBots{}, db, nil)
 	fetch := idx.postFetcher(indexablePostsFetchSQL(floor, false), now, floor)
 	posts, err := fetch(context.Background(), Cursor{}, 100)
 	require.NoError(t, err)
@@ -279,7 +279,7 @@ func TestCatchUpAfterWideningIndexesOnlyTheGap(t *testing.T) {
 			Parameters: []byte(`{"embeddingModel":"text-embedding-3-small"}`),
 		},
 	}
-	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig { return cfg }, mockClient, &bots.MMBots{}, db, mockMutexAPI)
+	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig { return cfg }, mockClient, &bots.AMBots{}, db, mockMutexAPI)
 
 	status, err := idx.StartCatchUpJob()
 	require.NoError(t, err)
@@ -369,7 +369,7 @@ func TestEditedPostsFetchExcludesOutOfWindow(t *testing.T) {
 }
 
 func TestFilterAndCreateDocsWithFloor(t *testing.T) {
-	idx := New(nil, nil, nil, &bots.MMBots{}, nil, nil)
+	idx := New(nil, nil, nil, &bots.AMBots{}, nil, nil)
 	posts := []PostRecord{
 		{ID: "old", Message: "old", UserID: "user1", CreateAt: 50, ChannelType: "O"},
 		{ID: "in", Message: "in", UserID: "user1", CreateAt: 150, ChannelType: "O"},
@@ -422,7 +422,7 @@ func TestCheckIndexHealthWidenedEmptyGapThenCatchUp(t *testing.T) {
 			Parameters: []byte(`{"embeddingModel":"text-embedding-3-small"}`),
 		},
 	}
-	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig { return cfg }, mockClient, &bots.MMBots{}, db, mockMutexAPI)
+	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig { return cfg }, mockClient, &bots.AMBots{}, db, mockMutexAPI)
 
 	health, err := idx.CheckIndexHealth(context.Background())
 	require.NoError(t, err)
@@ -554,7 +554,7 @@ func TestCatchUpResumeKeepsSkipExistingAndSnapshottedWindow(t *testing.T) {
 			Parameters: []byte(`{"embeddingModel":"text-embedding-3-small"}`),
 		},
 	}
-	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig { return cfg }, mockClient, &bots.MMBots{}, db, mockMutexAPI)
+	idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, func() embeddings.EmbeddingSearchConfig { return cfg }, mockClient, &bots.AMBots{}, db, mockMutexAPI)
 
 	status, err := idx.StartReindexJob(false)
 	require.NoError(t, err)
@@ -644,7 +644,7 @@ func TestCatchUpIgnoresMidJobRetentionWiden(t *testing.T) {
 				Parameters: []byte(`{"embeddingModel":"old-model"}`),
 			},
 		}
-	}, mockClient, &bots.MMBots{}, db, mockMutexAPI)
+	}, mockClient, &bots.AMBots{}, db, mockMutexAPI)
 	idx.beforePersistModelInfo = func() {
 		close(reachedPersist)
 		<-releasePersist
@@ -764,7 +764,7 @@ func TestJobStartUsesSingleConfigSnapshot(t *testing.T) {
 						Parameters: []byte(`{"embeddingModel":"text-embedding-3-small"}`),
 					},
 				}
-			}, mockClient, &bots.MMBots{}, db, mockMutexAPI)
+			}, mockClient, &bots.AMBots{}, db, mockMutexAPI)
 
 			status, err := tt.startJob(idx)
 			require.NoError(t, err)

@@ -39,7 +39,7 @@ type Conversations struct {
 	mmClient          amapi.Client
 	streamingService  streaming.Service
 	contextBuilder    *llmcontext.Builder
-	bots              *bots.MMBots
+	bots              *bots.AMBots
 	db                *amapi.DBClient
 	i18n              *i18n.Bundle
 	meetingsService   MeetingsService
@@ -60,7 +60,7 @@ func New(
 	mmClient amapi.Client,
 	streamingService streaming.Service,
 	contextBuilder *llmcontext.Builder,
-	botsService *bots.MMBots,
+	botsService *bots.AMBots,
 	db *amapi.DBClient,
 	i18nBundle *i18n.Bundle,
 	meetingsService MeetingsService,

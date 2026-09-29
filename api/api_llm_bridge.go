@@ -716,12 +716,12 @@ func (a *API) handleGetAgents(c *gin.Context) {
 
 		service := bot.GetService()
 		agents = append(agents, bridgeclient.BridgeAgentInfo{
-			ID:          bot.GetMMBot().UserId,
-			DisplayName: bot.GetMMBot().DisplayName,
-			Username:    bot.GetMMBot().Username,
+			ID:          bot.GetAMBot().UserId,
+			DisplayName: bot.GetAMBot().DisplayName,
+			Username:    bot.GetAMBot().Username,
 			ServiceID:   service.ID,
 			ServiceType: service.Type,
-			IsDefault:   bot.GetMMBot().Username == defaultBotName,
+			IsDefault:   bot.GetAMBot().Username == defaultBotName,
 		})
 	}
 

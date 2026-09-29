@@ -69,8 +69,8 @@ func TestHandleGetConversationContext_TotalSource(t *testing.T) {
 
 	bindFakeLLM := func(t *testing.T, e *TestEnvironment, fake *FakeLLM) {
 		t.Helper()
-		mmBot := &model.Bot{UserId: testBotUserID, Username: "ai", DisplayName: "AI"}
-		bot := bots.NewBot(llm.BotConfig{Name: "ai", DisplayName: "AI"}, llm.ServiceConfig{}, mmBot, fake)
+		amBot := &model.Bot{UserId: testBotUserID, Username: "ai", DisplayName: "AI"}
+		bot := bots.NewBot(llm.BotConfig{Name: "ai", DisplayName: "AI"}, llm.ServiceConfig{}, amBot, fake)
 		e.bots.SetBotsForTesting([]*bots.Bot{bot})
 	}
 
@@ -355,8 +355,8 @@ func TestHandleGetConversationContextPassesSessionToFilePolicy(t *testing.T) {
 			e.mockAPI.On("LogError", mock.Anything).Maybe()
 
 			fake := &FakeLLM{TokenCount: 100, TokenLimit: 200000}
-			mmBot := &model.Bot{UserId: testBotUserID, Username: "ai", DisplayName: "AI"}
-			bot := bots.NewBot(llm.BotConfig{Name: "ai", DisplayName: "AI"}, llm.ServiceConfig{}, mmBot, fake)
+			amBot := &model.Bot{UserId: testBotUserID, Username: "ai", DisplayName: "AI"}
+			bot := bots.NewBot(llm.BotConfig{Name: "ai", DisplayName: "AI"}, llm.ServiceConfig{}, amBot, fake)
 			e.bots.SetBotsForTesting([]*bots.Bot{bot})
 
 			mmClient := amapimocks.NewMockClient(t)

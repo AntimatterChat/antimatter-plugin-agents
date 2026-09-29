@@ -13,7 +13,7 @@ import (
 // chain the user may use. Walks hops in order and stops at the first deny or
 // evaluation error (later hops are not skipped). The primary is not included.
 // A resolve error fails closed: callers must not attach the configured chain.
-func (m *MMBots) allowedFallbackServiceIDs(ctx context.Context, userID, primaryServiceID string) ([]string, error) {
+func (m *AMBots) allowedFallbackServiceIDs(ctx context.Context, userID, primaryServiceID string) ([]string, error) {
 	chain, err := llm.ResolveFallbackChain(primaryServiceID, m.config.GetServiceByID)
 	if err != nil {
 		return nil, err
@@ -33,11 +33,11 @@ func (m *MMBots) allowedFallbackServiceIDs(ctx context.Context, userID, primaryS
 // that prefix so a denied hop is never attempted.
 type fallbackAccessLLM struct {
 	inner            llm.LanguageModel
-	bots             *MMBots
+	bots             *AMBots
 	primaryServiceID string
 }
 
-func newFallbackAccessLLM(inner llm.LanguageModel, bots *MMBots, primaryServiceID string) llm.LanguageModel {
+func newFallbackAccessLLM(inner llm.LanguageModel, bots *AMBots, primaryServiceID string) llm.LanguageModel {
 	return &fallbackAccessLLM{inner: inner, bots: bots, primaryServiceID: primaryServiceID}
 }
 

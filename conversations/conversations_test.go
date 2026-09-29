@@ -140,16 +140,16 @@ func TestConversationMentionHandling(t *testing.T) {
 				Type:         llm.ServiceTypeOpenAI,
 				DefaultModel: "gpt-4",
 			}
-			mmBot := &model.Bot{
+			amBot := &model.Bot{
 				UserId: "botid",
 			}
 			llmInstance := llmtest.NewLanguageModelTestLogWrapper(t.T, t.LLM)
 
-			_ = bots.NewBot(botConfig, serviceConfig, mmBot, llmInstance)
+			_ = bots.NewBot(botConfig, serviceConfig, amBot, llmInstance)
 
 			// Build completion request directly (ProcessUserRequest was removed in Step L)
 			llmContext := contextBuilder.BuildLLMContextUserRequest(
-				bots.NewBot(botConfig, serviceConfig, mmBot, llmInstance),
+				bots.NewBot(botConfig, serviceConfig, amBot, llmInstance),
 				threadData.RequestingUser(),
 				threadData.Channel,
 			)

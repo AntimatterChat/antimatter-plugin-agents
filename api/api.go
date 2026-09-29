@@ -153,7 +153,7 @@ type StreamStopClusterNotifier interface {
 
 // API represents the HTTP API functionality for the plugin
 type API struct {
-	bots                  *bots.MMBots
+	bots                  *bots.AMBots
 	conversationsService  *conversations.Conversations
 	meetingsService       *meetings.Service
 	indexerService        *indexer.Indexer
@@ -203,7 +203,7 @@ func (a *API) SetExternalRebuilderForTest(rb externalServerRebuilder) {
 
 // New creates a new API instance
 func New(
-	bots *bots.MMBots,
+	bots *bots.AMBots,
 	conversationsService *conversations.Conversations,
 	meetingsService *meetings.Service,
 	indexerService *indexer.Indexer,
@@ -617,18 +617,18 @@ func (a *API) getAIBotsForUser(ctx context.Context, userID string) []AIBotInfo {
 		// Get the bot DM channel ID. To avoid creating the channel unless nessary
 		/// we return "" if the channel doesn't exist.
 		dmChannelID := ""
-		channelName := model.GetDMNameFromIds(userID, bot.GetMMBot().UserId)
+		channelName := model.GetDMNameFromIds(userID, bot.GetAMBot().UserId)
 		botDMChannel, err := a.pluginAPI.Channel.GetByName("", channelName, false)
 		if err == nil {
 			dmChannelID = botDMChannel.Id
 		}
 
-		isDefault := bot.GetMMBot().Username == defaultBotName
+		isDefault := bot.GetAMBot().Username == defaultBotName
 		bots = append(bots, AIBotInfo{
-			ID:                    bot.GetMMBot().UserId,
-			DisplayName:           bot.GetMMBot().DisplayName,
-			Username:              bot.GetMMBot().Username,
-			LastIconUpdate:        bot.GetMMBot().LastIconUpdate,
+			ID:                    bot.GetAMBot().UserId,
+			DisplayName:           bot.GetAMBot().DisplayName,
+			Username:              bot.GetAMBot().Username,
+			LastIconUpdate:        bot.GetAMBot().LastIconUpdate,
 			DMChannelID:           dmChannelID,
 			ChannelAccessLevel:    bot.GetConfig().ChannelAccessLevel,
 			ChannelIDs:            bot.GetConfig().ChannelIDs,

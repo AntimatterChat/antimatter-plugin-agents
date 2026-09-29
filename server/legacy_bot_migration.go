@@ -56,14 +56,14 @@ func migrateLegacyConfigBotsToUserAgents(api plugin.API, pluginAPI *pluginapi.Cl
 		byUsername[a.Name] = struct{}{}
 	}
 
-	previousMMBots, err := pluginAPI.Bot.List(0, 1000, pluginapi.BotOwner("mattermost-ai"), pluginapi.BotIncludeDeleted())
+	previousAMBots, err := pluginAPI.Bot.List(0, 1000, pluginapi.BotOwner("mattermost-ai"), pluginapi.BotIncludeDeleted())
 	if err != nil {
 		return false, fmt.Errorf("failed to list mattermost bots: %w", err)
 	}
-	mmByUsername := make(map[string]string)
-	for _, b := range previousMMBots {
+	amByUsername := make(map[string]string)
+	for _, b := range previousAMBots {
 		if b.DeleteAt == 0 {
-			mmByUsername[b.Username] = b.UserId
+			amByUsername[b.Username] = b.UserId
 		}
 	}
 
@@ -76,7 +76,7 @@ func migrateLegacyConfigBotsToUserAgents(api plugin.API, pluginAPI *pluginapi.Cl
 		if _, ok := byUsername[bc.Name]; ok {
 			continue
 		}
-		if _, ok := mmByUsername[bc.Name]; !ok {
+		if _, ok := amByUsername[bc.Name]; !ok {
 			// Soft defer (not an error): activation can run before EnsureBots creates MM bot rows,
 			// or the bot list may not yet include this owner. We retry on config updates.
 			pluginAPI.Log.Warn("Deferring legacy bot migration: Mattermost bot not found", "username", bc.Name)
@@ -91,7 +91,7 @@ func migrateLegacyConfigBotsToUserAgents(api plugin.API, pluginAPI *pluginapi.Cl
 		if _, ok := byUsername[bc.Name]; ok {
 			continue
 		}
-		botUserID := mmByUsername[bc.Name]
+		botUserID := amByUsername[bc.Name]
 
 		ua := bc
 

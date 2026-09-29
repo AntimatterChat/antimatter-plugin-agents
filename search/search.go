@@ -232,8 +232,8 @@ func (s *Search) buildSearchPromptContext(userID string, bot *bots.Bot, query st
 	}
 	if bot != nil {
 		var botUserID string
-		if mmBot := bot.GetMMBot(); mmBot != nil {
-			botUserID = mmBot.UserId
+		if amBot := bot.GetAMBot(); amBot != nil {
+			botUserID = amBot.UserId
 		}
 		promptCtx.SetBotFields(bot.GetConfig().DisplayName, bot.GetConfig().Name, botUserID, bot.GetService().DefaultModel, bot.GetService().Type, bot.GetConfig().CustomInstructions)
 	}
@@ -297,7 +297,7 @@ func (s *Search) RunSearch(ctx context.Context, userID string, bot *bots.Bot, qu
 		UserId:  userID,
 		Message: query,
 	}
-	if err := s.mmclient.DM(userID, bot.GetMMBot().UserId, questionPost); err != nil {
+	if err := s.mmclient.DM(userID, bot.GetAMBot().UserId, questionPost); err != nil {
 		return nil, fmt.Errorf("failed to create question post: %w", err)
 	}
 
@@ -323,7 +323,7 @@ func (s *Search) processSearch(ctx context.Context, bot *bots.Bot, userID, query
 	}
 	responsePost.AddProp(streaming.NoRegen, "true")
 
-	if err := s.botDMNonResponse(bot.GetMMBot().UserId, userID, responsePost); err != nil {
+	if err := s.botDMNonResponse(bot.GetAMBot().UserId, userID, responsePost); err != nil {
 		s.mmclient.LogError("Error creating bot DM", "error", err)
 		return
 	}
@@ -382,7 +382,7 @@ func (s *Search) processSearch(ctx context.Context, bot *bots.Bot, userID, query
 	var completionReq llm.CompletionRequest
 	if s.conversationService != nil {
 		systemPrompt := prompt.Posts[0].Message
-		botID := bot.GetMMBot().UserId
+		botID := bot.GetAMBot().UserId
 		questionPostID := questionPost.Id
 
 		createResult, convErr := s.conversationService.CreateConversation(conversation.CreateConversationParams{
@@ -479,7 +479,7 @@ func (s *Search) SearchQuery(ctx context.Context, userID string, bot *bots.Bot, 
 	// If conversation service is available, create a conversation entity
 	if s.conversationService != nil {
 		systemPrompt := prompt.Posts[0].Message
-		botID := bot.GetMMBot().UserId
+		botID := bot.GetAMBot().UserId
 
 		createResult, convErr := s.conversationService.CreateConversation(conversation.CreateConversationParams{
 			UserID:       userID,

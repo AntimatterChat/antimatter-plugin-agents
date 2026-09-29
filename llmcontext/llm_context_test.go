@@ -133,14 +133,14 @@ func newTestBot() *bots.Bot {
 }
 
 func newTestBotWithConfig(cfg llm.BotConfig) *bots.Bot {
-	return newTestBotWithMMBot(cfg, &model.Bot{UserId: "bot-id", Username: "matty", DisplayName: "Matty"})
+	return newTestBotWithAMBot(cfg, &model.Bot{UserId: "bot-id", Username: "matty", DisplayName: "Matty"})
 }
 
-func newTestBotWithMMBot(cfg llm.BotConfig, mmBot *model.Bot) *bots.Bot {
+func newTestBotWithAMBot(cfg llm.BotConfig, amBot *model.Bot) *bots.Bot {
 	return bots.NewBot(
 		cfg,
 		llm.ServiceConfig{DefaultModel: "test-model", Type: llm.ServiceTypeOpenAI},
-		mmBot,
+		amBot,
 		nil,
 	)
 }
@@ -375,7 +375,7 @@ func TestGetToolsStoreServiceAccountSelection(t *testing.T) {
 		&staticToolProvider{tools: []llm.Tool{testBuiltinTool("builtin")}},
 		provider,
 	)
-	bot := newTestBotWithMMBot(
+	bot := newTestBotWithAMBot(
 		llm.BotConfig{
 			ID:                    "bot-id",
 			Name:                  "matty",
@@ -410,7 +410,7 @@ func TestGetToolsStoreServiceAccountEmptyBotUserSkipsMCP(t *testing.T) {
 		&staticToolProvider{tools: []llm.Tool{testBuiltinTool("builtin")}},
 		provider,
 	)
-	bot := newTestBotWithMMBot(
+	bot := newTestBotWithAMBot(
 		llm.BotConfig{
 			ID:                    "bot-id",
 			Name:                  "matty",

@@ -78,7 +78,7 @@ func (m *mockConfig) GetTranscriptGenerator() string {
 	return "testbot"
 }
 
-func newTestMMBots(t *testing.T, cfg *mockConfig) *MMBots {
+func newTestAMBots(t *testing.T, cfg *mockConfig) *AMBots {
 	t.Helper()
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
@@ -147,8 +147,8 @@ func buildTinyLoadTestProfile(t *testing.T, profileWeights map[string]float64) j
 
 func TestGetBaseLLMLoadTestMockReturnsMock(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
-	mockAPI := mmBots.ensureBotsClusterMutex.(*plugintest.API)
+	amBots := newTestAMBots(t, cfg)
+	mockAPI := amBots.ensureBotsClusterMutex.(*plugintest.API)
 
 	mockAPI.On("LogInfo",
 		"Initialized load-test mock LLM",
@@ -157,7 +157,7 @@ func TestGetBaseLLMLoadTestMockReturnsMock(t *testing.T) {
 		"profile_summary", mock.MatchedBy(func(summary string) bool { return summary != "" }),
 	).Return().Once()
 
-	client, err := mmBots.newProviderClient(loadTestService(buildTinyLoadTestProfile(t, nil)), nil)
+	client, err := amBots.newProviderClient(loadTestService(buildTinyLoadTestProfile(t, nil)), nil)
 	require.NoError(t, err)
 	require.IsType(t, &loadtest.MockLLM{}, client.model)
 	mockAPI.AssertExpectations(t)
@@ -165,12 +165,12 @@ func TestGetBaseLLMLoadTestMockReturnsMock(t *testing.T) {
 
 func TestGetLLMLoadTestMockUsesWrapperChain(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
-	mockAPI := mmBots.ensureBotsClusterMutex.(*plugintest.API)
+	amBots := newTestAMBots(t, cfg)
+	mockAPI := amBots.ensureBotsClusterMutex.(*plugintest.API)
 
 	mockAPI.On("LogInfo", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
 
-	model, providerServices, err := mmBots.getLLM(loadTestService(buildTinyLoadTestProfile(t, nil)), loadTestBot(), nil)
+	model, providerServices, err := amBots.getLLM(loadTestService(buildTinyLoadTestProfile(t, nil)), loadTestBot(), nil)
 	require.NoError(t, err)
 	require.NotNil(t, model)
 	require.Equal(t, 100000, model.InputTokenLimit())
@@ -185,7 +185,7 @@ func TestGetLLMLoadTestMockUsesWrapperChain(t *testing.T) {
 
 func TestGetLLMResolvesProviderServicesThroughWrapperChain(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
+	amBots := newTestAMBots(t, cfg)
 
 	service := llm.ServiceConfig{
 		ID:           "anthropic-svc",
@@ -198,9 +198,9 @@ func TestGetLLMResolvesProviderServicesThroughWrapperChain(t *testing.T) {
 		EnabledNativeTools: []string{llm.NativeToolCodeInterpreter},
 	}
 
-	model, providerServices, err := mmBots.getLLM(service, botCfg, nil)
+	model, providerServices, err := amBots.getLLM(service, botCfg, nil)
 	require.NoError(t, err)
-	t.Cleanup(mmBots.ShutdownServiceLLMs)
+	t.Cleanup(amBots.ShutdownServiceLLMs)
 	require.NotNil(t, model)
 
 	require.True(t, providerServices.CanDownloadFiles(), "an Anthropic bot must expose provider file download")
@@ -211,7 +211,7 @@ func TestGetLLMResolvesProviderServicesThroughWrapperChain(t *testing.T) {
 
 func TestGetLLMProviderServicesForNonDownloadableProvider(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
+	amBots := newTestAMBots(t, cfg)
 
 	service := llm.ServiceConfig{
 		ID:           "openai-svc",
@@ -224,30 +224,30 @@ func TestGetLLMProviderServicesForNonDownloadableProvider(t *testing.T) {
 		EnabledNativeTools: []string{llm.NativeToolCodeInterpreter},
 	}
 
-	_, providerServices, err := mmBots.getLLM(service, botCfg, nil)
+	_, providerServices, err := amBots.getLLM(service, botCfg, nil)
 	require.NoError(t, err)
-	t.Cleanup(mmBots.ShutdownServiceLLMs)
+	t.Cleanup(amBots.ShutdownServiceLLMs)
 	require.False(t, providerServices.CanDownloadFiles())
 }
 
 func TestGetLLMLoadTestMockInvalidProfileJSON(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
+	amBots := newTestAMBots(t, cfg)
 
-	_, _, err := mmBots.getLLM(loadTestService(json.RawMessage(`{`)), loadTestBot(), nil)
+	_, _, err := amBots.getLLM(loadTestService(json.RawMessage(`{`)), loadTestBot(), nil)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to parse load-test mock profile")
 	require.Contains(t, err.Error(), "loadtest profile")
 
-	_, _, err = mmBots.getLLM(loadTestService(json.RawMessage(`{"unknown_top_level":true}`)), loadTestBot(), nil)
+	_, _, err = amBots.getLLM(loadTestService(json.RawMessage(`{"unknown_top_level":true}`)), loadTestBot(), nil)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to parse load-test mock profile")
 }
 
 func TestGetBaseLLMLoadTestMockEmptyConfigUsesDefaultProfile(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
-	mockAPI := mmBots.ensureBotsClusterMutex.(*plugintest.API)
+	amBots := newTestAMBots(t, cfg)
+	mockAPI := amBots.ensureBotsClusterMutex.(*plugintest.API)
 
 	var summary string
 	mockAPI.On("LogInfo",
@@ -274,7 +274,7 @@ func TestGetBaseLLMLoadTestMockEmptyConfigUsesDefaultProfile(t *testing.T) {
 	svc := loadTestService(nil)
 	svc.LoadTestMockConfig = nil
 
-	client, err := mmBots.newProviderClient(svc, nil)
+	client, err := amBots.newProviderClient(svc, nil)
 	require.NoError(t, err)
 	require.IsType(t, &loadtest.MockLLM{}, client.model)
 	require.NotEmpty(t, summary)
@@ -283,8 +283,8 @@ func TestGetBaseLLMLoadTestMockEmptyConfigUsesDefaultProfile(t *testing.T) {
 
 func TestGetBaseLLMLoadTestMockProfileWeightOverride(t *testing.T) {
 	cfg := &mockConfig{}
-	mmBots := newTestMMBots(t, cfg)
-	mockAPI := mmBots.ensureBotsClusterMutex.(*plugintest.API)
+	amBots := newTestAMBots(t, cfg)
+	mockAPI := amBots.ensureBotsClusterMutex.(*plugintest.API)
 
 	var summary string
 	mockAPI.On("LogInfo",
@@ -304,7 +304,7 @@ func TestGetBaseLLMLoadTestMockProfileWeightOverride(t *testing.T) {
 		"realistic_fast":    0.0,
 		"realistic_slow":    0.0,
 	}
-	client, err := mmBots.newProviderClient(loadTestService(buildTinyLoadTestProfile(t, weights)), nil)
+	client, err := amBots.newProviderClient(loadTestService(buildTinyLoadTestProfile(t, weights)), nil)
 	require.NoError(t, err)
 	require.IsType(t, &loadtest.MockLLM{}, client.model)
 	require.NotEmpty(t, summary)
@@ -330,32 +330,32 @@ func TestGetAllBotUserIDs(t *testing.T) {
 		{
 			name: "returns all bot user IDs when bots exist",
 			bots: []*Bot{
-				{mmBot: &model.Bot{UserId: "bot1-user-id"}},
-				{mmBot: &model.Bot{UserId: "bot2-user-id"}},
+				{amBot: &model.Bot{UserId: "bot1-user-id"}},
+				{amBot: &model.Bot{UserId: "bot2-user-id"}},
 			},
 			expected: []string{"bot1-user-id", "bot2-user-id"},
 		},
 		{
-			name: "skips bots with nil mmBot",
+			name: "skips bots with nil amBot",
 			bots: []*Bot{
-				{mmBot: &model.Bot{UserId: "bot1-user-id"}},
-				{mmBot: nil},
-				{mmBot: &model.Bot{UserId: "bot3-user-id"}},
+				{amBot: &model.Bot{UserId: "bot1-user-id"}},
+				{amBot: nil},
+				{amBot: &model.Bot{UserId: "bot3-user-id"}},
 			},
 			expected: []string{"bot1-user-id", "bot3-user-id"},
 		},
 		{
 			name: "returns correct count with single bot",
 			bots: []*Bot{
-				{mmBot: &model.Bot{UserId: "single-bot-id"}},
+				{amBot: &model.Bot{UserId: "single-bot-id"}},
 			},
 			expected: []string{"single-bot-id"},
 		},
 		{
-			name: "returns empty slice when all bots have nil mmBot",
+			name: "returns empty slice when all bots have nil amBot",
 			bots: []*Bot{
-				{mmBot: nil},
-				{mmBot: nil},
+				{amBot: nil},
+				{amBot: nil},
 			},
 			expected: []string{},
 		},
@@ -363,10 +363,10 @@ func TestGetAllBotUserIDs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mmBots := &MMBots{}
-			mmBots.SetBotsForTesting(tt.bots)
+			amBots := &AMBots{}
+			amBots.SetBotsForTesting(tt.bots)
 
-			result := mmBots.GetAllBotUserIDs()
+			result := amBots.GetAllBotUserIDs()
 			require.Equal(t, tt.expected, result)
 		})
 	}
@@ -837,11 +837,11 @@ func TestEnsureBots(t *testing.T) {
 				bots:     tc.cfgBots,
 				services: tc.cfgServices,
 			}
-			mmBots := New(mockAPI, client, cfg, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+			amBots := New(mockAPI, client, cfg, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 			defer mockAPI.AssertExpectations(t)
 
-			err := mmBots.EnsureBots()
+			err := amBots.EnsureBots()
 			if tc.expectError {
 				require.Error(t, err)
 			} else {
@@ -866,10 +866,10 @@ func (s *stubAgentStore) ListAgents() ([]*llm.BotConfig, error) {
 	return out, nil
 }
 
-// newEnsureBotsHarness returns an MMBots whose plugin API accepts every call
+// newEnsureBotsHarness returns an AMBots whose plugin API accepts every call
 // EnsureBots makes, so tests can drive real rebuilds against cfg and store.
 // Provider clients are shut down when the test ends.
-func newEnsureBotsHarness(t *testing.T, cfg *mockConfig, store AgentStore) *MMBots {
+func newEnsureBotsHarness(t *testing.T, cfg *mockConfig, store AgentStore) *AMBots {
 	t.Helper()
 
 	mockAPI := &plugintest.API{}
@@ -886,9 +886,9 @@ func newEnsureBotsHarness(t *testing.T, cfg *mockConfig, store AgentStore) *MMBo
 	mockAPI.On("LogInfo", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
 	allowBotsLogging(mockAPI)
 
-	mmBots := New(mockAPI, client, cfg, store, newPassthroughAccessChecker(), &http.Client{}, nil)
-	t.Cleanup(mmBots.ShutdownServiceLLMs)
-	return mmBots
+	amBots := New(mockAPI, client, cfg, store, newPassthroughAccessChecker(), &http.Client{}, nil)
+	t.Cleanup(amBots.ShutdownServiceLLMs)
+	return amBots
 }
 
 // dbAgents returns n DB-backed agent configs that all reference serviceID.
@@ -930,9 +930,9 @@ func TestSnapshotBotsAndServicesDoesNotMutateConfigBots(t *testing.T) {
 			{ID: "db-agent-1", Name: "dbagent1", DisplayName: "DB Agent 1", ServiceID: "svc1"},
 		},
 	}
-	mmBots := New(mockAPI, client, cfg, agentStore, newPassthroughAccessChecker(), &http.Client{}, nil)
+	amBots := New(mockAPI, client, cfg, agentStore, newPassthroughAccessChecker(), &http.Client{}, nil)
 
-	_, _, _, err := mmBots.snapshotBotsAndServices()
+	_, _, _, err := amBots.snapshotBotsAndServices()
 	require.NoError(t, err)
 
 	require.Equal(t, originalBots[1].ID, cfg.GetBots()[1].ID,
@@ -964,10 +964,10 @@ func TestEnsureBotsRebuildsBotWhenServiceInputTokenLimitChanges(t *testing.T) {
 			{ID: "bot1", Name: "openai", DisplayName: "OpenAI", ServiceID: "svc1"},
 		},
 	}
-	mmBots := newEnsureBotsHarness(t, cfg, agentStore)
+	amBots := newEnsureBotsHarness(t, cfg, agentStore)
 
-	require.NoError(t, mmBots.EnsureBots())
-	bots := mmBots.GetAllBots()
+	require.NoError(t, amBots.EnsureBots())
+	bots := amBots.GetAllBots()
 	require.Len(t, bots, 1)
 	require.NotNil(t, bots[0].LLM(), "bot must have an LLM after initial EnsureBots")
 	// Capture instead of hardcoding 0: providers may return a hardcoded
@@ -985,8 +985,8 @@ func TestEnsureBotsRebuildsBotWhenServiceInputTokenLimitChanges(t *testing.T) {
 		},
 	}
 
-	require.NoError(t, mmBots.EnsureBots())
-	bots = mmBots.GetAllBots()
+	require.NoError(t, amBots.EnsureBots())
+	bots = amBots.GetAllBots()
 	require.Len(t, bots, 1)
 	require.NotNil(t, bots[0].LLM())
 	require.NotEqual(t, initialLimit, bots[0].LLM().InputTokenLimit(),
@@ -1028,10 +1028,10 @@ func TestEnsureBotsRebuildsBotWhenFallbackServiceChanges(t *testing.T) {
 			{ID: "bot1", Name: "openai", DisplayName: "OpenAI", ServiceID: "svc1"},
 		},
 	}
-	mmBots := newEnsureBotsHarness(t, cfg, agentStore)
+	amBots := newEnsureBotsHarness(t, cfg, agentStore)
 
-	require.NoError(t, mmBots.EnsureBots())
-	bots := mmBots.GetAllBots()
+	require.NoError(t, amBots.EnsureBots())
+	bots := amBots.GetAllBots()
 	require.Len(t, bots, 1)
 	require.NotNil(t, bots[0].LLM(), "bot must have an LLM after initial EnsureBots")
 	initialLLM := bots[0].LLM()
@@ -1040,8 +1040,8 @@ func TestEnsureBotsRebuildsBotWhenFallbackServiceChanges(t *testing.T) {
 	// fast-path and keep the same LLM instance. This proves the fallback service
 	// is represented in the snapshot *stably* — it must not look changed on every
 	// run, which would defeat the fast-path.
-	require.NoError(t, mmBots.EnsureBots())
-	bots = mmBots.GetAllBots()
+	require.NoError(t, amBots.EnsureBots())
+	bots = amBots.GetAllBots()
 	require.Len(t, bots, 1)
 	require.Same(t, initialLLM, bots[0].LLM(), "EnsureBots must not rebuild when nothing changed")
 
@@ -1049,8 +1049,8 @@ func TestEnsureBotsRebuildsBotWhenFallbackServiceChanges(t *testing.T) {
 	// change reaches change-detection solely through the fallback chain.
 	cfg.services = primaryWithFallback("claude-3-7-sonnet-20250219")
 
-	require.NoError(t, mmBots.EnsureBots())
-	bots = mmBots.GetAllBots()
+	require.NoError(t, amBots.EnsureBots())
+	bots = amBots.GetAllBots()
 	require.Len(t, bots, 1)
 	require.NotSame(t, initialLLM, bots[0].LLM(),
 		"EnsureBots must rebuild when a fallback-chain service changes")
@@ -1075,11 +1075,11 @@ func TestEnsureBotsFailsWhenListAgentsFails(t *testing.T) {
 			{ID: "service1", Type: llm.ServiceTypeOpenAI, APIKey: "key"},
 		},
 	}
-	mmBots := New(mockAPI, client, cfg, failingAgentStore{}, newPassthroughAccessChecker(), &http.Client{}, nil)
+	amBots := New(mockAPI, client, cfg, failingAgentStore{}, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 	defer mockAPI.AssertExpectations(t)
 
-	err := mmBots.EnsureBots()
+	err := amBots.EnsureBots()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "list user agents")
 }
@@ -1240,11 +1240,11 @@ func TestHasNativeCodeExecutionEnabledRequiresBotOptIn(t *testing.T) {
 }
 
 func TestWithConfigPreservesDependencies(t *testing.T) {
-	mmBot := &model.Bot{UserId: "b1"}
+	amBot := &model.Bot{UserId: "b1"}
 	service := llm.ServiceConfig{ID: "svc-1", Type: llm.ServiceTypeAnthropic}
 	services := &llm.ProviderServices{FileDownloader: stubFileDownloader{}}
 
-	original := NewBot(llm.BotConfig{Name: "agent", AutoEnableNewMCPTools: false}, service, mmBot, nil)
+	original := NewBot(llm.BotConfig{Name: "agent", AutoEnableNewMCPTools: false}, service, amBot, nil)
 	original.SetProviderServicesForTest(services)
 
 	derivedCfg := original.GetConfig()
@@ -1254,7 +1254,7 @@ func TestWithConfigPreservesDependencies(t *testing.T) {
 	require.True(t, derived.GetConfig().AutoEnableNewMCPTools)
 	require.Equal(t, "agent", derived.GetConfig().Name)
 	require.Equal(t, service, derived.GetService())
-	require.Equal(t, mmBot, derived.GetMMBot())
+	require.Equal(t, amBot, derived.GetAMBot())
 	require.True(t, derived.ProviderServices().CanDownloadFiles())
 
 	require.False(t, original.GetConfig().AutoEnableNewMCPTools)

@@ -72,7 +72,7 @@ func newPassTestIndexer(t *testing.T) (*Indexer, *mocks.MockClient) {
 	mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 	mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-	idx := New(nil, nil, mockClient, &bots.MMBots{}, nil, nil)
+	idx := New(nil, nil, mockClient, &bots.AMBots{}, nil, nil)
 	idx.storeRetryAttempts = 3
 	idx.storeRetryBaseDelay = time.Millisecond
 	return idx, mockClient
@@ -206,7 +206,7 @@ func TestFinishJob(t *testing.T) {
 				Return(true, nil).Maybe()
 			mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 
-			idx := New(nil, nil, mockClient, &bots.MMBots{}, nil, nil)
+			idx := New(nil, nil, mockClient, &bots.AMBots{}, nil, nil)
 			jobStatus := &JobStatus{JobID: "job-1", Status: JobStatusRunning, ProcessedRows: 7}
 
 			completed := idx.finishJob(jobStatus)
@@ -253,7 +253,7 @@ func TestFinishJob(t *testing.T) {
 			})
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(nil, nil, mockClient, &bots.MMBots{}, nil, nil)
+		idx := New(nil, nil, mockClient, &bots.AMBots{}, nil, nil)
 		jobStatus := &JobStatus{JobID: "job-1", Status: JobStatusRunning}
 
 		completed := idx.finishJob(jobStatus)
@@ -409,7 +409,7 @@ func TestRunIndexPassWatermark(t *testing.T) {
 			Return(nil)
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(nil, nil, mockClient, &bots.MMBots{}, nil, nil)
+		idx := New(nil, nil, mockClient, &bots.AMBots{}, nil, nil)
 
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
 
@@ -453,7 +453,7 @@ func TestRunIndexPassWatermark(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(nil, nil, mockClient, &bots.MMBots{}, nil, nil)
+		idx := New(nil, nil, mockClient, &bots.AMBots{}, nil, nil)
 		idx.heartbeatInterval = 5 * time.Millisecond
 
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
@@ -548,7 +548,7 @@ func TestRunIndexPassWatermark(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(nil, nil, mockClient, &bots.MMBots{}, nil, nil)
+		idx := New(nil, nil, mockClient, &bots.AMBots{}, nil, nil)
 
 		mockSearch := embeddingsmocks.NewMockEmbeddingSearch(t)
 		mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil)

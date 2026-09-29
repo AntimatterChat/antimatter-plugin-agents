@@ -326,12 +326,12 @@ func (a *API) handleCreateAgent(c *gin.Context) {
 		return
 	}
 
-	mmBot := &model.Bot{
+	amBot := &model.Bot{
 		Username:    req.Username,
 		DisplayName: req.DisplayName,
 		Description: "User-created AI agent",
 	}
-	if err := a.pluginAPI.Bot.Create(mmBot); err != nil {
+	if err := a.pluginAPI.Bot.Create(amBot); err != nil {
 		var appErr *model.AppError
 		if errors.As(err, &appErr) && appErr.Id == "app.user.save.username_exists.app_error" {
 			abortAgentRequest(c, http.StatusConflict, fmt.Errorf("username %q is already taken", req.Username))
@@ -341,11 +341,11 @@ func (a *API) handleCreateAgent(c *gin.Context) {
 		return
 	}
 
-	agent := buildAgentConfigForCreate(req, userID, mmBot.UserId)
+	agent := buildAgentConfigForCreate(req, userID, amBot.UserId)
 
 	if err := a.agentStore.CreateAgent(agent); err != nil {
-		if _, deactivateErr := a.pluginAPI.Bot.UpdateActive(mmBot.UserId, false); deactivateErr != nil {
-			a.pluginAPI.Log.Error("Failed to deactivate bot after agent persist failure", "bot_user_id", mmBot.UserId, "error", deactivateErr.Error())
+		if _, deactivateErr := a.pluginAPI.Bot.UpdateActive(amBot.UserId, false); deactivateErr != nil {
+			a.pluginAPI.Log.Error("Failed to deactivate bot after agent persist failure", "bot_user_id", amBot.UserId, "error", deactivateErr.Error())
 		}
 		abortAgentRequest(c, http.StatusInternalServerError, fmt.Errorf("failed to persist agent: %w", err))
 		return
@@ -353,7 +353,7 @@ func (a *API) handleCreateAgent(c *gin.Context) {
 
 	// Both IDs exist only after the bot account and agent config are persisted.
 	audit.AddParam(auditRec(c), audit.KeyAgentID, agent.ID)
-	audit.AddParam(auditRec(c), "bot_user_id", mmBot.UserId)
+	audit.AddParam(auditRec(c), "bot_user_id", amBot.UserId)
 
 	_ = a.refreshBotsAndNotify()
 	c.JSON(http.StatusCreated, agent)

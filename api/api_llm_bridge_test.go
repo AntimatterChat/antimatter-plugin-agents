@@ -847,7 +847,7 @@ func TestBridgeGetBots(t *testing.T) {
 			// Setup bots - create all at once
 			allBots := make([]*bots.Bot, 0, len(tc.botConfigs))
 			for i, config := range tc.botConfigs {
-				mmBot := &model.Bot{
+				amBot := &model.Bot{
 					UserId:      fmt.Sprintf("%s%02d", testBotUserID[:24], i),
 					Username:    config.Name,
 					DisplayName: config.DisplayName,
@@ -856,7 +856,7 @@ func TestBridgeGetBots(t *testing.T) {
 					ID:   config.ServiceID,
 					Name: config.ServiceID,
 					Type: "test",
-				}, mmBot, nil)
+				}, amBot, nil)
 				allBots = append(allBots, bot)
 			}
 			e.bots.SetBotsForTesting(allBots)

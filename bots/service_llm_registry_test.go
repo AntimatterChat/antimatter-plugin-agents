@@ -59,14 +59,14 @@ func (f *fakeServiceLLMBuilder) shutdownIDs() []string {
 	return append([]string(nil), f.shutdowns...)
 }
 
-func newRegistryTestBots(t *testing.T, services []llm.ServiceConfig) (*MMBots, *mockConfig, *fakeServiceLLMBuilder) {
+func newRegistryTestBots(t *testing.T, services []llm.ServiceConfig) (*AMBots, *mockConfig, *fakeServiceLLMBuilder) {
 	t.Helper()
 
 	cfg := &mockConfig{services: services}
-	mmBots := newTestMMBots(t, cfg)
+	amBots := newTestAMBots(t, cfg)
 	builder := &fakeServiceLLMBuilder{}
-	mmBots.baseLLMBuilderForTest = builder.build
-	return mmBots, cfg, builder
+	amBots.baseLLMBuilderForTest = builder.build
+	return amBots, cfg, builder
 }
 
 // requireShutdownIDs waits for the models that have been retired to shut down.
@@ -82,13 +82,13 @@ func requireShutdownIDs(t *testing.T, builder *fakeServiceLLMBuilder, want []str
 
 func TestAcquireServiceLLMCachesPerService(t *testing.T) {
 	svc := registryOpenAIService("a")
-	mmBots, _, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
+	amBots, _, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
 
-	first, releaseFirst, err := mmBots.AcquireServiceLLM(svc, nil)
+	first, releaseFirst, err := amBots.AcquireServiceLLM(svc, nil)
 	require.NoError(t, err)
 	releaseFirst()
 
-	second, releaseSecond, err := mmBots.AcquireServiceLLM(svc, nil)
+	second, releaseSecond, err := amBots.AcquireServiceLLM(svc, nil)
 	require.NoError(t, err)
 	releaseSecond()
 
@@ -135,20 +135,20 @@ func TestAcquireServiceLLMRebuildsOnConfigChange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mmBots, cfg, builder := newRegistryTestBots(t, tt.initial)
+			amBots, cfg, builder := newRegistryTestBots(t, tt.initial)
 
 			primary := tt.initial[0]
 			fallbacks, err := ResolveBridgeFallbacks(tt.initial, primary)
 			require.NoError(t, err)
 
-			first, release, err := mmBots.AcquireServiceLLM(primary, fallbacks)
+			first, release, err := amBots.AcquireServiceLLM(primary, fallbacks)
 			require.NoError(t, err)
 			release()
 
 			newPrimary, newFallbacks := tt.mutate(cfg)
-			mmBots.ReconcileServiceLLMs(cfg.services)
+			amBots.ReconcileServiceLLMs(cfg.services)
 
-			second, releaseSecond, err := mmBots.AcquireServiceLLM(newPrimary, newFallbacks)
+			second, releaseSecond, err := amBots.AcquireServiceLLM(newPrimary, newFallbacks)
 			require.NoError(t, err)
 			releaseSecond()
 
@@ -183,9 +183,9 @@ func TestAcquireServiceLLMReplacesSupersededCacheEntry(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			old := registryOpenAIService("a")
-			mmBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{old})
+			amBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{old})
 
-			oldModel, releaseOld, err := mmBots.AcquireServiceLLM(old, nil)
+			oldModel, releaseOld, err := amBots.AcquireServiceLLM(old, nil)
 			require.NoError(t, err)
 			if !tt.holdOldLease {
 				releaseOld()
@@ -195,7 +195,7 @@ func TestAcquireServiceLLMReplacesSupersededCacheEntry(t *testing.T) {
 			updated.DefaultModel = "gpt-4.1"
 			cfg.services = []llm.ServiceConfig{updated}
 
-			newModel, releaseNew, err := mmBots.AcquireServiceLLM(updated, nil)
+			newModel, releaseNew, err := amBots.AcquireServiceLLM(updated, nil)
 			require.NoError(t, err)
 			assert.NotSame(t, oldModel, newModel, "the caller must get a model built from its own configuration")
 			assert.Equal(t, 2, builder.buildCount())
@@ -209,7 +209,7 @@ func TestAcquireServiceLLMReplacesSupersededCacheEntry(t *testing.T) {
 			}
 
 			// The replacement is cached: a second acquire reuses it.
-			cachedModel, releaseCached, err := mmBots.AcquireServiceLLM(updated, nil)
+			cachedModel, releaseCached, err := amBots.AcquireServiceLLM(updated, nil)
 			require.NoError(t, err)
 			assert.Same(t, newModel, cachedModel)
 			releaseCached()
@@ -221,7 +221,7 @@ func TestAcquireServiceLLMReplacesSupersededCacheEntry(t *testing.T) {
 
 func TestAcquireServiceLLMBuildsOnceUnderConcurrency(t *testing.T) {
 	svc := registryOpenAIService("a")
-	mmBots, _, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
+	amBots, _, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
 
 	start := make(chan struct{})
 	builder.beforeReturn = func(llm.ServiceConfig) {
@@ -239,7 +239,7 @@ func TestAcquireServiceLLMBuildsOnceUnderConcurrency(t *testing.T) {
 	for i := range callers {
 		go func() {
 			defer wg.Done()
-			models[i], releases[i], errs[i] = mmBots.AcquireServiceLLM(svc, nil)
+			models[i], releases[i], errs[i] = amBots.AcquireServiceLLM(svc, nil)
 		}()
 	}
 	close(start)
@@ -258,17 +258,17 @@ func TestAcquireServiceLLMBuildsOnceUnderConcurrency(t *testing.T) {
 
 func TestAcquireServiceLLMDoesNotCacheBuildFailures(t *testing.T) {
 	svc := registryOpenAIService("a")
-	mmBots, _, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
+	amBots, _, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
 	builder.failWith = errors.New("provider unavailable")
 
-	_, _, err := mmBots.AcquireServiceLLM(svc, nil)
+	_, _, err := amBots.AcquireServiceLLM(svc, nil)
 	require.Error(t, err)
 
 	builder.mu.Lock()
 	builder.failWith = nil
 	builder.mu.Unlock()
 
-	model, release, err := mmBots.AcquireServiceLLM(svc, nil)
+	model, release, err := amBots.AcquireServiceLLM(svc, nil)
 	require.NoError(t, err)
 	require.NotNil(t, model)
 	release()
@@ -314,15 +314,15 @@ func TestReconcileServiceLLMs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := registryOpenAIService("a")
-			mmBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
+			amBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
 
-			_, release, err := mmBots.AcquireServiceLLM(svc, nil)
+			_, release, err := amBots.AcquireServiceLLM(svc, nil)
 			require.NoError(t, err)
 			release()
 
 			next := tt.nextServices(svc)
 			cfg.services = next
-			mmBots.ReconcileServiceLLMs(next)
+			amBots.ReconcileServiceLLMs(next)
 
 			if tt.wantShutdown {
 				requireShutdownIDs(t, builder, []string{"a"})
@@ -333,7 +333,7 @@ func TestReconcileServiceLLMs(t *testing.T) {
 			// Re-acquiring the original configuration rebuilds only when the
 			// entry was dropped.
 			cfg.services = []llm.ServiceConfig{svc}
-			_, releaseAgain, err := mmBots.AcquireServiceLLM(svc, nil)
+			_, releaseAgain, err := amBots.AcquireServiceLLM(svc, nil)
 			require.NoError(t, err)
 			releaseAgain()
 			assert.Equal(t, tt.wantRebuildIDs, builder.buildCount())
@@ -343,18 +343,18 @@ func TestReconcileServiceLLMs(t *testing.T) {
 
 func TestReconcileServiceLLMsWaitsForOutstandingLeases(t *testing.T) {
 	svc := registryOpenAIService("a")
-	mmBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
+	amBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{svc})
 
-	_, releaseFirst, err := mmBots.AcquireServiceLLM(svc, nil)
+	_, releaseFirst, err := amBots.AcquireServiceLLM(svc, nil)
 	require.NoError(t, err)
-	_, releaseSecond, err := mmBots.AcquireServiceLLM(svc, nil)
+	_, releaseSecond, err := amBots.AcquireServiceLLM(svc, nil)
 	require.NoError(t, err)
 	require.Equal(t, 1, builder.buildCount())
 
 	changed := registryOpenAIService("a")
 	changed.DefaultModel = "gpt-4.1"
 	cfg.services = []llm.ServiceConfig{changed}
-	mmBots.ReconcileServiceLLMs(cfg.services)
+	amBots.ReconcileServiceLLMs(cfg.services)
 
 	assert.Empty(t, builder.shutdownIDs(), "a retired model with live leases must stay up")
 
@@ -368,22 +368,22 @@ func TestReconcileServiceLLMsWaitsForOutstandingLeases(t *testing.T) {
 func TestShutdownServiceLLMs(t *testing.T) {
 	first := registryOpenAIService("a")
 	second := registryOpenAIService("b")
-	mmBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{first, second})
+	amBots, cfg, builder := newRegistryTestBots(t, []llm.ServiceConfig{first, second})
 
-	_, releaseFirst, err := mmBots.AcquireServiceLLM(first, nil)
+	_, releaseFirst, err := amBots.AcquireServiceLLM(first, nil)
 	require.NoError(t, err)
 	releaseFirst()
 
 	// Keep a lease open on a retired entry so shutdown has to cover both maps.
-	_, releaseSecond, err := mmBots.AcquireServiceLLM(second, nil)
+	_, releaseSecond, err := amBots.AcquireServiceLLM(second, nil)
 	require.NoError(t, err)
 	changedSecond := registryOpenAIService("b")
 	changedSecond.DefaultModel = "gpt-4.1"
 	cfg.services = []llm.ServiceConfig{first, changedSecond}
-	mmBots.ReconcileServiceLLMs(cfg.services)
+	amBots.ReconcileServiceLLMs(cfg.services)
 	require.Empty(t, builder.shutdownIDs())
 
-	mmBots.ShutdownServiceLLMs()
+	amBots.ShutdownServiceLLMs()
 	assert.ElementsMatch(t, []string{"a", "b"}, builder.shutdownIDs())
 
 	// Releasing afterwards must not shut the same client down twice.
@@ -391,25 +391,25 @@ func TestShutdownServiceLLMs(t *testing.T) {
 	assert.ElementsMatch(t, []string{"a", "b"}, builder.shutdownIDs())
 }
 
-func newAgentRegistryTestBots(t *testing.T, agents int) (*MMBots, *mockConfig, *stubAgentStore, *fakeServiceLLMBuilder) {
+func newAgentRegistryTestBots(t *testing.T, agents int) (*AMBots, *mockConfig, *stubAgentStore, *fakeServiceLLMBuilder) {
 	t.Helper()
 
 	store := &stubAgentStore{agents: dbAgents(agents, "svc")}
 	cfg := &mockConfig{services: []llm.ServiceConfig{openAIService("svc", "")}}
-	mmBots := newEnsureBotsHarness(t, cfg, store)
+	amBots := newEnsureBotsHarness(t, cfg, store)
 	builder := &fakeServiceLLMBuilder{}
-	mmBots.SetBaseLLMBuilderForTest(builder.build)
-	return mmBots, cfg, store, builder
+	amBots.SetBaseLLMBuilderForTest(builder.build)
+	return amBots, cfg, store, builder
 }
 
 func TestEnsureBotsAgentsShareServiceClient(t *testing.T) {
-	mmBots, cfg, _, builder := newAgentRegistryTestBots(t, 3)
+	amBots, cfg, _, builder := newAgentRegistryTestBots(t, 3)
 
-	require.NoError(t, mmBots.EnsureBots())
-	require.Len(t, mmBots.GetAllBots(), 3)
+	require.NoError(t, amBots.EnsureBots())
+	require.Len(t, amBots.GetAllBots(), 3)
 	require.Equal(t, 1, builder.buildCount(), "agents on one service must share its provider client")
 
-	_, release, err := mmBots.AcquireServiceLLM(cfg.services[0], nil)
+	_, release, err := amBots.AcquireServiceLLM(cfg.services[0], nil)
 	require.NoError(t, err)
 	release()
 	require.Equal(t, 1, builder.buildCount(), "direct service calls must share the agents' provider client")
@@ -428,14 +428,14 @@ func TestEnsureBotsAgentChangesReuseServiceClient(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mmBots, _, store, builder := newAgentRegistryTestBots(t, 2)
+			amBots, _, store, builder := newAgentRegistryTestBots(t, 2)
 
-			require.NoError(t, mmBots.EnsureBots())
-			before := mmBots.GetAllBots()[0].LLM()
+			require.NoError(t, amBots.EnsureBots())
+			before := amBots.GetAllBots()[0].LLM()
 
 			tt.change(&store.agents[0])
-			require.NoError(t, mmBots.EnsureBots())
-			require.NotSame(t, before, mmBots.GetAllBots()[0].LLM(), "the agent must be rebuilt")
+			require.NoError(t, amBots.EnsureBots())
+			require.NotSame(t, before, amBots.GetAllBots()[0].LLM(), "the agent must be rebuilt")
 
 			require.Equal(t, 1, builder.buildCount())
 			assert.Empty(t, builder.shutdownIDs())
@@ -444,12 +444,12 @@ func TestEnsureBotsAgentChangesReuseServiceClient(t *testing.T) {
 }
 
 func TestEnsureBotsServiceChangeReplacesAgentClient(t *testing.T) {
-	mmBots, cfg, _, builder := newAgentRegistryTestBots(t, 2)
+	amBots, cfg, _, builder := newAgentRegistryTestBots(t, 2)
 
-	require.NoError(t, mmBots.EnsureBots())
+	require.NoError(t, amBots.EnsureBots())
 
 	cfg.services[0].APIKey = "rotated"
-	require.NoError(t, mmBots.EnsureBots())
+	require.NoError(t, amBots.EnsureBots())
 
 	require.Equal(t, 2, builder.buildCount())
 	require.Equal(t, "rotated", builder.builds[1].APIKey)
@@ -457,10 +457,10 @@ func TestEnsureBotsServiceChangeReplacesAgentClient(t *testing.T) {
 }
 
 func TestShutdownServiceLLMsReleasesAgentClients(t *testing.T) {
-	mmBots, _, _, builder := newAgentRegistryTestBots(t, 2)
+	amBots, _, _, builder := newAgentRegistryTestBots(t, 2)
 
-	require.NoError(t, mmBots.EnsureBots())
-	mmBots.ShutdownServiceLLMs()
+	require.NoError(t, amBots.EnsureBots())
+	amBots.ShutdownServiceLLMs()
 
 	require.Equal(t, []string{"svc"}, builder.shutdownIDs())
 }

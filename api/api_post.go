@@ -146,7 +146,7 @@ func (a *API) handleThreadAnalysis(c *gin.Context) {
 	)
 
 	// Create thread analyzer with conversation service
-	botUserID := bot.GetMMBot().UserId
+	botUserID := bot.GetAMBot().UserId
 	analyzer := threads.New(bot.LLM(), a.prompts, a.mmClient, a.convService)
 	var analyzeResult *threads.AnalyzeResult
 	var title string

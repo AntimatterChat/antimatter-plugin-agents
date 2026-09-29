@@ -75,11 +75,11 @@ func TestEnsureBotsAgentsOnSharedClientSendOwnSettings(t *testing.T) {
 		APIURL:       srv.URL,
 		DefaultModel: "claude-sonnet-4-6",
 	}}}
-	mmBots := newEnsureBotsHarness(t, cfg, store)
-	require.NoError(t, mmBots.EnsureBots())
+	amBots := newEnsureBotsHarness(t, cfg, store)
+	require.NoError(t, amBots.EnsureBots())
 
 	for _, name := range []string{"agent1", "agent2"} {
-		bot := mmBots.GetBotByUsername(name)
+		bot := amBots.GetBotByUsername(name)
 		require.NotNil(t, bot, name)
 		answer, err := bot.LLM().ChatCompletionNoStream(context.Background(), llm.CompletionRequest{
 			Posts:   []llm.Post{{Role: llm.PostRoleUser, Message: "hi"}},

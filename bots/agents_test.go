@@ -23,14 +23,14 @@ func TestDBBackedAgentInBotRegistry(t *testing.T) {
 		BotUserID:   "bot-user-id-db-agent",
 	}
 
-	mmBot := &model.Bot{
+	amBot := &model.Bot{
 		UserId:      "bot-user-id-db-agent",
 		Username:    "db-agent",
 		DisplayName: "DB Agent",
 	}
 
-	bot := NewBot(cfg, llm.ServiceConfig{ID: "svc-1", Type: "openai"}, mmBot, nil)
-	bots := &MMBots{}
+	bot := NewBot(cfg, llm.ServiceConfig{ID: "svc-1", Type: "openai"}, amBot, nil)
+	bots := &AMBots{}
 	bots.SetBotsForTesting([]*Bot{bot})
 
 	found := bots.GetBotByUsername("db-agent")
@@ -39,7 +39,7 @@ func TestDBBackedAgentInBotRegistry(t *testing.T) {
 
 	found = bots.GetBotByID("bot-user-id-db-agent")
 	require.NotNil(t, found)
-	assert.Equal(t, "DB Agent", found.GetMMBot().DisplayName)
+	assert.Equal(t, "DB Agent", found.GetAMBot().DisplayName)
 
 	assert.True(t, bots.IsAnyBot("bot-user-id-db-agent"))
 	assert.False(t, bots.IsAnyBot("some-other-id"))
@@ -50,5 +50,5 @@ func TestDBBackedAgentInBotRegistry(t *testing.T) {
 
 	mentioned := bots.GetBotMentioned("Hey @db-agent can you help?")
 	require.NotNil(t, mentioned)
-	assert.Equal(t, "db-agent", mentioned.GetMMBot().Username)
+	assert.Equal(t, "db-agent", mentioned.GetAMBot().Username)
 }

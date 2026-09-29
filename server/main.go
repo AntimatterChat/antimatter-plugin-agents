@@ -55,7 +55,7 @@ type Plugin struct {
 
 	pluginAPI            *pluginapi.Client
 	apiService           *api.API
-	bots                 *bots.MMBots
+	bots                 *bots.AMBots
 	indexerService       *indexer.Indexer
 	conversationsService *conversations.Conversations
 	mcpClientManager     *mcp.ClientManager

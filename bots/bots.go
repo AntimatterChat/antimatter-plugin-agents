@@ -49,7 +49,7 @@ type Transcriber interface {
 	Transcribe(file io.Reader) (*subtitles.Subtitles, error)
 }
 
-type MMBots struct {
+type AMBots struct {
 	ensureBotsClusterMutex cluster.MutexPluginAPI
 	pluginAPI              *pluginapi.Client
 	config                 Config
@@ -94,13 +94,13 @@ type MMBots struct {
 
 // SetBaseLLMBuilderForTest installs a test-only provider client builder. The
 // wrapper chain around it stays the production one.
-func (b *MMBots) SetBaseLLMBuilderForTest(builder func(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (llm.LanguageModel, func(), error)) {
+func (b *AMBots) SetBaseLLMBuilderForTest(builder func(svc llm.ServiceConfig, fallbacks []llm.ServiceConfig) (llm.LanguageModel, func(), error)) {
 	b.baseLLMBuilderForTest = builder
 }
 
 // New builds the bot registry. accessChecker must be non-nil; tests that want
 // no-policies-anywhere pass accesscontrol.New with PassthroughClient.
-func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, config Config, agentStore AgentStore, accessChecker *accesscontrol.Checker, llmUpstreamHTTPClient *http.Client, metrics llm.MetricsObserver) *MMBots {
+func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, config Config, agentStore AgentStore, accessChecker *accesscontrol.Checker, llmUpstreamHTTPClient *http.Client, metrics llm.MetricsObserver) *AMBots {
 	// A nil checker would panic later inside a live permission check.
 	if accessChecker == nil {
 		panic("bots: New requires a non-nil access checker")
@@ -112,7 +112,7 @@ func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, con
 
 	tokenUsageSinks := llm.NewTokenUsageSinks(pluginTokenLogger)
 
-	return &MMBots{
+	return &AMBots{
 		ensureBotsClusterMutex: mutexPluginAPI,
 		pluginAPI:              pluginAPI,
 		config:                 config,
@@ -128,7 +128,7 @@ func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, con
 // DB-backed agents) and the services they reference.
 // EnsureBots calls this for both the optimistic equality check and the
 // rebuild, so the check can't miss a service used only by a DB agent.
-func (b *MMBots) snapshotBotsAndServices() ([]llm.BotConfig, map[string]struct{}, map[string]llm.ServiceConfig, error) {
+func (b *AMBots) snapshotBotsAndServices() ([]llm.BotConfig, map[string]struct{}, map[string]llm.ServiceConfig, error) {
 	var dbAgents []*llm.BotConfig
 	if b.agentStore != nil {
 		var err error
@@ -154,7 +154,7 @@ func (b *MMBots) snapshotBotsAndServices() ([]llm.BotConfig, map[string]struct{}
 // active. Inactive agents are omitted from the ensure set (so existing
 // Mattermost bot accounts are deactivated) and from activeDBBotUsernames. DB
 // rows are never deleted.
-func (b *MMBots) selectActiveBots(pool []llm.BotConfig, dbNames map[string]struct{}) ([]llm.BotConfig, map[string]struct{}) {
+func (b *AMBots) selectActiveBots(pool []llm.BotConfig, dbNames map[string]struct{}) ([]llm.BotConfig, map[string]struct{}) {
 	reasons := config.AgentInactiveReasons(b.config.GetServices(), pool)
 
 	active := make([]llm.BotConfig, 0, len(pool))
@@ -187,7 +187,7 @@ func (b *MMBots) selectActiveBots(pool []llm.BotConfig, dbNames map[string]struc
 // bot configs, including any services in each service's fallback chain. This
 // ensures that changes to fallback services are detected for optimistic
 // change-detection in EnsureBots.
-func (b *MMBots) resolveServiceCfgs(botCfgs []llm.BotConfig) map[string]llm.ServiceConfig {
+func (b *AMBots) resolveServiceCfgs(botCfgs []llm.BotConfig) map[string]llm.ServiceConfig {
 	result := make(map[string]llm.ServiceConfig, len(botCfgs))
 	for _, botCfg := range botCfgs {
 		if _, exists := result[botCfg.ServiceID]; !exists {
@@ -211,7 +211,7 @@ func (b *MMBots) resolveServiceCfgs(botCfgs []llm.BotConfig) map[string]llm.Serv
 // ForceRefreshOnNextEnsure clears the optimistic ensure snapshot and sets forceRefresh so the
 // next EnsureBots() cannot take the fast path. DB-backed agents are not part of the
 // config-file bot slice used for botConfigsEqual, so we must invalidate when agents change.
-func (b *MMBots) ForceRefreshOnNextEnsure() {
+func (b *AMBots) ForceRefreshOnNextEnsure() {
 	b.botsLock.Lock()
 	defer b.botsLock.Unlock()
 	b.lastEnsuredBotCfgs = nil
@@ -265,7 +265,7 @@ func serviceConfigsEqual(a, b map[string]llm.ServiceConfig) bool {
 	return true
 }
 
-func (b *MMBots) reconcileTokenUsageSinks() {
+func (b *AMBots) reconcileTokenUsageSinks() {
 	if b == nil || b.config == nil || b.tokenUsageSinks == nil {
 		return
 	}
@@ -307,7 +307,7 @@ func (b *MMBots) reconcileTokenUsageSinks() {
 // because nothing changed since the last successful ensure. Called twice per
 // EnsureBots — once optimistically and once after acquiring the cluster mutex
 // (deliberate double-checked locking).
-func (b *MMBots) snapshotForEnsure() (botCfgs []llm.BotConfig, activeDBBotUsernames map[string]struct{}, serviceCfgs map[string]llm.ServiceConfig, unchanged bool, err error) {
+func (b *AMBots) snapshotForEnsure() (botCfgs []llm.BotConfig, activeDBBotUsernames map[string]struct{}, serviceCfgs map[string]llm.ServiceConfig, unchanged bool, err error) {
 	b.reconcileTokenUsageSinks()
 
 	botCfgs, activeDBBotUsernames, serviceCfgs, err = b.snapshotBotsAndServices()
@@ -325,7 +325,7 @@ func (b *MMBots) snapshotForEnsure() (botCfgs []llm.BotConfig, activeDBBotUserna
 	return botCfgs, activeDBBotUsernames, serviceCfgs, unchanged, nil
 }
 
-func (b *MMBots) EnsureBots() error {
+func (b *AMBots) EnsureBots() error {
 	if b.config == nil {
 		return nil
 	}
@@ -359,7 +359,7 @@ func (b *MMBots) EnsureBots() error {
 		return nil
 	}
 
-	previousMMBots, err := b.pluginAPI.Bot.List(0, 1000, pluginapi.BotOwner("mattermost-ai"), pluginapi.BotIncludeDeleted())
+	previousAMBots, err := b.pluginAPI.Bot.List(0, 1000, pluginapi.BotOwner("mattermost-ai"), pluginapi.BotIncludeDeleted())
 	if err != nil {
 		return fmt.Errorf("failed to list bots: %w", err)
 	}
@@ -405,13 +405,13 @@ func (b *MMBots) EnsureBots() error {
 		aiBotsByUsername[botCfg.Name] = bot
 	}
 
-	prevousMMBotsByUsername := make(map[string]*model.Bot)
-	for _, bot := range previousMMBots {
-		prevousMMBotsByUsername[bot.Username] = bot
+	prevousAMBotsByUsername := make(map[string]*model.Bot)
+	for _, bot := range previousAMBots {
+		prevousAMBotsByUsername[bot.Username] = bot
 	}
 
 	// For each of the bots we found, if it's not in the configuration, delete it.
-	for _, bot := range previousMMBots {
+	for _, bot := range previousAMBots {
 		if _, ok := aiBotsByUsername[bot.Username]; !ok {
 			if _, dbActive := activeDBBotUsernames[bot.Username]; dbActive {
 				b.pluginAPI.Log.Debug("EnsureBots: skipping deactivation for active DB agent not in ensure set (missing or invalid service)", "bot_name", bot.Username)
@@ -428,9 +428,9 @@ func (b *MMBots) EnsureBots() error {
 	// If it exists, update it to match. Otherwise, create a new bot.
 	for _, bot := range bots {
 		description := poweredByDescription(bot.service.Type, bot.service.DefaultModel)
-		if prevBot, ok := prevousMMBotsByUsername[bot.cfg.Name]; ok {
+		if prevBot, ok := prevousAMBotsByUsername[bot.cfg.Name]; ok {
 			var patchErr error
-			bot.mmBot, patchErr = b.pluginAPI.Bot.Patch(prevBot.UserId, &model.BotPatch{
+			bot.amBot, patchErr = b.pluginAPI.Bot.Patch(prevBot.UserId, &model.BotPatch{
 				DisplayName: &bot.cfg.DisplayName,
 				Description: &description,
 			})
@@ -443,12 +443,12 @@ func (b *MMBots) EnsureBots() error {
 				continue
 			}
 		} else {
-			bot.mmBot = &model.Bot{
+			bot.amBot = &model.Bot{
 				Username:    bot.cfg.Name,
 				DisplayName: bot.cfg.DisplayName,
 				Description: description,
 			}
-			if createErr := b.pluginAPI.Bot.Create(bot.mmBot); createErr != nil {
+			if createErr := b.pluginAPI.Bot.Create(bot.amBot); createErr != nil {
 				b.pluginAPI.Log.Error("Failed to ensure bot", "bot_name", bot.cfg.Name, "error", createErr.Error())
 				continue
 			}
@@ -487,8 +487,8 @@ func (b *MMBots) EnsureBots() error {
 	return nil
 }
 
-func (b *MMBots) ensureDefaultProfileImage(bot *Bot) {
-	user, err := b.pluginAPI.User.Get(bot.mmBot.UserId)
+func (b *AMBots) ensureDefaultProfileImage(bot *Bot) {
+	user, err := b.pluginAPI.User.Get(bot.amBot.UserId)
 	if err != nil {
 		b.pluginAPI.Log.Error("Failed to get bot user for profile image check", "bot_name", bot.cfg.Name, "error", err.Error())
 		return
@@ -498,7 +498,7 @@ func (b *MMBots) ensureDefaultProfileImage(bot *Bot) {
 		return
 	}
 
-	if err := b.pluginAPI.User.SetProfileImage(bot.mmBot.UserId, bytes.NewReader(assets.DefaultAgentProfilePicture)); err != nil {
+	if err := b.pluginAPI.User.SetProfileImage(bot.amBot.UserId, bytes.NewReader(assets.DefaultAgentProfilePicture)); err != nil {
 		b.pluginAPI.Log.Error("Failed to set bot profile image", "bot_name", bot.cfg.Name, "error", err.Error())
 	}
 }
@@ -509,7 +509,7 @@ func (b *MMBots) ensureDefaultProfileImage(bot *Bot) {
 //
 // serviceConfig must be the service as configured, without the agent's model
 // override: agents on the same service share the provider client cached for it.
-func (b *MMBots) getLLM(serviceConfig llm.ServiceConfig, botConfig llm.BotConfig, fallbackServices []llm.ServiceConfig) (llm.LanguageModel, *llm.ProviderServices, error) {
+func (b *AMBots) getLLM(serviceConfig llm.ServiceConfig, botConfig llm.BotConfig, fallbackServices []llm.ServiceConfig) (llm.LanguageModel, *llm.ProviderServices, error) {
 	entry, err := b.leaseServiceLLM(serviceConfig, fallbackServices)
 	if err != nil {
 		return nil, nil, err
@@ -529,7 +529,7 @@ func (b *MMBots) getLLM(serviceConfig llm.ServiceConfig, botConfig llm.BotConfig
 
 // wrapLLM builds the wrapper chain shared by agent LLMs and service LLMs.
 // botConfig is nil for direct service calls, which have no agent.
-func (b *MMBots) wrapLLM(base llm.LanguageModel, serviceConfig llm.ServiceConfig, botConfig *llm.BotConfig, fallbackServices []llm.ServiceConfig) llm.LanguageModel {
+func (b *AMBots) wrapLLM(base llm.LanguageModel, serviceConfig llm.ServiceConfig, botConfig *llm.BotConfig, fallbackServices []llm.ServiceConfig) llm.LanguageModel {
 	// Truncation Support
 	var result llm.LanguageModel = llm.NewLLMTruncationWrapper(base)
 
@@ -607,7 +607,7 @@ type providerClient struct {
 	shutdown func()
 }
 
-func (b *MMBots) newProviderClient(serviceConfig llm.ServiceConfig, fallbackServices []llm.ServiceConfig) (*providerClient, error) {
+func (b *AMBots) newProviderClient(serviceConfig llm.ServiceConfig, fallbackServices []llm.ServiceConfig) (*providerClient, error) {
 	if b.baseLLMBuilderForTest != nil {
 		model, shutdown, err := b.baseLLMBuilderForTest(serviceConfig, fallbackServices)
 		if err != nil {
@@ -644,7 +644,7 @@ func (b *MMBots) newProviderClient(serviceConfig llm.ServiceConfig, fallbackServ
 }
 
 // TODO: This really doesn't belong here. Figure out where to put this.
-func (b *MMBots) GetTranscribe() Transcriber {
+func (b *AMBots) GetTranscribe() Transcriber {
 	// Get the configured transcript generator bot
 	bot := b.getTranscriberBot()
 	if bot == nil {
@@ -665,7 +665,7 @@ func (b *MMBots) GetTranscribe() Transcriber {
 		provider = schemas.Azure
 	default:
 		b.pluginAPI.Log.Error("Unsupported service type for transcript generator",
-			"bot_name", bot.GetMMBot().Username,
+			"bot_name", bot.GetAMBot().Username,
 			"service_type", service.Type)
 		return nil
 	}
@@ -680,7 +680,7 @@ func (b *MMBots) GetTranscribe() Transcriber {
 	})
 	if err != nil {
 		b.pluginAPI.Log.Error("Failed to create Bifrost transcriber",
-			"bot_name", bot.GetMMBot().Username,
+			"bot_name", bot.GetAMBot().Username,
 			"error", err.Error())
 		return nil
 	}
@@ -689,7 +689,7 @@ func (b *MMBots) GetTranscribe() Transcriber {
 }
 
 // findBot returns the first bot matching pred, or nil.
-func (b *MMBots) findBot(pred func(*Bot) bool) *Bot {
+func (b *AMBots) findBot(pred func(*Bot) bool) *Bot {
 	b.botsLock.RLock()
 	defer b.botsLock.RUnlock()
 	for _, bot := range b.bots {
@@ -700,21 +700,21 @@ func (b *MMBots) findBot(pred func(*Bot) bool) *Bot {
 	return nil
 }
 
-func (b *MMBots) getTranscriberBot() *Bot {
+func (b *AMBots) getTranscriberBot() *Bot {
 	return b.findBot(func(bot *Bot) bool {
 		return bot.cfg.Name == b.config.GetTranscriptGenerator()
 	})
 }
 
 // GetBotByUsername retrieves the bot associated with the given bot username
-func (b *MMBots) GetBotByUsername(botUsername string) *Bot {
+func (b *AMBots) GetBotByUsername(botUsername string) *Bot {
 	return b.findBot(func(bot *Bot) bool {
 		return bot.cfg.Name == botUsername
 	})
 }
 
 // GetBotByUsernameOrFirst retrieves the bot associated with the given bot username or the first bot if not found
-func (b *MMBots) GetBotByUsernameOrFirst(botUsername string) *Bot {
+func (b *AMBots) GetBotByUsernameOrFirst(botUsername string) *Bot {
 	bot := b.GetBotByUsername(botUsername)
 	if bot != nil {
 		return bot
@@ -730,15 +730,15 @@ func (b *MMBots) GetBotByUsernameOrFirst(botUsername string) *Bot {
 }
 
 // GetBotByID retrieves the bot associated with the given bot ID
-func (b *MMBots) GetBotByID(botID string) *Bot {
+func (b *AMBots) GetBotByID(botID string) *Bot {
 	return b.findBot(func(bot *Bot) bool {
-		return bot.mmBot.UserId == botID
+		return bot.amBot.UserId == botID
 	})
 }
 
 // GetBotConfigByID returns the bot's EnableVision and MaxFileSize. ok is
 // false when botID is unknown.
-func (b *MMBots) GetBotConfigByID(botID string) (bool, int64, bool) {
+func (b *AMBots) GetBotConfigByID(botID string) (bool, int64, bool) {
 	bot := b.GetBotByID(botID)
 	if bot == nil {
 		return false, 0, false
@@ -748,26 +748,26 @@ func (b *MMBots) GetBotConfigByID(botID string) (bool, int64, bool) {
 }
 
 // GetBotForDMChannel returns the bot for the given DM channel.
-func (b *MMBots) GetBotForDMChannel(channel *model.Channel) *Bot {
+func (b *AMBots) GetBotForDMChannel(channel *model.Channel) *Bot {
 	return b.findBot(func(bot *Bot) bool {
-		return amapi.IsDMWith(bot.mmBot.UserId, channel)
+		return amapi.IsDMWith(bot.amBot.UserId, channel)
 	})
 }
 
 // IsAnyBot returns true if the given user is an AI bot.
-func (b *MMBots) IsAnyBot(userID string) bool {
+func (b *AMBots) IsAnyBot(userID string) bool {
 	return b.GetBotByID(userID) != nil
 }
 
 // GetBotMentioned returns the bot mentioned in the text, if any.
-func (b *MMBots) GetBotMentioned(text string) *Bot {
+func (b *AMBots) GetBotMentioned(text string) *Bot {
 	return b.findBot(func(bot *Bot) bool {
-		return userIsMentionedMarkdown(text, bot.mmBot.Username)
+		return userIsMentionedMarkdown(text, bot.amBot.Username)
 	})
 }
 
 // GetAllBots returns all bots
-func (b *MMBots) GetAllBots() []*Bot {
+func (b *AMBots) GetAllBots() []*Bot {
 	b.botsLock.RLock()
 	defer b.botsLock.RUnlock()
 
@@ -775,21 +775,21 @@ func (b *MMBots) GetAllBots() []*Bot {
 }
 
 // SetBotsForTesting sets bots directly for testing purposes only
-func (b *MMBots) SetBotsForTesting(bots []*Bot) {
+func (b *AMBots) SetBotsForTesting(bots []*Bot) {
 	b.botsLock.Lock()
 	defer b.botsLock.Unlock()
 	b.bots = bots
 }
 
 // GetAllBotUserIDs returns a list of all bot user IDs
-func (b *MMBots) GetAllBotUserIDs() []string {
+func (b *AMBots) GetAllBotUserIDs() []string {
 	b.botsLock.RLock()
 	defer b.botsLock.RUnlock()
 
 	ids := make([]string, 0, len(b.bots))
 	for _, bot := range b.bots {
-		if bot.mmBot != nil {
-			ids = append(ids, bot.mmBot.UserId)
+		if bot.amBot != nil {
+			ids = append(ids, bot.amBot.UserId)
 		}
 	}
 	return ids

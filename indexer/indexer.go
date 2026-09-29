@@ -23,7 +23,7 @@ type Indexer struct {
 	getSearch    func() embeddings.EmbeddingSearch
 	configGetter func() embeddings.EmbeddingSearchConfig
 	pluginAPI    amapi.Client
-	bots         *bots.MMBots
+	bots         *bots.AMBots
 	db           *sqlx.DB
 	clusterMutex cluster.MutexPluginAPI
 
@@ -43,7 +43,7 @@ func New(
 	getSearch func() embeddings.EmbeddingSearch,
 	configGetter func() embeddings.EmbeddingSearchConfig,
 	pluginAPI amapi.Client,
-	bots *bots.MMBots,
+	bots *bots.AMBots,
 	db *sqlx.DB,
 	clusterMutex cluster.MutexPluginAPI,
 ) *Indexer {

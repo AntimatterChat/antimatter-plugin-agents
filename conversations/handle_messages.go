@@ -267,7 +267,7 @@ func (c *Conversations) handleMentions(ctx context.Context, bot *bots.Bot, post 
 		ChannelId: channel.Id,
 		RootId:    responseRootID,
 	}
-	if placeholderErr := c.createResponsePlaceholder(bot.GetMMBot().UserId, postingUser.Id, responsePost, post.Id); placeholderErr != nil {
+	if placeholderErr := c.createResponsePlaceholder(bot.GetAMBot().UserId, postingUser.Id, responsePost, post.Id); placeholderErr != nil {
 		return fmt.Errorf("unable to create response placeholder: %w", placeholderErr)
 	}
 	progress := newResponseProgressReporter(ctx, c.mmClient, responsePost)
@@ -335,7 +335,7 @@ func (c *Conversations) handleMentionViaConversation(
 	convResult, convErr := c.convService.GetOrCreateConversation(conversation.GetOrCreateParams{
 		UserID:       postingUser.Id,
 		SessionID:    auth.SessionIDFromContext(ctx),
-		BotID:        bot.GetMMBot().UserId,
+		BotID:        bot.GetAMBot().UserId,
 		ChannelID:    channel.Id,
 		RootPostID:   responsePost.RootId,
 		Operation:    "conversation",
@@ -435,7 +435,7 @@ func (c *Conversations) handleDMs(ctx context.Context, bot *bots.Bot, channel *m
 		ChannelId: channel.Id,
 		RootId:    responseRootID,
 	}
-	if placeholderErr := c.createResponsePlaceholder(bot.GetMMBot().UserId, postingUser.Id, responsePost, post.Id); placeholderErr != nil {
+	if placeholderErr := c.createResponsePlaceholder(bot.GetAMBot().UserId, postingUser.Id, responsePost, post.Id); placeholderErr != nil {
 		return fmt.Errorf("unable to create response placeholder: %w", placeholderErr)
 	}
 	progress := newResponseProgressReporter(ctx, c.mmClient, responsePost)
@@ -468,7 +468,7 @@ func (c *Conversations) handleDMViaConversation(ctx context.Context, bot *bots.B
 	progress.Advance(responseProgressLoadingConversation)
 	ensureDMWebSearchTracking(llmContext)
 
-	convResult, err := c.createOrGetDMConversation(auth.SessionIDFromContext(ctx), bot.GetMMBot().UserId, postingUser, channel, post, llmContext)
+	convResult, err := c.createOrGetDMConversation(auth.SessionIDFromContext(ctx), bot.GetAMBot().UserId, postingUser, channel, post, llmContext)
 	if err != nil {
 		return fmt.Errorf("unable to create DM conversation: %w", err)
 	}

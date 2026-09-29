@@ -17,7 +17,7 @@ import (
 //   - cfg: The bot's configuration (name, display name, permissions, etc.)
 //   - service: The RESOLVED service configuration (use GetService() to access).
 //     DO NOT use cfg.Service or cfg.ServiceID directly - those are internal references.
-//   - mmBot: The Mattermost bot user
+//   - amBot: The Mattermost bot user
 //   - llm: The initialized language model instance
 //   - providerServices: resolved from the concrete client before wrapping (see llm.ProviderServices)
 //
@@ -26,7 +26,7 @@ import (
 type Bot struct {
 	cfg              llm.BotConfig
 	service          llm.ServiceConfig
-	mmBot            *model.Bot
+	amBot            *model.Bot
 	llm              llm.LanguageModel
 	providerServices *llm.ProviderServices
 }
@@ -35,16 +35,16 @@ func (b *Bot) GetConfig() llm.BotConfig {
 	return b.cfg
 }
 
-func (b *Bot) GetMMBot() *model.Bot {
-	return b.mmBot
+func (b *Bot) GetAMBot() *model.Bot {
+	return b.amBot
 }
 
 // BotUserID returns the Mattermost user ID of the bot's user account, or "" when no bot user exists.
 func (b *Bot) BotUserID() string {
-	if b.mmBot == nil {
+	if b.amBot == nil {
 		return ""
 	}
-	return b.mmBot.UserId
+	return b.amBot.UserId
 }
 
 func (b *Bot) LLM() llm.LanguageModel {
@@ -124,11 +124,11 @@ func (b *Bot) SetProviderServicesForTest(services *llm.ProviderServices) {
 }
 
 // NewBot has no provider services. Use EnsureBots for a wired bot, or WithConfig to derive one.
-func NewBot(cfg llm.BotConfig, service llm.ServiceConfig, mmBot *model.Bot, llmInstance llm.LanguageModel) *Bot {
+func NewBot(cfg llm.BotConfig, service llm.ServiceConfig, amBot *model.Bot, llmInstance llm.LanguageModel) *Bot {
 	return &Bot{
 		cfg:     cfg,
 		service: service,
-		mmBot:   mmBot,
+		amBot:   amBot,
 		llm:     llmInstance,
 	}
 }

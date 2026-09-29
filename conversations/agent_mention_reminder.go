@@ -54,8 +54,8 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 		return
 	}
 
-	mmBot := bot.GetMMBot()
-	if mmBot == nil {
+	amBot := bot.GetAMBot()
+	if amBot == nil {
 		return
 	}
 	if err := c.bots.CheckUsageRestrictions(ctx, post.UserId, bot, channel); err != nil {
@@ -64,7 +64,7 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 			"error", err.Error(),
 			"post_id", post.Id,
 			"user_id", post.UserId,
-			"bot_username", mmBot.Username,
+			"bot_username", amBot.Username,
 		)
 		return
 	}
@@ -85,9 +85,9 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 	// via the "type" prop instead, which the webapp maps to the registered
 	// custom post type component.
 	ephemeral.AddProp("type", AgentMentionReminderPostType)
-	ephemeral.AddProp(AgentMentionReminderBotUserIDProp, mmBot.UserId)
-	ephemeral.AddProp(AgentMentionReminderBotUsernameProp, mmBot.Username)
-	ephemeral.AddProp(AgentMentionReminderBotDisplayNameProp, mmBot.DisplayName)
+	ephemeral.AddProp(AgentMentionReminderBotUserIDProp, amBot.UserId)
+	ephemeral.AddProp(AgentMentionReminderBotUsernameProp, amBot.Username)
+	ephemeral.AddProp(AgentMentionReminderBotDisplayNameProp, amBot.DisplayName)
 	ephemeral.AddProp(AgentMentionReminderTargetPostIDProp, post.Id)
 
 	c.mmClient.SendEphemeralPost(post.UserId, ephemeral)

@@ -278,7 +278,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		idx := New(func() embeddings.EmbeddingSearch {
 			getterCalls++
 			return search
-		}, nil, mockClient, &bots.MMBots{}, db, nil)
+		}, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-defer-ordering", mainCutoff)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -346,7 +346,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-finalize-fail", now-5000)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -389,7 +389,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 		idx.storeRetryAttempts = 1 // fail fast instead of exponential backoff
 
 		jobStatus := newDeferJobStatus("job-mainpass-fail", now-5000)
@@ -442,7 +442,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus(jobID, now-5000)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -473,7 +473,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, nil, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, nil, nil)
 
 		jobStatus := newDeferJobStatus("job-defer-panic", 0)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -512,7 +512,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-maintain", now-5000)
 		idx.runReindexJob(jobStatus, true, nil)
@@ -547,7 +547,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-no-bulk", now-5000)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -589,7 +589,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-superseded-no-bulk", now-5000)
 		staleRun := &deferredRun{state: VectorIndexState{JobID: "job-superseded-no-bulk", Phase: VectorIndexPhaseDropped}}
@@ -631,7 +631,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-adopted-no-bulk", now-5000)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -654,7 +654,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			t.Helper()
 			rec := &callRecorder{}
 			bulkSearch := &fakeDeferSearch{rec: rec, bulk: &fakeBulkIndexer{rec: rec}}
-			resolver := New(func() embeddings.EmbeddingSearch { return bulkSearch }, deferCfg, mockClient, &bots.MMBots{}, nil, nil)
+			resolver := New(func() embeddings.EmbeddingSearch { return bulkSearch }, deferCfg, mockClient, &bots.AMBots{}, nil, nil)
 			deferRun, err := resolver.resolveDeferredRebuild(true, jobID)
 			require.NoError(t, err)
 			require.NotNil(t, deferRun)
@@ -687,7 +687,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			deferRun := resolveConvertedRun(t, mockClient, "job-converted-nosearch")
 
 			// Search gone by job body (e.g. config disabled embeddings).
-			idx := New(func() embeddings.EmbeddingSearch { return nil }, deferCfg, mockClient, &bots.MMBots{}, nil, nil)
+			idx := New(func() embeddings.EmbeddingSearch { return nil }, deferCfg, mockClient, &bots.AMBots{}, nil, nil)
 			jobStatus := newDeferJobStatus("job-converted-nosearch", model.GetMillis())
 			idx.runReindexJob(jobStatus, true, deferRun)
 
@@ -722,7 +722,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 
 			rec := &callRecorder{}
 			nonBulkSearch := &fakeDeferSearch{rec: rec, bulk: nil, mainCutoff: now}
-			idx := New(func() embeddings.EmbeddingSearch { return nonBulkSearch }, deferCfg, mockClient, &bots.MMBots{}, db, nil)
+			idx := New(func() embeddings.EmbeddingSearch { return nonBulkSearch }, deferCfg, mockClient, &bots.AMBots{}, db, nil)
 			jobStatus := newDeferJobStatus("job-converted-nobulk", now-5000)
 			idx.runReindexJob(jobStatus, true, deferRun)
 
@@ -760,7 +760,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-superseded", now-5000)
 		staleRun := &deferredRun{state: VectorIndexState{JobID: "job-superseded", Phase: VectorIndexPhaseDropped}}
@@ -816,7 +816,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-edited-post", mainCutoff)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -882,7 +882,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus("job-emptied-post", mainCutoff)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -924,7 +924,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		// Resume path: clearIndex=false, defer ownership already resolved.
 		jobStatus := newDeferJobStatus("job-defer-resume", now-5000)
@@ -975,7 +975,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		cancelClient.On("LogWarn", mock.Anything).Return().Maybe()
 		cancelClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		cancelIdx := New(func() embeddings.EmbeddingSearch { return cancelSearch }, nil, cancelClient, &bots.MMBots{}, db, nil)
+		cancelIdx := New(func() embeddings.EmbeddingSearch { return cancelSearch }, nil, cancelClient, &bots.AMBots{}, db, nil)
 		cancelStatus := newDeferJobStatus(cancelJobID, now-5000)
 		cancelIdx.runReindexJob(cancelStatus, true, cancelRun)
 
@@ -1003,7 +1003,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		resumeClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		resumeClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		resumeIdx := New(func() embeddings.EmbeddingSearch { return resumeSearch }, nil, resumeClient, &bots.MMBots{}, db, nil)
+		resumeIdx := New(func() embeddings.EmbeddingSearch { return resumeSearch }, nil, resumeClient, &bots.AMBots{}, db, nil)
 		resumeStatus := newDeferJobStatus(resumeJobID, now-5000)
 		resumeIdx.runReindexJob(resumeStatus, false, resumeRun)
 
@@ -1069,7 +1069,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 			}
 		}
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 		jobStatus := newDeferJobStatus(jobID, now-5000)
 		idx.runReindexJob(jobStatus, true, deferRun)
 
@@ -1133,7 +1133,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus(jobID, now-5000)
 		idx.runReindexJob(jobStatus, true, deferRun)
@@ -1185,7 +1185,7 @@ func TestRunReindexJobDeferLifecycle(t *testing.T) {
 		mockClient.On("LogWarn", mock.Anything, mock.Anything).Return().Maybe()
 		mockClient.On("LogError", mock.Anything, mock.Anything).Return().Maybe()
 
-		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.MMBots{}, db, nil)
+		idx := New(func() embeddings.EmbeddingSearch { return search }, nil, mockClient, &bots.AMBots{}, db, nil)
 
 		jobStatus := newDeferJobStatus(jobID, now-5000)
 		idx.runReindexJob(jobStatus, false, deferRun)
@@ -1616,7 +1616,7 @@ func TestIndexPostDeferGating(t *testing.T) {
 				mockSearch.On("Store", mock.Anything, mock.Anything).Return(nil).Once()
 			}
 
-			idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.MMBots{}, nil, nil)
+			idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.AMBots{}, nil, nil)
 			err := idx.IndexPost(context.Background(), post, channel)
 			require.NoError(t, err)
 		})
@@ -1690,7 +1690,7 @@ func TestDeleteWritesDeferGating(t *testing.T) {
 				mockSearch.On("Delete", mock.Anything, []string{"post1"}).Return(nil).Once()
 			}
 
-			idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.MMBots{}, nil, nil)
+			idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.AMBots{}, nil, nil)
 			err := idx.DeletePost(context.Background(), "post1")
 			require.NoError(t, err)
 		})
@@ -1702,7 +1702,7 @@ func TestDeleteWritesDeferGating(t *testing.T) {
 				mockSearch.On("DeleteOrphaned", mock.Anything, int64(1000), int64(100)).Return(int64(3), nil).Once()
 			}
 
-			idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.MMBots{}, nil, nil)
+			idx := New(func() embeddings.EmbeddingSearch { return mockSearch }, nil, mockClient, &bots.AMBots{}, nil, nil)
 			count, err := idx.RunDataRetention(context.Background(), 1000, 100)
 			require.NoError(t, err)
 			if tt.wantWrite {

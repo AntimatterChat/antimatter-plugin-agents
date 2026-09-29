@@ -66,5 +66,5 @@ func (c *Conversations) handleAutoReply(ctx context.Context, setting *autoreply.
 		return fmt.Errorf("auto-reply bot unavailable for user/channel: %v: %w", err, ErrNoResponse)
 	}
 
-	return c.handleMentions(ctx, bot, cloneWithAgentMention(post, bot.GetMMBot().Username), postingUser, channel)
+	return c.handleMentions(ctx, bot, cloneWithAgentMention(post, bot.GetAMBot().Username), postingUser, channel)
 }
