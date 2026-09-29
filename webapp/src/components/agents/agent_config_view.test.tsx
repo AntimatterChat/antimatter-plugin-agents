@@ -31,10 +31,6 @@ jest.mock('react-intl', () => {
     };
 });
 
-jest.mock('@/license', () => ({
-    useIsLicensedFor: jest.fn(() => true),
-}));
-
 jest.mock('@/utils/permissions', () => ({
     useCurrentUserHasSystemPermission: jest.fn(),
 }));
@@ -518,12 +514,7 @@ describe('AgentConfigView', () => {
         }));
     });
 
-    test.each([
-        {licensed: true, expected: ['web_search']},
-        {licensed: false, expected: []},
-    ])('defaults provider web search on create only where it is licensed (licensed=$licensed)', async ({licensed, expected}) => {
-        const {useIsLicensedFor} = jest.requireMock('@/license') as {useIsLicensedFor: jest.Mock};
-        useIsLicensedFor.mockImplementation((capability: string) => capability !== 'provider_web_search' || licensed);
+    test('defaults provider web search on create', async () => {
         mockCreateAgent.mockResolvedValue(savedAgent);
         renderView();
 
@@ -532,8 +523,7 @@ describe('AgentConfigView', () => {
         fireEvent.click(screen.getByRole('button', {name: 'Save'}));
 
         await waitFor(() => expect(mockCreateAgent).toHaveBeenCalledTimes(1));
-        expect(mockCreateAgent).toHaveBeenCalledWith(expect.objectContaining({enabledNativeTools: expected}));
-        useIsLicensedFor.mockReturnValue(true);
+        expect(mockCreateAgent).toHaveBeenCalledWith(expect.objectContaining({enabledNativeTools: ['web_search']}));
     });
 
     test('serializes explicit MCP settings on create', async () => {

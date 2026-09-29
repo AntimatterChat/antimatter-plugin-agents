@@ -35,12 +35,6 @@ jest.mock('@/client', () => ({
     savePluginConfig: jest.fn(),
 }));
 
-jest.mock('@/license', () => ({
-    useIsLicensedFor: jest.fn(() => true),
-    useLicenseLevelName: jest.fn(() => () => 'Enterprise'),
-    requiredLevelFor: jest.fn(() => 2),
-}));
-
 // The heavy editors are not under test; expose the identity each entry is
 // rendered with so ID propagation from the save response is observable.
 jest.mock('./services', () => ({
@@ -108,7 +102,6 @@ function renderConfig() {
         disabled: false,
         config: {},
         currentState: {},
-        license: {},
         setByEnv: false,
         onChange: jest.fn(),
         setSaveNeeded: jest.fn(),
@@ -176,62 +169,5 @@ describe('Config save flow', () => {
         expect(result.error?.message).toBe('Failed to save configuration.');
         expect(screen.getByText('service:My Service:unsaved')).toBeTruthy();
         expect(screen.getByText('mcp:Jira:unsaved')).toBeTruthy();
-    });
-});
-
-describe('Config license gating', () => {
-    const {useIsLicensedFor} = jest.requireMock('@/license') as {useIsLicensedFor: jest.Mock};
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-        useIsLicensedFor.mockReturnValue(true);
-        (getPluginConfig as jest.Mock).mockResolvedValue({
-            ...loadedConfig,
-            enableTokenUsageLogging: true,
-            allowNativeWebSearchInChannels: true,
-        });
-        (getAIBots as jest.Mock).mockResolvedValue({bots: [{username: 'matty', displayName: 'Matty'}]});
-    });
-
-    function rowFor(label: string): HTMLElement {
-        const el = screen.getByText(label);
-        const row = el.tagName === 'LABEL' ? el.parentElement : el.closest('div');
-        if (!row) {
-            throw new Error(`No row for ${label}`);
-        }
-        return row;
-    }
-
-    function trueRadioFor(label: string): HTMLInputElement {
-        return rowFor(label).querySelector('input[value="true"]') as HTMLInputElement;
-    }
-
-    function falseRadioFor(label: string): HTMLInputElement {
-        return rowFor(label).querySelector('input[value="false"]') as HTMLInputElement;
-    }
-
-    it('keeps token logging and native web search settings visible below their minimum and allows turning them off', async () => {
-        useIsLicensedFor.mockReturnValue(false);
-        renderConfig();
-        await screen.findByText('Enable Token Usage Logging');
-
-        expect(trueRadioFor('Enable Token Usage Logging').disabled).toBe(true);
-        expect(falseRadioFor('Enable Token Usage Logging').disabled).toBe(false);
-        expect(trueRadioFor('Allow native web search in channels').disabled).toBe(true);
-        expect(falseRadioFor('Allow native web search in channels').disabled).toBe(false);
-    });
-
-    it('allows enabling token logging and native web search settings when licensed', async () => {
-        useIsLicensedFor.mockReturnValue(true);
-        (getPluginConfig as jest.Mock).mockResolvedValue({
-            ...loadedConfig,
-            enableTokenUsageLogging: false,
-            allowNativeWebSearchInChannels: false,
-        });
-        renderConfig();
-        await screen.findByText('Enable Token Usage Logging');
-
-        expect(trueRadioFor('Enable Token Usage Logging').disabled).toBe(false);
-        expect(trueRadioFor('Allow native web search in channels').disabled).toBe(false);
     });
 });

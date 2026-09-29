@@ -24,7 +24,7 @@ export type EnabledTool = {
 }
 
 // Mirrors config.AgentInactiveReason on the backend.
-export type AgentInactiveReason = 'invalid_config' | 'service_unavailable' | 'service_not_licensed' | 'agent_limit';
+export type AgentInactiveReason = 'invalid_config' | 'service_unavailable';
 
 // UserAgent matches the JSON serialization of *llm.BotConfig from the backend.
 // The backend API (GET /agents, GET /agents/:id, POST /agents, PUT /agents/:id)

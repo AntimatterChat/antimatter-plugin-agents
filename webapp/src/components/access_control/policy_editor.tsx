@@ -47,11 +47,6 @@ export type PolicyEditorProps = {
     // When set, render nothing unless a policy already exists. Used so a
     // retained policy stays visible after switching to a legacy access mode.
     hideWhenEmpty?: boolean;
-
-    // When false, the current policy stays visible and can be removed, but
-    // it cannot be created or saved. Used when attribute-based access is
-    // not licensed.
-    allowEdit?: boolean;
 };
 
 // EditorMode is the user-selectable editor; 'unsupported' is the read-only
@@ -110,7 +105,7 @@ function policyClientFor(resourceType: PolicyResourceType) {
 const DELETE_POLICY_TITLE_ID = 'delete-access-policy-title';
 
 const PolicyEditorContent = (props: PolicyEditorProps) => {
-    const {resourceType, resourceId, resourceDisplayName, allowSimplified, allowAdvanced, agentIdForAuthz, hideWhenEmpty, allowEdit = true} = props;
+    const {resourceType, resourceId, resourceDisplayName, allowSimplified, allowAdvanced, agentIdForAuthz, hideWhenEmpty} = props;
     const intl = useIntl();
     const editors = getAccessControlEditors();
     const client = useMemo(() => policyClientFor(resourceType), [resourceType]);
@@ -203,10 +198,6 @@ const PolicyEditorContent = (props: PolicyEditorProps) => {
     }, [allowAdvanced]);
 
     const handleSave = useCallback(async () => {
-        if (!allowEdit) {
-            return;
-        }
-
         // The editor is a single-expression UI. Multi-rule policies keep
         // rules[1..n] invisible; refusing to save avoids persisting hidden
         // restrictions the author never reviewed.
@@ -246,7 +237,7 @@ const PolicyEditorContent = (props: PolicyEditorProps) => {
         } finally {
             setSaving(false);
         }
-    }, [allowEdit, client, policy, resourceId, resourceDisplayName, expression, intl]);
+    }, [client, policy, resourceId, resourceDisplayName, expression, intl]);
 
     const handleDelete = useCallback(async () => {
         setShowDeleteConfirm(false);
@@ -395,7 +386,7 @@ const PolicyEditorContent = (props: PolicyEditorProps) => {
                     <SavePolicyButton
                         type='button'
                         onClick={handleSave}
-                        disabled={!canSave || !allowEdit}
+                        disabled={!canSave}
                     >
                         {saving ? (
                             <FormattedMessage defaultMessage='Saving...'/>

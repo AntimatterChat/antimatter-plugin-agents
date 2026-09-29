@@ -35,17 +35,6 @@ jest.mock('../../client', () => ({
     updatePluginServer: jest.fn().mockResolvedValue({}),
 }));
 
-jest.mock('@/license', () => ({
-    useIsLicensedFor: jest.fn(() => true),
-    useLicenseLevelName: jest.fn(() => () => 'Enterprise'),
-    requiredLevelFor: jest.fn(() => 2),
-}));
-
-jest.mock('react-bootstrap', () => ({
-    OverlayTrigger: ({children, overlay}: {children: React.ReactNode; overlay: React.ReactNode}) => <>{children}{overlay}</>,
-    Tooltip: ({children}: {children: React.ReactNode}) => <div>{children}</div>,
-}), {virtual: true});
-
 type ServerConfigChangeCb = (cfg: {
     name: string;
     enabled: boolean;

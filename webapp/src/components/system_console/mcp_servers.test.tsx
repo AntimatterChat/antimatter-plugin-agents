@@ -44,12 +44,6 @@ jest.mock('react-redux', () => ({
     useSelector: jest.fn(() => null),
 }));
 
-jest.mock('@/license', () => ({
-    useIsLicensedFor: jest.fn(() => true),
-    useLicenseLevelName: jest.fn(() => () => 'Enterprise'),
-    requiredLevelFor: jest.fn(() => 2),
-}));
-
 jest.mock('../../client', () => ({
     __esModule: true,
     getMCPTools: jest.fn().mockResolvedValue({servers: []}),
@@ -73,15 +67,12 @@ jest.mock('../access_control/console_policy_section', () => ({
 /* eslint-disable import/first, import/order */
 import {IntlProvider} from 'react-intl';
 
-import {useIsLicensedFor} from '@/license';
-
 import {getMCPTools} from '../../client';
 
 import MCPServers, {type MCPConfig, type MCPServerConfig} from './mcp_servers';
 import type {PluginServerConfig} from './mcp_types';
 /* eslint-enable import/first, import/order */
 
-const mockUseIsLicensedFor = useIsLicensedFor as jest.Mock;
 const mockGetMCPTools = getMCPTools as jest.Mock;
 
 const STABLE_ID = 'abcdefghijklmnopqrstuvwxyz';
@@ -142,9 +133,6 @@ describe('MCPServers stable ID handling', () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
-        // The remote-server UI these tests drive is behind the license gate.
-        mockUseIsLicensedFor.mockReturnValue(true);
-
         // Never resolves: these assertions are synchronous, so a resolving
         // prefetch would update state outside act().
         mockGetMCPTools.mockReturnValue(new Promise(() => null));
@@ -189,7 +177,6 @@ describe('MCPServers stable ID handling', () => {
 describe('MCPServers service account headers', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockUseIsLicensedFor.mockReturnValue(true);
     });
 
     // Rows render in DOM order: base Headers first, then Service Account headers.
@@ -255,59 +242,34 @@ describe('MCPServers service account headers', () => {
     });
 });
 
-describe('MCPServers license gating', () => {
+describe('MCPServers remote servers', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockGetMCPTools.mockResolvedValue({servers: []});
     });
 
-    test('unlicensed: existing empty list stays visible and add is disabled with a chip', async () => {
-        mockUseIsLicensedFor.mockReturnValue(false);
-
-        renderServers(makeMCPConfig());
-
-        const addButton = screen.getByRole('button', {name: /Add Remote MCP Server/}) as HTMLButtonElement;
-        expect(addButton.disabled).toBe(true);
-        expect(screen.getByText(/No remote MCP servers configured/)).not.toBeNull();
-        expect(screen.queryByText('MCP OAuth Callback URL')).toBeNull();
-        await waitFor(() => {
-            expect(screen.getAllByText('Available on Enterprise plans and above').length).toBeGreaterThan(0);
-        });
-    });
-
-    test('unlicensed with configured servers: server rows stay visible and add is disabled', async () => {
-        mockUseIsLicensedFor.mockReturnValue(false);
-
-        renderServers(makeMCPConfig([makeRemoteServer()]));
-
-        expect(screen.getByText('Jira')).not.toBeNull();
-        const addButton = screen.getByRole('button', {name: /Add Remote MCP Server/}) as HTMLButtonElement;
-        expect(addButton.disabled).toBe(true);
-        expect(screen.getByText('MCP OAuth Callback URL')).not.toBeNull();
-        await waitFor(() => {
-            expect(screen.getAllByText('Available on Enterprise plans and above').length).toBeGreaterThan(0);
-        });
-    });
-
-    test('licensed: remote server UI is shown and no license UI appears', async () => {
-        mockUseIsLicensedFor.mockReturnValue(true);
-
+    test('remote server UI is shown with add enabled', async () => {
         renderServers(makeMCPConfig([makeRemoteServer()]));
 
         const addButton = screen.getByRole('button', {name: /Add Remote MCP Server/});
         expect((addButton as HTMLButtonElement).disabled).toBe(false);
         expect(screen.getByText('Jira')).not.toBeNull();
         expect(screen.getByText('MCP OAuth Callback URL')).not.toBeNull();
-        await waitFor(() => {
-            expect(screen.queryByText('Available on Enterprise plans and above')).toBeNull();
-        });
+    });
+
+    test('empty list shows the empty state, the callback URL and an enabled add button', () => {
+        renderServers(makeMCPConfig());
+
+        const addButton = screen.getByRole('button', {name: /Add Remote MCP Server/}) as HTMLButtonElement;
+        expect(addButton.disabled).toBe(false);
+        expect(screen.getByText(/No remote MCP servers configured/)).not.toBeNull();
+        expect(screen.getByText('MCP OAuth Callback URL')).not.toBeNull();
     });
 });
 
 describe('MCPServers built-in & plugin section', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockUseIsLicensedFor.mockReturnValue(true);
         mockGetMCPTools.mockResolvedValue({servers: []});
     });
 
@@ -407,8 +369,7 @@ describe('MCPServers built-in & plugin section', () => {
             }],
         });
 
-        // Unlicensed so remote add is disabled; built-in cards must stay read-only.
-        mockUseIsLicensedFor.mockReturnValue(false);
+        // Built-in cards must stay read-only.
         renderServers(makeMCPConfig());
 
         await waitFor(() => {

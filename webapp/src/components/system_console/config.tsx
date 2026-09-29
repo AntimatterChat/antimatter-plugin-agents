@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import {FormattedMessage, useIntl} from 'react-intl';
 
 import {getPluginConfig, getAIBots, savePluginConfig} from '@/client';
-import {useIsLicensedFor} from '@/license';
 
 import {Pill} from '../pill';
 
@@ -14,7 +13,6 @@ import Panel, {PanelFooterText} from './panel';
 import Services, {firstNewService} from './services';
 import {LLMService} from './service';
 import {BooleanItem, ItemList, SelectionItem, SelectionItemOption, TextItem} from './item';
-import {LicenseChip} from './enterprise_chip';
 import NoServicesPage from './no_services_page';
 import BotsMovedNotice from './bots_moved_notice';
 import EmbeddingSearchPanel from './embedding_search/embedding_search_panel';
@@ -39,7 +37,6 @@ type Props = {
     disabled: boolean
     config: any
     currentState: any
-    license: any
     setByEnv: boolean
     onChange: (id: string, value: any) => void
     setSaveNeeded: () => void
@@ -195,8 +192,6 @@ const Config = (props: Props) => {
     const [runtimeBots, setRuntimeBots] = useState<RuntimeBotOption[]>([]);
     const [runtimeBotsError, setRuntimeBotsError] = useState<string | null>(null);
     const intl = useIntl();
-    const tokenAccountingLicensed = useIsLicensedFor('token_accounting');
-    const providerWebSearchLicensed = useIsLicensedFor('provider_web_search');
 
     // Load config from plugin API on mount
     useEffect(() => {
@@ -376,10 +371,6 @@ const Config = (props: Props) => {
                     <BooleanItem
                         label={<FormattedMessage defaultMessage='Allow native web search in channels'/>}
                         value={Boolean(value.allowNativeWebSearchInChannels)}
-                        disableTrue={!providerWebSearchLicensed}
-                        extra={!providerWebSearchLicensed && (
-                            <LicenseChip capability='provider_web_search'/>
-                        )}
                         onChange={(to) => {
                             updateConfig({allowNativeWebSearchInChannels: to});
                         }}
@@ -414,10 +405,6 @@ const Config = (props: Props) => {
                     <BooleanItem
                         label={intl.formatMessage({defaultMessage: 'Enable Token Usage Logging'})}
                         value={value.enableTokenUsageLogging}
-                        disableTrue={!tokenAccountingLicensed}
-                        extra={!tokenAccountingLicensed && (
-                            <LicenseChip capability='token_accounting'/>
-                        )}
                         onChange={(to) => updateConfig({enableTokenUsageLogging: to})}
                         helpText={intl.formatMessage({defaultMessage: 'Enable logging of token usage for all LLM interactions.'})}
                     />

@@ -37,8 +37,6 @@ import {IntItem} from '@/components/system_console/number_items';
 import ReasoningConfigItem from '@/components/system_console/reasoning_config';
 import {LLMService} from '@/components/system_console/service';
 
-import {LicenseLevel, useIsLicensedFor, useLicenseLevelName, useServiceLimit} from '@/license';
-
 import {AgentDraft} from '../agent_config_view';
 
 type Props = {
@@ -67,9 +65,6 @@ const ConfigTab = (props: Props) => {
         usernameLocked = false,
     } = props;
     const intl = useIntl();
-    const serviceLimit = useServiceLimit();
-    const providerWebSearchLicensed = useIsLicensedFor('provider_web_search');
-    const levelName = useLicenseLevelName();
     const [advancedExpanded, setAdvancedExpanded] = useState(false);
     const [availableModels, setAvailableModels] = useState<{id: string; displayName: string}[]>([]);
     const customInstructionsLength = useMemo(() => codePointLength(draft.customInstructions), [draft.customInstructions]);
@@ -100,18 +95,16 @@ const ConfigTab = (props: Props) => {
             const sameServiceType = Boolean(prevSvc && nextSvc && prevSvc.type === nextSvc.type);
             onChange({
                 model: '',
-                ...(sameServiceType ?
-                    {} :
-                    {
-                        enabledNativeTools: providerWebSearchLicensed ? ['web_search'] : [],
-                        reasoningEnabled: true,
-                        reasoningEffort: 'medium',
-                        thinkingBudget: 0,
-                    }),
+                ...(sameServiceType ? {} : {
+                    enabledNativeTools: ['web_search'],
+                    reasoningEnabled: true,
+                    reasoningEffort: 'medium',
+                    thinkingBudget: 0,
+                }),
             });
         }
         prevServiceIdRef.current = draft.serviceId;
-    }, [draft.serviceId, onChange, services, providerWebSearchLicensed]);
+    }, [draft.serviceId, onChange, services]);
 
     const selectedService = services.find((s) => s.id === draft.serviceId);
 
@@ -226,9 +219,7 @@ const ConfigTab = (props: Props) => {
     const maxTokens = selectedService?.outputTokenLimit || 4096;
     const serviceDefaultModel = selectedService?.defaultModel?.trim() || '';
 
-    const modelPlaceholder = serviceDefaultModel ?
-        intl.formatMessage({defaultMessage: 'Default: {model}'}, {model: serviceDefaultModel}) :
-        intl.formatMessage({defaultMessage: 'Leave empty to use service default'});
+    const modelPlaceholder = serviceDefaultModel ? intl.formatMessage({defaultMessage: 'Default: {model}'}, {model: serviceDefaultModel}) : intl.formatMessage({defaultMessage: 'Leave empty to use service default'});
 
     const modelHelptext = (() => {
         if (supportsModelFetching && loadingModels) {
@@ -246,16 +237,12 @@ const ConfigTab = (props: Props) => {
         return intl.formatMessage({defaultMessage: 'Optional: Override the service\'s default model for this agent. Leave empty to use the service default.'});
     })();
 
-    const comboboxModelHelptext = serviceDefaultModel ?
-        intl.formatMessage(
-            {defaultMessage: 'Optional: Override the service\'s default model ({defaultModel}) for this agent. Select from the list or type a custom model name.'},
-            {defaultModel: serviceDefaultModel},
-        ) :
-        intl.formatMessage({defaultMessage: 'Optional: Override the service\'s default model for this agent. Select from the list or type a custom model name.'});
+    const comboboxModelHelptext = serviceDefaultModel ? intl.formatMessage(
+        {defaultMessage: 'Optional: Override the service\'s default model ({defaultModel}) for this agent. Select from the list or type a custom model name.'},
+        {defaultModel: serviceDefaultModel},
+    ) : intl.formatMessage({defaultMessage: 'Optional: Override the service\'s default model for this agent. Select from the list or type a custom model name.'});
 
-    const comboboxModelPlaceholder = serviceDefaultModel ?
-        intl.formatMessage({defaultMessage: 'Default: {model}'}, {model: serviceDefaultModel}) :
-        intl.formatMessage({defaultMessage: 'Use service default'});
+    const comboboxModelPlaceholder = serviceDefaultModel ? intl.formatMessage({defaultMessage: 'Default: {model}'}, {model: serviceDefaultModel}) : intl.formatMessage({defaultMessage: 'Use service default'});
 
     const handleReasoningBotChange = (bot: LLMBotConfig) => {
         onChange({
@@ -297,17 +284,10 @@ const ConfigTab = (props: Props) => {
                     value={draft.serviceId}
                     onChange={(e) => onChange({serviceId: e.target.value})}
                     error={errors.serviceId}
-                    helptext={
-                        serviceLimit !== null && services.length > 1 ?
-                            intl.formatMessage(
-                                {defaultMessage: 'Only the first configured service is active on your current plan. Additional services are available on {plan} plans and above.'},
-                                {plan: levelName(LicenseLevel.Enterprise)},
-                            ) :
-                            intl.formatMessage({
-                                defaultMessage:
-                                    'Select an AI service to load model suggestions and configure vision, tools, native provider tools, and reasoning.',
-                            })
-                    }
+                    helptext={intl.formatMessage({
+                        defaultMessage:
+                            'Select an AI service to load model suggestions and configure vision, tools, native provider tools, and reasoning.',
+                    })}
                 >
                     <SelectionItemOption value=''>
                         {intl.formatMessage({defaultMessage: 'Select a service'})}
@@ -320,11 +300,10 @@ const ConfigTab = (props: Props) => {
                             {intl.formatMessage({defaultMessage: 'Unknown service (deleted)'})}
                         </SelectionItemOption>
                     )}
-                    {services.map((svc, index) => (
+                    {services.map((svc) => (
                         <SelectionItemOption
                             key={svc.id}
                             value={svc.id}
-                            disabled={serviceLimit !== null && index >= serviceLimit}
                         >
                             {svc.name || svc.type}
                         </SelectionItemOption>

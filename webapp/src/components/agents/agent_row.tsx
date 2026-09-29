@@ -224,10 +224,6 @@ const AgentRow = (props: Props) => {
 
 const InactiveReasonMessage = ({reason}: {reason: AgentInactiveReason}) => {
     switch (reason) {
-    case 'service_not_licensed':
-        return <FormattedMessage defaultMessage='This agent uses an LLM service that is not active on your current plan. Only the first configured service is active; multiple LLM services are available on Enterprise plans and above. Edit the agent to choose the active service.'/>;
-    case 'agent_limit':
-        return <FormattedMessage defaultMessage='Your current plan has reached its limit of active AI agents, and agents created earlier take the available slots. Delete an earlier agent, or upgrade your plan for more agents.'/>;
     case 'service_unavailable':
         return <FormattedMessage defaultMessage='This agent’s LLM service was deleted or is missing required settings. Edit the agent to choose another service, or complete the service configuration.'/>;
     default:

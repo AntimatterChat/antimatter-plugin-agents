@@ -21,7 +21,6 @@ import {
 import {ChannelAccessLevel, UserAccessLevel} from '@/components/system_console/bot';
 import {PrimaryButton, TertiaryButton} from '@/components/assets/buttons';
 import ConfirmationDialog from '@/components/confirmation_dialog';
-import {useIsLicensedFor} from '@/license';
 import {useABACSupport} from '@/utils/access_control';
 import {useCurrentUserHasSystemPermission} from '@/utils/permissions';
 
@@ -206,7 +205,6 @@ const AgentConfigView = (props: Props) => {
     // Parent owns the manage_system check via useCurrentUserHasSystemPermission.
     const canEditServiceAccountAuth = useCurrentUserHasSystemPermission('manage_system');
     const {supported: abacSupported} = useABACSupport();
-    const providerWebSearchLicensed = useIsLicensedFor('provider_web_search');
 
     const [activeTab, setActiveTab] = useState<Tab>('config');
     const initialDraft = useMemo(() => {
@@ -217,13 +215,8 @@ const AgentConfigView = (props: Props) => {
         if (services.length > 0) {
             draft.serviceId = services[0].id;
         }
-
-        // Provider-native web search is on by default where it is available.
-        if (!providerWebSearchLicensed) {
-            draft.enabledNativeTools = draft.enabledNativeTools.filter((tool) => tool !== 'web_search');
-        }
         return draft;
-    }, [agent, services, providerWebSearchLicensed]);
+    }, [agent, services]);
     const [draft, setDraft] = useState<AgentDraft>(initialDraft);
     const [baselineDraft, setBaselineDraft] = useState<AgentDraft>(initialDraft);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);

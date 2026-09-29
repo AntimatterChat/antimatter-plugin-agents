@@ -26,18 +26,6 @@ jest.mock('react-intl', () => {
     };
 });
 
-jest.mock('@/license', () => ({
-    useIsLicensedFor: jest.fn(() => true),
-    useLicenseLevelName: jest.fn(() => () => 'Enterprise'),
-    requiredLevelFor: jest.fn(() => 2),
-}));
-
-jest.mock('../enterprise_chip', () => ({
-    __esModule: true,
-    default: ({text}: {text?: string}) => <span>{text}</span>,
-    LicenseChip: () => <span>{'Enterprise'}</span>,
-}));
-
 jest.mock('./use_job_status', () => ({
     useJobStatus: jest.fn(),
 }));
@@ -329,41 +317,13 @@ describe('EmbeddingSearchPanel rebuild gating', () => {
     });
 });
 
-describe('EmbeddingSearchPanel license gating', () => {
-    const {useIsLicensedFor} = jest.requireMock('@/license') as {useIsLicensedFor: jest.Mock};
-
+describe('EmbeddingSearchPanel enable toggle', () => {
     beforeEach(() => {
         mockUseJobStatus.mockReset();
         mockUseJobStatus.mockReturnValue(idleJobStatus);
-        useIsLicensedFor.mockReturnValue(true);
     });
 
-    it('keeps current values visible and disables enabling below Enterprise', () => {
-        useIsLicensedFor.mockReturnValue(false);
-        const onChange = jest.fn();
-
-        render(
-            <IntlProvider locale='en'>
-                <EmbeddingSearchPanel
-                    value={enabledConfig('openai')}
-                    onChange={onChange}
-                />
-            </IntlProvider>,
-        );
-
-        expect(screen.getByText('Enable Embedding Search')).toBeTruthy();
-        expect(screen.getByText('Enterprise')).toBeTruthy();
-        const trueRadio = screen.getAllByDisplayValue('true')[0] as HTMLInputElement;
-        expect(trueRadio.disabled).toBe(true);
-        const falseRadio = screen.getAllByDisplayValue('false')[0] as HTMLInputElement;
-        expect(falseRadio.disabled).toBe(false);
-        fireEvent.click(falseRadio);
-        expect(onChange).toHaveBeenCalled();
-        expect(onChange.mock.calls[0][0].type).toBe('');
-    });
-
-    it('allows enabling at Enterprise', () => {
-        useIsLicensedFor.mockReturnValue(true);
+    it('allows enabling embedding search', () => {
         const onChange = jest.fn();
 
         render(

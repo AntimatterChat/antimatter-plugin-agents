@@ -65,20 +65,6 @@ describe('AgentRow inactive badge', () => {
         expectTooltip: string | null;
     }> = [
         {
-            name: 'explains a service that is not active on the plan',
-            inactiveReason: 'service_not_licensed',
-            servicesLoaded: true,
-            services: [availableService],
-            expectTooltip: 'This agent uses an LLM service that is not active on your current plan. Only the first configured service is active; multiple LLM services are available on Enterprise plans and above. Edit the agent to choose the active service.',
-        },
-        {
-            name: 'explains an agent over the agent limit',
-            inactiveReason: 'agent_limit',
-            servicesLoaded: true,
-            services: [availableService],
-            expectTooltip: 'Your current plan has reached its limit of active AI agents, and agents created earlier take the available slots. Delete an earlier agent, or upgrade your plan for more agents.',
-        },
-        {
             name: 'explains an unavailable service reported by the server',
             inactiveReason: 'service_unavailable',
             servicesLoaded: false,
