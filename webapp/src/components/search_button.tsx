@@ -7,7 +7,6 @@ import {useSelector} from 'react-redux';
 import {GlobalState} from '@mattermost/types/store';
 
 import IconAI from '@/components/assets/icon_ai';
-import {useIsLicensedFor} from '@/license';
 import manifest from '../manifest';
 
 const SearchButtonContainer = styled.span`
@@ -24,9 +23,8 @@ const StyledIconAI = styled(IconAI)`
 
 const SearchButton = () => {
     const searchEnabled = useSelector<GlobalState, boolean>((state: any) => state['plugins-' + manifest.id].searchEnabled);
-    const semanticSearchLicensed = useIsLicensedFor('semantic_search');
 
-    if (!searchEnabled || !semanticSearchLicensed) {
+    if (!searchEnabled) {
         return null;
     }
     return (

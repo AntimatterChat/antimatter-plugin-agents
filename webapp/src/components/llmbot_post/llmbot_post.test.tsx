@@ -43,10 +43,6 @@ jest.mock('@/client', () => ({
     doStopGenerating: jest.fn(),
 }));
 
-jest.mock('@/license', () => ({
-    useIsLicensedFor: jest.fn(() => true),
-}));
-
 jest.mock('@/hooks', () => ({
     useSelectNotAIPost: () => jest.fn(),
 }));
@@ -1336,11 +1332,8 @@ describe('LLMBotPost search_results prop handling', () => {
     });
 });
 
-describe('LLMBotPost meetings license gating', () => {
-    const {useIsLicensedFor} = jest.requireMock('@/license') as {useIsLicensedFor: jest.Mock};
-
+describe('LLMBotPost meetings postback', () => {
     beforeEach(() => {
-        useIsLicensedFor.mockReturnValue(true);
         mockUseSelector.mockImplementation((selector) => selector({
             entities: {
                 channels: {
@@ -1360,22 +1353,12 @@ describe('LLMBotPost meetings license gating', () => {
         }));
     });
 
-    test('shows Post summary for a transcription result at Enterprise', () => {
+    test('shows Post summary for a transcription result', () => {
         renderPost(makePost('Call summary', {
             conversation_id: '',
             llm_requester_user_id: 'user_1',
         }));
 
         expect(screen.getByText('Post summary')).not.toBeNull();
-    });
-
-    test('hides Post summary below Enterprise', () => {
-        useIsLicensedFor.mockReturnValue(false);
-        renderPost(makePost('Call summary', {
-            conversation_id: '',
-            llm_requester_user_id: 'user_1',
-        }));
-
-        expect(screen.queryByText('Post summary')).toBeNull();
     });
 });

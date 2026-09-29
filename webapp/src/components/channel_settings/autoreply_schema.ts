@@ -17,7 +17,6 @@ import {
     userHasChannelPermission,
 } from '@/utils/permissions';
 import manifest from '@/manifest';
-import {licenseAllows} from '@/license';
 
 import {AutoReplyAgentPicker} from './autoreply_agent_picker';
 import {
@@ -65,11 +64,6 @@ export const shouldRenderChannelAutoReplyTab = (state: GlobalState, channel: Cha
         return false;
     }
 
-    // Channel agent auto-reply is available at Enterprise Advanced; below it a
-    // stored setting is inactive and stays clearable through the REST API.
-    if (!licenseAllows(state, 'channel_auto_reply')) {
-        return false;
-    }
     const permission = channel.type === 'P' ? PERMISSION_MANAGE_PRIVATE_CHANNEL_PROPERTIES : PERMISSION_MANAGE_PUBLIC_CHANNEL_PROPERTIES;
     if (!userHasChannelPermission(state, channel.team_id, channel.id, permission)) {
         return false;

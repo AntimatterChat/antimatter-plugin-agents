@@ -5,8 +5,6 @@ import React, {useState, useRef, useCallback} from 'react';
 import styled from 'styled-components';
 import {FormattedMessage, useIntl} from 'react-intl';
 
-import {useIsLicensedFor} from '@/license';
-
 import {CustomPrompt} from '@/types';
 import Dropdown from '../dropdown';
 
@@ -279,8 +277,6 @@ const CustomPromptForm = ({prompt, onSave, onDiscard, onDelete, readOnly, sticky
     const [description, setDescription] = useState(prompt?.description ?? '');
     const [template, setTemplate] = useState(prompt?.template ?? '');
     const [isShared, setIsShared] = useState(prompt?.is_shared ?? false);
-    const sharedPromptsLicensed = useIsLicensedFor('shared_prompts');
-    const canShare = sharedPromptsLicensed || isShared;
     const [showContextVars, setShowContextVars] = useState(false);
     const [errors, setErrors] = useState<{name?: boolean; template?: boolean}>({});
     const [isSaving, setIsSaving] = useState(false);
@@ -405,18 +401,15 @@ const CustomPromptForm = ({prompt, onSave, onDiscard, onDelete, readOnly, sticky
                         <FormattedMessage defaultMessage='Visibility'/>
                     </VisibilityLabel>
                     <RadioGroup>
-                        {canShare && (
-                            <RadioLabel>
-                                <RadioInput
-                                    type='radio'
-                                    name={`visibility-${prompt?.id ?? 'new'}`}
-                                    checked={isShared}
-                                    disabled={!sharedPromptsLicensed}
-                                    onChange={() => setIsShared(true)}
-                                />
-                                <FormattedMessage defaultMessage='Public'/>
-                            </RadioLabel>
-                        )}
+                        <RadioLabel>
+                            <RadioInput
+                                type='radio'
+                                name={`visibility-${prompt?.id ?? 'new'}`}
+                                checked={isShared}
+                                onChange={() => setIsShared(true)}
+                            />
+                            <FormattedMessage defaultMessage='Public'/>
+                        </RadioLabel>
                         <RadioLabel>
                             <RadioInput
                                 type='radio'
