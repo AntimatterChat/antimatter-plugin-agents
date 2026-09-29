@@ -12,8 +12,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llmcontext"
@@ -95,13 +93,12 @@ func autoReplySecondBotConfig() llm.BotConfig {
 
 // setupAutoReplyTestEnv builds a Conversations service around an open channel
 // with the given agents registered (all backed by the same canned-response
-// LLM), a licensed server, and a fake auto-reply settings lookup wired in.
+// LLM) and a fake auto-reply settings lookup wired in.
 func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponses ...*llm.TextStreamResult) *autoReplyTestEnv {
 	t.Helper()
 
 	mockAPI := &plugintest.API{}
 	mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: model.LicenseShortSkuEnterpriseAdvanced}).Maybe()
 	mockAPI.On("GetTeam", mock.Anything).Return(&model.Team{Id: autoReplyTeamID, Name: "team"}, nil).Maybe()
 	for i := 1; i <= 10; i++ {
 		args := make([]any, i)
@@ -114,9 +111,8 @@ func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponse
 		mockAPI.On("LogError", args...).Maybe()
 	}
 	pluginClient := pluginapi.NewClient(mockAPI, nil)
-	licenseChecker := enterprise.NewLicenseChecker(pluginClient)
 
-	botService := bots.New(mockAPI, pluginClient, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+	botService := bots.New(mockAPI, pluginClient, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	fLLM := newDMTestLLM(llmResponses...)
 	registered := make([]*bots.Bot, 0, len(botConfigs))
 	for _, cfg := range botConfigs {
@@ -157,7 +153,6 @@ func setupAutoReplyTestEnv(t *testing.T, botConfigs []llm.BotConfig, llmResponse
 		contextBuilder,
 		botService,
 		nil, // db
-		licenseChecker,
 		i18n.Init(),
 		nil, // meetings
 		&testToolCallingConfig{},
@@ -197,20 +192,6 @@ func (env *autoReplyTestEnv) setThread(rootID string, posts ...*model.Post) {
 	if rootID != "" && env.mmClient.postThreads[rootID] == nil {
 		env.mmClient.postThreads[rootID] = list
 	}
-}
-
-// overrideLicense replaces the default Enterprise license expectation.
-// Testify matches the first registered expectation, so the default must be
-// filtered out rather than shadowed.
-func (env *autoReplyTestEnv) overrideLicense(license *model.License) {
-	filtered := make([]*mock.Call, 0, len(env.mockAPI.ExpectedCalls))
-	for _, call := range env.mockAPI.ExpectedCalls {
-		if call.Method != "GetLicense" {
-			filtered = append(filtered, call)
-		}
-	}
-	env.mockAPI.ExpectedCalls = filtered
-	env.mockAPI.On("GetLicense").Return(license).Maybe()
 }
 
 // allConversations snapshots every conversation in the fake store.
@@ -488,56 +469,18 @@ func TestAutoReplyTriggerMatrix(t *testing.T) {
 }
 
 // TestAutoReplyTriggerRechecks covers the trigger-time re-checks: every stale
-// or unlicensed condition must decline quietly — no reply, no conversation, and
-// nothing logged at error level (MessageHasBeenPosted swallows ErrNoResponse at
-// debug level). Declining still falls through to the mention reminder, which
-// applies its own guards; @mentioning an agent works even unlicensed.
+// condition must decline quietly — no reply, no conversation, and nothing
+// logged at error level (MessageHasBeenPosted swallows ErrNoResponse at debug
+// level). Declining still falls through to the mention reminder, which
+// applies its own guards.
 func TestAutoReplyTriggerRechecks(t *testing.T) {
 	cases := []struct {
 		name           string
 		botConfig      llm.BotConfig
 		setting        autoreply.Setting
-		license        *model.License // non-nil overrides the default Enterprise license
 		buildPost      func(env *autoReplyTestEnv) *model.Post
 		expectReminder bool
 	}{
-		{
-			name:      "unlicensed server does not fire",
-			botConfig: autoReplyBotConfig(),
-			setting:   autoreply.Setting{ChannelID: autoReplyChannelID, BotID: autoReplyBotUserID, Mode: autoreply.ModeThreads},
-			license:   &model.License{},
-			buildPost: func(env *autoReplyTestEnv) *model.Post {
-				return env.rootPost(autoReplyUserID, "hello there")
-			},
-		},
-		{
-			name:      "professional license does not fire auto-reply",
-			botConfig: autoReplyBotConfig(),
-			setting:   autoreply.Setting{ChannelID: autoReplyChannelID, BotID: autoReplyBotUserID, Mode: autoreply.ModeThreads},
-			license:   &model.License{SkuShortName: model.LicenseShortSkuProfessional},
-			buildPost: func(env *autoReplyTestEnv) *model.Post {
-				return env.rootPost(autoReplyUserID, "hello there")
-			},
-		},
-		{
-			name:      "enterprise license does not fire auto-reply",
-			botConfig: autoReplyBotConfig(),
-			setting:   autoreply.Setting{ChannelID: autoReplyChannelID, BotID: autoReplyBotUserID, Mode: autoreply.ModeThreads},
-			license:   &model.License{SkuShortName: model.LicenseShortSkuEnterprise},
-			buildPost: func(env *autoReplyTestEnv) *model.Post {
-				return env.rootPost(autoReplyUserID, "hello there")
-			},
-		},
-		{
-			name:      "server without auto-reply still reminds a thread reply after an agent post",
-			botConfig: autoReplyBotConfig(),
-			setting:   autoreply.Setting{ChannelID: autoReplyChannelID, BotID: autoReplyBotUserID, Mode: autoreply.ModeThreads},
-			license:   &model.License{SkuShortName: model.LicenseShortSkuProfessional},
-			buildPost: func(env *autoReplyTestEnv) *model.Post {
-				return env.threadReply(autoReplyUserID, "thanks!", true)
-			},
-			expectReminder: true,
-		},
 		{
 			name:      "setting referencing a deleted bot is a no-op",
 			botConfig: autoReplyBotConfig(),
@@ -605,9 +548,6 @@ func TestAutoReplyTriggerRechecks(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			env := setupAutoReplyTestEnv(t, []llm.BotConfig{tc.botConfig}, dmMakeTextStream("canned reply"))
 			env.settings.set(tc.setting)
-			if tc.license != nil {
-				env.overrideLicense(tc.license)
-			}
 
 			post := tc.buildPost(env)
 			env.conversations.MessageHasBeenPosted(nil, post)
@@ -700,44 +640,4 @@ func TestAutoReplyNilServiceIsNoop(t *testing.T) {
 	require.Empty(t, env.mmClient.createdPosts, "no auto-reply must fire without the settings lookup")
 	require.Len(t, env.mmClient.ephemeralPosts, 1, "the mention reminder must behave exactly as today")
 	require.Empty(t, env.mmClient.loggedErrors())
-}
-
-func TestAutoReplyLicenseGate(t *testing.T) {
-	for _, level := range enterprisetest.AllLevels {
-		t.Run(level.String(), func(t *testing.T) {
-			env := setupAutoReplyTestEnv(t, []llm.BotConfig{autoReplyBotConfig()}, dmMakeTextStream("canned reply"))
-			env.overrideLicense(enterprisetest.LicenseFor(level))
-			env.settings.set(autoreply.Setting{
-				ChannelID: autoReplyChannelID,
-				BotID:     autoReplyBotUserID,
-				Mode:      autoreply.ModeThreads,
-			})
-
-			env.conversations.MessageHasBeenPosted(nil, env.rootPost(autoReplyUserID, "hello there"))
-
-			if level >= enterprise.LevelEnterpriseAdvanced {
-				require.NotEmpty(t, env.mmClient.createdPosts, "channel agent auto-reply is available at Enterprise Advanced and above")
-				return
-			}
-
-			require.Empty(t, env.mmClient.createdPosts, "channel agent auto-reply is available at Enterprise Advanced and above")
-			require.Empty(t, allConversations(env.convStore))
-		})
-	}
-
-	t.Run("nil checker fails closed", func(t *testing.T) {
-		env := setupAutoReplyTestEnv(t, []llm.BotConfig{autoReplyBotConfig()}, dmMakeTextStream("canned reply"))
-		env.settings.set(autoreply.Setting{
-			ChannelID: autoReplyChannelID,
-			BotID:     autoReplyBotUserID,
-			Mode:      autoreply.ModeThreads,
-		})
-		nilConv := conversations.New(nil, env.mmClient, nil, nil, env.botService, nil, nil, nil, nil, nil)
-		nilConv.SetAutoReplySettings(env.settings)
-
-		nilConv.MessageHasBeenPosted(nil, env.rootPost(autoReplyUserID, "hello there"))
-
-		require.Empty(t, env.mmClient.createdPosts)
-		require.Empty(t, allConversations(env.convStore))
-	})
 }

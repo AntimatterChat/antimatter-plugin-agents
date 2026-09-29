@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/autoreply"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -52,11 +51,6 @@ func (c *Conversations) handleAutoReply(ctx context.Context, setting *autoreply.
 	// Mode gate: root_posts fires only for top-level posts; threads fires for both.
 	if setting.Mode == autoreply.ModeRootPosts && post.RootId != "" {
 		return fmt.Errorf("auto-reply mode root_posts ignores thread replies: %w", ErrNoResponse)
-	}
-
-	// Re-check the license at trigger time; fail closed on a nil checker.
-	if !c.licenseChecker.Allows(enterprise.CapChannelAutoReply) {
-		return fmt.Errorf("channel agent auto-reply is available at Enterprise Advanced and above: %w", ErrNoResponse)
 	}
 
 	// Re-check the bot still exists and is allowed: the bot may have been

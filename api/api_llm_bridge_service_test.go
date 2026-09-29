@@ -14,8 +14,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/public/bridgeclient"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -113,7 +111,6 @@ func setupServiceBridge(t *testing.T, services []llm.ServiceConfig, fake *FakeLL
 	e := SetupTestEnvironment(t)
 	t.Cleanup(func() { e.Cleanup(t) })
 	// Fallback chains are exercised here, so run at the level that has them.
-	e.OverrideLicense(enterprisetest.LicenseFor(enterprise.LevelEnterpriseAdvanced))
 	e.config.services = services
 
 	builder := e.installServiceLLM(fake)

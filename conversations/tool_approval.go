@@ -13,7 +13,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/audit"
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mcpserver/auth"
@@ -50,25 +49,12 @@ var ErrNotRequester = errors.New("only the original requester can approve/reject
 // 400 Bad Request.
 var ErrInvalidToolAnswer = errors.New("invalid answer for user interaction tool call")
 
-// ErrRemoteMCPNotLicensed is returned when a tool decision would execute, or
-// share the output of, a tool served by a remote/external MCP server.
-// Remote and plugin MCP servers are available at Enterprise and above.
-// Built-in tools (empty ServerOrigin) and embedded Mattermost MCP tools
-// (mcp.EmbeddedClientKey) are available at every license level. The HTTP
-// layer maps this to 403 Forbidden.
-//
-// This gate is the decision-time backstop for pending remote tool calls
-// persisted before a license change; the primary enforcement is at supply
-// time, where llmcontext.Builder drops remote MCP tools from the LLM context
-// when CapRemoteMCP is not available.
-var ErrRemoteMCPNotLicensed = errors.New("tools from remote MCP servers are available at Enterprise and above")
-
 // Canned tool_result content for non-executing resolutions. These are shown
 // to the LLM (and, when terminal, in channels); they must not include tool
-// arguments or blame the user for an administrative policy/license change.
+// arguments or blame the user for an administrative policy change.
 const (
 	toolCallRejectedByUserResult = "Tool call rejected by user"
-	toolCallPolicyDeniedResult   = "Tool call was not executed because it is no longer permitted by policy or license"
+	toolCallPolicyDeniedResult   = "Tool call was not executed because it is no longer permitted by policy"
 )
 
 // toolRejectionGuidance is appended as a final user message to follow-ups
@@ -78,19 +64,13 @@ const toolRejectionGuidance = "The user rejected one or more of your tool calls;
 	"Ask the user for clarification or take a different approach."
 
 // isUserRejectedToolUse reports whether block was rejected by the user, as
-// opposed to a skipped question (UserInteraction) or a policy/license denial
+// opposed to a skipped question (UserInteraction) or a policy denial
 // of a deferred auto-run (WouldAutoExecute).
 func isUserRejectedToolUse(block conversation.ContentBlock) bool {
 	return block.Type == conversation.BlockTypeToolUse &&
 		block.Status == conversation.StatusRejected &&
 		block.UserInteraction == "" &&
 		!block.WouldAutoExecute
-}
-
-// isRemoteMCPLicensed reports whether remote and plugin MCP servers are
-// available at the current license level. A nil license checker fails closed.
-func (c *Conversations) isRemoteMCPLicensed() bool {
-	return c.licenseChecker.Allows(enterprise.CapRemoteMCP)
 }
 
 // toolDecision carries the shared state resolved by beginToolDecision for a
@@ -320,7 +300,7 @@ func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post 
 				})
 			}
 		case block.WouldAutoExecute:
-			// Fresh policy/license check failed. Keep the WouldAutoExecute
+			// Fresh policy check failed. Keep the WouldAutoExecute
 			// marker so isUserRejectedToolUse does not treat this as a user
 			// rejection, and record a result that does not blame the user
 			// for an admin change.
@@ -382,7 +362,7 @@ func (c *Conversations) HandleToolCall(ctx context.Context, userID string, post 
 		}
 		// Interaction results (answered or skipped) are user-authored, so they
 		// are terminal and shared with no separate share/keep-private step.
-		// Rejected results (user rejection or policy/license denial) share only
+		// Rejected results (user rejection or policy denial) share only
 		// the canned reason; tool_use arguments stay unshared so they are not
 		// paraphrased into a channel reply.
 		rejected := toolUseStatusByID[tr.ToolCallID] == conversation.StatusRejected
@@ -493,7 +473,6 @@ func (c *Conversations) HandleToolResult(ctx context.Context, userID string, pos
 	clickedPostUserRejected := false
 	acceptedToolNames := []string{}
 	rejectedToolNames := []string{}
-	acceptedRemoteMCPTool := false
 	for i, turn := range turns {
 		if turn.Role != "assistant" || turn.PostID == nil || *turn.PostID != post.Id {
 			continue
@@ -545,18 +524,9 @@ func (c *Conversations) HandleToolResult(ctx context.Context, userID string, pos
 	}
 
 	// Audit the decision only after the idempotency gate: a repeat click
-	// changes nothing, so its record must not claim a share resolution. The
-	// license gate below may still deny the share — that record then carries
-	// the attempted names with a fail status, which is the point.
+	// changes nothing, so its record must not claim a share resolution.
 	audit.AddParam(auditRec, "accepted_tools", acceptedToolNames)
 	audit.AddParam(auditRec, "rejected_tools", rejectedToolNames)
-
-	// Sharing output from remote/external MCP tools is available at
-	// Enterprise and above (see HandleToolCall). Keep-private decisions are
-	// always allowed — they disclose nothing.
-	if acceptedRemoteMCPTool && !c.isRemoteMCPLicensed() {
-		return ErrRemoteMCPNotLicensed
-	}
 
 	now := model.GetMillis()
 	for i := range turns {

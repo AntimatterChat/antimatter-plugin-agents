@@ -75,7 +75,7 @@ func TestEnsureBotsAgentsOnSharedClientSendOwnSettings(t *testing.T) {
 		APIURL:       srv.URL,
 		DefaultModel: "claude-sonnet-4-6",
 	}}}
-	mmBots := newEnsureBotsHarness(t, cfg, store, enterpriseAdvancedLicense())
+	mmBots := newEnsureBotsHarness(t, cfg, store)
 	require.NoError(t, mmBots.EnsureBots())
 
 	for _, name := range []string{"agent1", "agent2"} {

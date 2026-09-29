@@ -21,7 +21,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
 	"github.com/mattermost/mattermost-plugin-agents/v2/customprompts"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/files"
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
 	"github.com/mattermost/mattermost-plugin-agents/v2/indexer"
@@ -70,11 +69,6 @@ type Plugin struct {
 	configMigrated       bool
 
 	accessChecker *accesscontrol.Checker
-
-	// licenseChangeListeners re-apply license-dependent runtime state (active
-	// agents, embedding search, MCP connections) when the server license
-	// changes.
-	licenseChangeListeners []func()
 }
 
 type pluginLogger struct {
@@ -110,11 +104,9 @@ func (l *pluginLogger) Error(message string, keyValuePairs ...any) {
 }
 
 func (p *Plugin) OnActivate() error {
-	p.licenseChangeListeners = nil
 	pluginAPI := pluginapi.NewClient(p.API, p.Driver)
 	p.pluginAPI = pluginAPI
 	mmClient := mmapi.NewClient(pluginAPI, p.API)
-	licenseChecker := enterprise.NewLicenseChecker(pluginAPI)
 	dbClient := mmapi.NewDBClient(pluginAPI)
 
 	// Initialize store and run database migrations
@@ -241,7 +233,7 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	// ABAC checker, built before bots.New so the composite usage gate always
-	// has one. License/enablement is probed later via IsAvailable.
+	// has one. Enablement is probed later via IsAvailable.
 	mcpServerIDsByOrigin := func() map[string]string {
 		mcpConfig := p.configuration.MCP()
 		return mcpConfig.ServerIDByOrigin()
@@ -249,7 +241,7 @@ func (p *Plugin) OnActivate() error {
 	accessChecker := accesscontrol.New(accesscontrol.NewPluginAPIClient(p.API), p.API, mcpServerIDsByOrigin, &pluginAPI.Log)
 	p.accessChecker = accessChecker
 
-	bots := bots.New(p.API, pluginAPI, licenseChecker, &p.configuration, p.store, accessChecker, llmUpstreamHTTPClient, metricsService)
+	bots := bots.New(p.API, pluginAPI, &p.configuration, p.store, accessChecker, llmUpstreamHTTPClient, metricsService)
 
 	// migrateAndRefresh runs the one-time legacy bot migration, then forces
 	// a bot refresh only if the migration actually created new agents.
@@ -297,13 +289,6 @@ func (p *Plugin) OnActivate() error {
 		// this listener covers every node.
 		bots.ReconcileServiceLLMs(p.configuration.GetServices())
 		migrateAndRefresh("config_update")
-	})
-
-	p.licenseChangeListeners = append(p.licenseChangeListeners, func() {
-		bots.ForceRefreshOnNextEnsure()
-		if ensureErr := bots.EnsureBots(); ensureErr != nil {
-			pluginAPI.Log.Error("failed to ensure bots on license change", "error", ensureErr)
-		}
 	})
 
 	if ensureBotsErr := bots.EnsureBots(); ensureBotsErr != nil {
@@ -408,7 +393,7 @@ func (p *Plugin) OnActivate() error {
 		nil, // conversation service wired in a later step
 	)
 
-	// Reinitialize embedding search on config changes and license changes.
+	// Reinitialize embedding search on config changes.
 	reinitEmbeddingSearch := func(trigger string) {
 		newEmbeddingsSearch, initErr := search.InitEmbeddingsSearch(
 			dbClient.DB,
@@ -430,7 +415,6 @@ func (p *Plugin) OnActivate() error {
 		pluginAPI.Log.Info("Embedding search reinitialized", "trigger", trigger)
 	}
 	p.configuration.RegisterUpdateListener(func() { reinitEmbeddingSearch("config_change") })
-	p.licenseChangeListeners = append(p.licenseChangeListeners, func() { reinitEmbeddingSearch("license_change") })
 
 	webSearchService := mmtools.NewWebSearchService(func() *config.Config {
 		return p.configuration.Config()
@@ -467,9 +451,7 @@ func (p *Plugin) OnActivate() error {
 		defer embeddedMu.Unlock()
 
 		if embeddedServer == nil {
-			created, embeddedErr := NewEmbeddedMCPServer(pluginAPI, pluginAPI.Log, searchService, fileContentService, func() bool {
-				return licenseChecker.Allows(enterprise.CapStateChangingTools)
-			})
+			created, embeddedErr := NewEmbeddedMCPServer(pluginAPI, pluginAPI.Log, searchService, fileContentService)
 			if embeddedErr != nil {
 				pluginAPI.Log.Error("Failed to create embedded MCP server", "error", embeddedErr)
 				return nil
@@ -493,7 +475,6 @@ func (p *Plugin) OnActivate() error {
 		mcpClientManager.ReInit(p.configuration.MCP(), ensureEmbeddedMCPServer())
 	}
 	p.configuration.RegisterUpdateListener(reinitMCP)
-	p.licenseChangeListeners = append(p.licenseChangeListeners, reinitMCP)
 
 	contextBuilder := llmcontext.NewLLMContextBuilder(
 		pluginAPI,
@@ -510,7 +491,6 @@ func (p *Plugin) OnActivate() error {
 		contextBuilder,
 		bots,
 		dbClient,
-		licenseChecker,
 		i18nBundle,
 		nil, // meetingsService will be set after it's created
 		&p.configuration,
@@ -555,7 +535,6 @@ func (p *Plugin) OnActivate() error {
 	} else {
 		mcpHandlers = handlers
 		pluginAPI.Log.Info("Embedded MCP server handlers initialized successfully")
-		p.licenseChangeListeners = append(p.licenseChangeListeners, handlers.RebuildExternalServer)
 	}
 
 	customPromptsStore := customprompts.NewStore(dbClient)
@@ -573,7 +552,6 @@ func (p *Plugin) OnActivate() error {
 		prompts,
 		mmClient,
 		dbClient,
-		licenseChecker,
 		streamingService,
 		i18nBundle,
 		mcpClientManager,
@@ -673,14 +651,6 @@ func (p *Plugin) applyTelemetryConfig() {
 		p.pluginAPI.Log.Info("OpenTelemetry tracing disabled")
 	} else {
 		p.pluginAPI.Log.Info("OpenTelemetry tracing initialized", "mode", string(mode))
-	}
-}
-
-// OnLicenseChanged re-applies license-dependent runtime state. Request-time
-// gates read the license on every call; this covers state built ahead of time.
-func (p *Plugin) OnLicenseChanged(_, _ *model.License) {
-	for _, listener := range p.licenseChangeListeners {
-		listener()
 	}
 }
 
@@ -801,19 +771,4 @@ func (p *Plugin) shouldBlockAgentNotification(senderID, rootID, postType string,
 	}
 
 	return false
-}
-
-// licensedPluginServers exposes plugin-registered MCP servers on the external
-// MCP endpoint only where remote and plugin MCP servers are available
-// (Enterprise and above).
-type licensedPluginServers struct {
-	registry mcpserver.PluginServerRegistry
-	allowed  func() bool
-}
-
-func (l licensedPluginServers) ListPluginServers() []mcp.PluginServerConfig {
-	if l.allowed == nil || !l.allowed() {
-		return nil
-	}
-	return l.registry.ListPluginServers()
 }

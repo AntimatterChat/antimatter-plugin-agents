@@ -55,8 +55,7 @@ type channelFollowUpTestMCPToolProvider struct {
 
 func (p *channelFollowUpTestMCPToolProvider) GetToolsWithSelection(_ context.Context, _ mcp.CatalogRequest, selection mcp.ToolSelection) ([]llm.Tool, *mcp.Errors) {
 	// Mirror the real client manager's contract: servers outside the selection
-	// (for example remote servers on an unlicensed installation) are never
-	// contacted, so their tools never appear in the result.
+	// are never contacted, so their tools never appear in the result.
 	var tools []llm.Tool
 	for _, tool := range p.tools {
 		if selection.Allows(tool.ServerOrigin) {
@@ -99,17 +98,10 @@ func channelFollowUpTestMCPTool(name, origin, description string) llm.Tool {
 }
 
 func newChannelFollowUpTestBuilder(t *testing.T, mcpTools []llm.Tool, config *channelFollowUpTestConfig) *llmcontext.Builder {
-	return newChannelFollowUpTestBuilderWithLicense(t, mcpTools, config, true)
-}
-
-// newChannelFollowUpTestBuilderWithLicense builds a context builder whose
-// license state controls remote MCP tool supply: unlicensed builders drop
-// remote-origin tools before they reach the LLM context.
-func newChannelFollowUpTestBuilderWithLicense(t *testing.T, mcpTools []llm.Tool, config *channelFollowUpTestConfig, licensed bool) *llmcontext.Builder {
 	t.Helper()
 
 	mockAPI := &plugintest.API{}
-	mockLicenseState(mockAPI, licensed)
+	mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
 	mockAPI.On("GetTeam", "team-id").Return(&model.Team{Id: "team-id", Name: "team"}, nil).Maybe()
 
 	return llmcontext.NewLLMContextBuilder(

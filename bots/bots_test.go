@@ -13,8 +13,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/accesscontrol"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/loadtest"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -83,11 +81,9 @@ func (m *mockConfig) GetTranscriptGenerator() string {
 func newTestMMBots(t *testing.T, cfg *mockConfig) *MMBots {
 	t.Helper()
 	mockAPI := &plugintest.API{}
-	enterprisetest.StubLicense(mockAPI, enterprise.LevelEnterpriseAdvanced)
 	client := pluginapi.NewClient(mockAPI, nil)
 	allowBotsLogging(mockAPI)
-	licenseChecker := enterprise.NewLicenseChecker(client)
-	return New(mockAPI, client, licenseChecker, cfg, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+	return New(mockAPI, client, cfg, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 }
 
 func allowBotsLogging(mockAPI *plugintest.API) {
@@ -728,31 +724,21 @@ func TestServiceConfigsEqual(t *testing.T) {
 
 func TestEnsureBots(t *testing.T) {
 	testCases := []struct {
-		name               string
-		cfgBots            []llm.BotConfig
-		cfgServices        []llm.ServiceConfig
-		isMultiLLMLicensed bool
-		numCreatedBots     int
-		expectError        bool
+		name           string
+		cfgBots        []llm.BotConfig
+		cfgServices    []llm.ServiceConfig
+		numCreatedBots int
+		expectError    bool
 	}{
 		{
-			name:               "empty bots config with unlicensed server should not crash",
-			cfgBots:            []llm.BotConfig{},
-			cfgServices:        []llm.ServiceConfig{},
-			isMultiLLMLicensed: false,
-			expectError:        false,
-			numCreatedBots:     0,
+			name:           "empty bots config should not crash",
+			cfgBots:        []llm.BotConfig{},
+			cfgServices:    []llm.ServiceConfig{},
+			expectError:    false,
+			numCreatedBots: 0,
 		},
 		{
-			name:               "empty bots config with licensed server should not crash",
-			cfgBots:            []llm.BotConfig{},
-			cfgServices:        []llm.ServiceConfig{},
-			isMultiLLMLicensed: true,
-			expectError:        false,
-			numCreatedBots:     0,
-		},
-		{
-			name: "single bot config with unlicensed server should work",
+			name: "single bot config should work",
 			cfgBots: []llm.BotConfig{
 				{
 					ID:          "test1",
@@ -769,12 +755,11 @@ func TestEnsureBots(t *testing.T) {
 					DefaultModel: "gpt-4o",
 				},
 			},
-			isMultiLLMLicensed: false,
-			expectError:        false,
-			numCreatedBots:     1,
+			expectError:    false,
+			numCreatedBots: 1,
 		},
 		{
-			name: "multiple bots config with unlicensed server should limit to one",
+			name: "multiple bots config should not limit",
 			cfgBots: []llm.BotConfig{
 				{
 					ID:          "test1",
@@ -801,41 +786,8 @@ func TestEnsureBots(t *testing.T) {
 					APIKey: "test-api-key-2",
 				},
 			},
-			isMultiLLMLicensed: false,
-			expectError:        false,
-			numCreatedBots:     1,
-		},
-		{
-			name: "multiple bots config with licensed server should not limit",
-			cfgBots: []llm.BotConfig{
-				{
-					ID:          "test1",
-					Name:        "testbot1",
-					DisplayName: "Test Bot 1",
-					ServiceID:   "service1",
-				},
-				{
-					ID:          "test2",
-					Name:        "testbot2",
-					DisplayName: "Test Bot 2",
-					ServiceID:   "service2",
-				},
-			},
-			cfgServices: []llm.ServiceConfig{
-				{
-					ID:     "service1",
-					Type:   llm.ServiceTypeOpenAI,
-					APIKey: "test-api-key",
-				},
-				{
-					ID:     "service2",
-					Type:   llm.ServiceTypeOpenAI,
-					APIKey: "test-api-key-2",
-				},
-			},
-			isMultiLLMLicensed: true,
-			expectError:        false,
-			numCreatedBots:     2,
+			expectError:    false,
+			numCreatedBots: 2,
 		},
 	}
 
@@ -844,20 +796,7 @@ func TestEnsureBots(t *testing.T) {
 			mockAPI := &plugintest.API{}
 			client := pluginapi.NewClient(mockAPI, nil)
 
-			// Mock the license check
-			if tc.isMultiLLMLicensed {
-				config := &model.Config{}
-				license := &model.License{}
-				license.Features = &model.Features{}
-				license.Features.SetDefaults()
-				license.SkuShortName = model.LicenseShortSkuEnterprise
-				mockAPI.On("GetConfig").Return(config).Maybe()
-				mockAPI.On("GetLicense").Return(license).Maybe()
-			} else {
-				config := &model.Config{}
-				mockAPI.On("GetConfig").Return(config).Maybe()
-				mockAPI.On("GetLicense").Return((*model.License)(nil)).Maybe()
-			}
+			mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
 
 			// Mock bot operations
 			mockAPI.On("GetBots", mock.AnythingOfType("*model.BotGetOptions")).Return([]*model.Bot{}, nil).Maybe()
@@ -894,12 +833,11 @@ func TestEnsureBots(t *testing.T) {
 			// Mock logging
 			allowBotsLogging(mockAPI)
 
-			licenseChecker := enterprise.NewLicenseChecker(client)
 			cfg := &mockConfig{
 				bots:     tc.cfgBots,
 				services: tc.cfgServices,
 			}
-			mmBots := New(mockAPI, client, licenseChecker, cfg, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+			mmBots := New(mockAPI, client, cfg, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 			defer mockAPI.AssertExpectations(t)
 
@@ -931,13 +869,12 @@ func (s *stubAgentStore) ListAgents() ([]*llm.BotConfig, error) {
 // newEnsureBotsHarness returns an MMBots whose plugin API accepts every call
 // EnsureBots makes, so tests can drive real rebuilds against cfg and store.
 // Provider clients are shut down when the test ends.
-func newEnsureBotsHarness(t *testing.T, cfg *mockConfig, store AgentStore, license *model.License) *MMBots {
+func newEnsureBotsHarness(t *testing.T, cfg *mockConfig, store AgentStore) *MMBots {
 	t.Helper()
 
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
 	mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
-	mockAPI.On("GetLicense").Return(license).Maybe()
 	mockAPI.On("GetBots", mock.AnythingOfType("*model.BotGetOptions")).Return([]*model.Bot{}, nil).Maybe()
 	mockAPI.On("CreateBot", mock.AnythingOfType("*model.Bot")).Return(func(bot *model.Bot) *model.Bot { return bot }, nil).Maybe()
 	mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{LastPictureUpdate: 1}, nil).Maybe()
@@ -949,13 +886,9 @@ func newEnsureBotsHarness(t *testing.T, cfg *mockConfig, store AgentStore, licen
 	mockAPI.On("LogInfo", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
 	allowBotsLogging(mockAPI)
 
-	mmBots := New(mockAPI, client, enterprise.NewLicenseChecker(client), cfg, store, newPassthroughAccessChecker(), &http.Client{}, nil)
+	mmBots := New(mockAPI, client, cfg, store, newPassthroughAccessChecker(), &http.Client{}, nil)
 	t.Cleanup(mmBots.ShutdownServiceLLMs)
 	return mmBots
-}
-
-func enterpriseAdvancedLicense() *model.License {
-	return &model.License{SkuShortName: model.LicenseShortSkuEnterpriseAdvanced}
 }
 
 // dbAgents returns n DB-backed agent configs that all reference serviceID.
@@ -974,13 +907,12 @@ func dbAgents(n int, serviceID string) []llm.BotConfig {
 
 // TestSnapshotBotsAndServicesDoesNotMutateConfigBots pins that
 // snapshotBotsAndServices treats config.GetBots() as read-only. Without the
-// clone, an unlicensed-server truncate-then-append overwrites the config's
-// backing array at index 1.
+// clone, a truncate-then-append overwrites the config's backing array at
+// index 1.
 func TestSnapshotBotsAndServicesDoesNotMutateConfigBots(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
 	mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
-	mockAPI.On("GetLicense").Return((*model.License)(nil)).Maybe()
 	allowBotsLogging(mockAPI)
 
 	originalBots := []llm.BotConfig{
@@ -998,7 +930,7 @@ func TestSnapshotBotsAndServicesDoesNotMutateConfigBots(t *testing.T) {
 			{ID: "db-agent-1", Name: "dbagent1", DisplayName: "DB Agent 1", ServiceID: "svc1"},
 		},
 	}
-	mmBots := New(mockAPI, client, enterprise.NewLicenseChecker(client), cfg, agentStore, newPassthroughAccessChecker(), &http.Client{}, nil)
+	mmBots := New(mockAPI, client, cfg, agentStore, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 	_, _, _, err := mmBots.snapshotBotsAndServices()
 	require.NoError(t, err)
@@ -1032,7 +964,7 @@ func TestEnsureBotsRebuildsBotWhenServiceInputTokenLimitChanges(t *testing.T) {
 			{ID: "bot1", Name: "openai", DisplayName: "OpenAI", ServiceID: "svc1"},
 		},
 	}
-	mmBots := newEnsureBotsHarness(t, cfg, agentStore, nil)
+	mmBots := newEnsureBotsHarness(t, cfg, agentStore)
 
 	require.NoError(t, mmBots.EnsureBots())
 	bots := mmBots.GetAllBots()
@@ -1096,7 +1028,7 @@ func TestEnsureBotsRebuildsBotWhenFallbackServiceChanges(t *testing.T) {
 			{ID: "bot1", Name: "openai", DisplayName: "OpenAI", ServiceID: "svc1"},
 		},
 	}
-	mmBots := newEnsureBotsHarness(t, cfg, agentStore, enterpriseAdvancedLicense())
+	mmBots := newEnsureBotsHarness(t, cfg, agentStore)
 
 	require.NoError(t, mmBots.EnsureBots())
 	bots := mmBots.GetAllBots()
@@ -1128,20 +1060,13 @@ func TestEnsureBotsFailsWhenListAgentsFails(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
 
-	config := &model.Config{}
-	license := &model.License{}
-	license.Features = &model.Features{}
-	license.Features.SetDefaults()
-	license.SkuShortName = model.LicenseShortSkuEnterprise
-	mockAPI.On("GetConfig").Return(config).Maybe()
-	mockAPI.On("GetLicense").Return(license).Maybe()
+	mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
 
 	mockAPI.On("GetBots", mock.AnythingOfType("*model.BotGetOptions")).Return([]*model.Bot{}, nil).Maybe()
 	mockAPI.On("KVSetWithOptions", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 	mockAPI.On("KVDelete", mock.AnythingOfType("string")).Return(nil).Maybe()
 	allowBotsLogging(mockAPI)
 
-	licenseChecker := enterprise.NewLicenseChecker(client)
 	cfg := &mockConfig{
 		bots: []llm.BotConfig{
 			{ID: "b1", Name: "testbot1", DisplayName: "Test Bot 1", ServiceID: "service1"},
@@ -1150,7 +1075,7 @@ func TestEnsureBotsFailsWhenListAgentsFails(t *testing.T) {
 			{ID: "service1", Type: llm.ServiceTypeOpenAI, APIKey: "key"},
 		},
 	}
-	mmBots := New(mockAPI, client, licenseChecker, cfg, failingAgentStore{}, newPassthroughAccessChecker(), &http.Client{}, nil)
+	mmBots := New(mockAPI, client, cfg, failingAgentStore{}, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 	defer mockAPI.AssertExpectations(t)
 

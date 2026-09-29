@@ -36,7 +36,7 @@ func TestEnsureBotsOpenAIWorkerPoolIsSharedAndReleased(t *testing.T) {
 		APIKey:       "sk-test",
 		DefaultModel: "gpt-4o",
 	}}}
-	mmBots := newEnsureBotsHarness(t, cfg, store, enterpriseAdvancedLicense())
+	mmBots := newEnsureBotsHarness(t, cfg, store)
 
 	baseline := settleGoroutines()
 	require.NoError(t, mmBots.EnsureBots())
@@ -81,7 +81,7 @@ func TestEnsureBotsRejectedAgentDoesNotPinClient(t *testing.T) {
 		{ID: "openai-svc", Name: "OpenAI", Type: llm.ServiceTypeOpenAI, APIKey: "sk-test", DefaultModel: "gpt-4o", FallbackServiceID: "north-svc"},
 		{ID: "north-svc", Name: "North", Type: llm.ServiceTypeNorth, APIKey: "north-key", APIURL: "http://localhost", DefaultModel: "command-a"},
 	}}
-	mmBots := newEnsureBotsHarness(t, cfg, store, enterpriseAdvancedLicense())
+	mmBots := newEnsureBotsHarness(t, cfg, store)
 
 	baseline := settleGoroutines()
 	err := mmBots.EnsureBots()

@@ -396,7 +396,7 @@ func newAgentRegistryTestBots(t *testing.T, agents int) (*MMBots, *mockConfig, *
 
 	store := &stubAgentStore{agents: dbAgents(agents, "svc")}
 	cfg := &mockConfig{services: []llm.ServiceConfig{openAIService("svc", "")}}
-	mmBots := newEnsureBotsHarness(t, cfg, store, enterpriseAdvancedLicense())
+	mmBots := newEnsureBotsHarness(t, cfg, store)
 	builder := &fakeServiceLLMBuilder{}
 	mmBots.SetBaseLLMBuilderForTest(builder.build)
 	return mmBots, cfg, store, builder

@@ -22,7 +22,7 @@ import (
 var ErrAccessDenied = errors.New("access denied by policy")
 
 // ErrABACUnavailable is returned when saving an agent as attribute-based while ABAC is not available.
-var ErrABACUnavailable = errors.New("attribute-based access requires Attribute-Based Access Control to be licensed and enabled on this server")
+var ErrABACUnavailable = errors.New("attribute-based access requires Attribute-Based Access Control to be enabled on this server")
 
 const availabilityCacheTTL = 30 * time.Second
 
@@ -186,7 +186,7 @@ const availabilityProbeExpression = "true"
 // means available (past the server's readiness gate). Cached for availabilityCacheTTL.
 //
 // A policy-read probe is unsound: the server 404s an absent row before consulting
-// license or ABAC config, so an unlicensed enterprise binary would look available.
+// ABAC config, so a server without ABAC available would look available.
 func (c *Checker) IsAvailable(ctx context.Context, actingUserID string) bool {
 	_, span := telemetry.Tracer().Start(ctx, "abac is_available")
 	defer span.End()

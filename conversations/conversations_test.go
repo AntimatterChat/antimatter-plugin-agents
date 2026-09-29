@@ -13,7 +13,6 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/evals"
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
@@ -85,13 +84,11 @@ func TestConversationMentionHandling(t *testing.T) {
 			mockAPI := &plugintest.API{}
 			client := pluginapi.NewClient(mockAPI, nil)
 			mmClient := mocks.NewMockClient(t)
-			licenseChecker := enterprise.NewLicenseChecker(client)
-			botService := bots.New(mockAPI, client, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+			botService := bots.New(mockAPI, client, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 			prompts, err := llm.NewPrompts(prompts.PromptsFolder)
 			require.NoError(t, err, "Failed to load prompts")
 
 			mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
-			mockAPI.On("GetLicense").Return(&model.License{SkuShortName: "advanced"}).Maybe()
 			mockAPI.On("GetTeam", threadData.Team.Id).Return(threadData.Team, nil)
 			mmClient.On("GetPostThread", threadData.LatestPost().Id).Return(threadData.PostList, nil)
 			for _, user := range threadData.Users {
@@ -123,7 +120,6 @@ func TestConversationMentionHandling(t *testing.T) {
 				contextBuilder,
 				botService,
 				nil,
-				licenseChecker,
 				i18n.Init(),
 				nil,
 				nil, // configProvider - nil means channel tool calling is disabled (default)

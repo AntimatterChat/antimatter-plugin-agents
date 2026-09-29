@@ -23,7 +23,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings"
 	"github.com/mattermost/mattermost-plugin-agents/v2/embeddings/mocks"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llmcontext"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
@@ -628,21 +627,6 @@ func (e *TestEnvironment) Cleanup(t *testing.T) {
 	}
 }
 
-// OverrideLicense replaces the default GetLicense mock registered by
-// SetupTestEnvironment so that tests can control the license value.
-// Testify matches the first registered expectation, so simply adding
-// a new On("GetLicense") does not override the default.
-func (e *TestEnvironment) OverrideLicense(license *model.License) {
-	filtered := make([]*mock.Call, 0, len(e.mockAPI.ExpectedCalls))
-	for _, call := range e.mockAPI.ExpectedCalls {
-		if call.Method != "GetLicense" {
-			filtered = append(filtered, call)
-		}
-	}
-	e.mockAPI.ExpectedCalls = filtered
-	e.mockAPI.On("GetLicense").Return(license).Maybe()
-}
-
 // CaptureAuditRecords replaces the default LogAuditRec mock registered by
 // SetupTestEnvironment with one that appends every logged record to the
 // returned slice, so tests can assert on emitted audit record contents.
@@ -717,8 +701,7 @@ func newPassthroughAccessChecker() *accesscontrol.Checker {
 
 // createTestBots creates a test MMBots instance for testing
 func createTestBots(mockAPI *plugintest.API, client *pluginapi.Client) *bots.MMBots {
-	licenseChecker := enterprise.NewLicenseChecker(client)
-	testBots := bots.New(mockAPI, client, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+	testBots := bots.New(mockAPI, client, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	return testBots
 }
 
@@ -764,12 +747,8 @@ func SetupTestEnvironment(t *testing.T) *TestEnvironment {
 
 	allowAnyPluginAPILogging(mockAPI)
 
-	// Mock GetConfig and GetLicense for WithLLMContextServerInfo and the
-	// context builder's remote-MCP license gate. Default to a licensed
-	// server so remote MCP tools are supplied; tests asserting unlicensed
-	// behavior override via OverrideLicense.
+	// Mock GetConfig for WithLLMContextServerInfo.
 	mockAPI.On("GetConfig").Return(&model.Config{}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: model.LicenseShortSkuEnterprise}).Maybe()
 
 	// The audit middleware logs a record for every audited route; accept them
 	// by default so unrelated tests don't have to care. Tests asserting audit
@@ -782,7 +761,6 @@ func SetupTestEnvironment(t *testing.T) *TestEnvironment {
 		nil,
 		contextBuilder,
 		testBots,
-		nil,
 		nil,
 		nil,
 		nil,
@@ -802,7 +780,6 @@ func SetupTestEnvironment(t *testing.T) *TestEnvironment {
 		llmPrompts,
 		nil,
 		nil,
-		enterprise.NewLicenseChecker(client),
 		nil,
 		nil,
 		mcpMgr,
@@ -1397,9 +1374,6 @@ func TestToolCallDMAllowedWhenChannelToolCallingDisabled(t *testing.T) {
 			userID := testUserID
 
 			e.setupTestBot(llm.BotConfig{Name: "permtest", DisplayName: "Permission Bot"})
-
-			e.api.licenseChecker = enterprise.NewLicenseChecker(e.client)
-			e.OverrideLicense(&model.License{SkuShortName: "advanced"})
 
 			post := &model.Post{
 				Id:        "postid",

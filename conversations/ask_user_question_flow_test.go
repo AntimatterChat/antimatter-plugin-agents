@@ -11,7 +11,6 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mcp"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
@@ -128,8 +127,7 @@ func TestHandleToolCallAnswersUserQuestion(t *testing.T) {
 
 			mockAPI := &plugintest.API{}
 			pluginAPI := pluginapi.NewClient(mockAPI, nil)
-			licenseChecker := enterprise.NewLicenseChecker(pluginAPI)
-			botsService := bots.New(mockAPI, pluginAPI, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+			botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 			lm := &loadedStateLLM{}
 			bot := loadedStateBot(lm)
 			botsService.SetBotsForTesting([]*bots.Bot{bot})
@@ -254,8 +252,7 @@ func TestHandleToolCallMixedBatchInChannelAwaitsShareDecision(t *testing.T) {
 
 	mockAPI := &plugintest.API{}
 	pluginAPI := pluginapi.NewClient(mockAPI, nil)
-	licenseChecker := enterprise.NewLicenseChecker(pluginAPI)
-	botsService := bots.New(mockAPI, pluginAPI, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+	botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 	lm := &loadedStateLLM{}
 	bot := loadedStateBot(lm)
 	botsService.SetBotsForTesting([]*bots.Bot{bot})
@@ -399,7 +396,7 @@ func TestStreamToolFollowUpInteractiveFlag(t *testing.T) {
 // TestHandleToolCallAutoExecutesPolicyEligiblePendingTools pins the deferred
 // auto-execution contract: marked tools run server-side without appearing in
 // accepted_tool_ids, including when an interrupted all-auto batch is resumed
-// with an empty list. A policy or license change since the pause must fall
+// with an empty list. A policy change since the pause must fall
 // back to a non-user-rejection result so the follow-up cannot blame the user.
 func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 	const origin = "https://jira.example.com"
@@ -408,7 +405,6 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 		name                  string
 		wouldAutoExecute      bool
 		includeQuestion       bool
-		unlicensed            bool
 		policyChecker         mapPolicyChecker
 		wantToolStatus        string
 		wantToolResult        string
@@ -523,10 +519,8 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 			}))
 
 			mockAPI := &plugintest.API{}
-			mockLicenseState(mockAPI, !tc.unlicensed)
 			pluginAPI := pluginapi.NewClient(mockAPI, nil)
-			licenseChecker := enterprise.NewLicenseChecker(pluginAPI)
-			botsService := bots.New(mockAPI, pluginAPI, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+			botsService := bots.New(mockAPI, pluginAPI, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 			lm := &loadedStateLLM{}
 			bot := loadedStateBot(lm)
 			botsService.SetBotsForTesting([]*bots.Bot{bot})
@@ -537,9 +531,6 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 			mmClient.On("GetConfig").Maybe().Return(&model.Config{})
 
 			contextBuilder := loadedStateBuilder(t)
-			if tc.unlicensed {
-				contextBuilder = newChannelFollowUpTestBuilderWithLicense(t, []llm.Tool{loadedStateTool()}, &channelFollowUpTestConfig{}, false)
-			}
 
 			streamingService := &loadedStateStreamingService{}
 			c := &Conversations{
@@ -548,7 +539,6 @@ func TestHandleToolCallAutoExecutesPolicyEligiblePendingTools(t *testing.T) {
 				bots:              botsService,
 				convService:       conversation.NewService(convStore, nil, nil, nil),
 				streamingService:  streamingService,
-				licenseChecker:    licenseChecker,
 				toolPolicyChecker: tc.policyChecker,
 			}
 

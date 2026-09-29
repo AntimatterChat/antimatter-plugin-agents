@@ -6,8 +6,6 @@ package conversations
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -39,11 +37,6 @@ func (c *Conversations) maybeNotifyAgentMentionNeeded(ctx context.Context, post 
 		return
 	}
 	if channel.Type == model.ChannelTypeDirect || channel.Type == model.ChannelTypeGroup {
-		return
-	}
-	// The reminder points at channel mentions and loop-in, which are
-	// available at Professional and above.
-	if !c.licenseChecker.Allows(enterprise.CapMultiplayerChannels) {
 		return
 	}
 

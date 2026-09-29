@@ -14,7 +14,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mattermost/mattermost-plugin-agents/v2/audit"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/meetings"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
@@ -346,8 +345,6 @@ func TestToolApprovalAuditRecords(t *testing.T) {
 			records := e.CaptureAuditRecords()
 
 			e.setupTestBot(llm.BotConfig{Name: "permtest", DisplayName: "Permission Bot"})
-			e.api.licenseChecker = enterprise.NewLicenseChecker(e.client)
-			e.OverrideLicense(&model.License{SkuShortName: "advanced"})
 
 			post := &model.Post{Id: postID, UserId: testBotUserID, ChannelId: channelID}
 			if test.conversationOwner == "" {

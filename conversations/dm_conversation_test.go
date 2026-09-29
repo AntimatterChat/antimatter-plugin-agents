@@ -15,7 +15,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversations"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llmcontext"
@@ -393,7 +392,6 @@ func setupDMTestEnv(t *testing.T, llmResponses ...*llm.TextStreamResult) *dmTest
 
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
-	licenseChecker := enterprise.NewLicenseChecker(client)
 
 	siteName := "Test"
 	defaultLocale := "en"
@@ -403,10 +401,9 @@ func setupDMTestEnv(t *testing.T, llmResponses ...*llm.TextStreamResult) *dmTest
 			DefaultServerLocale: &defaultLocale,
 		},
 	}).Maybe()
-	mockAPI.On("GetLicense").Return(&model.License{SkuShortName: "advanced"}).Maybe()
 	mockAPI.On("GetTeam", teamID).Return(&model.Team{Id: teamID, Name: "test"}, nil).Maybe()
 
-	botsService := bots.New(mockAPI, client, licenseChecker, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
+	botsService := bots.New(mockAPI, client, nil, nil, newPassthroughAccessChecker(), &http.Client{}, nil)
 
 	fLLM := newDMTestLLM(llmResponses...)
 
@@ -471,7 +468,6 @@ func setupDMTestEnv(t *testing.T, llmResponses ...*llm.TextStreamResult) *dmTest
 		contextBuilder,
 		botsService,
 		nil, // db
-		licenseChecker,
 		i18nBundle,
 		nil, // meetings
 		&testToolCallingConfig{},

@@ -17,8 +17,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/audit"
 	"github.com/mattermost/mattermost-plugin-agents/v2/autoreply"
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise/enterprisetest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	mmapimocks "github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -28,8 +26,7 @@ import (
 )
 
 // setupChannelAutoReplyTest prepares a test environment with a registered bot
-// (the selectable target for PUT bodies), a real license checker at Enterprise
-// Advanced so enabling modes can be exercised, and a channel of the given type
+// (the selectable target for PUT bodies) and a channel of the given type
 // resolvable by the channelReadAuthorizationRequired middleware.
 func setupChannelAutoReplyTest(t *testing.T, channelType model.ChannelType) *TestEnvironment {
 	t.Helper()
@@ -38,8 +35,6 @@ func setupChannelAutoReplyTest(t *testing.T, channelType model.ChannelType) *Tes
 
 	e := SetupTestEnvironment(t)
 	e.setupTestBot(llm.BotConfig{Name: "permtest"})
-	e.api.licenseChecker = enterprise.NewLicenseChecker(e.client)
-	e.OverrideLicense(enterprisetest.LicenseFor(enterprise.LevelEnterpriseAdvanced))
 	e.mockAPI.On("GetChannel", "channelid").Return(&model.Channel{
 		Id:     "channelid",
 		Type:   channelType,
@@ -103,15 +98,6 @@ func TestGetChannelAutoReply(t *testing.T) {
 				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(false)
 			},
 			expectedStatus: http.StatusForbidden,
-		},
-		{
-			name: "unlicensed server can still read",
-			envSetup: func(e *TestEnvironment) {
-				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
-				e.OverrideLicense(&model.License{})
-			},
-			expectedStatus: http.StatusOK,
-			expectedBody:   `{"bot_id":"","mode":"off"}`,
 		},
 	}
 
@@ -196,16 +182,6 @@ func TestPutChannelAutoReplyPermissionMatrix(t *testing.T) {
 				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
 			},
 			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name:        "unlicensed server is forbidden",
-			channelType: model.ChannelTypeOpen,
-			envSetup: func(e *TestEnvironment) {
-				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
-				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionManagePublicChannelProperties).Return(true).Maybe()
-				e.OverrideLicense(&model.License{})
-			},
-			expectedStatus: http.StatusForbidden,
 		},
 		{
 			name:        "no read permission is forbidden by middleware",
@@ -426,110 +402,6 @@ func TestChannelAutoReplyIndependentOfDefaultBot(t *testing.T) {
 			require.JSONEq(t, tc.expectedBody, string(body))
 		})
 	}
-}
-
-// TestPutChannelAutoReplyUnlicensed pins the license gate to the enabling
-// modes only: after a license downgrade an existing setting must remain
-// clearable (mode "off" deletes the row), while enabling stays forbidden.
-func TestPutChannelAutoReplyUnlicensed(t *testing.T) {
-	tests := []struct {
-		name           string
-		body           string
-		expectedStatus int
-		expectDeletes  []string
-	}{
-		{
-			name:           "off deletes the existing setting without a license",
-			body:           `{"bot_id":"","mode":"off"}`,
-			expectedStatus: http.StatusOK,
-			expectDeletes:  []string{"channelid"},
-		},
-		{
-			name:           "root_posts is forbidden without a license",
-			body:           fmt.Sprintf(`{"bot_id":%q,"mode":"root_posts"}`, testBotUserID),
-			expectedStatus: http.StatusForbidden,
-		},
-		{
-			name:           "threads is forbidden without a license",
-			body:           fmt.Sprintf(`{"bot_id":%q,"mode":"threads"}`, testBotUserID),
-			expectedStatus: http.StatusForbidden,
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			e := setupChannelAutoReplyTest(t, model.ChannelTypeOpen)
-			defer e.Cleanup(t)
-			e.OverrideLicense(&model.License{})
-			e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
-			e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionManagePublicChannelProperties).Return(true)
-			// Simulate a setting written while the server was still licensed.
-			e.autoReplyStore.settings["channelid"] = &autoreply.Setting{
-				ChannelID: "channelid",
-				BotID:     testBotUserID,
-				Mode:      autoreply.ModeThreads,
-			}
-
-			resp := e.doChannelAutoReplyRequest(t, http.MethodPut, tc.body)
-			require.Equal(t, tc.expectedStatus, resp.StatusCode)
-
-			require.Equal(t, tc.expectDeletes, e.autoReplyStore.deleteCalls)
-			if tc.expectDeletes == nil {
-				require.NotEmpty(t, e.autoReplyStore.settings, "a forbidden request must not delete the setting")
-				require.Empty(t, e.autoReplyStore.setCalls, "a forbidden request must not persist")
-			} else {
-				require.NotContains(t, e.autoReplyStore.settings, "channelid")
-			}
-		})
-	}
-}
-
-func TestPutChannelAutoReplyByLevel(t *testing.T) {
-	enablingBody := fmt.Sprintf(`{"bot_id":%q,"mode":"root_posts"}`, testBotUserID)
-
-	for _, level := range enterprisetest.AllLevels {
-		t.Run("enable/"+level.String(), func(t *testing.T) {
-			e := setupChannelAutoReplyTest(t, model.ChannelTypeOpen)
-			defer e.Cleanup(t)
-			e.OverrideLicense(enterprisetest.LicenseFor(level))
-			e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
-			e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionManagePublicChannelProperties).Return(true)
-
-			resp := e.doChannelAutoReplyRequest(t, http.MethodPut, enablingBody)
-			if level < enterprise.LevelEnterpriseAdvanced {
-				requireLicenseDenied(t, resp, enterprise.CapChannelAutoReply)
-				require.Empty(t, e.autoReplyStore.setCalls)
-				return
-			}
-			require.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
-
-	t.Run("off is never gated", func(t *testing.T) {
-		for _, level := range enterprisetest.AllLevels {
-			t.Run(level.String(), func(t *testing.T) {
-				e := setupChannelAutoReplyTest(t, model.ChannelTypeOpen)
-				defer e.Cleanup(t)
-				e.OverrideLicense(enterprisetest.LicenseFor(level))
-				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
-				e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionManagePublicChannelProperties).Return(true)
-
-				resp := e.doChannelAutoReplyRequest(t, http.MethodPut, `{"bot_id":"","mode":"off"}`)
-				require.Equal(t, http.StatusOK, resp.StatusCode)
-			})
-		}
-	})
-
-	t.Run("nil checker fails closed for enabling", func(t *testing.T) {
-		e := setupChannelAutoReplyTest(t, model.ChannelTypeOpen)
-		defer e.Cleanup(t)
-		e.api.licenseChecker = nil
-		e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionReadChannel).Return(true)
-		e.mockAPI.On("HasPermissionToChannel", "userid", "channelid", model.PermissionManagePublicChannelProperties).Return(true)
-
-		resp := e.doChannelAutoReplyRequest(t, http.MethodPut, enablingBody)
-		requireLicenseDenied(t, resp, enterprise.CapChannelAutoReply)
-	})
 }
 
 func TestPutChannelAutoReplyPersistsAndPublishes(t *testing.T) {

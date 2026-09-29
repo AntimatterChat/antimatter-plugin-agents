@@ -9,7 +9,6 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
 	"github.com/mattermost/mattermost-plugin-agents/v2/conversation"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/i18n"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llmcontext"
@@ -42,7 +41,6 @@ type Conversations struct {
 	contextBuilder    *llmcontext.Builder
 	bots              *bots.MMBots
 	db                *mmapi.DBClient
-	licenseChecker    *enterprise.LicenseChecker
 	i18n              *i18n.Bundle
 	meetingsService   MeetingsService
 	configProvider    ConfigProvider
@@ -64,7 +62,6 @@ func New(
 	contextBuilder *llmcontext.Builder,
 	botsService *bots.MMBots,
 	db *mmapi.DBClient,
-	licenseChecker *enterprise.LicenseChecker,
 	i18nBundle *i18n.Bundle,
 	meetingsService MeetingsService,
 	configProvider ConfigProvider,
@@ -76,7 +73,6 @@ func New(
 		contextBuilder:   contextBuilder,
 		bots:             botsService,
 		db:               db,
-		licenseChecker:   licenseChecker,
 		i18n:             i18nBundle,
 		meetingsService:  meetingsService,
 		configProvider:   configProvider,

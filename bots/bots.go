@@ -17,7 +17,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-agents/v2/assets"
 	"github.com/mattermost/mattermost-plugin-agents/v2/bifrost"
 	"github.com/mattermost/mattermost-plugin-agents/v2/config"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/loadtest"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
@@ -53,7 +52,6 @@ type Transcriber interface {
 type MMBots struct {
 	ensureBotsClusterMutex cluster.MutexPluginAPI
 	pluginAPI              *pluginapi.Client
-	licenseChecker         *enterprise.LicenseChecker
 	config                 Config
 	agentStore             AgentStore
 	accessChecker          *accesscontrol.Checker
@@ -102,7 +100,7 @@ func (b *MMBots) SetBaseLLMBuilderForTest(builder func(svc llm.ServiceConfig, fa
 
 // New builds the bot registry. accessChecker must be non-nil; tests that want
 // no-policies-anywhere pass accesscontrol.New with PassthroughClient.
-func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, licenseChecker *enterprise.LicenseChecker, config Config, agentStore AgentStore, accessChecker *accesscontrol.Checker, llmUpstreamHTTPClient *http.Client, metrics llm.MetricsObserver) *MMBots {
+func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, config Config, agentStore AgentStore, accessChecker *accesscontrol.Checker, llmUpstreamHTTPClient *http.Client, metrics llm.MetricsObserver) *MMBots {
 	// A nil checker would panic later inside a live permission check.
 	if accessChecker == nil {
 		panic("bots: New requires a non-nil access checker")
@@ -117,7 +115,6 @@ func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, lic
 	return &MMBots{
 		ensureBotsClusterMutex: mutexPluginAPI,
 		pluginAPI:              pluginAPI,
-		licenseChecker:         licenseChecker,
 		config:                 config,
 		agentStore:             agentStore,
 		accessChecker:          accessChecker,
@@ -128,7 +125,7 @@ func New(mutexPluginAPI cluster.MutexPluginAPI, pluginAPI *pluginapi.Client, lic
 }
 
 // snapshotBotsAndServices returns the full bot lineup (file-config bots plus
-// DB-backed agents, license cap applied) and the services they reference.
+// DB-backed agents) and the services they reference.
 // EnsureBots calls this for both the optimistic equality check and the
 // rebuild, so the check can't miss a service used only by a DB agent.
 func (b *MMBots) snapshotBotsAndServices() ([]llm.BotConfig, map[string]struct{}, map[string]llm.ServiceConfig, error) {
@@ -153,20 +150,12 @@ func (b *MMBots) snapshotBotsAndServices() ([]llm.BotConfig, map[string]struct{}
 	return botCfgs, activeDBBotUsernames, serviceCfgs, nil
 }
 
-func (b *MMBots) licenseLevel() enterprise.Level {
-	if b == nil || b.licenseChecker == nil {
-		return enterprise.LevelUnlicensed
-	}
-	return b.licenseChecker.Level()
-}
-
 // selectActiveBots keeps the agents config.AgentInactiveReasons reports as
 // active. Inactive agents are omitted from the ensure set (so existing
 // Mattermost bot accounts are deactivated) and from activeDBBotUsernames. DB
 // rows are never deleted.
 func (b *MMBots) selectActiveBots(pool []llm.BotConfig, dbNames map[string]struct{}) ([]llm.BotConfig, map[string]struct{}) {
-	level := b.licenseLevel()
-	reasons := config.AgentInactiveReasons(b.config.GetServices(), pool, level)
+	reasons := config.AgentInactiveReasons(b.config.GetServices(), pool)
 
 	active := make([]llm.BotConfig, 0, len(pool))
 	activeDB := make(map[string]struct{})
@@ -189,22 +178,6 @@ func (b *MMBots) selectActiveBots(pool []llm.BotConfig, dbNames map[string]struc
 		if names := inactive[config.AgentInactiveServiceUnavailable]; len(names) > 0 {
 			b.pluginAPI.Log.Error("AI agents referencing a missing or incomplete LLM service are inactive", "inactive_agents", strings.Join(names, ", "))
 		}
-		if names := inactive[config.AgentInactiveServiceNotLicensed]; len(names) > 0 {
-			b.pluginAPI.Log.Warn(
-				"Agents referencing LLM services other than the first configured service are inactive; multiple LLM services are available at Enterprise and above",
-				"inactive_agents", strings.Join(names, ", "),
-				"license_level", level.String(),
-			)
-		}
-		if names := inactive[config.AgentInactiveAgentLimit]; len(names) > 0 {
-			limit, _ := enterprise.AgentLimitFor(level)
-			b.pluginAPI.Log.Warn(
-				"AI agents over the current license agent limit are inactive",
-				"inactive_agents", strings.Join(names, ", "),
-				"limit", limit,
-				"license_level", level.String(),
-			)
-		}
 	}
 
 	return active, activeDB
@@ -221,11 +194,6 @@ func (b *MMBots) resolveServiceCfgs(botCfgs []llm.BotConfig) map[string]llm.Serv
 			if svc, ok := b.config.GetServiceByID(botCfg.ServiceID); ok {
 				result[botCfg.ServiceID] = svc
 			}
-		}
-		// Fallback chains are available at Enterprise Advanced. Exclude them
-		// from change detection so the snapshot matches getLLM.
-		if !b.licenseChecker.Allows(enterprise.CapModelFallback) {
-			continue
 		}
 		// Include fallback chain services so changes to them trigger re-init.
 		// Best-effort: a chain-resolution error is surfaced when the bot's LLM
@@ -302,7 +270,7 @@ func (b *MMBots) reconcileTokenUsageSinks() {
 		return
 	}
 
-	loggingEnabled := b.licenseChecker.Allows(enterprise.CapTokenAccounting) && b.config.EnableTokenUsageLogging()
+	loggingEnabled := b.config.EnableTokenUsageLogging()
 	pluginEnabled := loggingEnabled && b.config.EnableTokenUsageLogToPlugin()
 	fileEnabled := loggingEnabled && b.config.EnableTokenUsageLogToFile()
 
@@ -488,14 +456,9 @@ func (b *MMBots) EnsureBots() error {
 
 		b.ensureDefaultProfileImage(bot)
 
-		// Fallback chains are available at Enterprise Advanced.
-		var fallbackServices []llm.ServiceConfig
-		if b.licenseChecker.Allows(enterprise.CapModelFallback) {
-			var ferr error
-			fallbackServices, ferr = llm.ResolveFallbackChain(bot.service.ID, b.config.GetServiceByID)
-			if ferr != nil {
-				return fmt.Errorf("failed to resolve fallback chain for bot %s: %w", bot.cfg.Name, ferr)
-			}
+		fallbackServices, ferr := llm.ResolveFallbackChain(bot.service.ID, b.config.GetServiceByID)
+		if ferr != nil {
+			return fmt.Errorf("failed to resolve fallback chain for bot %s: %w", bot.cfg.Name, ferr)
 		}
 
 		bot.llm, bot.providerServices, err = b.getLLM(servicesByID[bot.service.ID], bot.cfg, fallbackServices)

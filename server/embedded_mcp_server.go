@@ -26,9 +26,7 @@ type EmbeddedMCPServer struct {
 // NewEmbeddedMCPServer creates a new embedded MCP server instance
 // searchService and fileContentService are optional and can be nil when the
 // corresponding capability is unavailable.
-// allowStateChangingTools is a runtime predicate evaluated per request; a nil
-// predicate means state-changing tools are not available.
-func NewEmbeddedMCPServer(pluginAPI *pluginapi.Client, logger pluginapi.LogService, searchService tools.SemanticSearchService, fileContentService tools.FileContentService, allowStateChangingTools func() bool) (*EmbeddedMCPServer, error) {
+func NewEmbeddedMCPServer(pluginAPI *pluginapi.Client, logger pluginapi.LogService, searchService tools.SemanticSearchService, fileContentService tools.FileContentService) (*EmbeddedMCPServer, error) {
 	// Get site URL from plugin configuration
 	siteURL := ""
 	if config := pluginAPI.Configuration.GetConfig(); config != nil && config.ServiceSettings.SiteURL != nil {

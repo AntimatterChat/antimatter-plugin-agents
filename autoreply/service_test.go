@@ -14,7 +14,6 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-agents/v2/accesscontrol"
 	"github.com/mattermost/mattermost-plugin-agents/v2/bots"
-	"github.com/mattermost/mattermost-plugin-agents/v2/enterprise"
 	"github.com/mattermost/mattermost-plugin-agents/v2/llm"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi"
 	"github.com/mattermost/mattermost-plugin-agents/v2/mmapi/mocks"
@@ -54,7 +53,7 @@ func newTestService(t *testing.T, dbClient *mmapi.DBClient, notifier ClusterNoti
 
 	mockAPI := &plugintest.API{}
 	client := pluginapi.NewClient(mockAPI, nil)
-	botsService := bots.New(mockAPI, client, enterprise.NewLicenseChecker(client), nil, nil, accesscontrol.New(accesscontrol.PassthroughClient{}, nil, accesscontrol.NoMCPServerIDs, nil), &http.Client{}, nil)
+	botsService := bots.New(mockAPI, client, nil, nil, accesscontrol.New(accesscontrol.PassthroughClient{}, nil, accesscontrol.NoMCPServerIDs, nil), &http.Client{}, nil)
 	botsService.SetBotsForTesting(botList)
 
 	return NewService(NewStore(dbClient), botsService, mmClient, notifier)
