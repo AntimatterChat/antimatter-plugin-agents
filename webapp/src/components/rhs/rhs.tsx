@@ -23,6 +23,7 @@ import ThreadItem from './thread_item';
 import RHSHeader from './rhs_header';
 import RHSNewTab from './rhs_new_tab';
 import RhsFileDropZone from './rhs_file_drop_zone';
+import RHSNoAgents from './rhs_no_agents';
 
 const ThreadViewer = UnstyledThreadViewer && styled(UnstyledThreadViewer)`
     height: 100%;
@@ -129,9 +130,13 @@ export default function RHS() {
     const {bots, activeBot, setActiveBot} = useBotlist();
     const activeConversationId = useConversationIdForThread(selectedPostId);
 
-    // No bots available - hide the RHS entirely
+    // No bots available: say so, rather than an empty panel.
     if (bots && bots.length === 0) {
-        return null;
+        return (
+            <RhsContainer>
+                <RHSNoAgents/>
+            </RhsContainer>
+        );
     }
 
     let content = null;

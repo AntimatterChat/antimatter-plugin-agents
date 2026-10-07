@@ -149,6 +149,39 @@ describe('RHS', () => {
         mockUseSelector.mockImplementation((selector) => selector(baseState));
     });
 
+    describe('without agents', () => {
+        const stateWithRoles = (roles: string, permissions: string[]) => ({
+            ...baseState,
+            'plugins-mattermost-ai': {},
+            entities: {
+                ...baseState.entities,
+                users: {currentUserId: 'user-id', profiles: {'user-id': {id: 'user-id', roles}}},
+                roles: {roles: {[roles]: {name: roles, permissions}}},
+            },
+        });
+
+        beforeEach(() => {
+            mockUseBotlist.mockReturnValue({bots: [], activeBot: null, setActiveBot: jest.fn()});
+        });
+
+        test('invites people who can to create an agent', () => {
+            mockUseSelector.mockImplementation((selector) => selector(stateWithRoles('system_admin', ['manage_system'])));
+            renderRHS();
+
+            expect(screen.getByText('No agents yet')).toBeTruthy();
+            expect(screen.getByRole('button', {name: 'Create an agent'})).toBeTruthy();
+        });
+
+        test('tells the others to ask an admin', () => {
+            mockUseSelector.mockImplementation((selector) => selector(stateWithRoles('system_user', [])));
+            renderRHS();
+
+            expect(screen.getByText('No agents yet')).toBeTruthy();
+            expect(screen.getByText(/Ask your system admin/)).toBeTruthy();
+            expect(screen.queryByRole('button', {name: 'Create an agent'})).toBeNull();
+        });
+    });
+
     test('renders the thread viewer when the read marker rejects for missing thread membership', async () => {
         const error = new Error('User thread membership doesn\'t exist');
         const warn = jest.spyOn(console, 'warn').mockImplementation(() => null);
