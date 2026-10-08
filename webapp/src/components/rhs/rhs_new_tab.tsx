@@ -19,6 +19,8 @@ import manifest from '@/manifest';
 
 import RHSPromptButtons from '../custom_prompts/rhs_prompt_buttons';
 
+import ChannelSuggestions from './channel_suggestions';
+
 import {RHSPaddingContainer, RHSText, RHSTitle} from './common';
 
 const CreatePostContainer = styled.div`
@@ -175,6 +177,11 @@ const RHSNewTab = ({selectPost, setCurrentTab, activeBot}: Props) => {
                 <RHSImage/>
                 <RHSTitle><FormattedMessage defaultMessage='Ask Agents anything'/></RHSTitle>
                 <RHSText><FormattedMessage defaultMessage='Agents can help you with almost anything. Choose from the prompts below or write your own.'/></RHSText>
+                <ChannelSuggestions
+                    activeBot={activeBot}
+                    selectPost={selectPost}
+                    setCurrentTab={setCurrentTab}
+                />
                 {botChannelId && (
                     <RHSPromptButtons
                         channelId={botChannelId}
