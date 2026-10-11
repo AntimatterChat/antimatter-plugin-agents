@@ -308,6 +308,9 @@ func (a *API) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Reques
 	completionRoute.POST("/service/:service", a.handleServiceCompletionStreaming)
 	completionRoute.POST("/service/:service/nostream", a.handleServiceCompletionNoStream)
 
+	// Meetings: the Calls plugin asks for the summary of a call's transcription.
+	llmBridgeRoute.POST("/meetings/summarize_transcription", a.handleBridgeSummarizeTranscription)
+
 	llmBridgeRoute.POST("/mcp/register", a.handleMCPRegister)
 	llmBridgeRoute.POST("/mcp/unregister", a.handleMCPUnregister)
 
