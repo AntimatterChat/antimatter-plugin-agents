@@ -56,8 +56,8 @@ func (a *API) handleBridgeSummarizeTranscription(c *gin.Context) {
 		c.AbortWithError(http.StatusServiceUnavailable, errors.New("no agent is configured"))
 		return
 	}
-	if err := a.bots.CheckUsageRestrictionsForUser(c.Request.Context(), bot, req.UserID); err != nil {
-		c.AbortWithError(http.StatusForbidden, err)
+	if restrictionErr := a.bots.CheckUsageRestrictionsForUser(c.Request.Context(), bot, req.UserID); restrictionErr != nil {
+		c.AbortWithError(http.StatusForbidden, restrictionErr)
 		return
 	}
 
