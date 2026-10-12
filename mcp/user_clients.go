@@ -664,7 +664,7 @@ func (c *UserClients) Close() {
 }
 
 // collectToolsFromSnapshots namespaces and de-dupes tools across bags exactly
-// once so a remote named "Mattermost" (the embedded server's tool-name slug)
+// once so a remote named "Antimatter" (the embedded server's tool-name slug)
 // cannot collide with the embedded server.
 func collectToolsFromSnapshots(userID string, log pluginapi.LogService, snapshots ...[]userClientSnapshot) []llm.Tool {
 	var merged []userClientSnapshot
