@@ -69,7 +69,6 @@ func TestStandardPersonalityWithoutLocaleWhitespaceGating(t *testing.T) {
 		{name: "requesting_user_nil", buildRequestingUser: func() *model.User { return nil }},
 	}
 	mutators := []func(*llm.Context){
-		func(c *llm.Context) { c.CompanyName = "Antimatter" },
 		func(c *llm.Context) {
 			c.DisabledToolsInfo = []llm.ToolInfo{{Name: "Jira", Description: "Read tickets"}}
 		},

@@ -24,10 +24,9 @@ type ToolInfo struct {
 // For consumers none of the fields can be assumed to be present.
 type Context struct {
 	// Server
-	Time        string
-	ServerName  string
-	CompanyName string
-	SiteURL     string
+	Time       string
+	ServerName string
+	SiteURL    string
 
 	// Location
 	Team    *model.Team
@@ -321,7 +320,7 @@ func (c *Context) ResponseAttachmentSlots() int {
 
 func (c Context) String() string {
 	var result strings.Builder
-	fmt.Fprintf(&result, "Time: %v\nServerName: %v\nCompanyName: %v", c.Time, c.ServerName, c.CompanyName)
+	fmt.Fprintf(&result, "Time: %v\nServerName: %v", c.Time, c.ServerName)
 	if c.RequestingUser != nil {
 		fmt.Fprintf(&result, "\nRequestingUser: %v", c.RequestingUser.Username)
 	}

@@ -96,7 +96,6 @@ func TestContext_CustomPromptVars(t *testing.T) {
 				CustomInstructions: "top secret instructions",
 				SiteURL:            "https://internal.example.com",
 				ServerName:         "MyServer",
-				CompanyName:        "Acme",
 				RequestingUser: &model.User{
 					Username:  "johndoe",
 					Email:     "john@example.com",

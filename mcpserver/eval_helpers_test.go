@@ -577,7 +577,6 @@ func setupAgenticEval(t *testing.T, e *evals.EvalT, suite *TestSuite, requesting
 	llmContext.Channel = &model.Channel{Type: model.ChannelTypeDirect}
 	llmContext.Team = team
 	llmContext.ServerName = "Eval Server"
-	llmContext.CompanyName = "Eval Corp"
 	llmContext.BotName = "AI Assistant"
 	llmContext.BotUsername = "ai-bot"
 	llmContext.BotModel = "eval-model"
