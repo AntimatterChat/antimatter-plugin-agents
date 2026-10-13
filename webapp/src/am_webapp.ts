@@ -10,6 +10,12 @@ export function isRHSCompatable(): boolean {
     return AdvancedTextEditor || CreatePost;
 }
 
+// isFusionUI returns whether Antimatter's Fusion web UI is running (it sets window.antimatterWebUI before loading
+// plugins), rather than the classic one.
+export function isFusionUI(): boolean {
+    return (window as any).antimatterWebUI === 'fusion' || document.documentElement.dataset.amWebUi === 'fusion';
+}
+
 export const PostMessagePreview = (window as any).Components.PostMessagePreview;
 
 export const Timestamp = (window as any).Components.Timestamp;

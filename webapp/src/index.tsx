@@ -31,7 +31,7 @@ import {setupRedux} from './redux';
 import UnreadsSummarize from './components/unreads_summarize';
 import {PostbackPost} from './components/postback_post';
 import {AgentMentionReminderPost} from './components/agent_mention_reminder_post';
-import {isRHSCompatable} from './am_webapp';
+import {isFusionUI, isRHSCompatable} from './am_webapp';
 import SearchButton from './components/search_button';
 import AskChannelButton from './components/ask_channel_button';
 import {doSelectPost} from './hooks';
@@ -213,7 +213,23 @@ export default class Plugin {
         registry.registerPostTypeComponent('custom_llmbot', LLMBotPostWithWebsockets);
         registry.registerPostTypeComponent('custom_llm_postback', PostbackPost);
         registry.registerPostTypeComponent('custom_agent_mention_reminder', AgentMentionReminderPost);
-        if (registry.registerPostActionComponent) {
+        if (isFusionUI() && registry.registerPostDropdownSubMenuAction) {
+            // Fusion keeps the AI actions out of a message's hover toolbar: they're a submenu of its ⋯ menu,
+            // near the bottom, for the default agent. Hidden while no agent is available.
+            const intl = getStaticIntl(store);
+            const haveBots = () => (botsFromState(store.getState())?.length ?? 1) > 0;
+            const analyze = (analysisType: string) => async (postId: string) => {
+                const result = await doThreadAnalysis(postId, analysisType, '');
+                doSelectPost(result.postid, result.channelid, store.dispatch);
+            };
+            const {rootRegisterMenuItem} = registry.registerPostDropdownSubMenuAction(
+                intl.formatMessage({defaultMessage: 'AI actions'}), () => {}, haveBots,
+            );
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Summarize Thread'}), analyze('summarize_thread'), haveBots);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find action items'}), analyze('action_items'), haveBots);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find open questions'}), analyze('open_questions'), haveBots);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'React for me'}), doReaction, haveBots);
+        } else if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
         } else {
             registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span><FormattedMessage defaultMessage='Summarize Thread'/></>, (postId: string) => {
