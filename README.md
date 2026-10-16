@@ -72,9 +72,9 @@ See the [Bridge Client README](public/bridgeclient/README.md) for installation a
 
 ### Local Setup
 
-1. Setup your Antimatter development environment by following the [Antimatter developer setup guide](https://docs.antimatter.example/contribute/server/developer-setup/). If you have a remote antimatter server you want to develop to you can skip this step. 
+1. Setup your Antimatter development environment by following the [Antimatter developer setup guide](https://antimatter.chat/docs/developers/building.html). If you have a remote antimatter server you want to develop to you can skip this step. 
 
-2. Setup your Antimatter plugin development environment by following the [Plugin Developer setup guide](https://docs.antimatter.example/integrate/plugins/developer-setup/).
+2. Setup your Antimatter plugin development environment by following the [Plugin Developer setup guide](https://antimatter.chat/docs/developers/apps.html).
 
 3. Clone the repository:
 ```bash
