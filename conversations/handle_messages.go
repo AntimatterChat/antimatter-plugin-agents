@@ -211,6 +211,11 @@ func (c *Conversations) handleMessages(ctx context.Context, post *model.Post) er
 		return err
 	}
 
+	// The server's agent runtime answers for the agents: the app no longer does (server_agents.go).
+	if c.serverAnswersAgents {
+		return c.handleMessagesLeftToServer(ctx, post, postingUser, channel)
+	}
+
 	// Don't respond to other bots unless they ask for it
 	if (postingUser.IsBot || post.GetProp(FromBotProp) != nil) && post.GetProp(ActivateAIProp) == nil {
 		return fmt.Errorf("not responding to other bots: %w", ErrNoResponse)

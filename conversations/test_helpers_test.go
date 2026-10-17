@@ -218,8 +218,13 @@ func (c *fakeAMClient) loggedErrors() []string {
 
 func (c *fakeAMClient) LogWarn(string, ...any) {}
 
-func (c *fakeAMClient) GetUserByUsername(string) (*model.User, error) {
-	return nil, errors.New("not implemented")
+func (c *fakeAMClient) GetUserByUsername(username string) (*model.User, error) {
+	for _, u := range c.users {
+		if u.Username == username {
+			return u, nil
+		}
+	}
+	return nil, errors.New("user not found")
 }
 
 func (c *fakeAMClient) GetUserStatus(string) (*model.Status, error) {

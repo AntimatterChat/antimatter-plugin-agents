@@ -499,6 +499,9 @@ func (p *Plugin) OnActivate() error {
 	convService := conversation.NewService(p.store, prompts, amClient, bots)
 	conversationsService.SetConversationService(convService)
 	conversationsService.SetAutoReplySettings(autoreplyService)
+	// Antimatter: the server's agent runtime answers for the agents (this app's manifest says so); the app's hooks
+	// don't answer them any more.
+	conversationsService.SetServerAnswersAgents(true)
 	searchService.SetConversationService(convService)
 
 	meetingsService := meetings.NewService(

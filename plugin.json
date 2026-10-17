@@ -1,11 +1,11 @@
 {
   "id": "mattermost-ai",
-  "name": "Agents",
-  "description": "",
+  "name": "AI chat",
+  "description": "The AI chat side panel: talk with the agents you may use, and ask them to summarise threads, channels and calls.",
   "homepage_url": "https://github.com/antimatterchat/antimatter-plugin-agents",
   "support_url": "https://github.com/antimatterchat/antimatter-plugin-agents/issues",
   "release_notes_url": "https://github.com/antimatterchat/antimatter-plugin-agents",
-  "icon_path": "assets/bot_icon.png",
+  "icon_path": "assets/icon.svg",
   "min_server_version": "12.0.0",
   "server": {
     "executables": {
@@ -29,5 +29,8 @@
         "secret": true
       }
     ]
+  },
+  "props": {
+    "antimatter_agents_in_server": true
   }
 }
