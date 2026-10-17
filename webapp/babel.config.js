@@ -5,8 +5,7 @@ const config = {
     presets: [
         ['@babel/preset-env', {
 
-            // Minimum supported browsers, per
-            // https://docs.antimatter.example/deployment-guide/software-hardware-requirements.html
+            // Minimum supported browsers, the same as the Antimatter web app's.
             // Strings, not numbers: a numeric target loses trailing zeroes, so
             // a version like 16.10 would be read as 16.1.
             targets: {

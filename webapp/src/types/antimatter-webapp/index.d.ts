@@ -4,7 +4,7 @@
 export interface PluginRegistry {
     registerPostTypeComponent(typeName: string, component: React.ElementType)
 
-    // Add more if needed from https://docs.antimatter.example/extend/plugins/webapp/reference
+    // Add more if needed, see https://antimatter.chat/docs/developers/apps.html
 }
 
 // Global type definitions

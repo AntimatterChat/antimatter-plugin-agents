@@ -371,3 +371,18 @@ func dynamicMetaToolStore() *llm.ToolStore {
 	})
 	return store
 }
+
+// The agents send people asking what they can do to Antimatter's docs, not to the dead
+// docs.antimatter.example of the rebrand.
+func TestStandardPersonalityPointsToAntimatterDocs(t *testing.T) {
+	promptsEngine, err := llm.NewPrompts(prompts.PromptsFolder)
+	require.NoError(t, err)
+	output, err := promptsEngine.Format(prompts.PromptStandardPersonalityWithoutLocale, &llm.Context{
+		Time:       "Fri, 20 Feb 2026 18:00:00 UTC",
+		ServerName: "server",
+		BotName:    "agent",
+	})
+	require.NoError(t, err)
+	assert.Contains(t, output, "https://antimatter.chat/docs/users/ai.html")
+	assert.NotContains(t, output, "docs.antimatter.example")
+}
