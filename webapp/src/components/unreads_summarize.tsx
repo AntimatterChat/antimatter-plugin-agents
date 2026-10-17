@@ -5,11 +5,10 @@ import React from 'react';
 import styled from 'styled-components';
 import {FormattedMessage} from 'react-intl';
 
-import {useSelectPost} from '@/hooks';
+import {useStore} from 'react-redux';
 
-import {getChannelInterval} from '@/client';
-
-import {useBotlistForChannel} from '@/bots';
+import {AgentTaskName} from '@/agent_chat_client';
+import {runAgentTask, useChatAgentBotlist} from '@/agent_chat_state';
 
 import IconAI from './assets/icon_ai';
 import IconSparkleCheckmark from './assets/icon_sparkle_checkmark';
@@ -80,24 +79,22 @@ interface Props {
     threadId: string;
 }
 
+// The "Ask AI" menu on the new-messages line: the person's agent works on the messages since they last read the
+// channel, through the server (agent tasks), and the AI chat opens on the conversation.
 const UnreadsSumarize = (props: Props) => {
-    const selectPost = useSelectPost();
-    const {bots, activeBot, setActiveBot} = useBotlistForChannel(props.channelId);
+    const store = useStore();
+    const {bots, activeBot, setActiveBot} = useChatAgentBotlist();
 
-    const summarizeNew = async () => {
-        const result = await getChannelInterval(props.channelId, props.lastViewedAt, 0, 'summarize_unreads', '', activeBot?.username || '');
-        selectPost(result.postid, result.channelid);
+    const ask = (task: AgentTaskName) => async () => {
+        try {
+            await runAgentTask(store as any, {task, channel_id: props.channelId, since: props.lastViewedAt}, activeBot?.id);
+        } catch (e) {
+            console.error('Could not ask an agent', e); // eslint-disable-line no-console
+        }
     };
-
-    const actionItems = async () => {
-        const result = await getChannelInterval(props.channelId, props.lastViewedAt, 0, 'action_items', '', activeBot?.username || '');
-        selectPost(result.postid, result.channelid);
-    };
-
-    const openQuestions = async () => {
-        const result = await getChannelInterval(props.channelId, props.lastViewedAt, 0, 'open_questions', '', activeBot?.username || '');
-        selectPost(result.postid, result.channelid);
-    };
+    const summarizeNew = ask('summarize_channel');
+    const actionItems = ask('find_action_items');
+    const openQuestions = ask('find_open_questions');
 
     if (bots && bots.length === 0) {
         // No bots available (either unconfigured or filtered by permissions)

@@ -5,6 +5,7 @@ import {combineReducers, Dispatch, Store, UnknownAction} from 'redux';
 import {GlobalState} from '@mattermost/types/store';
 
 import {makeCallsPostButtonClickedHandler} from './calls_button';
+import {chatAgentsReducer} from './agent_chat_state';
 import {getCustomPrompts as fetchCustomPromptsAPI, getCustomPromptPins} from './client';
 import manifest from './manifest';
 import {CustomPrompt} from './types';
@@ -21,6 +22,7 @@ export async function setupRedux(registry: any, store: WebappStore) {
     const reducer = combineReducers({
         callsPostButtonClickedTranscription,
         bots,
+        chatAgents: chatAgentsReducer,
         selectedPostId,
         searchEnabled,
         allowUnsafeLinks,
@@ -32,27 +34,11 @@ export async function setupRedux(registry: any, store: WebappStore) {
 
     store.dispatch({
         type: CallsClickHandler as any,
-        handler: makeCallsPostButtonClickedHandler(store.dispatch),
+        handler: makeCallsPostButtonClickedHandler(store),
     });
 
-    // This is a workaround for a bug where the RHS was inaccessible to
-    // users that where not system admins. This is unable to be fixed properly
-    // because the Webapp does not export the AdvancedCreateComment directly.
-    // #120 filed to remove this workaround.
-    store.dispatch({
-        type: 'RECEIVED_MY_CHANNEL_MEMBER' as any,
-        data: {
-            channel_id: undefined, // eslint-disable-line no-undefined
-            roles: 'special_workaround',
-        },
-    });
-    store.dispatch({
-        type: 'RECEIVED_ROLE' as any,
-        data: {
-            name: 'special_workaround',
-            permissions: ['create_post'],
-        },
-    });
+    // (The side panel used to slip a fake channel membership with the create_post permission into the store, for the
+    // classic editor it embedded; the panel has no classic editor any more, and nothing fakes a permission.)
 }
 
 function callsPostButtonClickedTranscription(state = false, action: any) {

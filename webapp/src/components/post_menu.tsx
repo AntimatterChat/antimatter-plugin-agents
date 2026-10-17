@@ -8,11 +8,13 @@ import {Post} from '@mattermost/types/posts';
 
 import styled from 'styled-components';
 
-import {doReaction, doThreadAnalysis} from '../client';
+import {useStore} from 'react-redux';
 
-import {useSelectPost} from '@/hooks';
+import {doReaction} from '../client';
 
-import {useBotlistForChannel} from '@/bots';
+import {AgentTaskName} from '@/agent_chat_client';
+import {runAgentTask, useChatAgentBotlist} from '@/agent_chat_state';
+import {useBotlist} from '@/bots';
 
 import IconAI from './assets/icon_ai';
 import IconReactForMe from './assets/icon_react_for_me';
@@ -28,15 +30,21 @@ type Props = {
     handleDropdownOpened?: (open: boolean) => void,
 }
 
+// The AI actions of a message (classic web app): the person's agent works on the message's thread, through the
+// server (agent tasks), and the thread of its answer opens. "React for me" is the app's own, with its own bots.
 const PostMenu = (props: Props) => {
-    const selectPost = useSelectPost();
+    const store = useStore();
     const intl = useIntl();
-    const {bots, activeBot, setActiveBot} = useBotlistForChannel(props.post.channel_id);
+    const {bots, activeBot, setActiveBot} = useChatAgentBotlist();
+    const {bots: appBots} = useBotlist();
     const post = props.post;
 
-    const analyzeThread = async (postId: string, analysisType: string) => {
-        const result = await doThreadAnalysis(postId, analysisType, activeBot?.username || '');
-        selectPost(result.postid, result.channelid);
+    const analyzeThread = async (postId: string, task: AgentTaskName) => {
+        try {
+            await runAgentTask(store as any, {task, post_id: postId}, activeBot?.id);
+        } catch (e) {
+            console.error('Could not ask an agent', e); // eslint-disable-line no-console
+        }
     };
 
     if (bots && bots.length === 0) {
@@ -60,20 +68,22 @@ const PostMenu = (props: Props) => {
             <Divider/>
             <DropdownMenuItem onClick={() => analyzeThread(post.id, 'summarize_thread')}>
                 <span className='icon'><IconThreadSummarization/></span>
-                <FormattedMessage defaultMessage='Summarize Thread'/>
+                <FormattedMessage defaultMessage='Summarise thread' description='AI actions on a message: the agent of the person summarises the thread, in the AI chat.'/>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => analyzeThread(post.id, 'action_items')}>
+            <DropdownMenuItem onClick={() => analyzeThread(post.id, 'find_action_items')}>
                 <span className='icon'><IconSparkleCheckmarkStyled/></span>
                 <FormattedMessage defaultMessage='Find action items'/>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => analyzeThread(post.id, 'open_questions')}>
+            <DropdownMenuItem onClick={() => analyzeThread(post.id, 'find_open_questions')}>
                 <span className='icon'><IconSparkleQuestionStyled/></span>
                 <FormattedMessage defaultMessage='Find open questions'/>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => doReaction(post.id)}>
-                <span className='icon'><IconReactForMe/></span>
-                <FormattedMessage defaultMessage='React for me'/>
-            </DropdownMenuItem>
+            {Boolean(appBots?.length) && (
+                <DropdownMenuItem onClick={() => doReaction(post.id)}>
+                    <span className='icon'><IconReactForMe/></span>
+                    <FormattedMessage defaultMessage='React for me'/>
+                </DropdownMenuItem>
+            )}
             <Divider/>
             <DropdownInfoOnlyVisibleToYou/>
         </DotMenu>

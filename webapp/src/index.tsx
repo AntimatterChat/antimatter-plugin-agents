@@ -3,14 +3,10 @@
 
 import React from 'react';
 import {Store, UnknownAction} from 'redux';
-import styled from 'styled-components';
 import {FormattedMessage, IntlShape, createIntl} from 'react-intl';
 
 import {GlobalState} from '@mattermost/types/store';
 import {CodeTagsIcon} from '@mattermost/compass-icons/components';
-
-//@ts-ignore it exists
-import aiIcon from '../../assets/bot_icon.png';
 
 import manifest from '@/manifest';
 import {PluginWebSocketMessage} from '@/types';
@@ -19,11 +15,12 @@ import {LLMBotPost} from './components/llmbot_post/llmbot_post';
 import PostMenu from './components/post_menu';
 import IconThreadSummarization from './components/assets/icon_thread_summarization';
 import IconReactForMe from './components/assets/icon_react_for_me';
-import RHS from './components/rhs/rhs';
+import AgentChatPanel, {PanelTitle} from './components/agent_chat/agent_chat_panel';
+import {SparkleIcon} from './components/agent_chat/icons';
 import CustomPromptsDropdown from './components/custom_prompts/custom_prompts_dropdown';
 import CustomPromptsManagement from './components/custom_prompts/custom_prompts_management';
 import Config from './components/system_console/config';
-import {setSiteURL, doReaction, doRunSearch, doThreadAnalysis} from './client';
+import {setSiteURL, doReaction, doRunSearch} from './client';
 
 import {setOpenRHSAction} from './redux_actions';
 import PostEventListener from './websocket';
@@ -31,7 +28,7 @@ import {setupRedux} from './redux';
 import UnreadsSummarize from './components/unreads_summarize';
 import {PostbackPost} from './components/postback_post';
 import {AgentMentionReminderPost} from './components/agent_mention_reminder_post';
-import {isFusionUI, isRHSCompatable} from './am_webapp';
+import {isFusionUI} from './am_webapp';
 import SearchButton from './components/search_button';
 import AskChannelButton from './components/ask_channel_button';
 import {doSelectPost} from './hooks';
@@ -43,13 +40,13 @@ import '@/hooks/use_conversation_context';
 import {notifyMCPConnectionUpdated, MCPConnectionEvent} from './hooks/use_mcp_connection_events';
 import {handleAskChannelCommand, handleSummarizeChannelCommand} from './commands';
 import SearchHints from './components/search_hints';
-import {useBotlist, resolveActiveBot, getSelectedAgentId, fetchAndStoreBots} from './bots';
+import {resolveActiveBot, getSelectedAgentId, fetchAndStoreBots} from './bots';
 import {botsFromState, makeChannelAutoReplySchema} from './components/channel_settings/autoreply_schema';
 import {handleChannelAutoReplyUpdated, ChannelAutoReplyUpdatedEvent} from './components/channel_settings/autoreply_state';
 import {shouldSuppressBotNotification} from './notifications';
-import AgentsTour from './components/tutorial/agents_tour';
-import AgentsPage, {AGENTS_ROUTE} from './components/agents/agents_page';
-import IconAI from './components/assets/icon_ai';
+import {chatAgentsFromState, fetchChatAgents, runAgentTask, useChatAgents} from './agent_chat_state';
+import {AgentTaskName} from './agent_chat_client';
+import {AGENT_POST_STREAM_EVENT, makeAgentPostStreamHandler} from './agent_stream';
 
 type WebappStore = Store<GlobalState, UnknownAction>
 
@@ -74,69 +71,17 @@ function getStaticIntl(store: WebappStore): IntlShape {
     });
 }
 
-function getAgentsProductLabel(store: WebappStore): string {
-    return getStaticIntl(store).formatMessage({defaultMessage: 'Agents'});
+function getAppLabel(store: WebappStore): string {
+    return getStaticIntl(store).formatMessage({defaultMessage: 'AI chat', description: 'The AI chat app\'s name, on its button in the channel header (classic web app).'});
 }
 
-const IconAIContainer = styled.img`
-	border-radius: 50%;
-    width: 24px;
-    height: 24px;
-`;
-
-// Product switcher: in the global header, inherit the same muted header text color as the Channels glyph
-// (see Antimatter ProductBranding). In the dropdown, match string product icons (ProductMenuItem uses --button-bg).
-const ProductSwitcherIconWrapper = styled.span`
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    min-width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-    color: inherit;
-
-    .product-switcher-menu & {
-        color: var(--button-bg);
-    }
-
-    svg {
-        width: 18px;
-        height: 18px;
-    }
-`;
-
-const ProductSwitcherIconAI = (props: {className?: string}) => (
-    <ProductSwitcherIconWrapper className={props.className}>
-        <IconAI/>
-    </ProductSwitcherIconWrapper>
-);
-
-const RHSTitleContainer = styled.span`
-    display: flex;
-	gap: 8px;
-    align-items: center;
-	margin-left: 8px;
-`;
-
-const RHSTitle = () => {
-    return (
-        <RHSTitleContainer>
-            <IconAIContainer src={aiIcon}/>
-            <FormattedMessage defaultMessage='Agents'/>
-        </RHSTitleContainer>
-    );
-};
-
+// The channel header's button (the classic web app's; Fusion has the app rail) shows while an agent is there to talk to.
 const ChannelHeaderIcon = () => {
-    const {bots} = useBotlist();
-
-    // Only show icon if user has access to at least one bot
-    if (!bots || bots.length === 0) {
+    const {agents} = useChatAgents();
+    if (!agents || agents.length === 0) {
         return null;
     }
-
-    return <IconAIContainer src={aiIcon}/>;
+    return <SparkleIcon size={18}/>;
 };
 
 export default class Plugin {
@@ -160,11 +105,12 @@ export default class Plugin {
             }
         });
 
-        let rhs: any = null;
-        if (isRHSCompatable()) {
-            rhs = registry.registerRightHandSidebarComponent(RHS, RHSTitle);
-            setOpenRHSAction(rhs.showRHSPlugin);
-        }
+        // The AI chat is its side panel (no page of its own): the conversations with the server's agents.
+        const rhs = registry.registerRightHandSidebarComponent(AgentChatPanel, PanelTitle);
+        setOpenRHSAction(rhs.showRHSPlugin);
+
+        // The server's agents the person may use, for the panel and the AI actions.
+        fetchChatAgents(store.dispatch);
 
         // Handle all post-related websocket events with one handler
         registry.registerWebSocketEventHandler('custom_mattermost-ai_postupdate', this.postEventListener.handlePostUpdateWebsockets);
@@ -186,6 +132,11 @@ export default class Plugin {
             },
         );
 
+        // An agent's answer as it streams: Fusion shows it itself; the classic web app through the AI chat.
+        if (!isFusionUI()) {
+            registry.registerWebSocketEventHandler(AGENT_POST_STREAM_EVENT, makeAgentPostStreamHandler(store));
+        }
+
         const LLMBotPostWithWebsockets = (props: any) => {
             return (
                 <LLMBotPost
@@ -203,49 +154,47 @@ export default class Plugin {
         // refetch leaves the stale list, which is preferable to no list.
         const refreshRuntimeBotsCache = () => {
             fetchAndStoreBots(store.dispatch).catch(() => { /* best effort */ });
+            fetchChatAgents(store.dispatch);
         };
 
         registry.registerWebSocketEventHandler('config_changed', refreshRuntimeBotsCache);
-
-        // Agent CRUD refreshes server-side bot cache but does not emit config_changed; mirror that refresh so RHS dropdown updates.
         registry.registerWebSocketEventHandler('custom_mattermost-ai_bots_invalidate', refreshRuntimeBotsCache);
 
+        // The app's own posts (its search answers, older conversations) and its notices.
         registry.registerPostTypeComponent('custom_llmbot', LLMBotPostWithWebsockets);
         registry.registerPostTypeComponent('custom_llm_postback', PostbackPost);
         registry.registerPostTypeComponent('custom_agent_mention_reminder', AgentMentionReminderPost);
+
+        // The AI actions on a message: the person's agent works on its thread, through the server, and the panel opens
+        // on the conversation. "React for me" is still the app's.
+        const haveAgents = () => (chatAgentsFromState(store.getState())?.length ?? 1) > 0;
+        const threadTask = (task: AgentTaskName) => async (postId: string) => {
+            try {
+                await runAgentTask(store, {task, post_id: postId});
+            } catch (e) {
+                console.error('Could not ask an agent', e); // eslint-disable-line no-console
+            }
+        };
         if (isFusionUI() && registry.registerPostDropdownSubMenuAction) {
             // Fusion keeps the AI actions out of a message's hover toolbar: they're a submenu of its ⋯ menu,
-            // near the bottom, for the default agent. Hidden while no agent is available.
+            // near the bottom. Hidden while no agent is available.
             const intl = getStaticIntl(store);
-            const haveBots = () => (botsFromState(store.getState())?.length ?? 1) > 0;
-            const analyze = (analysisType: string) => async (postId: string) => {
-                const result = await doThreadAnalysis(postId, analysisType, '');
-                doSelectPost(result.postid, result.channelid, store.dispatch);
-            };
             const {rootRegisterMenuItem} = registry.registerPostDropdownSubMenuAction(
-                intl.formatMessage({defaultMessage: 'AI actions'}), () => {}, haveBots,
+                intl.formatMessage({defaultMessage: 'AI actions', description: 'Submenu of a message\'s ⋯ menu with what an agent can do with the message\'s thread.'}), () => {}, haveAgents,
             );
-            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Summarize Thread'}), analyze('summarize_thread'), haveBots);
-            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find action items'}), analyze('action_items'), haveBots);
-            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find open questions'}), analyze('open_questions'), haveBots);
-            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'React for me'}), doReaction, haveBots);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Summarise thread', description: 'AI actions on a message: the agent of the person summarises the thread, in the AI chat.'}), threadTask('summarize_thread'), haveAgents);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find action items', description: 'AI actions on a message: the person\'s agent lists the thread\'s action items, in the AI chat.'}), threadTask('find_action_items'), haveAgents);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find open questions', description: 'AI actions on a message: the person\'s agent lists the thread\'s unanswered questions, in the AI chat.'}), threadTask('find_open_questions'), haveAgents);
+            rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'React for me'}), doReaction, haveAgents);
         } else if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
         } else {
-            registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span><FormattedMessage defaultMessage='Summarize Thread'/></>, (postId: string) => {
-                const state = store.getState();
-                const team = state.entities.teams.teams[state.entities.teams.currentTeamId];
-                window.WebappUtils.browserHistory.push('/' + team.name + '/messages/@ai');
-                doThreadAnalysis(postId, 'summarize_thread', '');
-                if (rhs) {
-                    store.dispatch(rhs.showRHSPlugin);
-                }
-            });
+            registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span><FormattedMessage defaultMessage='Summarise thread' description='AI actions on a message: the agent of the person summarises the thread, in the AI chat.'/></>, threadTask('summarize_thread'));
             registry.registerPostDropdownMenuAction(<><span className='icon'><IconReactForMe/></span><FormattedMessage defaultMessage='React for me'/></>, doReaction);
         }
 
         registry.registerAdminConsoleCustomSetting('Config', Config);
-        const agentsProductLabel = getAgentsProductLabel(store);
+        const appLabel = getAppLabel(store);
 
         // Channel settings tab (Antimatter >= 11.10 only). The schema is built
         // exactly once: the host re-runs hydration whenever the schema object
@@ -269,14 +218,12 @@ export default class Plugin {
             fetchAndStoreBots(store.dispatch).catch(() => { /* best effort */ });
         }
 
-        if (rhs) {
-            registry.registerChannelHeaderButtonAction(<ChannelHeaderIcon/>, () => {
-                store.dispatch(rhs.toggleRHSPlugin);
-            },
-            agentsProductLabel,
-            agentsProductLabel,
-            );
-        }
+        registry.registerChannelHeaderButtonAction(<ChannelHeaderIcon/>, () => {
+            store.dispatch(rhs.toggleRHSPlugin);
+        },
+        appLabel,
+        appLabel,
+        );
 
         if (registry.registerNewMessagesSeparatorActionComponent) {
             registry.registerNewMessagesSeparatorActionComponent(UnreadsSummarize);
@@ -286,36 +233,24 @@ export default class Plugin {
             registry.registerChannelHeaderIcon(AskChannelButton);
         }
 
-        // Register slash commands
-        if (rhs) {
-            registry.registerSlashCommandWillBePostedHook((message: string, args: any) => {
-                if (message.startsWith('/ask-channel')) {
-                    const query = message.replace('/ask-channel', '').trim();
-                    return handleAskChannelCommand(query, args, store, rhs);
-                } else if (message.startsWith('/summarize-channel')) {
-                    const commandParams = message.replace('/summarize-channel', '').trim();
-                    return handleSummarizeChannelCommand(commandParams, args, store, rhs);
-                }
-                return {message, args};
-            });
-        }
+        // Slash commands: /ask-channel is the app's search; /summarize-channel asks the person's agent.
+        registry.registerSlashCommandWillBePostedHook((message: string, args: any) => {
+            if (message.startsWith('/ask-channel')) {
+                const query = message.replace('/ask-channel', '').trim();
+                return handleAskChannelCommand(query, args, store, rhs);
+            } else if (message.startsWith('/summarize-channel')) {
+                const commandParams = message.replace('/summarize-channel', '').trim();
+                return handleSummarizeChannelCommand(commandParams, args, store);
+            }
+            return {message, args};
+        });
 
         if (registry.registerRootComponent) {
-            registry.registerRootComponent(AgentsTour);
             registry.registerRootComponent(CustomPromptsManagement);
         }
 
-        // Register Agents as a product so it appears in the product switcher (grid icon).
-        // registerProduct is an internal Antimatter API available on the plugin registry.
-        if ((registry as any).registerProduct) {
-            (registry as any).registerProduct(
-                AGENTS_ROUTE,
-                ProductSwitcherIconAI,
-                agentsProductLabel,
-                AGENTS_ROUTE,
-                AgentsPage,
-            );
-        }
+        // No page of its own: the AI chat registers no product and no route (its old agents page is the server's
+        // Integrations › Agents now).
 
         if (registry.registerSearchComponents) {
             registry.registerSearchComponents({
@@ -335,9 +270,6 @@ export default class Plugin {
                         activeBot?.username,
                     );
                     doSelectPost(result.postid, result.channelid, store.dispatch);
-                    if (rhs) {
-                        store.dispatch(rhs.showRHSPlugin);
-                    }
                 },
             });
         }

@@ -3,16 +3,14 @@
 
 import React, {useRef, useState, useEffect} from 'react';
 import styled, {css} from 'styled-components';
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector, useStore} from 'react-redux';
 import {GlobalState} from '@mattermost/types/store';
 //eslint-disable-next-line import/no-unresolved -- react-bootstrap is external
 import {OverlayTrigger, Tooltip, Overlay} from 'react-bootstrap';
 import {FormattedMessage, useIntl} from 'react-intl';
 
-import {doChannelAnalysis} from '@/client';
-import {openRHS} from '@/redux_actions';
-
-import {useBotlist} from '@/bots';
+import {AgentTaskRequest} from '@/agent_chat_client';
+import {runAgentTask, useChatAgentBotlist} from '@/agent_chat_state';
 
 import IconAI from './assets/icon_ai';
 import {ChannelSummarizePopover} from './channel_summarize_popover';
@@ -107,13 +105,12 @@ const PopoverWrapper = React.forwardRef((props: any, ref: any) => {
 
 const AskChannelButton = () => {
     const intl = useIntl();
-    const dispatch = useDispatch();
+    const store = useStore();
     const [showPopover, setShowPopover] = useState(false);
     const target = useRef<HTMLButtonElement>(null);
-    const {bots, activeBot, setActiveBot} = useBotlist();
+    const {bots, activeBot, setActiveBot} = useChatAgentBotlist();
 
     const currentChannelId = useSelector((state: GlobalState) => state.entities.channels.currentChannelId);
-    const currentTeamId = useSelector((state: GlobalState) => state.entities.teams.currentTeamId);
     const currentChannel = useSelector((state: GlobalState) => state.entities.channels.channels[currentChannelId]);
     const lastViewedAt = useSelector((state: GlobalState) => state.entities.channels.myMembers[currentChannelId]?.last_viewed_at || 0);
     const [initialLastViewedAt, setInitialLastViewedAt] = useState(lastViewedAt);
@@ -124,21 +121,29 @@ const AskChannelButton = () => {
 
     const channelName = currentChannel?.display_name || 'Current Channel';
 
-    const handleSummarize = async (options: any) => {
+    // The person's agent answers about the channel through the server (agent tasks); the AI chat opens on it.
+    const handleSummarize = async (options: {analysis_type: string; prompt?: string; days?: number}) => {
         if (!activeBot) {
             return;
         }
-
         setShowPopover(false);
 
-        // Open RHS
-        dispatch(openRHS());
-
-        const result = await doChannelAnalysis(currentChannelId, 'summarize_channel', activeBot.username, {
-            ...options,
-            team_id: currentTeamId,
-        });
-        dispatch({type: 'SELECT_AI_POST', postId: result.postid});
+        let request: AgentTaskRequest;
+        switch (options.analysis_type) {
+        case 'custom':
+            request = {task: 'ask_channel', channel_id: currentChannelId, question: options.prompt ?? ''};
+            break;
+        case 'days':
+            request = {task: 'summarize_channel', channel_id: currentChannelId, since: Date.now() - ((options.days ?? 7) * 24 * 60 * 60 * 1000)};
+            break;
+        default:
+            request = {task: 'summarize_channel', channel_id: currentChannelId, since: initialLastViewedAt};
+        }
+        try {
+            await runAgentTask(store as any, request, activeBot.id);
+        } catch (e) {
+            console.error('Could not ask an agent', e); // eslint-disable-line no-console
+        }
     };
 
     // Handle clicking outside to close

@@ -12,7 +12,8 @@ import {LLMBot} from '@/bots';
 
 import {getProfilePictureUrl} from '@/client';
 
-import {AGENTS_ROUTE} from './agents/agents_page';
+// Agents are managed in the server's Integrations › Agents (the community's), which this path opens.
+const AGENTS_ROUTE = '/_redirect/integrations/agents';
 import DotMenu, {DropdownMenu, DropdownMenuItem} from './dot_menu';
 import {GrayPill} from './pill';
 
