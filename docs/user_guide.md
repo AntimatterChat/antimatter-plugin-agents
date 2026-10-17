@@ -19,7 +19,6 @@ Access AI features in one of the following ways:
 - Use the **Ask AI** option in channels with unread messages
 - Use **Ask Agents about this channel** in a channel header to summarize recent activity, focus on a date range, or ask a question about the current channel. See [Channel Summaries](features/channel_summaries.md).
 
-![AI Actions menu in the message composer, including the Custom prompts entry.](img/ai-actions-menu-composer.png)
 
 ### Mobile
 
@@ -201,8 +200,6 @@ To summarize a Zoom meeting in Antimatter:
 2. Record the Zoom meeting.
 3. Once the meeting ends and the transcript file is posted to Antimatter, select the **Create meeting summary** option located directly above the file.
 
-![Select the Create meeting summary option to summarize your Zoom meeting in Antimatter.](img/create-meeting-summary-zoom.png)
 
 4. The meeting summary is generated and shared as a direct message with the person who requested the meeting summary.
 
-![Easily share the updates from your Zoom meetings with your team and broader organization by turning recordings into detailed summaries at the click of a button.](img/copilot-Zoom-Meeting-Summary.png)

@@ -6,7 +6,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {PrimaryButton} from 'src/components/assets/buttons';
-import SparklesGraphic from 'src/components/assets/sparkles_graphic';
 
 import {PanelContainer} from './panel';
 
@@ -17,7 +16,6 @@ type Props = {
 const NoServicesPage = (props: Props) => {
     return (
         <StyledPanelContainer>
-            <SparklesGraphic/>
             <Title>{'No AI services added yet'}</Title>
             <Subtitle>{'To get started with Agents, add an AI service'}</Subtitle>
             <PrimaryButton onClick={props.onAddServicePressed}>

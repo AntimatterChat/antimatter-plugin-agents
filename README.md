@@ -1,12 +1,10 @@
 <div align="center">
 
-# Antimatter Agents Plugin [![Download Latest Master Build](https://img.shields.io/badge/Download-Latest%20Master%20Build-blue)](https://github.com/antimatterchat/antimatter-plugin-agents/releases/tag/latest-master)
+# AI chat for Antimatter [![Download Latest Master Build](https://img.shields.io/badge/Download-Latest%20Master%20Build-blue)](https://github.com/antimatterchat/antimatter-plugin-agents/releases/tag/latest-master)
 
-The Antimatter Agents Plugin integrates AI capabilities directly into your Antimatter workspace. **Run any local LLM** on your infrastructure or connect to cloud providers - you control your data and deployment.
+AI chat is Antimatter's side panel for talking with agents. Agents themselves (their model connection, instructions and who may use them) are the server's, managed in Integrations › Agents; the server answers for them. The app keeps the panel, the message actions that ask an agent for a summary, AI search, custom prompts and a few features the server doesn't have yet.
 
 </div>
-
-![The Antimatter Agents AI Plugin is an extension for antimatter that provides functionality for self-hosted and vendor-hosted LLMs](img/antimatter-ai-llm-access.webp)
 
 ## Key Features
 

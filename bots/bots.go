@@ -4,7 +4,6 @@
 package bots
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,7 +14,6 @@ import (
 
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/accesscontrol"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/amapi"
-	"github.com/antimatterchat/antimatter-plugin-agents/v2/assets"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/bifrost"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/config"
 	"github.com/antimatterchat/antimatter-plugin-agents/v2/llm"
@@ -454,7 +452,7 @@ func (b *AMBots) EnsureBots() error {
 			}
 		}
 
-		b.ensureDefaultProfileImage(bot)
+		// No picture of the app's is put on its agents: the server draws an agent's avatar until it has its own.
 
 		fallbackServices, ferr := llm.ResolveFallbackChain(bot.service.ID, b.config.GetServiceByID)
 		if ferr != nil {
@@ -485,22 +483,6 @@ func (b *AMBots) EnsureBots() error {
 	b.botsLock.Unlock()
 
 	return nil
-}
-
-func (b *AMBots) ensureDefaultProfileImage(bot *Bot) {
-	user, err := b.pluginAPI.User.Get(bot.amBot.UserId)
-	if err != nil {
-		b.pluginAPI.Log.Error("Failed to get bot user for profile image check", "bot_name", bot.cfg.Name, "error", err.Error())
-		return
-	}
-
-	if user.LastPictureUpdate != 0 {
-		return
-	}
-
-	if err := b.pluginAPI.User.SetProfileImage(bot.amBot.UserId, bytes.NewReader(assets.DefaultAgentProfilePicture)); err != nil {
-		b.pluginAPI.Log.Error("Failed to set bot profile image", "bot_name", bot.cfg.Name, "error", err.Error())
-	}
 }
 
 // getLLM returns an agent's wrapped model plus provider services resolved from
