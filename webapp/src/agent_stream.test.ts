@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import {makeAgentPostStreamHandler, streamedPost} from './agent_stream';
@@ -22,9 +22,9 @@ describe('agent_post_stream', () => {
     });
 
     test('nothing for a post not loaded, another account\'s, or no change', () => {
-        expect(streamedPost(undefined, data({message: 'x'}))).toBeUndefined();
-        expect(streamedPost({...post, user_id: 'maya'}, data({message: 'Spoofed'}))).toBeUndefined();
-        expect(streamedPost({...post, message: 'Same'}, data({message: 'Same'}))).toBeUndefined();
+        expect(streamedPost(null, data({message: 'x'}))).toBeNull();
+        expect(streamedPost({...post, user_id: 'maya'}, data({message: 'Spoofed'}))).toBeNull();
+        expect(streamedPost({...post, message: 'Same'}, data({message: 'Same'}))).toBeNull();
     });
 
     test('the handler updates the post it has, and only that', () => {

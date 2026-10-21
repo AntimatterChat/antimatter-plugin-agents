@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 /* eslint-disable no-sync */
@@ -43,11 +43,11 @@ describe('no Mattermost artwork', () => {
     });
 
     test('the web app imports no picture and draws no illustration', () => {
-        const sources = files.filter((f) => f.startsWith('webapp/src/') && /\.(tsx?|jsx?)$/.test(f) && !f.endsWith('no_mattermost_images.test.ts'));
+        const sources = files.filter((f) => f.startsWith('webapp/src/') && (/\.(tsx?|jsx?)$/).test(f) && !f.endsWith('no_mattermost_images.test.ts'));
         const offenders: string[] = [];
         for (const f of sources) {
             const text = fs.readFileSync(path.join(repoRoot, f), 'utf8');
-            if (/from\s+['"][^'"]+\.(png|jpe?g|gif|webp|svg)['"]/.test(text) || /require\(['"][^'"]+\.(png|jpe?g|gif|webp|svg)['"]\)/.test(text)) {
+            if ((/from\s+['"][^'"]+\.(png|jpe?g|gif|webp|svg)['"]/).test(text) || (/require\(['"][^'"]+\.(png|jpe?g|gif|webp|svg)['"]\)/).test(text)) {
                 offenders.push(`${f}: imports a picture`);
             }
 
@@ -58,7 +58,7 @@ describe('no Mattermost artwork', () => {
                     offenders.push(`${f}: an SVG of ${m[1]}×${m[2]}`);
                 }
             }
-            if (/Illustration|bot_icon|rhs_image|sparkles_graphic|file_overlay/.test(text)) {
+            if ((/Illustration|bot_icon|rhs_image|sparkles_graphic|file_overlay/).test(text)) {
                 offenders.push(`${f}: names the old artwork`);
             }
         }

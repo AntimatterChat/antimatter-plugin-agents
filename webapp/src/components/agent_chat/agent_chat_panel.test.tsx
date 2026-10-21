@@ -1,10 +1,10 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import React from 'react';
 import {Provider} from 'react-redux';
 import {createStore} from 'redux';
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
 import AgentChatPanel from './agent_chat_panel';
 
@@ -182,7 +182,7 @@ describe('the AI chat side panel', () => {
 
         fireEvent.click(await screen.findByTestId('ai-chat-conversations-button'));
         const item = await screen.findByText('Plan the release');
-        expect(mockGetAgentConversations).toHaveBeenCalledWith(undefined, 0, 50);
+        expect(mockGetAgentConversations).toHaveBeenCalledWith('', 0, 50);
 
         fireEvent.click(item);
         await waitFor(() => expect((store.getState() as any)['plugins-mattermost-ai'].selectedPostId).toBe('c1'));
@@ -222,9 +222,7 @@ describe('the AI chat side panel', () => {
         renderPanel(store);
 
         fireEvent.click(await screen.findByTestId('ai-chat-conversations-button'));
-        await act(async () => {
-            fireEvent.click(await screen.findByText('Plan the release'));
-        });
-        expect(actions).toContainEqual(expect.objectContaining({type: 'SELECT_POST', postId: 'c1', channelId: 'dm-coder'}));
+        fireEvent.click(await screen.findByText('Plan the release'));
+        await waitFor(() => expect(actions).toContainEqual(expect.objectContaining({type: 'SELECT_POST', postId: 'c1', channelId: 'dm-coder'})));
     });
 });

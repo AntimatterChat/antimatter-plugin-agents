@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import React, {useEffect, useRef, useState} from 'react';
@@ -35,17 +35,15 @@ export default function AgentPicker({agents, agent, onSelect}: Props) {
     const [open, setOpen] = useState(false);
     const rootRef = useRef<HTMLDivElement>(null);
 
+    // While open, a click elsewhere or Escape closes the list.
     useEffect(() => {
-        if (!open) {
-            return undefined;
-        }
         const onDown = (e: MouseEvent) => {
-            if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+            if (open && rootRef.current && !rootRef.current.contains(e.target as Node)) {
                 setOpen(false);
             }
         };
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
+            if (open && e.key === 'Escape') {
                 setOpen(false);
             }
         };
@@ -64,8 +62,7 @@ export default function AgentPicker({agents, agent, onSelect}: Props) {
         <Root ref={rootRef}>
             <Trigger
                 type='button'
-                aria-haspopup={single ? undefined : 'listbox'}
-                aria-expanded={single ? undefined : open}
+                {...(single ? {} : {'aria-haspopup': 'listbox' as const, 'aria-expanded': open})}
                 aria-label={formatMessage({defaultMessage: 'Agent: {name}', description: 'Label of the AI chat side panel\'s agent picker, for screen readers. {name} is the agent the panel talks to.'}, {name})}
                 disabled={single}
                 onClick={() => setOpen(!open)}

@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import React, {useEffect, useState} from 'react';
@@ -45,24 +45,23 @@ export default function NewConversation({agents, agent, fusion, onOpen, onSeeAll
 
     // The direct message with the agent, where the composer writes; the store learns it, as when it's opened.
     useEffect(() => {
-        if (!fusion || !currentUserId) {
-            return undefined;
-        }
         let cancelled = false;
         setDmId('');
         setFailed(false);
-        getAgentDirectChannel(currentUserId, agent.id).then(({channel: dm, member}) => {
-            if (cancelled) {
-                return;
-            }
-            dispatch({type: 'RECEIVED_CHANNEL', data: dm});
-            dispatch({type: 'RECEIVED_MY_CHANNEL_MEMBER', data: member});
-            setDmId(dm.id);
-        }).catch(() => {
-            if (!cancelled) {
-                setFailed(true);
-            }
-        });
+        if (fusion && currentUserId) {
+            getAgentDirectChannel(currentUserId, agent.id).then(({channel: dm, member}) => {
+                if (cancelled) {
+                    return;
+                }
+                dispatch({type: 'RECEIVED_CHANNEL', data: dm});
+                dispatch({type: 'RECEIVED_MY_CHANNEL_MEMBER', data: member});
+                setDmId(dm.id);
+            }).catch(() => {
+                if (!cancelled) {
+                    setFailed(true);
+                }
+            });
+        }
         return () => {
             cancelled = true;
         };

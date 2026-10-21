@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import React, {useCallback, useEffect, useState} from 'react';
@@ -32,7 +32,7 @@ export default function ConversationList({agents, agentId, limit, onOpen, onSeeA
 
     const load = useCallback(async (before = 0) => {
         try {
-            const page = await getAgentConversations(agentId, before, limit ?? PAGE);
+            const page = await getAgentConversations(agentId ?? '', before, limit ?? PAGE);
             setFailed(false);
             setMore(!limit && page.length === PAGE);
             setConversations((prev) => (before && prev ? [...prev, ...page] : page));
@@ -58,7 +58,17 @@ export default function ConversationList({agents, agentId, limit, onOpen, onSeeA
 
     if (conversations.length === 0) {
         if (limit) {
-            return failed ? <ErrorText><FormattedMessage defaultMessage='Your conversations couldn’t be loaded.' description='AI chat side panel: the list of conversations with agents failed to load.'/></ErrorText> : null;
+            if (!failed) {
+                return null;
+            }
+            return (
+                <ErrorText>
+                    <FormattedMessage
+                        defaultMessage='Your conversations couldn’t be loaded.'
+                        description='AI chat side panel: the list of conversations with agents failed to load.'
+                    />
+                </ErrorText>
+            );
         }
         return (
             <Body data-testid='ai-chat-conversations'>
@@ -151,7 +161,14 @@ export default function ConversationList({agents, agentId, limit, onOpen, onSeeA
     return (
         <Body data-testid='ai-chat-conversations'>
             {list}
-            {failed && <ErrorText><FormattedMessage defaultMessage='Your conversations couldn’t be loaded.' description='AI chat side panel: the list of conversations with agents failed to load.'/></ErrorText>}
+            {failed && (
+                <ErrorText>
+                    <FormattedMessage
+                        defaultMessage='Your conversations couldn’t be loaded.'
+                        description='AI chat side panel: the list of conversations with agents failed to load.'
+                    />
+                </ErrorText>
+            )}
             {more && (
                 <SeeAll
                     type='button'

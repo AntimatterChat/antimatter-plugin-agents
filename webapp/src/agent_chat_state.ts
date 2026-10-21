@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import {useCallback, useEffect, useMemo} from 'react';
@@ -27,7 +27,8 @@ export function chatAgentsReducer(state: ChatAgent[] | null = null, action: {typ
     return state;
 }
 
-type State = Record<string, any>;
+// The host's store state (its GlobalState and the apps' slices).
+type State = any;
 
 export const chatAgentsFromState = (state: State): ChatAgent[] | null => state['plugins-' + manifest.id]?.chatAgents ?? null;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import {Dispatch} from 'redux';
@@ -20,9 +20,9 @@ export type AgentPostStreamData = {
 
 type Post = {id: string; user_id: string; message: string; props?: Record<string, unknown>};
 
-export function streamedPost(post: Post | undefined, data: AgentPostStreamData): Post | undefined {
+export function streamedPost(post: Post | null | void, data: AgentPostStreamData): Post | null {
     if (!post || (data.user_id && post.user_id !== data.user_id)) {
-        return undefined;
+        return null;
     }
     const done = data.control === 'end' || data.control === 'error' || data.control === 'cancel';
     const props = {...(post.props || {})};
@@ -33,7 +33,7 @@ export function streamedPost(post: Post | undefined, data: AgentPostStreamData):
     }
     const message = typeof data.message === 'string' ? data.message : post.message;
     if (message === post.message && Boolean(post.props?.agent_streaming) === !done) {
-        return undefined;
+        return null;
     }
 
     // The text arriving isn't an edit: edit_at stays as it was.

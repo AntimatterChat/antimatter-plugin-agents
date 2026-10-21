@@ -1,8 +1,9 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import {ClientError} from '@mattermost/client';
 import {Channel, ChannelMembership} from '@mattermost/types/channels';
+import {Options} from '@mattermost/types/client4';
 import {Post} from '@mattermost/types/posts';
 import {UserProfile} from '@mattermost/types/users';
 
@@ -50,7 +51,7 @@ function apiURL(path: string): string {
     return `${Client4.url}/api/v4${path}`;
 }
 
-async function call<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function call<T>(path: string, options: Options = {}): Promise<T> {
     const url = apiURL(path);
     const response = await fetch(url, Client4.getOptions(options));
     if (!response.ok) {

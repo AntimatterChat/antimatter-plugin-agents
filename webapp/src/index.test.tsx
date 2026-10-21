@@ -266,12 +266,12 @@ describe('the AI actions use the server\'s agents', () => {
         ['Find action items', 'find_action_items'],
         ['Find open questions', 'find_open_questions'],
     ])('%s asks for %s on the message\'s thread', async (label, task) => {
-        const items = new Map<string, (postId: string) => Promise<void>>();
+        const items: Map<string, (postId: string) => Promise<void>> = new Map();
         const registerPostDropdownSubMenuAction = jest.fn(() => ({
             rootRegisterMenuItem: (text: string, action: (postId: string) => Promise<void>) => items.set(text, action),
         }));
         mockStartAgentTask.mockResolvedValue({id: 'root', channel_id: 'dm'});
-        const {dispatch} = await initializePlugin(undefined, {registerPostDropdownSubMenuAction});
+        const {dispatch} = await initializePlugin('', {registerPostDropdownSubMenuAction});
         await flush();
 
         const action = items.get(label);

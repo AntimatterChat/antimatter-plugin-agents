@@ -180,7 +180,7 @@ export default class Plugin {
             // near the bottom. Hidden while no agent is available.
             const intl = getStaticIntl(store);
             const {rootRegisterMenuItem} = registry.registerPostDropdownSubMenuAction(
-                intl.formatMessage({defaultMessage: 'AI actions', description: 'Submenu of a message\'s ⋯ menu with what an agent can do with the message\'s thread.'}), () => {}, haveAgents,
+                intl.formatMessage({defaultMessage: 'AI actions', description: 'Submenu of a message\'s ⋯ menu with what an agent can do with the message\'s thread.'}), () => null, haveAgents,
             );
             rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Summarise thread', description: 'AI actions on a message: the agent of the person summarises the thread, in the AI chat.'}), threadTask('summarize_thread'), haveAgents);
             rootRegisterMenuItem(intl.formatMessage({defaultMessage: 'Find action items', description: 'AI actions on a message: the person\'s agent lists the thread\'s action items, in the AI chat.'}), threadTask('find_action_items'), haveAgents);
@@ -189,7 +189,16 @@ export default class Plugin {
         } else if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
         } else {
-            registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span><FormattedMessage defaultMessage='Summarise thread' description='AI actions on a message: the agent of the person summarises the thread, in the AI chat.'/></>, threadTask('summarize_thread'));
+            const summariseLabel = (
+                <>
+                    <span className='icon'><IconThreadSummarization/></span>
+                    <FormattedMessage
+                        defaultMessage='Summarise thread'
+                        description='AI actions on a message: the agent of the person summarises the thread, in the AI chat.'
+                    />
+                </>
+            );
+            registry.registerPostDropdownMenuAction(summariseLabel, threadTask('summarize_thread'));
             registry.registerPostDropdownMenuAction(<><span className='icon'><IconReactForMe/></span><FormattedMessage defaultMessage='React for me'/></>, doReaction);
         }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import React, {useEffect, useState} from 'react';
@@ -63,7 +63,7 @@ export default function AgentChatPanel() {
     }
 
     const open = (rootId: string, channelId: string, agentId?: string) => {
-        const other = agentId && agentId !== agent.id ? agents.find((a) => a.id === agentId) : undefined;
+        const other = agentId && agentId !== agent.id ? agents.find((a) => a.id === agentId) : null;
         if (other) {
             selectAgent(other);
         }

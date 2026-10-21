@@ -1,4 +1,4 @@
-// Copyright (c) 2026-present Antimatter contributors.
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
 import {chatAgentsReducer, openConversation, resolveChatAgent, runAgentTask} from './agent_chat_state';
