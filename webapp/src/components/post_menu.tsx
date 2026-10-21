@@ -68,7 +68,10 @@ const PostMenu = (props: Props) => {
             <Divider/>
             <DropdownMenuItem onClick={() => analyzeThread(post.id, 'summarize_thread')}>
                 <span className='icon'><IconThreadSummarization/></span>
-                <FormattedMessage defaultMessage='Summarise thread' description='AI actions on a message: the agent of the person summarises the thread, in the AI chat.'/>
+                <FormattedMessage
+                    defaultMessage='Summarise thread'
+                    description='AI actions on a message: the agent of the person summarises the thread, in the AI chat.'
+                />
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => analyzeThread(post.id, 'find_action_items')}>
                 <span className='icon'><IconSparkleCheckmarkStyled/></span>
