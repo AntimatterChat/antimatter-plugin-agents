@@ -1,7 +1,8 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {doRunSearch, getChannelInterval} from './client';
+import {chatAgentsFromState, fetchChatAgents, runAgentTask} from './agent_chat_state';
+import {doRunSearch} from './client';
 import {doSelectPost} from './hooks';
 
 export async function handleAskChannelCommand(
@@ -44,6 +45,9 @@ export async function handleAskChannelCommand(
     }
 }
 
+// /summarize-channel [--bot <agent username>] [--period <24h, 7d...>]: the person's agent (or the one named, among
+// those they may use) summarises the channel's messages of the period, through the server (an agent task); the AI
+// chat opens on the conversation.
 export async function handleSummarizeChannelCommand(
     message: string,
     args: {
@@ -52,11 +56,9 @@ export async function handleSummarizeChannelCommand(
         root_id: string;
     },
     store: any,
-    rhs: { showRHSPlugin: any },
 ) {
     // Process command options
     const options = parseOptionsFromMessage(message);
-    const botUsername = options.bot || '';
 
     // Default to summarize 24 hours (in milliseconds)
     const defaultTimePeriod = 24 * 60 * 60 * 1000;
@@ -69,19 +71,25 @@ export async function handleSummarizeChannelCommand(
         timeSince = Date.now() - defaultTimePeriod;
     }
 
-    try {
-        const result = await getChannelInterval(
-            args.channel_id,
-            timeSince,
-            0,
-            'summarize_range',
-            '',
-            botUsername,
-        );
+    let agentId: string | undefined;
+    if (options.bot) {
+        let agents = chatAgentsFromState(store.getState());
+        if (agents === null) {
+            agents = await fetchChatAgents(store.dispatch);
+        }
+        const wanted = options.bot.replace(/^@/, '').toLowerCase();
+        agentId = agents?.find((a) => a.username.toLowerCase() === wanted)?.id;
+        if (!agentId) {
+            return {
+                error: {
+                    message: 'No agent @' + wanted + ' you may use',
+                },
+            };
+        }
+    }
 
-        // Get store and dispatch actions to select post and open RHS
-        doSelectPost(result.postid, result.channelid, store.dispatch);
-        store.dispatch(rhs.showRHSPlugin);
+    try {
+        await runAgentTask(store, {task: 'summarize_channel', channel_id: args.channel_id, since: Math.max(0, timeSince)}, agentId);
 
         // Return empty object to prevent default error message
         return {};

@@ -67,7 +67,6 @@ Antimatter renders the template with your current context (channel, team, user, 
 
 You can review and edit the rendered draft before sending it like any other message.
 
-![Custom Prompts modal showing the All Prompts and Your Prompts tabs, search field, and Create new action.](../img/custom-prompts-modal.png)
 
 ### From a pinned button in the Agents pane
 

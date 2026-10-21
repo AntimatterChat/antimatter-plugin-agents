@@ -5,8 +5,6 @@ import React from 'react';
 import styled from 'styled-components';
 import {FormattedMessage} from 'react-intl';
 
-import manifest from '@/manifest';
-
 const Notice = styled.div`
     display: flex;
     flex-direction: column;
@@ -30,17 +28,22 @@ const Body = styled.div`
     color: rgba(63, 67, 80, 0.72);
 `;
 
-const agentsPath = `/plug/${manifest.id}/agents`;
+// Agents are the server's now, managed in Integrations › Agents (this path opens it in a community).
+const agentsPath = '/_redirect/integrations/agents';
 
 const BotsMovedNotice = () => {
     return (
         <Notice>
             <Title>
-                <FormattedMessage defaultMessage='AI bot configuration has moved'/>
+                <FormattedMessage
+                    defaultMessage='Agents have moved'
+                    description='System Console, AI chat settings: notice title. Agents are managed by the server now.'
+                />
             </Title>
             <Body>
                 <FormattedMessage
-                    defaultMessage='Create and manage AI agents from the <link>Agents page</link>. System administrators can still set the default bot below.'
+                    defaultMessage='Agents are made and managed in <link>Integrations › Agents</link>, where their connection, instructions and who may use them are set.'
+                    description='System Console, AI chat settings: notice body. <link> opens Integrations › Agents.'
                     values={{
                         link: (chunks: React.ReactNode) => (
                             <a href={agentsPath}>{chunks}</a>
@@ -50,7 +53,10 @@ const BotsMovedNotice = () => {
             </Body>
             <div>
                 <a href={agentsPath}>
-                    <FormattedMessage defaultMessage='Open Agents'/>
+                    <FormattedMessage
+                        defaultMessage='Open Integrations › Agents'
+                        description='System Console, AI chat settings: link to the agents of the server.'
+                    />
                 </a>
             </div>
         </Notice>

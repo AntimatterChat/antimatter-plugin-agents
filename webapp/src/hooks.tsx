@@ -7,7 +7,7 @@ import {selectPost, openRHS, selectRegularPost} from 'src/redux_actions';
 
 import {viewMyChannel} from 'src/client';
 
-import {isRHSCompatable} from './am_webapp';
+import {usesFusionConversation} from './agent_chat_state';
 
 const selectPostLegacy = (postid: string, channelid: string) => {
     return {
@@ -19,8 +19,9 @@ const selectPostLegacy = (postid: string, channelid: string) => {
 };
 
 export const doSelectPost = (postId: string, channelId: string, dispatch: any) => {
-    // This if is for legacy mode where the  neither createpost or advancedtexteditor is loaded
-    if (isRHSCompatable()) {
+    // In Fusion the AI chat's side panel shows the conversation; the classic web app opens it as a thread in its own
+    // side panel (the AI chat's panel there has no conversation view).
+    if (usesFusionConversation()) {
         dispatch(selectPost(postId));
         dispatch(openRHS());
     } else {

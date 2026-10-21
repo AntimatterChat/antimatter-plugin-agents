@@ -47,6 +47,9 @@ type Conversations struct {
 	toolPolicyChecker mcp.ToolPolicyChecker
 	convService       *conversation.Service
 	autoReplySettings AutoReplySettings
+
+	// serverAnswersAgents: the server's agent runtime answers for the agents, not this app (see server_agents.go).
+	serverAnswersAgents bool
 }
 
 // MeetingsService defines the interface for meetings functionality needed by conversations

@@ -7,10 +7,12 @@ import {ChannelAccessLevel, UserAccessLevel} from './components/system_console/b
 
 // am_webapp reads window.Components/ProductApi at module load, which are absent
 // in jsdom. Stub it so importing the plugin entrypoint doesn't throw.
+let mockFusion = false;
 jest.mock('@/am_webapp', () => ({
     AdvancedTextEditor: null,
     CreatePost: null,
     isRHSCompatable: () => false,
+    isFusionUI: () => mockFusion,
     PostMessagePreview: null,
     Timestamp: null,
     ThreadViewer: null,
@@ -53,7 +55,15 @@ jest.mock('@/client', () => ({
     setSiteURL: (...args: unknown[]) => mockSetSiteURL(...args),
     doReaction: jest.fn(),
     doRunSearch: jest.fn(),
-    doThreadAnalysis: jest.fn(),
+    savePreferences: jest.fn(),
+}));
+
+// The server's agents: the AI chat's agent list and tasks.
+const mockGetChatAgents = jest.fn();
+const mockStartAgentTask = jest.fn();
+jest.mock('@/agent_chat_client', () => ({
+    getChatAgents: () => mockGetChatAgents(),
+    startAgentTask: (...args: unknown[]) => mockStartAgentTask(...args),
 }));
 
 function makeBot(id: string): LLMBot {
@@ -79,6 +89,14 @@ type WebSocketHandlers = Map<string, (msg: unknown) => void>;
 // for a synchronous shouldRender).
 function makeRegistry(websocketHandlers: WebSocketHandlers) {
     return {
+        registerRightHandSidebarComponent: jest.fn(() => ({showRHSPlugin: {type: 'SHOW_AI_CHAT'}, toggleRHSPlugin: {type: 'TOGGLE_AI_CHAT'}})),
+        registerChannelHeaderButtonAction: jest.fn(),
+        registerSlashCommandWillBePostedHook: jest.fn(),
+        registerProduct: jest.fn(),
+        registerCustomRoute: jest.fn(),
+        registerNeedsTeamRoute: jest.fn(),
+        registerRootComponent: jest.fn(),
+        registerPostDropdownSubMenuAction: jest.fn(() => ({rootRegisterMenuItem: jest.fn()})),
         registerReducer: jest.fn(),
         registerDesktopNotificationHook: jest.fn(),
         registerTranslations: jest.fn(),
@@ -107,18 +125,19 @@ function makeStore(dispatch: jest.Mock, siteURL = 'http://localhost:8065') {
     };
 }
 
-async function initializePlugin(siteURL?: string) {
+async function initializePlugin(siteURL?: string, registryOverrides: Record<string, unknown> = {}) {
     const websocketHandlers: WebSocketHandlers = new Map();
     const dispatch = jest.fn();
+    const registry = {...makeRegistry(websocketHandlers), ...registryOverrides};
 
     // The entrypoint self-registers on import, so the host hook must exist first.
     window.registerPlugin = jest.fn();
 
     // eslint-disable-next-line global-require
     const Plugin = require('./index').default;
-    await new Plugin().initialize(makeRegistry(websocketHandlers), makeStore(dispatch, siteURL));
+    await new Plugin().initialize(registry, makeStore(dispatch, siteURL));
 
-    return {websocketHandlers, dispatch};
+    return {websocketHandlers, dispatch, registry};
 }
 
 // Lets the floating fetch promises inside initialize()/the handlers settle.
@@ -191,5 +210,76 @@ describe('bots cache websocket handlers', () => {
         await flush();
 
         expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({type: BotsHandler}));
+    });
+});
+
+// The AI chat is a side panel: no page of its own, no product in an app switcher, no route.
+describe('the AI chat has no full page', () => {
+    beforeEach(() => {
+        jest.resetModules();
+        mockGetAIBots.mockResolvedValue({bots: [], searchEnabled: false, allowUnsafeLinks: false});
+        mockGetChatAgents.mockResolvedValue([]);
+    });
+
+    test.each([[false], [true]])('registers its side panel and nothing full-screen (Fusion: %s)', async (fusion) => {
+        mockFusion = fusion;
+        const {registry} = await initializePlugin();
+
+        expect(registry.registerRightHandSidebarComponent).toHaveBeenCalledTimes(1);
+        expect(registry.registerProduct).not.toHaveBeenCalled();
+        expect(registry.registerCustomRoute).not.toHaveBeenCalled();
+        expect(registry.registerNeedsTeamRoute).not.toHaveBeenCalled();
+        mockFusion = false;
+    });
+
+    test('streams an agent\'s answer itself only in the classic web app (Fusion does it)', async () => {
+        mockFusion = false;
+        let {websocketHandlers} = await initializePlugin();
+        expect(websocketHandlers.has('agent_post_stream')).toBe(true);
+
+        jest.resetModules();
+        mockFusion = true;
+        ({websocketHandlers} = await initializePlugin());
+        expect(websocketHandlers.has('agent_post_stream')).toBe(false);
+        mockFusion = false;
+    });
+});
+
+// Fusion's AI actions on a message ask the person's agent, through the server's agent tasks.
+describe('the AI actions use the server\'s agents', () => {
+    beforeEach(() => {
+        jest.resetModules();
+        mockFusion = true;
+        mockGetAIBots.mockResolvedValue({bots: [], searchEnabled: false, allowUnsafeLinks: false});
+        mockGetChatAgents.mockResolvedValue([{id: 'researcher', displayName: 'Researcher', username: 'researcher'}]);
+        mockStartAgentTask.mockReset();
+        (window as any).Components = {FusionConversation: () => null, FusionComposer: () => null};
+    });
+
+    afterEach(() => {
+        mockFusion = false;
+        delete (window as any).Components;
+    });
+
+    test.each([
+        ['Summarise thread', 'summarize_thread'],
+        ['Find action items', 'find_action_items'],
+        ['Find open questions', 'find_open_questions'],
+    ])('%s asks for %s on the message\'s thread', async (label, task) => {
+        const items: Map<string, (postId: string) => Promise<void>> = new Map();
+        const registerPostDropdownSubMenuAction = jest.fn(() => ({
+            rootRegisterMenuItem: (text: string, action: (postId: string) => Promise<void>) => items.set(text, action),
+        }));
+        mockStartAgentTask.mockResolvedValue({id: 'root', channel_id: 'dm'});
+        const {dispatch} = await initializePlugin('', {registerPostDropdownSubMenuAction});
+        await flush();
+
+        const action = items.get(label);
+        expect(action).toBeDefined();
+        await action!('post-1');
+
+        expect(mockStartAgentTask).toHaveBeenCalledWith(expect.any(String), {task, post_id: 'post-1'});
+        expect(dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root'});
+        expect(dispatch).toHaveBeenCalledWith({type: 'SHOW_AI_CHAT'});
     });
 });

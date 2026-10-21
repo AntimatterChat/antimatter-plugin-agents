@@ -5,8 +5,10 @@ import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {FormattedMessage} from 'react-intl';
 
-//@ts-ignore it exists
-import aiIcon from 'src/../../assets/bot_icon.png';
+// The placeholder until the bot's own picture is known: a plain circle (no picture of the app's).
+export const PLACEHOLDER_AVATAR = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"><circle cx="1" cy="1" r="1" fill="#8B5CF6" fill-opacity="0.18"/></svg>',
+);
 
 import {getBotProfilePictureUrl} from '@/client';
 
@@ -21,7 +23,7 @@ type AvatarItemProps = {
 }
 
 const AvatarItem = (props: AvatarItemProps) => {
-    const [icon, setIcon] = useState<string>(aiIcon);
+    const [icon, setIcon] = useState<string>(PLACEHOLDER_AVATAR);
     const hasLocalUpload = useRef(false);
     const localPreviewURL = useRef<string | null>(null);
     const avatarOwnerKey = useRef(props.avatarOwnerKey);
@@ -40,7 +42,7 @@ const AvatarItem = (props: AvatarItemProps) => {
             localPreviewURL.current = null;
         }
 
-        setIcon(aiIcon);
+        setIcon(PLACEHOLDER_AVATAR);
     }, [props.avatarOwnerKey]);
 
     useEffect(() => {
@@ -58,7 +60,7 @@ const AvatarItem = (props: AvatarItemProps) => {
                 cancelled = true;
             };
         }
-        setIcon(aiIcon);
+        setIcon(PLACEHOLDER_AVATAR);
         if (!props.botusername) {
             return () => {
                 cancelled = true;
@@ -98,7 +100,7 @@ const AvatarItem = (props: AvatarItemProps) => {
                 URL.revokeObjectURL(localPreviewURL.current);
                 localPreviewURL.current = null;
             }
-            setIcon(aiIcon);
+            setIcon(PLACEHOLDER_AVATAR);
         }
     };
 

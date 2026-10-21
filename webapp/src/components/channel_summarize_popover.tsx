@@ -12,7 +12,6 @@ import {LLMBot} from '@/bots';
 import {BotDropdown, BotSelectorContainer} from './bot_selector';
 import IconAI from './assets/icon_ai';
 import {GrayPill} from './pill';
-import {SummarizeDateRangeModal} from './summarize_date_range_modal';
 
 const PopoverContainer = styled.div`
     display: flex;
@@ -177,11 +176,10 @@ interface Props {
     lastViewedAt: number;
 }
 
-export const ChannelSummarizePopover = ({bots, activeBot, setActiveBot, channelName, onSummarize, lastViewedAt}: Props) => {
+export const ChannelSummarizePopover = ({bots, activeBot, setActiveBot, onSummarize, lastViewedAt}: Props) => {
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const [showDateModal, setShowDateModal] = useState(false);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -193,18 +191,6 @@ export const ChannelSummarizePopover = ({bots, activeBot, setActiveBot, channelN
         if (inputRef.current) {
             inputRef.current.focus();
         }
-    };
-
-    const handleDateRangeSelect = () => {
-        setShowDateModal(true);
-    };
-
-    const handleSummarizeDateRange = (startDate: string, endDate: string) => {
-        onSummarize({
-            analysis_type: 'date_range',
-            since: startDate,
-            until: endDate,
-        });
     };
 
     const handleSummarizeUnreads = () => {
@@ -286,9 +272,6 @@ export const ChannelSummarizePopover = ({bots, activeBot, setActiveBot, channelN
                     <MenuItem onClick={() => handleSummarizeDays(14)}>
                         <FormattedMessage defaultMessage='Summarize last 14 days'/>
                     </MenuItem>
-                    <MenuItem onClick={handleDateRangeSelect}>
-                        <FormattedMessage defaultMessage='Select date range to summarize'/>
-                    </MenuItem>
                 </MenuList>
                 <Divider/>
                 <BotSelectorWrapper>
@@ -310,12 +293,6 @@ export const ChannelSummarizePopover = ({bots, activeBot, setActiveBot, channelN
                     </BotDropdown>
                 </BotSelectorWrapper>
             </PopoverContainer>
-            <SummarizeDateRangeModal
-                show={showDateModal}
-                onClose={() => setShowDateModal(false)}
-                onSummarize={handleSummarizeDateRange}
-                channelName={channelName}
-            />
         </>
     );
 };
