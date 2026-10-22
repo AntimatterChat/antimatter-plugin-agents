@@ -38,7 +38,7 @@ export const PanelFooterText = styled(PanelSubtitle)`
 
 type PanelProps = {
     title: React.ReactNode
-    subtitle: string
+    subtitle?: string
     children: React.ReactNode
 }
 
@@ -47,7 +47,7 @@ const Panel = (props: PanelProps) => {
         <PanelContainer>
             <PanelHeader>
                 <PanelTitle>{props.title}</PanelTitle>
-                <PanelSubtitle>{props.subtitle}</PanelSubtitle>
+                {props.subtitle && <PanelSubtitle>{props.subtitle}</PanelSubtitle>}
             </PanelHeader>
             <div>
                 {props.children}

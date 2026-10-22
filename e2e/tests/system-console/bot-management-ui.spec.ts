@@ -11,7 +11,7 @@ import RunSystemConsoleContainer, { adminUsername, adminPassword } from 'helpers
 /**
  * Test Suite: Bot Management UI
  *
- * Legacy card-based bot editing was removed from System Console; agents are managed from the Agents product page.
+ * Legacy card-based bot editing was removed from System Console; agents are managed in Integrations › Agents.
  */
 
 let antimatter: AntimatterContainer;

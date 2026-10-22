@@ -312,8 +312,7 @@ const Config = (props: Props) => {
                 </PanelFooterText>
             </Panel>
             <Panel
-                title={intl.formatMessage({defaultMessage: 'AI Bots'})}
-                subtitle={intl.formatMessage({defaultMessage: 'AI agents are managed from the Agents product page.'})}
+                title={intl.formatMessage({defaultMessage: 'Agents', description: 'System Console, AI chat settings: title of the panel saying agents are managed by the server now.'})}
             >
                 <BotsMovedNotice/>
             </Panel>

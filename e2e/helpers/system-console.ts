@@ -110,10 +110,10 @@ export class SystemConsoleHelper {
     }
 
     /**
-     * Get AI Bots panel
+     * Get the Agents panel (agents are managed by the server now)
      */
     getBotsPanel(): Locator {
-        return this.page.getByText(/AI (Bots|Agents)/i).first();
+        return this.page.getByText('Agents', {exact: true}).first();
     }
 
     /**
