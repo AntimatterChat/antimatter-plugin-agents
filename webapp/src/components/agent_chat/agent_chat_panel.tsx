@@ -7,7 +7,7 @@ import {useDispatch, useSelector, useStore} from 'react-redux';
 import styled from 'styled-components';
 
 import {AgentConversation, ChatAgent, getAgentProfiles} from '@/agent_chat_client';
-import {fetchChatAgents, openConversation, openConversationIdFromState, useChatAgents, usesFusionConversation} from '@/agent_chat_state';
+import {fetchChatAgents, openConversation, openConversationAgentIdFromState, openConversationIdFromState, useChatAgents, usesFusionConversation} from '@/agent_chat_state';
 import {selectPost} from '@/redux_actions';
 
 import AgentPicker from './agent_picker';
@@ -22,6 +22,10 @@ import {IconButton, Panel, PanelHeader, t} from './styles';
 // messages (an answer streams in as the agent writes it) and Fusion's composer: one text entry, never two. The
 // server answers: the agent runtime, as for any message to an agent. The classic web app gets the same panel without
 // a conversation view or composer: a conversation opens in the direct message it's in.
+//
+// Opening a conversation never changes the agent the person picked: while it's open the header shows the agent it's
+// with, and Back returns to where it was opened from (the list, or the start) with the picked agent. Only the picker
+// changes the pick.
 
 type View = 'new' | 'list';
 
@@ -31,6 +35,7 @@ export default function AgentChatPanel() {
     const store = useStore();
     const {agents, agent, selectAgent} = useChatAgents();
     const conversationId = useSelector(openConversationIdFromState);
+    const conversationAgentId = useSelector(openConversationAgentIdFromState);
     const profiles = useSelector((state: any) => state.entities?.users?.profiles);
     const [view, setView] = useState<View>('new');
     const fusion = usesFusionConversation();
@@ -63,11 +68,7 @@ export default function AgentChatPanel() {
     }
 
     const open = (rootId: string, channelId: string, agentId?: string) => {
-        const other = agentId && agentId !== agent.id ? agents.find((a) => a.id === agentId) : null;
-        if (other) {
-            selectAgent(other);
-        }
-        openConversation(store as any, rootId, channelId);
+        openConversation(store as any, rootId, channelId, agentId || agent.id);
     };
     const home = (next: View) => {
         dispatch(selectPost(''));
@@ -79,8 +80,20 @@ export default function AgentChatPanel() {
     };
 
     const showConversation = fusion && Boolean(conversationId);
+
+    // Back from a conversation is to the view it was opened from; from the list, to the start.
+    const back = () => {
+        if (showConversation) {
+            dispatch(selectPost(''));
+            return;
+        }
+        setView('new');
+    };
+
+    // The agent shown: the open conversation's (if the person may still use it), else the one they picked.
+    const shown = (showConversation && agents.find((a) => a.id === conversationAgentId)) || agent;
     const FusionConversation = (window as any).Components?.FusionConversation;
-    const name = agent.displayName || agent.username;
+    const name = shown.displayName || shown.username;
 
     let body: React.ReactNode;
     if (showConversation) {
@@ -118,14 +131,15 @@ export default function AgentChatPanel() {
                         type='button'
                         aria-label={intl.formatMessage({defaultMessage: 'Back', description: 'AI chat side panel: goes back from a conversation or the list of conversations to the start.'})}
                         title={intl.formatMessage({defaultMessage: 'Back', description: 'AI chat side panel: goes back from a conversation or the list of conversations to the start.'})}
-                        onClick={() => home('new')}
+                        onClick={back}
+                        data-testid='ai-chat-back-button'
                     >
                         <BackIcon/>
                     </IconButton>
                 )}
                 <AgentPicker
                     agents={agents}
-                    agent={agent}
+                    agent={shown}
                     onSelect={pick}
                 />
                 <IconButton

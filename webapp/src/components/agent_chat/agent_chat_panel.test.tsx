@@ -6,6 +6,8 @@ import {Provider} from 'react-redux';
 import {createStore} from 'redux';
 import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
+import {savePreferences} from '@/client';
+
 import AgentChatPanel from './agent_chat_panel';
 
 // The labels resolve to their default messages, with their values.
@@ -49,7 +51,7 @@ const researcher = {id: 'researcher', displayName: 'Researcher', username: 'rese
 const coder = {id: 'coder', displayName: 'Coder', username: 'coder'};
 
 // A store with what the panel reads, and the actions it dispatches recorded.
-function makeStore(selectedAgent = '', selectedPostId = '') {
+function makeStore(selectedAgent = '', selectedPostId = '', selectedPostAgentId = '') {
     const actions: Array<{type: string; [key: string]: unknown}> = [];
     const initial = {
         entities: {
@@ -62,7 +64,7 @@ function makeStore(selectedAgent = '', selectedPostId = '') {
             },
             preferences: {myPreferences: selectedAgent ? {'agents--selected_agent': {value: selectedAgent}} : {}},
         },
-        'plugins-mattermost-ai': {chatAgents: null as unknown, selectedPostId},
+        'plugins-mattermost-ai': {chatAgents: null as unknown, selectedPostId, selectedPostAgentId},
     };
     const reducer = (state = initial, action: any) => {
         actions.push(action);
@@ -70,7 +72,9 @@ function makeStore(selectedAgent = '', selectedPostId = '') {
         case 'mattermost-ai_chat_agents':
             return {...state, 'plugins-mattermost-ai': {...state['plugins-mattermost-ai'], chatAgents: action.agents}};
         case 'SELECT_AI_POST':
-            return {...state, 'plugins-mattermost-ai': {...state['plugins-mattermost-ai'], selectedPostId: action.postId}};
+            return {...state, 'plugins-mattermost-ai': {...state['plugins-mattermost-ai'], selectedPostId: action.postId, selectedPostAgentId: action.agentId}};
+        case 'RECEIVED_PREFERENCES':
+            return {...state, entities: {...state.entities, preferences: {myPreferences: Object.fromEntries(action.data.map((p: {category: string; name: string; value: string}) => [`${p.category}--${p.name}`, {value: p.value}]))}}};
         default:
             return state;
         }
@@ -114,6 +118,7 @@ describe('the AI chat side panel', () => {
         mockGetAgentConversations.mockResolvedValue([]);
         mockGetAgentDirectChannel.mockResolvedValue({channel: {id: 'dm-researcher', name: 'me__researcher', type: 'D'}, member: {channel_id: 'dm-researcher', user_id: 'me'}});
         mockStartAgentTask.mockReset();
+        (savePreferences as jest.Mock).mockClear();
     });
 
     afterEach(() => {
@@ -186,6 +191,65 @@ describe('the AI chat side panel', () => {
 
         fireEvent.click(item);
         await waitFor(() => expect((store.getState() as any)['plugins-mattermost-ai'].selectedPostId).toBe('c1'));
+    });
+
+    // Back changed the agent: opening another agent's conversation from the list picked that agent for good.
+    test('opening another agent\'s conversation from the list keeps the agent picked, and Back returns to the list', async () => {
+        mockGetAgentConversations.mockResolvedValue([
+            {root_id: 'c1', channel_id: 'dm-coder', agent_id: 'coder', title: 'Plan the release', direct: true, reply_count: 2, create_at: 1, last_reply_at: 2},
+        ]);
+        const {store, actions} = makeStore('researcher');
+        renderPanel(store);
+
+        expect((await screen.findByTestId('ai-chat-agent-picker')).textContent).toContain('Researcher');
+        fireEvent.click(screen.getByTestId('ai-chat-conversations-button'));
+        fireEvent.click(await screen.findByText('Plan the release'));
+
+        // The conversation shows the agent it's with...
+        expect((await screen.findByTestId('fusion-conversation')).textContent).toContain('c1');
+        expect(screen.getByTestId('ai-chat-agent-picker').textContent).toContain('Coder');
+        expect(screen.getByRole('textbox', {name: 'Reply to Coder'})).toBeTruthy();
+
+        // ...without changing the person's pick.
+        expect(savePreferences).not.toHaveBeenCalled();
+        expect(actions.filter((a) => a.type === 'RECEIVED_PREFERENCES')).toHaveLength(0);
+
+        // Back: the list it was opened from, then the start, with the agent picked.
+        fireEvent.click(screen.getByTestId('ai-chat-back-button'));
+        expect(await screen.findByText('Plan the release')).toBeTruthy();
+        expect(screen.queryByTestId('fusion-conversation')).toBeNull();
+        expect(screen.getByTestId('ai-chat-agent-picker').textContent).toContain('Researcher');
+
+        fireEvent.click(screen.getByTestId('ai-chat-back-button'));
+        expect(await screen.findByRole('textbox', {name: 'Ask Researcher anything'})).toBeTruthy();
+        expect(screen.getByTestId('ai-chat-agent-picker').textContent).toContain('Researcher');
+        expect(savePreferences).not.toHaveBeenCalled();
+    });
+
+    test('Back from a conversation started on the start view returns to it', async () => {
+        const {store} = makeStore('researcher');
+        renderPanel(store);
+
+        fireEvent.change(await screen.findByRole('textbox', {name: 'Ask Researcher anything'}), {target: {value: 'hi'}});
+        await screen.findByTestId('fusion-conversation');
+        expect((store.getState() as any)['plugins-mattermost-ai'].selectedPostAgentId).toBe('researcher');
+
+        fireEvent.click(screen.getByTestId('ai-chat-back-button'));
+        expect(await screen.findByRole('textbox', {name: 'Ask Researcher anything'})).toBeTruthy();
+        expect(screen.queryByTestId('ai-chat-back-button')).toBeNull();
+    });
+
+    test('picking an agent in a conversation changes the pick and starts with that agent', async () => {
+        const {store} = makeStore('researcher', 'root-1', 'researcher');
+        renderPanel(store);
+
+        await screen.findByTestId('fusion-conversation');
+        fireEvent.click(screen.getByTestId('ai-chat-agent-picker'));
+        fireEvent.click(screen.getByRole('option', {name: /Coder/}));
+
+        expect(savePreferences).toHaveBeenCalledWith('me', [expect.objectContaining({category: 'agents', name: 'selected_agent', value: 'coder'})]);
+        expect(await screen.findByRole('textbox', {name: 'Ask Coder anything'})).toBeTruthy();
+        expect(screen.queryByTestId('fusion-conversation')).toBeNull();
     });
 
     test('with no agent to talk to, says so, with no picture', async () => {

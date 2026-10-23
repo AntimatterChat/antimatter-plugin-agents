@@ -279,7 +279,7 @@ describe('the AI actions use the server\'s agents', () => {
         await action!('post-1');
 
         expect(mockStartAgentTask).toHaveBeenCalledWith(expect.any(String), {task, post_id: 'post-1'});
-        expect(dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root'});
+        expect(dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root', agentId: expect.any(String)});
         expect(dispatch).toHaveBeenCalledWith({type: 'SHOW_AI_CHAT'});
     });
 });

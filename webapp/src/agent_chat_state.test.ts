@@ -3,6 +3,7 @@
 
 import {chatAgentsReducer, openConversation, resolveChatAgent, runAgentTask} from './agent_chat_state';
 import {makeCallsPostButtonClickedHandler} from './calls_button';
+import {selectPost} from './redux_actions';
 
 let mockFusion = true;
 jest.mock('./am_webapp', () => ({
@@ -64,7 +65,7 @@ describe('agent tasks', () => {
         await runAgentTask(s, {task: 'summarize_thread', post_id: 'p1'});
 
         expect(mockStartAgentTask).toHaveBeenCalledWith('researcher', {task: 'summarize_thread', post_id: 'p1'});
-        expect(s.dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root'});
+        expect(s.dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root', agentId: 'researcher'});
     });
 
     test('loads the agents first when they aren\'t yet', async () => {
@@ -77,6 +78,21 @@ describe('agent tasks', () => {
     test('refuses with no agent to ask, and asks nothing', async () => {
         await expect(runAgentTask(store([]), {task: 'summarize_thread', post_id: 'p1'})).rejects.toThrow();
         expect(mockStartAgentTask).not.toHaveBeenCalled();
+    });
+
+    // The panel shows the conversation's agent while it's open; the person's pick isn't touched.
+    test('a task for another agent opens its conversation with that agent, and keeps the pick', async () => {
+        mockStartAgentTask.mockResolvedValue({id: 'root', channel_id: 'dm'});
+        const s = store([researcher, coder], 'researcher');
+
+        await runAgentTask(s, {task: 'summarize_channel', channel_id: 'town'}, 'coder');
+
+        expect(s.dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root', agentId: 'coder'});
+        expect(s.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({type: 'RECEIVED_PREFERENCES'}));
+    });
+
+    test('closing a conversation forgets its agent', () => {
+        expect(selectPost('', 'coder')).toEqual({type: 'SELECT_AI_POST', postId: '', agentId: ''});
     });
 
     test('the classic web app opens the conversation as a thread', () => {
