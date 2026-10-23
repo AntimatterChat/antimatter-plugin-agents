@@ -263,6 +263,29 @@ describe('the AI chat side panel', () => {
         expect(screen.queryByRole('textbox')).toBeNull();
     });
 
+    test('with no agent, a system admin is sent to the System Console\'s AI settings', async () => {
+        mockGetChatAgents.mockResolvedValue([]);
+        const push = jest.fn();
+        (window as any).WebappUtils = {browserHistory: {push}};
+        const {store} = makeStore();
+        (store.getState() as any).entities.users.profiles.me.roles = 'system_user system_admin';
+        renderPanel(store);
+
+        expect(await screen.findByText(/Set one up in the System Console, under AI/)).toBeTruthy();
+        fireEvent.click(screen.getByRole('button', {name: 'Set up an agent'}));
+        expect(push).toHaveBeenCalledWith('/lumen/integrations/agents');
+        delete (window as any).WebappUtils;
+    });
+
+    test('with no agent, a community admin is sent to the community\'s settings', async () => {
+        mockGetChatAgents.mockResolvedValue([]);
+        const {store} = makeStore();
+        (store.getState() as any).entities.teams.myMembers.team.roles = 'team_user team_admin';
+        renderPanel(store);
+
+        expect(await screen.findByText(/Set one up in the community’s settings, under AI/)).toBeTruthy();
+    });
+
     test('in the classic web app: no composer, the agent\'s direct message instead', async () => {
         mockFusion = false;
         const push = jest.fn();

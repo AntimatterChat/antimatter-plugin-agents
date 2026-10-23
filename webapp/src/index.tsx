@@ -258,8 +258,8 @@ export default class Plugin {
             registry.registerRootComponent(CustomPromptsManagement);
         }
 
-        // No page of its own: the AI chat registers no product and no route (its old agents page is the server's
-        // Integrations › Agents now).
+        // No page of its own: the AI chat registers no product and no route (agents are made in the server's AI
+        // settings now: the System Console's, and each community's).
 
         if (registry.registerSearchComponents) {
             registry.registerSearchComponents({

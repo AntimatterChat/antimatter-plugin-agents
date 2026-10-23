@@ -28,8 +28,9 @@ const Body = styled.div`
     color: rgba(63, 67, 80, 0.72);
 `;
 
-// Agents are the server's now, managed in Integrations › Agents (this path opens it in a community).
-const agentsPath = '/_redirect/integrations/agents';
+// Agents are the server's now: the server-wide ones are made in the System Console's AI settings, next to the model
+// connections (a community's own in its settings).
+const agentsPath = '/admin_console/ai/model_connections';
 
 const BotsMovedNotice = () => {
     return (
@@ -42,8 +43,8 @@ const BotsMovedNotice = () => {
             </Title>
             <Body>
                 <FormattedMessage
-                    defaultMessage='Agents are made and managed in <link>Integrations › Agents</link>, where their connection, instructions and who may use them are set.'
-                    description='System Console, AI chat settings: notice body. <link> opens Integrations › Agents.'
+                    defaultMessage='Agents are made and managed in <link>AI › Connections and agents</link>, where their connection, instructions and who may use them are set. A community’s own agents are in its settings.'
+                    description='System Console, AI chat settings: notice body. <link> opens the System Console’s AI › Connections and agents page, where the server’s agents are made.'
                     values={{
                         link: (chunks: React.ReactNode) => (
                             <a href={agentsPath}>{chunks}</a>
@@ -51,14 +52,6 @@ const BotsMovedNotice = () => {
                     }}
                 />
             </Body>
-            <div>
-                <a href={agentsPath}>
-                    <FormattedMessage
-                        defaultMessage='Open Integrations › Agents'
-                        description='System Console, AI chat settings: link to the agents of the server.'
-                    />
-                </a>
-            </div>
         </Notice>
     );
 };
