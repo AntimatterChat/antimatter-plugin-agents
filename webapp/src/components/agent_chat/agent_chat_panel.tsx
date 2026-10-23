@@ -15,6 +15,7 @@ import ConversationList from './conversation_list';
 import {BackIcon, ComposeIcon, ListIcon, SparkleIcon} from './icons';
 import NewConversation from './new_conversation';
 import NoAgents from './no_agents';
+import ToolsMenu from './tools_menu';
 import {IconButton, Panel, PanelHeader, t} from './styles';
 
 // The AI chat (Antimatter) is this side panel: a user of the server's agents, not their manager. The person picks
@@ -22,6 +23,9 @@ import {IconButton, Panel, PanelHeader, t} from './styles';
 // messages (an answer streams in as the agent writes it) and Fusion's composer: one text entry, never two. The
 // server answers: the agent runtime, as for any message to an agent. The classic web app gets the same panel without
 // a conversation view or composer: a conversation opens in the direct message it's in.
+//
+// The Tools menu lists the tools the agent shown may use for the person, who may turn them off and sign in to the
+// services that need it.
 //
 // Opening a conversation never changes the agent the person picked: while it's open the header shows the agent it's
 // with, and Back returns to where it was opened from (the list, or the start) with the picked agent. Only the picker
@@ -141,6 +145,10 @@ export default function AgentChatPanel() {
                     agents={agents}
                     agent={shown}
                     onSelect={pick}
+                />
+                <ToolsMenu
+                    agentId={shown.id}
+                    agentName={name}
                 />
                 <IconButton
                     type='button'

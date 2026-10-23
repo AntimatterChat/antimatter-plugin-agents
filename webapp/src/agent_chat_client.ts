@@ -109,3 +109,55 @@ export function getAgentProfiles(ids: string[]): Promise<UserProfile[]> {
 export function agentImageURL(agentId: string): string {
     return Client4.getProfilePictureUrl(agentId, 0);
 }
+
+// Tools (the server's tool registry): what an agent may use for the person, by source, and their own sign-ins to MCP
+// servers. The server decides everything: which tools the agent's policy allows, what the person may turn off, and
+// whose sign-in is used (always theirs).
+
+export type ToolKind = 'read' | 'write' | 'external_write';
+
+export type AgentTool = {
+    name: string;
+    title: string;
+    description: string;
+    kind: ToolKind;
+    on: boolean;
+    auto_run: boolean;
+};
+
+export type AgentToolSource = {
+    key: string;
+    source: 'builtin' | 'app' | 'mcp';
+    source_id: string;
+    name: string;
+    on: boolean;
+    auth?: 'none' | 'oauth' | 'service_account';
+    connected: boolean;
+    unavailable: boolean;
+    tools: AgentTool[];
+};
+
+// What a person turned off for every agent (the server's ai_tools preference).
+export type ToolChoices = {
+    off_sources: string[];
+    off_tools: string[];
+};
+
+export const PREFERENCE_CATEGORY_AI_TOOLS = 'ai_tools';
+export const PREFERENCE_NAME_AI_TOOL_CHOICES = 'choices';
+
+// getAgentTools lists an agent's tools for the person, in a channel (or none).
+export function getAgentTools(agentId: string, channelId = ''): Promise<AgentToolSource[]> {
+    const query = channelId ? `?channel_id=${encodeURIComponent(channelId)}` : '';
+    return call<AgentToolSource[]>(`/ai/agents/${encodeURIComponent(agentId)}/tools${query}`);
+}
+
+// connectMCPServer starts the person's sign-in to an MCP server: where to send them.
+export function connectMCPServer(serverId: string): Promise<{authorize_url: string}> {
+    return call<{authorize_url: string}>(`/ai/mcp_servers/${encodeURIComponent(serverId)}/oauth`, {method: 'POST'});
+}
+
+// disconnectMCPServer forgets the person's own sign-in to an MCP server.
+export function disconnectMCPServer(serverId: string): Promise<unknown> {
+    return call<unknown>(`/ai/mcp_servers/${encodeURIComponent(serverId)}/oauth`, {method: 'DELETE'});
+}
