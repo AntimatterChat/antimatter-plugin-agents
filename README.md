@@ -44,7 +44,7 @@ Comprehensive documentation is available in the `/docs` directory:
 
 After installation, complete these steps to get started:
 
-1. Navigate to **System Console > Plugins > Agents**
+1. Navigate to **System Console > AI > AI chat app**
 2. Create an agent and configure it with your LLM provider credentials
 3. Set permissions for who can access the agent
 4. Open the Agents panel from any channel using the AI icon in the right sidebar

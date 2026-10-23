@@ -24,6 +24,7 @@ export async function setupRedux(registry: any, store: WebappStore) {
         bots,
         chatAgents: chatAgentsReducer,
         selectedPostId,
+        selectedPostAgentId,
         searchEnabled,
         allowUnsafeLinks,
         customPrompts,
@@ -81,6 +82,16 @@ function selectedPostId(state = '', action: any) {
     switch (action.type) {
     case 'SELECT_AI_POST':
         return action.postId;
+    default:
+        return state;
+    }
+}
+
+// selectedPostAgentId is the agent of the conversation the side panel shows, '' when unknown or none is shown.
+function selectedPostAgentId(state = '', action: any) {
+    switch (action.type) {
+    case 'SELECT_AI_POST':
+        return action.agentId ?? '';
     default:
         return state;
     }

@@ -22,7 +22,7 @@ Complete every item before starting the upgrade. Do not skip the database backup
 2. **Confirm your Antimatter server version.** v2.0.0 requires Antimatter Server v10.0 or later. The optional external MCP HTTP server requires Antimatter Server v11.2 or later.
 3. **Back up the Antimatter database.** v2.0.0 runs schema migrations on first start (see [Section 4](#4-what-gets-migrated-automatically)). Some migrations are not safely reversible (see [Section 8](#8-rollback-considerations)). In particular, migration 000007 drops the legacy `LLM_PostMeta` table without migrating its contents into the new conversation-entities tables — v1.x conversation titles cannot be recovered after the upgrade except from this backup. See [Section 5](#5-breaking-changes) for the full list of v1.x data that does not survive the upgrade.
 4. **Back up `config.json`.** The legacy bot migration removes entries from stored plugin configuration after copying them into the database. Keeping a pre-upgrade copy of `config.json` is the simplest way to recover original bot definitions if you need to roll back.
-5. **Capture a list of currently configured bots.** From your existing System Console > Plugins > Agents (or AI Bots) page, note the username, display name, service binding, and access rules of each bot. After the upgrade, you can compare this list against the migrated agents on the new **Agents** product page.
+5. **Capture a list of currently configured bots.** From your existing System Console > AI > AI chat app (or AI Bots) page, note the username, display name, service binding, and access rules of each bot. After the upgrade, you can compare this list against the migrated agents on the new **Agents** product page.
 6. **Identify any external integrations that read the `LLM_PostMeta` table directly.** That table is dropped by migration 000007. To our knowledge, no documented integration depends on this table.
 7. **Schedule a maintenance window.** The plugin must be stopped and restarted, and the migrations must complete before users resume traffic. Typical windows in non-HA environments complete in minutes; HA clusters should plan additional time for migration coordination (see [Section 9](#9-ha-specific-notes)).
 
@@ -87,7 +87,7 @@ Migration 000007 drops `LLM_PostMeta` after creating the new `LLM_Conversations`
 
 ### 5.3 MCP cannot be globally disabled
 
-The **Enable MCP Client** and **Enable Embedded Server** System Console toggles are removed. To restrict MCP usage, disable individual tools or change tool approval policies under **System Console > Plugins > Agents > Model Context Protocol (MCP) > Tools**, or restrict an agent's MCP access via the agent's **MCPs** tab.
+The **Enable MCP Client** and **Enable Embedded Server** System Console toggles are removed. To restrict MCP usage, disable individual tools or change tool approval policies under **System Console > AI > AI chat app > Model Context Protocol (MCP) > Tools**, or restrict an agent's MCP access via the agent's **MCPs** tab.
 
 ### 5.4 OpenAI direct always uses the Responses API
 
@@ -199,9 +199,9 @@ Tick through this list before ending the upgrade window.
 - [ ] The top-level **Agents** product page is reachable from the Antimatter product menu.
 - [ ] Every bot that existed in v1.x appears as an agent in the **Agents** list with the same display name, username, and service binding.
 - [ ] Editing a migrated agent shows the expected access rules and **Automatically enable all MCP tools** turned on.
-- [ ] **System Console > Plugins > Agents > AI Bots** redirects to the **Agents** product page.
-- [ ] **System Console > Plugins > Agents > Model Context Protocol (MCP)** does not show **Enable MCP Client** or **Enable Embedded Server** toggles.
-- [ ] Embedding search status (if previously enabled) shows healthy in **System Console > Plugins > Agents > Embedding Search**, and any prior reindex job is no longer stuck.
+- [ ] **System Console > AI > AI chat app > AI Bots** redirects to the **Agents** product page.
+- [ ] **System Console > AI > AI chat app > Model Context Protocol (MCP)** does not show **Enable MCP Client** or **Enable Embedded Server** toggles.
+- [ ] Embedding search status (if previously enabled) shows healthy in **System Console > AI > AI chat app > Embedding Search**, and any prior reindex job is no longer stuck.
 
 ## 11. Troubleshooting
 

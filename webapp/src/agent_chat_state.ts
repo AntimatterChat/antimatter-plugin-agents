@@ -34,6 +34,9 @@ export const chatAgentsFromState = (state: State): ChatAgent[] | null => state['
 
 export const openConversationIdFromState = (state: State): string => state['plugins-' + manifest.id]?.selectedPostId ?? '';
 
+// openConversationAgentIdFromState is the agent of the conversation the side panel shows, '' when unknown.
+export const openConversationAgentIdFromState = (state: State): string => state['plugins-' + manifest.id]?.selectedPostAgentId ?? '';
+
 // resolveChatAgent picks the agent the person chose, if they may still use it; else the default; else the first.
 export function resolveChatAgent(agents: ChatAgent[] | null, preferredId: string): ChatAgent | null {
     if (!agents || agents.length === 0) {
@@ -127,10 +130,11 @@ export function usesFusionConversation(): boolean {
 
 // openConversation shows a conversation: in Fusion, in the AI chat's side panel; in the classic web app, which has no
 // conversation view in the panel, as a thread in its own side panel (the thread is in the direct message with the
-// agent, or in the channel where it was asked).
-export function openConversation(store: Store, rootId: string, channelId: string) {
+// agent, or in the channel where it was asked). agentId is the agent it's with: the panel shows it for the
+// conversation, and the agent the person picked stays theirs.
+export function openConversation(store: Store, rootId: string, channelId: string, agentId = '') {
     if (usesFusionConversation()) {
-        store.dispatch(selectPost(rootId));
+        store.dispatch(selectPost(rootId, agentId));
         store.dispatch(openRHS());
         return;
     }
@@ -151,6 +155,6 @@ export async function runAgentTask(store: Store, request: AgentTaskRequest, agen
         throw new Error('no agent to ask');
     }
     const post = await startAgentTask(id, request);
-    openConversation(store, post.id, post.channel_id);
+    openConversation(store, post.id, post.channel_id, id);
     return post.id;
 }

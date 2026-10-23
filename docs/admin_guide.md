@@ -31,13 +31,13 @@ Install the plugin through the System Console by navigating to **System Console 
 
 ### Access plugin settings
 
-Navigate to **System Console > Plugins > Agents** to configure plugin-wide settings such as AI services, the default bot, web search, embedding search, and MCP settings.
+Navigate to **System Console > AI > AI chat app** to configure plugin-wide settings such as AI services, the default bot, web search, embedding search, and MCP settings.
 
 Create and manage agents from the top-level **Agents** product page. If an agent selector dropdown is available in the Agents experience, use its **Manage** link to open the same page. The **AI Bots** section in the System Console links to the Agents page instead of hosting the full agent editor.
 
 ### Enable the plugin
 
-Agents is enabled automatically when using the pre-installed version. If you've manually installed a newer version, you may need to enable it by going to **System Console > Plugins > Agents** and setting **Enable Plugin** to **True**, then complete configuration in the System Console.
+Agents is enabled automatically when using the pre-installed version. If you've manually installed a newer version, you may need to enable it by going to **System Console > AI > AI chat app** and setting **Enable Plugin** to **True**, then complete configuration in the System Console.
 
 ### Basic configuration
 
@@ -61,7 +61,7 @@ Enable this setting only in trusted or otherwise mitigated environments, such as
 
 Configure an LLM provider (Service) for your Agents integration. Services manage the connection to the LLM provider, including authentication, model defaults, and optional fallback behavior. You can create multiple services for different providers or configurations, and share them across multiple agents.
 
-Navigate to **System Console > Plugins > Agents** and select **Add a Service**.
+Navigate to **System Console > AI > AI chat app** and select **Add a Service**.
 
 | Setting | Description |
 |---------|-------------|
@@ -124,7 +124,7 @@ See the [Provider Guide](https://docs.antimatter.example/agents/docs/providers.h
 
 ### Agent configuration
 
-Create and manage agents from the **Agents** product page. Open it from the top-level **Agents** product entry, or use the **Manage** link in an agent selector dropdown to navigate there. Agents use the service inventory configured in **System Console > Plugins > Agents**, and multiple agents can reuse the same service configuration.
+Create and manage agents from the **Agents** product page. Open it from the top-level **Agents** product entry, or use the **Manage** link in an agent selector dropdown to navigate there. Agents use the service inventory configured in **System Console > AI > AI chat app**, and multiple agents can reuse the same service configuration.
 
 If you can manage an agent, select its row in the Agents list to open the full-page configuration view directly. The overflow menu remains available for **Edit** and **Delete**. Use **Back to agents** to return to the list.
 
@@ -247,7 +247,7 @@ Due to these limitations, Google Custom Search may not always provide optimal re
 
 To enable built-in web search:
 
-1. Navigate to **System Console > Plugins > Agents > Web Search**
+1. Navigate to **System Console > AI > AI chat app > Web Search**
 2. Set **Enable Web Search** to **True**
 3. Select your preferred provider from the **Provider** dropdown
 4. Configure provider-specific settings
@@ -357,7 +357,7 @@ Attribute-based access control lets you restrict who can use agents, LLM service
 **Policy-addressable resources.** Policies always grant or deny the `use` action for one resource:
 
 - **Agents** — set the agent's user access to **Attribute-based (access policy)** in the agent's Access tab, then author the policy there. In this mode, the agent's allow/block user and team lists are ignored; the policy is the only user-access gate. Anyone who can manage the agent — its creator, its agent admins, and users with the manage-others'-agents permission — can author the policy with the simplified (table) editor; system admins additionally get the advanced (CEL) editor.
-- **LLM services** — authored by system admins in **System Console > Plugins > Agents** on the service panel. System admins get the simplified (table) editor and the advanced (CEL) editor, the same as on the agent Access tab; Advanced is used for expressions the table can't display. A service policy restricts every agent backed by that service, on top of any per-agent restrictions. It also drives list/picker visibility for non–system-admins (see [Visibility (services and agents)](#visibility-services-and-agents)).
+- **LLM services** — authored by system admins in **System Console > AI > AI chat app** on the service panel. System admins get the simplified (table) editor and the advanced (CEL) editor, the same as on the agent Access tab; Advanced is used for expressions the table can't display. A service policy restricts every agent backed by that service, on top of any per-agent restrictions. It also drives list/picker visibility for non–system-admins (see [Visibility (services and agents)](#visibility-services-and-agents)).
 - **MCP servers** — authored by system admins on the MCP **Configuration** tab (same Simple and Advanced editors as agents; Advanced is used for expressions the table can't display). Policies apply to remote servers, the built-in (embedded) Antimatter MCP server, and plugin-registered MCP servers. Users denied by an MCP server policy silently lose that server's tools; there is no notification in chat, the tools simply don't appear. Denying the built-in Antimatter server removes nearly all in-product Antimatter tools for matching users.
 
 **Allow and deny semantics.** For each request the plugin evaluates the applicable policies and applies these rules:
@@ -417,7 +417,7 @@ The Agents plugin can track token usage for all LLM interactions to support bill
 - **Reasoning Tokens**: Number of tokens used for provider reasoning or thinking, when reported
 - **Cost**: Provider-reported request cost, when reported
 
-To enable token usage tracking, navigate to **System Console > Plugins > Agents** and set **Enable Token Usage Logging** to **True**. When enabled, log files automatically rotate when they reach 100MB in size, and rotated log files are compressed to save disk space. The token usage logs provide administrators with visibility into LLM usage patterns and can be used for cost tracking, chargeback, resource planning, and debugging. Providers that report usage data populate these fields. When a provider does not expose cached token, reasoning token, or cost details, those values remain `0`.
+To enable token usage tracking, navigate to **System Console > AI > AI chat app** and set **Enable Token Usage Logging** to **True**. When enabled, log files automatically rotate when they reach 100MB in size, and rotated log files are compressed to save disk space. The token usage logs provide administrators with visibility into LLM usage patterns and can be used for cost tracking, chargeback, resource planning, and debugging. Providers that report usage data populate these fields. When a provider does not expose cached token, reasoning token, or cost details, those values remain `0`.
 
 `service_id` and `service_name` are additive, so the log schema version stays `1` and existing queries and dashboards keep working.
 
@@ -451,7 +451,7 @@ Post indexing occurs automatically during initial setup. Changing the embedding 
 - Saving N does **not** start Catch Up or Full Reindex automatically. Use the banner and the Catch Up button.
 - Changing N while a job is running does not change that job's window; abort and start a new job if you want the new bounds.
 
-1. Navigate to **System Console > Plugins > Agents > Embedding Search**
+1. Navigate to **System Console > AI > AI chat app > Embedding Search**
 2. Use the reindex controls to:
    
    - Monitor indexing progress during initial setup.
@@ -651,7 +651,7 @@ The MCP client and the embedded Antimatter MCP server are always enabled. Admins
 
 ### Configuration
 
-1. Navigate to **System Console > Plugins > Agents > Model Context Protocol (MCP)**.
+1. Navigate to **System Console > AI > AI chat app > Model Context Protocol (MCP)**.
 2. Use the **Configuration** tab for:
 
    - **Enable Antimatter MCP Server (HTTP)**: Optional HTTP endpoint for external MCP clients. See [Antimatter MCP Server](#antimatter-mcp-server).
@@ -715,7 +715,7 @@ By default, MCP tool calls run with the credentials of the user who triggered th
 
 To set it up:
 
-1. Navigate to **System Console > Plugins > Agents > Model Context Protocol (MCP)**, open the remote MCP server on the **Configuration** tab, and add the static headers the server should receive from service account agents in the **Service Account Authentication** section. Put the header **name** and **value** in separate fields — for example name `Authorization` and value `Bearer <token>` or `Basic <base64>`, or a custom name such as `X-API-KEY`. Do not repeat the header name in the value. Rows with a blank name or value are ignored, so a server whose entries are all blank counts as having no service account credentials. Select **Save**.
+1. Navigate to **System Console > AI > AI chat app > Model Context Protocol (MCP)**, open the remote MCP server on the **Configuration** tab, and add the static headers the server should receive from service account agents in the **Service Account Authentication** section. Put the header **name** and **value** in separate fields — for example name `Authorization` and value `Bearer <token>` or `Basic <base64>`, or a custom name such as `X-API-KEY`. Do not repeat the header name in the value. Rows with a blank name or value are ignored, so a server whose entries are all blank counts as having no service account credentials. Select **Save**.
 2. On the agent's **MCPs** tab (Agents page), turn on **Use service accounts for authentication**. Only system administrators can turn this setting on. While it is enabled, managers may still edit non-sensitive config; Access and MCP grants (including auto-enable) remain system-admin-only — see [What's editable vs locked](features/managing_agents.md#whats-editable-vs-locked). Anyone who can manage the agent can still turn the setting off or delete the agent.
 
 The agent setting is all-or-nothing:
@@ -753,7 +753,7 @@ Some MCP servers require OAuth per Antimatter user. For those servers, the plugi
 
 **Agents panel (web and desktop):** In the Agents right-hand sidebar, start a new chat and open **Tools**. OAuth-backed servers show **Connect** when the signed-in user is not authenticated, and **Disconnect** when an OAuth session applies.
 
-**System Console (admin tool configuration):** On **System Console > Plugins > Agents > MCP Servers**, expanding an OAuth-backed server shows that you must authenticate to fetch that server's tool list and configure per-tool approval policies. That sign-in only applies to your administrator account. Each end user must authenticate separately, even after an admin has connected in the System Console.
+**System Console (admin tool configuration):** On **System Console > AI > AI chat app > MCP Servers**, expanding an OAuth-backed server shows that you must authenticate to fetch that server's tool list and configure per-tool approval policies. That sign-in only applies to your administrator account. Each end user must authenticate separately, even after an admin has connected in the System Console.
 
 **Conversations:** The plugin no longer posts ephemeral in-channel or in-thread messages to prompt MCP OAuth. Users should use the Agents webapp **Tools** menu to view connection state and run **Connect** or **Disconnect**.
 
@@ -861,7 +861,7 @@ These are the native Antimatter tools included by the Agents plugin itself. Plug
 
 The embedded Antimatter MCP server is available automatically to configured AI agents. No System Console switch is required to enable embedded MCP for in-product agents.
 
-Use **System Console > Plugins > Agents > Model Context Protocol (MCP)** to configure remote MCP servers, review plugin-registered MCP servers, set the idle timeout, control the optional HTTP endpoint for external clients, and manage per-tool enablement and approval policies. Then use each agent's **MCPs** tab on the **Agents** page to either automatically enable all MCP tools or restrict that agent to specific tools.
+Use **System Console > AI > AI chat app > Model Context Protocol (MCP)** to configure remote MCP servers, review plugin-registered MCP servers, set the idle timeout, control the optional HTTP endpoint for external clients, and manage per-tool enablement and approval policies. Then use each agent's **MCPs** tab on the **Agents** page to either automatically enable all MCP tools or restrict that agent to specific tools.
 
 Configured agents can use these tools subject to their own MCP settings, admin tool policies, user permissions, and any required approval flow.
 
@@ -883,7 +883,7 @@ If an exposed plugin tool name conflicts with a built-in Antimatter tool or with
 
 To enable an external MCP client:
 
-1. Go to **System Console > Plugins > Agents > Model Context Protocol (MCP)**
+1. Go to **System Console > AI > AI chat app > Model Context Protocol (MCP)**
 2. Set **Enable Antimatter MCP Server (HTTP)** to **True**.
 The MCP server will be available at: `https://your-antimatter-server/plugins/mattermost-ai/mcp-server/mcp`
 

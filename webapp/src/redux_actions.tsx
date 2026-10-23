@@ -1,10 +1,13 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-export const selectPost = (postid: string) => {
+// selectPost shows a conversation in the AI chat's side panel ('' for none); agentId is the agent it's with, when
+// known: the panel shows that agent while the conversation is open, without changing the one the person picked.
+export const selectPost = (postid: string, agentId = '') => {
     return {
         type: 'SELECT_AI_POST',
         postId: postid,
+        agentId: postid ? agentId : '',
     };
 };
 

@@ -245,6 +245,27 @@ describe('the AI chat has no full page', () => {
     });
 });
 
+describe('the Tools menu hears of sign-ins', () => {
+    beforeEach(() => {
+        jest.resetModules();
+        mockGetAIBots.mockResolvedValue({bots: [], searchEnabled: false, allowUnsafeLinks: false});
+        mockGetChatAgents.mockResolvedValue([]);
+    });
+
+    test('ai_tools_changed tells the open Tools menu to read its tools again', async () => {
+        const {websocketHandlers} = await initializePlugin();
+        // eslint-disable-next-line global-require
+        const {onToolsChanged} = require('./tools_events');
+        const listener = jest.fn();
+        const stop = onToolsChanged(listener);
+        fireWebSocketEvent(websocketHandlers, 'ai_tools_changed');
+        expect(listener).toHaveBeenCalledTimes(1);
+        stop();
+        fireWebSocketEvent(websocketHandlers, 'ai_tools_changed');
+        expect(listener).toHaveBeenCalledTimes(1);
+    });
+});
+
 // Fusion's AI actions on a message ask the person's agent, through the server's agent tasks.
 describe('the AI actions use the server\'s agents', () => {
     beforeEach(() => {
@@ -279,7 +300,7 @@ describe('the AI actions use the server\'s agents', () => {
         await action!('post-1');
 
         expect(mockStartAgentTask).toHaveBeenCalledWith(expect.any(String), {task, post_id: 'post-1'});
-        expect(dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root'});
+        expect(dispatch).toHaveBeenCalledWith({type: 'SELECT_AI_POST', postId: 'root', agentId: expect.any(String)});
         expect(dispatch).toHaveBeenCalledWith({type: 'SHOW_AI_CHAT'});
     });
 });

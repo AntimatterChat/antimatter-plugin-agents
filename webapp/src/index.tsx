@@ -47,6 +47,7 @@ import {shouldSuppressBotNotification} from './notifications';
 import {chatAgentsFromState, fetchChatAgents, runAgentTask, useChatAgents} from './agent_chat_state';
 import {AgentTaskName} from './agent_chat_client';
 import {AGENT_POST_STREAM_EVENT, makeAgentPostStreamHandler} from './agent_stream';
+import {AI_TOOLS_CHANGED_EVENT, notifyToolsChanged} from './tools_events';
 
 type WebappStore = Store<GlobalState, UnknownAction>
 
@@ -131,6 +132,10 @@ export default class Plugin {
                 notifyMCPConnectionUpdated(msg.data);
             },
         );
+
+        // The tools the person may use changed (a sign-in to an MCP server, from its own window): the Tools menu
+        // reads them again.
+        registry.registerWebSocketEventHandler(AI_TOOLS_CHANGED_EVENT, () => notifyToolsChanged());
 
         // An agent's answer as it streams: Fusion shows it itself; the classic web app through the AI chat.
         if (!isFusionUI()) {
@@ -258,8 +263,8 @@ export default class Plugin {
             registry.registerRootComponent(CustomPromptsManagement);
         }
 
-        // No page of its own: the AI chat registers no product and no route (its old agents page is the server's
-        // Integrations › Agents now).
+        // No page of its own: the AI chat registers no product and no route (agents are made in the server's AI
+        // settings now: the System Console's, and each community's).
 
         if (registry.registerSearchComponents) {
             registry.registerSearchComponents({

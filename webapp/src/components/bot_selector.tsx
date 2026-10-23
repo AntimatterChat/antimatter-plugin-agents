@@ -12,7 +12,8 @@ import {LLMBot} from '@/bots';
 
 import {getProfilePictureUrl} from '@/client';
 
-// Agents are managed in the server's Integrations › Agents (the community's), which this path opens.
+// Agents are the server's: this path opens where they're made (the System Console's AI settings for a system admin, the
+// community's settings for its admins).
 const AGENTS_ROUTE = '/_redirect/integrations/agents';
 import DotMenu, {DropdownMenu, DropdownMenuItem} from './dot_menu';
 import {GrayPill} from './pill';
