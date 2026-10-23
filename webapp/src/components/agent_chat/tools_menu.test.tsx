@@ -37,7 +37,13 @@ jest.mock('@/client', () => ({
 
 const sources = [
     {
-        key: 'builtin', source: 'builtin', source_id: '', name: 'Antimatter', on: true, connected: true, unavailable: false,
+        key: 'builtin',
+        source: 'builtin',
+        source_id: '',
+        name: 'Antimatter',
+        on: true,
+        connected: true,
+        unavailable: false,
         tools: [
             {name: 'antimatter.search_messages', title: 'Search messages', description: '', kind: 'read', on: true, auto_run: true},
             {name: 'antimatter.post_message', title: 'Post a message', description: '', kind: 'write', on: true, auto_run: false},
@@ -45,7 +51,14 @@ const sources = [
     },
     {key: 'mcp:jira', source: 'mcp', source_id: 'jira', name: 'Jira', on: true, auth: 'oauth', connected: false, unavailable: false, tools: []},
     {
-        key: 'mcp:github', source: 'mcp', source_id: 'github', name: 'GitHub', on: true, auth: 'oauth', connected: true, unavailable: false,
+        key: 'mcp:github',
+        source: 'mcp',
+        source_id: 'github',
+        name: 'GitHub',
+        on: true,
+        auth: 'oauth',
+        connected: true,
+        unavailable: false,
         tools: [{name: 'mcp.github.search', title: 'Search code', description: '', kind: 'read', on: true, auto_run: false}],
     },
 ];
@@ -86,7 +99,7 @@ async function openMenu() {
     await act(async () => {
         fireEvent.click(screen.getByTestId('ai-chat-tools-button'));
     });
-    await waitFor(() => expect(screen.getByText('Antimatter')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Antimatter')).toBeTruthy());
 }
 
 describe('the AI chat\'s Tools menu', () => {
@@ -99,13 +112,13 @@ describe('the AI chat\'s Tools menu', () => {
 
     test('lists the agent\'s tools for the person, where they are', async () => {
         renderMenu();
-        expect(screen.queryByTestId('ai-chat-tools-menu')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('ai-chat-tools-menu')).toBeNull();
         await openMenu();
         expect(mockGetAgentTools).toHaveBeenCalledWith('researcher', 'town');
-        expect(screen.getByText('Search messages')).toBeInTheDocument();
-        expect(screen.getByText('Post a message')).toBeInTheDocument();
+        expect(screen.getByText('Search messages')).toBeTruthy();
+        expect(screen.getByText('Post a message')).toBeTruthy();
         expect(screen.getAllByText('Asks you first')).toHaveLength(2);
-        expect(screen.getByText('Tools Researcher may use for you')).toBeInTheDocument();
+        expect(screen.getByText('Tools Researcher may use for you')).toBeTruthy();
     });
 
     test('turning a tool or a source off saves the person\'s choice, for every agent', async () => {
@@ -115,20 +128,20 @@ describe('the AI chat\'s Tools menu', () => {
             fireEvent.click(screen.getByRole('switch', {name: 'Use Post a message'}));
         });
         expect(savePreferences).toHaveBeenLastCalledWith('maya', [{user_id: 'maya', category: 'ai_tools', name: 'choices', value: JSON.stringify({off_sources: [], off_tools: ['antimatter.post_message']})}]);
-        expect(screen.getByRole('switch', {name: 'Use Post a message'})).toHaveAttribute('aria-checked', 'false');
+        expect(screen.getByRole('switch', {name: 'Use Post a message'}).getAttribute('aria-checked')).toBe('false');
 
         await act(async () => {
             fireEvent.click(screen.getByRole('switch', {name: 'Use Antimatter'}));
         });
         expect(JSON.parse(store.getState().entities.preferences.myPreferences['ai_tools--choices'].value).off_sources).toEqual(['builtin']);
-        expect(screen.queryByText('Search messages')).not.toBeInTheDocument();
+        expect(screen.queryByText('Search messages')).toBeNull();
     });
 
     test('a service the person hasn\'t signed in to offers the sign-in, in its own window', async () => {
         const open = jest.spyOn(window, 'open').mockImplementation(() => null);
         renderMenu();
         await openMenu();
-        expect(screen.getByText('Sign in to use it with your account')).toBeInTheDocument();
+        expect(screen.getByText('Sign in to use it with your account')).toBeTruthy();
         await act(async () => {
             fireEvent.click(screen.getByRole('button', {name: 'Sign in'}));
         });
@@ -162,7 +175,7 @@ describe('the AI chat\'s Tools menu', () => {
         await act(async () => {
             fireEvent.click(screen.getByTestId('ai-chat-tools-button'));
         });
-        await waitFor(() => expect(screen.getByText('This agent has no tools.')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText('This agent has no tools.')).toBeTruthy());
     });
 
     test('choices that can\'t be read count as none', () => {

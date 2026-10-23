@@ -98,7 +98,7 @@ export default function ToolsMenu({agentId, agentName}: Props) {
     // While open, a click elsewhere or Escape closes the menu.
     useEffect(() => {
         if (!open) {
-            return undefined;
+            return () => { /* nothing to stop */ };
         }
         const onDown = (e: MouseEvent) => {
             if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
