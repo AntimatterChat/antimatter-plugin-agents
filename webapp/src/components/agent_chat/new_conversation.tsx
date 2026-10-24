@@ -37,6 +37,14 @@ export default function NewConversation({agents, agent, fusion, onOpen, onSeeAll
     const channel = useSelector((state: any) => state.entities.channels.channels[channelId]);
     const lastViewedAt = useSelector((state: any) => state.entities.channels.myMembers?.[channelId]?.last_viewed_at || 0);
     const teamName = useSelector((state: any) => state.entities.teams.teams?.[state.entities.teams.currentTeamId]?.name || '');
+
+    // Opening the channel moves last_viewed_at to now, so keep the value from when the channel was
+    // opened: otherwise "Summarise what's new" would summarise nothing.
+    const [unreadsSince, setUnreadsSince] = useState(lastViewedAt);
+    useEffect(() => {
+        setUnreadsSince(lastViewedAt);
+    }, [channelId]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const [dmId, setDmId] = useState('');
     const [failed, setFailed] = useState(false);
     const [busy, setBusy] = useState(false);
@@ -131,11 +139,11 @@ export default function NewConversation({agents, agent, fusion, onOpen, onSeeAll
                             />
                         </SectionHeading>
                         <Chips>
-                            {lastViewedAt > 0 && (
+                            {unreadsSince > 0 && (
                                 <Chip
                                     type='button'
                                     disabled={busy}
-                                    onClick={() => task({task: 'summarize_channel', channel_id: channelId, since: lastViewedAt})}
+                                    onClick={() => task({task: 'summarize_channel', channel_id: channelId, since: unreadsSince})}
                                 >
                                     <FormattedMessage
                                         defaultMessage='Summarise what’s new'
