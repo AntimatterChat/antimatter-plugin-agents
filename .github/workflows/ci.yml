@@ -2,13 +2,15 @@ name: ci
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
   pull_request:
 
+# Only the deploy job (below) writes: it pushes a tag and creates/updates a
+# release. Every other job only needs to read the checkout.
 permissions:
-  contents: write
+  contents: read
 
 # Set the CI_RUNNER repository or organization variable to a larger runner label
 # for the heavier e2e path jobs. Other CI jobs intentionally stay on the
@@ -247,7 +249,12 @@ jobs:
         with:
           golangci-lint-version: "v1.54.2"
       - uses: mattermost/actions/plugin-ci/build@main
-      - uses: mattermost/actions/plugin-ci/build-fips@c7a06bc642f72fc227deb2cae3af03cff72c0f0d
+      # The FIPS build pulls Microsoft's Go toolchain from Mattermost's own
+      # Chainguard registry (build/fips.mk: cgr.dev/mattermost.com/...),
+      # authenticated with Mattermost's CHAINGUARD_IDENTITY: this repo has no
+      # access to that tenant, so skip it outside Mattermost's own org.
+      - if: github.repository_owner == 'mattermost'
+        uses: mattermost/actions/plugin-ci/build-fips@c7a06bc642f72fc227deb2cae3af03cff72c0f0d
         with:
           chainguard-identity: ${{ secrets.CHAINGUARD_IDENTITY }}
       - name: build/upload-all
@@ -258,7 +265,9 @@ jobs:
             dist/*.tar.gz
             dist/release-notes.md
             dist-fips/*.tar.gz
-          if-no-files-found: error
+          # dist-fips/* only exists in Mattermost's own org (see above);
+          # don't fail this upload just because that glob matched nothing.
+          if-no-files-found: warn
           retention-days: 7
 
   # The nested loadtest/controller module is invisible to the root-module lint/build
@@ -304,8 +313,12 @@ jobs:
 
   deploy:
     needs: [lint, build, plugin-tests, e2e]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # The only job here that writes: it pushes the latest-master tag and
+    # creates/updates the matching release.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
         with:
