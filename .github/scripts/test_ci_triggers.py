@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Regression test for the workflows fixed in the 2026-11-04 CI audit.
+"""Regression test for the workflows fixed in the 2026-11-04 and 2026-11-05 CI audits.
 
-Before this fix, ci.yml, editor-contract-drift.yml and pr-test-analysis.yml
-all triggered on push to 'master', while this repo's branch is 'main' (and
+2026-11-04: ci.yml, editor-contract-drift.yml and pr-test-analysis.yml all
+triggered on push to 'master', while this repo's branch is 'main' (and
 everything is pushed straight to main, with no PRs) -- so none of the three
 had ever run. ci.yml also set top-level permissions to contents: write for
 every job, including pull_request jobs that don't need it.
+
+2026-11-05: editor-contract-drift.yml's live-host checkout pulled upstream
+mattermost/mattermost into a path nothing read; e2e's default server image
+lacks the Antimatter-only agent runtime the plugin now relies on, so the
+job is owner-guarded pending a decision on which image to use instead.
 
 Run with: python3 .github/scripts/test_ci_triggers.py
 """
@@ -58,6 +63,23 @@ def check_build_fips_guarded():
         "the FIPS build pulls from Mattermost's own Chainguard registry "
         "and needs Mattermost's CHAINGUARD_IDENTITY; it must stay "
         "owner-guarded so it doesn't run (and fail) in this fork"
+    )
+
+
+def check_e2e_owner_guarded():
+    # Owner-guarded 2026-11-05 (run 41975570162): the e2e harness's default
+    # AM_IMAGE is pure upstream Mattermost, which has no agent runtime, so
+    # every shard times out waiting for a bot reply since commit 02bc586
+    # moved answering server-side (an Antimatter-only behaviour change, not
+    # test drift or a flake -- see the job's own comment). This check just
+    # makes sure a future edit doesn't silently drop the guard without
+    # addressing the owner question it's attached to.
+    doc = load("ci.yml")
+    e2e = doc["jobs"]["e2e"]
+    assert e2e.get("if") is False, (
+        "the e2e job is owner-guarded off pending a decision on AM_IMAGE "
+        "(see the comment above it in ci.yml); if that's been resolved, "
+        "remove this check along with the guard"
     )
 
 
@@ -116,6 +138,7 @@ CHECKS = [
     check_editor_contract_drift_triggers_on_main,
     check_pr_test_analysis_triggers_on_main,
     check_editor_contract_drift_checks_out_antimatter,
+    check_e2e_owner_guarded,
 ]
 
 
