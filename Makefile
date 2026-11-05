@@ -290,6 +290,10 @@ install-go-tools:
 
 ## Runs eslint and golangci-lint
 .PHONY: check-style
+# Go files Antimatter wrote carry Antimatter's own licence header, which upstream's
+# mattermost-govet -license check doesn't know: exclude them from that check only.
+ANTIMATTER_LICENSED_GO = $(shell grep -rlE --include='*.go' --exclude-dir=node_modules '^// Copyright \(c\) [0-9]+-present Antimatter' . | sed 's|^\./||' | paste -sd, -)
+
 check-style: manifest-check apply webapp/node_modules install-go-tools
 	@echo Checking for style guide compliance
 
@@ -310,7 +314,7 @@ ifneq ($(HAS_SERVER),)
 	$(GO) vet ./...
 	$(GOBIN)/golangci-lint run ./...
 	# npm dependencies can contain Go packages; do not lint third-party sources.
-	$(GO) vet -vettool=$(GOBIN)/mattermost-govet -license -license.year=2023 $$($(GO) list ./... | awk '!/\/node_modules\//')
+	$(GO) vet -vettool=$(GOBIN)/mattermost-govet -license -license.year=2023 -license.ignore=$(ANTIMATTER_LICENSED_GO) $$($(GO) list ./... | awk '!/\/node_modules\//')
 	$(MAKE) loadtest-controller-lint
 endif
 
