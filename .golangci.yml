@@ -24,6 +24,11 @@ linters:
       enable-all: true
     misspell:
       locale: US
+      # British spelling (the product's rule): the US locale would turn these into "summarize" etc.
+      ignore-rules:
+        - summarise
+        - summarised
+        - summarising
   exclusions:
     generated: lax
     presets:
