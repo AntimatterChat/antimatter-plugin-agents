@@ -75,6 +75,39 @@ def check_pr_test_analysis_triggers_on_main():
     assert "master" not in pr["branches"]
 
 
+def check_editor_contract_drift_checks_out_antimatter():
+    # Found in the 2026-11-05 CI audit: this step checked out
+    # mattermost/mattermost@master into path 'antimatter', while every later
+    # step cd's into 'mattermost/webapp' -- the wrong repo (upstream, not our
+    # fork) at a path nothing read.
+    doc = load("editor-contract-drift.yml")
+    steps = doc["jobs"]["live-host-probe"]["steps"]
+    host_checkout = next(s for s in steps if s.get("with", {}).get("repository"))
+    checkout_path = host_checkout["with"]["path"]
+    assert host_checkout["with"]["repository"] == "AntimatterChat/antimatter", (
+        "the live-host checkout must be our fork, not upstream "
+        "mattermost/mattermost -- the drift check is against antimatter's "
+        "own editor contract"
+    )
+    assert host_checkout["with"]["ref"] == "main", (
+        "AntimatterChat/antimatter's default branch is 'main', not 'master'"
+    )
+    host_webapp_runs = [
+        s["run"] for s in steps
+        if "run" in s and "AM_WEBAPP_PATH" not in s.get("env", {})
+        and f"{checkout_path}/webapp" in s["run"]
+    ]
+    assert host_webapp_runs, (
+        f"expected a later step to cd into '{checkout_path}/webapp' (the "
+        "checkout's own webapp dir), matching the checkout path"
+    )
+    probe_step = next(s for s in steps if "AM_WEBAPP_PATH" in s.get("env", {}))
+    assert probe_step["env"]["AM_WEBAPP_PATH"].endswith(f"{checkout_path}/webapp"), (
+        "AM_WEBAPP_PATH must point at the checked-out host webapp, matching "
+        "the checkout path"
+    )
+
+
 CHECKS = [
     check_ci_triggers_on_main,
     check_ci_top_level_permissions,
@@ -82,6 +115,7 @@ CHECKS = [
     check_build_fips_guarded,
     check_editor_contract_drift_triggers_on_main,
     check_pr_test_analysis_triggers_on_main,
+    check_editor_contract_drift_checks_out_antimatter,
 ]
 
 

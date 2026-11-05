@@ -1,4 +1,4 @@
-# Editor contract drift check against the live mattermost/mattermost master.
+# Editor contract drift check against the live AntimatterChat/antimatter main.
 #
 # The plugin mirrors the host's window.Components access-control editor prop
 # types (webapp/src/types/access_control_editors.ts). ci.yml checks those
@@ -28,13 +28,13 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - name: Check out mattermost/mattermost master (webapp only)
+      - name: Check out AntimatterChat/antimatter main (webapp only)
         uses: actions/checkout@v5
         with:
           persist-credentials: false
-          repository: mattermost/mattermost
-          ref: master
-          path: antimatter
+          repository: AntimatterChat/antimatter
+          ref: main
+          path: mattermost
           fetch-depth: 1
           sparse-checkout: webapp
       - uses: actions/setup-node@v6
