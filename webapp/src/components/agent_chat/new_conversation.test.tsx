@@ -22,7 +22,8 @@ jest.mock('react-intl', () => {
     };
 });
 
-const mockRunAgentTask = jest.fn(() => Promise.resolve(''));
+// Typed with a rest parameter so the tests can read the call arguments without an unused stub parameter.
+const mockRunAgentTask = jest.fn<Promise<string>, unknown[]>(() => Promise.resolve(''));
 jest.mock('@/agent_chat_state', () => ({
     runAgentTask: (...args: unknown[]) => mockRunAgentTask(...args),
 }));
