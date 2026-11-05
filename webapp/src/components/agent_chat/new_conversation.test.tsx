@@ -22,7 +22,7 @@ jest.mock('react-intl', () => {
     };
 });
 
-const mockRunAgentTask = jest.fn((..._args: unknown[]) => Promise.resolve(''));
+const mockRunAgentTask = jest.fn(() => Promise.resolve(''));
 jest.mock('@/agent_chat_state', () => ({
     runAgentTask: (...args: unknown[]) => mockRunAgentTask(...args),
 }));
